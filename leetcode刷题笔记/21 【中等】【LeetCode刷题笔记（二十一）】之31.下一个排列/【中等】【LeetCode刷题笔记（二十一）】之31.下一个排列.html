@@ -1,0 +1,93 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【中等】【LeetCode刷题笔记（二十一）】之31.下一个排列</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	题目</h2>
+<h3><a id="%09_8"></a>（一）	题干</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;实现获取下一个排列的函数，算法需要将给定数字序列重新排列成字典序中下一个更大的排列。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如果不存在下一个更大的排列，则将数字重新排列成最小的排列（即升序排列）。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;必须原地修改，只允许使用额外常数空间。<br>
+<br></p>
+<h3><a id="_19"></a>（二）示例</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;以下是一些例子，输入位于左侧列，其相应输出位于右侧列。</p>
+<pre><code class="prism language-cpp"><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">3</span> → <span class="token number">1</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">2</span>
+<span class="token number">3</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">1</span> → <span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">3</span>
+<span class="token number">1</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">5</span> → <span class="token number">1</span><span class="token punctuation">,</span><span class="token number">5</span><span class="token punctuation">,</span><span class="token number">1</span>
+</code></pre>
+<br>
+<h2><a id="%09_31"></a>二．	题解</h2>
+<h3><a id="%09_32"></a>（一）	思路</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;题目要求下一个更大的排列，这个更大的排列所组成的数是比现在的排列更大的数，且两个数应该是紧挨着的。如果不存在更大的排列，将返回最小的排列，即升序序列。什么时候没有更大的排列呢？当然是降序排列的时候，最大的数都在前面，后面没有更大的数了，因此没有更大的排列了。<br>
+<br></p>
+<p>先来举几个例子看看：</p>
+<h4><a id="1_39"></a>1.</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;现有4个数字的排列如下：1， 3， 4， 5。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如何求那个紧挨着的更大的排列呢？可以看到，现在4个数字组成的数为1345，要想求紧挨着的更大的数，就要从后面开始找，因为小位数的变动使得新的排列离原有的数更近。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;从后向前找，最后一个数是5，前面的数是4，要想得到更大的下一个排列，将4和5调换即可，得到新的排列1354。<br>
+<br></p>
+<h4><a id="2_49"></a>2.</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;5个数的排列如下：1， 3， 4， 5， 1。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;同理，从后往前找，第一个数是1，前面的数是5，此时1和5不能调换，因为调换后的数比现在小；那么继续往前找，5的前面是4，4可以和5调换吗？当然可以，调换以后，尾部的3个数就是541，比现在的451要大，但是问题是541不是最贴近451的数，最贴近的数是514，因此需要将调换后的后两位进行升序排列，排列后为514.<br>
+<br></p>
+<h4><a id="3_57"></a>3.</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;6个数的排列为：1， 3， 4， 6， 5， 1。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;同理，从后往前找，6， 5， 1都是降序排列，无法找到更大的排列，直到6前面是4，就可以进行调换了，那么，4要和后面的哪个数调换呢？当然是要和离4更近的数且大于4的5了，调换了4和5以后，将尾部的6， 4， 1三个数进行升序排列，最后4个数为5，1, 4，6。</p>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;由此，可以得出套路，从排列的尾部开始查找，如果从尾部开始向前一直是升序，那么不断向前，当某个数a不再大于或等于后面一个数b时，停止，将这个数a和后面的数中最接近a的且大于a的数字c进行调换，然后将c后面的所有数进行升序排列，可以观察到：c后面的数现在依然是降序的，那么要将降序的排列转为升序的，通过对称地交换数据即可实现。</p>
+<br>
+<h3><a id="%09_71"></a>（二）	代码实现</h3>
+<p><strong>注意：要考虑原有序列为降序的情况，返回升序序列。</strong></p>
+<p>Java：</p>
+<pre><code class="prism language-java"><span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">nextPermutation</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> nums<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">int</span> i <span class="token operator">=</span> nums<span class="token punctuation">.</span>length<span class="token operator">-</span> <span class="token number">2</span><span class="token punctuation">;</span>
+        <span class="token keyword">while</span><span class="token punctuation">(</span>i <span class="token operator">&gt;=</span> <span class="token number">0</span> <span class="token operator">&amp;&amp;</span> nums<span class="token punctuation">[</span>i<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">&lt;=</span> nums<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            i<span class="token operator">--</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">int</span> j <span class="token operator">=</span> nums<span class="token punctuation">.</span>length <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">;</span>
+        <span class="token comment">//i有可能为-1，因此需要判断</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>i <span class="token operator">&gt;=</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">while</span><span class="token punctuation">(</span>j <span class="token operator">&gt;=</span> <span class="token number">0</span> <span class="token operator">&amp;&amp;</span> nums<span class="token punctuation">[</span>j<span class="token punctuation">]</span> <span class="token operator">&lt;=</span> nums<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                j<span class="token operator">--</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token comment">//交换两个数</span>
+            <span class="token function">swap</span><span class="token punctuation">(</span>nums<span class="token punctuation">,</span> i<span class="token punctuation">,</span> j<span class="token punctuation">)</span><span class="token punctuation">;</span>          
+        <span class="token punctuation">}</span>
+        <span class="token comment">//当i为-1时，说明原有的序列为降序，因此掉转接口</span>
+        <span class="token comment">//当i不为-1时，也需要调换</span>
+        <span class="token function">reverse</span><span class="token punctuation">(</span>nums<span class="token punctuation">,</span> i<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">reverse</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> nums<span class="token punctuation">,</span> <span class="token keyword">int</span> start<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">int</span> i <span class="token operator">=</span> start<span class="token punctuation">;</span>
+        <span class="token keyword">int</span> j <span class="token operator">=</span> nums<span class="token punctuation">.</span>length <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">;</span>
+        <span class="token keyword">while</span><span class="token punctuation">(</span>i <span class="token operator">&lt;</span> j<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token function">swap</span><span class="token punctuation">(</span>nums<span class="token punctuation">,</span> i<span class="token punctuation">,</span> j<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            i<span class="token operator">++</span><span class="token punctuation">;</span>
+            j<span class="token operator">--</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">swap</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> nums<span class="token punctuation">,</span> <span class="token keyword">int</span> i<span class="token punctuation">,</span> <span class="token keyword">int</span> j<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">int</span> temp <span class="token operator">=</span> nums<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">;</span>
+        nums<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">=</span> nums<span class="token punctuation">[</span>j<span class="token punctuation">]</span><span class="token punctuation">;</span>
+        nums<span class="token punctuation">[</span>j<span class="token punctuation">]</span> <span class="token operator">=</span> temp<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

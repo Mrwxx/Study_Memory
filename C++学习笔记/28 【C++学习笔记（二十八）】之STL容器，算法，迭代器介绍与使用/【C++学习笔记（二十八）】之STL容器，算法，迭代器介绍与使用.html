@@ -1,0 +1,126 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【C++学习笔记（二十八）】之STL容器，算法，迭代器介绍与使用</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="_7"></a>一．容器的分类</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;STL容器将运用的最广泛的数据结构实现出来。常用的数据结构：数组(array),链表(list)，tree(树)，栈(stack),队列(queue),集合(set),映射表(map)。</p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;根据数据在容器中的排列特性，这些数据分为序列式容器和关联式容器两种。</strong></p>
+<h3><a id="%09_12"></a>（一）	序列式容器</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>序列式容器强调值的排序，序列式容器中的每个元素均有固定的位置</strong>，除非用删除或插入的操作改变这个位置。Vector容器、Deque容器、List容器等。</p>
+<h3><a id="%09_15"></a>（二）	关联式容器</h3>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;关联式容器是非线性的二叉树结构。各元素之间没有严格的物理上的顺序关系，容器中的元素顺序并不是元素置入容器时的顺序</strong>。而是用一个键值key，作为值的索引，以查找存入的值。如Set/multiset容器 Map/multimap容器<br>
+<br></p>
+<h2><a id="_19"></a>二．算法</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;用有限的步骤解决逻辑上的问题，称为算法。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;STL中收录的算法都是常用的算法，如查找，排序，计数，替换，删除等等。</p>
+<br>
+<h2><a id="_26"></a>三，迭代器</h2>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;迭代器是一种抽象的设计概念，并不是一个实物。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Iterator模式的定义：提供一种方法，能够依序访问某个容器中的各个元素，并且不会暴露该容器的内部表示形式。</p>
+<p><strong>迭代器的种类：</strong></p>
+<p><strong>1. 输入迭代器</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;提供对数据的只读访问	只读，支持++、==、！=</p>
+<p><strong>2. 输出迭代器</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;提供对数据的只写访问	只写，支持++</p>
+<p><strong>3. 前向迭代器</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;提供读写操作，并能向前推进迭代器	读写，支持++、==、！=</p>
+<p><strong>4. 双向迭代器</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;提供读写操作，并能向前和向后操作	读写，支持++、–</p>
+<p><strong>5. 随机访问迭代器</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;提供读写操作，并能以跳跃的方式访问容器的任意数据，是功能最强的迭代器	读写，支持++、–, [n]、-n、&lt;、&lt;=、&gt;、&gt;=</p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;我们一般用的是可以读写的双向迭代器和随机访问迭代器。双向迭代器可以向前++，向后–。随机访问迭代器更加自由，功能最强。</strong><br>
+<br></p>
+<h2><a id="STL_56"></a>四．STL三大件的初步使用</h2>
+<pre><code class="prism language-cpp"><span class="token macro property">#<span class="token directive keyword">define</span> _CRT_SECURE_NO_WARNINGS</span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;vector&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;string&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;algorithm&gt;</span></span>
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+<span class="token keyword">void</span> <span class="token function">myPrint</span><span class="token punctuation">(</span><span class="token keyword">int</span> v<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	cout <span class="token operator">&lt;&lt;</span> v <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">void</span> <span class="token function">test01</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	vector<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token operator">&gt;</span> v<span class="token punctuation">;</span>		<span class="token comment">//声明容器，存放int类型数据。类模板的写法</span>
+
+	v<span class="token punctuation">.</span><span class="token function">push_back</span><span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">;</span>	<span class="token comment">//插入数据</span>
+	v<span class="token punctuation">.</span><span class="token function">push_back</span><span class="token punctuation">(</span><span class="token number">20</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token comment">//遍历容器,用迭代器</span>
+	<span class="token comment">//vector&lt;int&gt;::iterator itBegin = v.begin();		//指向vector容器的起始位置</span>
+	<span class="token comment">//vector&lt;int&gt;::iterator itEnd = v.end();			//指向vector容器的最后数据的后一个位置</span>
+
+	<span class="token comment">//while (itBegin != itEnd)</span>
+	<span class="token comment">//{</span>
+	<span class="token comment">//	cout &lt;&lt; *itBegin &lt;&lt; endl;</span>
+	<span class="token comment">//	itBegin++;</span>
+	<span class="token comment">//}</span>
+
+	<span class="token comment">//同样使用迭代器遍历</span>
+	<span class="token comment">//for (vector&lt;int&gt;::iterator it = v.begin(); it != v.end(); ++it)</span>
+	<span class="token comment">//{</span>
+	<span class="token comment">//	cout &lt;&lt; *it &lt;&lt; endl;</span>
+	<span class="token comment">//}</span>
+
+	<span class="token comment">//用算法遍历,自定义函数</span>
+	<span class="token function">for_each</span><span class="token punctuation">(</span>v<span class="token punctuation">.</span><span class="token function">begin</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> v<span class="token punctuation">.</span><span class="token function">end</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> myPrint<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">//操作自定义数据类型</span>
+<span class="token keyword">class</span> <span class="token class-name">Person</span>
+<span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token function">Person</span><span class="token punctuation">(</span>string name<span class="token punctuation">,</span> <span class="token keyword">int</span> age<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_Name <span class="token operator">=</span> name<span class="token punctuation">;</span>
+		<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_Age <span class="token operator">=</span> age<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+	string m_Name<span class="token punctuation">;</span>
+	<span class="token keyword">int</span> m_Age<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">void</span> <span class="token function">test02</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	vector<span class="token operator">&lt;</span>Person<span class="token operator">&gt;</span> v<span class="token punctuation">;</span>
+
+	Person <span class="token function">p1</span><span class="token punctuation">(</span><span class="token string">"wxx"</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	Person <span class="token function">p2</span><span class="token punctuation">(</span><span class="token string">"mrwxx"</span><span class="token punctuation">,</span> <span class="token number">20</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	v<span class="token punctuation">.</span><span class="token function">push_back</span><span class="token punctuation">(</span>p1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	v<span class="token punctuation">.</span><span class="token function">push_back</span><span class="token punctuation">(</span>p2<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token comment">//遍历</span>
+	<span class="token keyword">for</span> <span class="token punctuation">(</span>vector<span class="token operator">&lt;</span>Person<span class="token operator">&gt;</span><span class="token operator">::</span>iterator it <span class="token operator">=</span> v<span class="token punctuation">.</span><span class="token function">begin</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> it <span class="token operator">!=</span> v<span class="token punctuation">.</span><span class="token function">end</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token operator">++</span>it<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token string">"姓名："</span> <span class="token operator">&lt;&lt;</span> <span class="token punctuation">(</span><span class="token operator">*</span>it<span class="token punctuation">)</span><span class="token punctuation">.</span>m_Name<span class="token operator">&lt;&lt;</span> <span class="token string">"年龄："</span> <span class="token operator">&lt;&lt;</span> <span class="token punctuation">(</span><span class="token operator">*</span>it<span class="token punctuation">)</span><span class="token punctuation">.</span>m_Age <span class="token operator">&lt;&lt;</span>  endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	<span class="token comment">//test01();</span>
+	<span class="token function">test02</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

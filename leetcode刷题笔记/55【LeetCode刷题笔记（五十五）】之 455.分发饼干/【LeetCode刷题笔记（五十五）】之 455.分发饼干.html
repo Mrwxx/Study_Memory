@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【LeetCode刷题笔记（五十五）】之 455.分发饼干</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	题目</h2>
+<h3><a id="%09_8"></a>（一）	题干</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;假设你是一位很棒的家长，想要给你的孩子们一些小饼干。但是，每个孩子最多只能给一块饼干。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;对每个孩子 i，都有一个胃口值 g[i]，这是能让孩子们满足胃口的饼干的最小尺寸；并且每块饼干 j，都有一个尺寸 s[j] 。如果 s[j] &gt;= g[i]，我们可以将这个饼干 j 分配给孩子 i ，这个孩子会得到满足。你的目标是尽可能满足越多数量的孩子，并输出这个最大数值。<br>
+<br></p>
+<h3><a id="%09_16"></a>（二）	示例</h3>
+<p>示例 1:</p>
+<pre><code class="prism language-cpp">输入<span class="token operator">:</span> g <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">,</span> s <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span>
+输出<span class="token operator">:</span> <span class="token number">1</span>
+解释<span class="token operator">:</span> 
+你有三个孩子和两块小饼干，<span class="token number">3</span>个孩子的胃口值分别是：<span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">3</span>。
+虽然你有两块小饼干，由于他们的尺寸都是<span class="token number">1</span>，你只能让胃口值是<span class="token number">1</span>的孩子满足。
+所以你应该输出<span class="token number">1</span>。
+</code></pre>
+<p>示例 2:</p>
+<pre><code class="prism language-cpp">输入<span class="token operator">:</span> g <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">,</span> s <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">]</span>
+输出<span class="token operator">:</span> <span class="token number">2</span>
+解释<span class="token operator">:</span> 
+你有两个孩子和三块小饼干，<span class="token number">2</span>个孩子的胃口值分别是<span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span>。
+你拥有的饼干数量和尺寸都足以让所有孩子满足。
+所以你应该输出<span class="token number">2.</span>
+</code></pre>
+<p>提示：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;1 &lt;= g.length &lt;= 3 * 104<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;0 &lt;= s.length &lt;= 3 * 104<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;1 &lt;= g[i], s[j] &lt;= 231 - 1</p>
+<br>
+<h2><a id="%09_52"></a>二．	题解</h2>
+<h3><a id="%09_53"></a>（一）	思路</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;从题目中可以看出，我们需要将饼干分给合适的人，什么叫做合适的人呢？就是在能够发给这个人的所有饼干的尺寸中选取一个最小的尺寸发给他，这样，就能将更大的尺寸的饼干留给更需要的人，也就能够保证有更多的人获得饼干。那么，我们需要将饼干的尺寸数组进行排序，同样地也需要将孩子们的胃口数组进行排序。按照从小到大的顺序， 为从小到大的胃口匹配最合适的饼干尺寸，为两个数组分别设置一个指针，如果该饼干能够匹配该胃口，则两个指针都后移；如果该饼干不能匹配该胃口，说明需要更大尺寸的饼干，则饼干指针后移，胃口指针不动；如此迭代，直到到达饼干数组的末尾，这说明所有的饼干都比较完了，这样胃口指针所指的位置就是最后一个能够满足的孩子。<br>
+<br></p>
+<h3><a id="%09_59"></a>（二）	代码实现</h3>
+<p>Java：</p>
+<pre><code class="prism language-java"><span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">int</span> <span class="token function">findContentChildren</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> g<span class="token punctuation">,</span> <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> s<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        Arrays<span class="token punctuation">.</span><span class="token function">sort</span><span class="token punctuation">(</span>g<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        Arrays<span class="token punctuation">.</span><span class="token function">sort</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">,</span> j <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+        <span class="token keyword">int</span> sum <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+        <span class="token keyword">while</span><span class="token punctuation">(</span>i <span class="token operator">&lt;</span> s<span class="token punctuation">.</span>length <span class="token operator">&amp;&amp;</span> j <span class="token operator">&lt;</span> g<span class="token punctuation">.</span>length<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span>s<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">&gt;=</span> g<span class="token punctuation">[</span>j<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                i<span class="token operator">++</span><span class="token punctuation">;</span>
+                j<span class="token operator">++</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span><span class="token keyword">else</span><span class="token punctuation">{</span>
+                i<span class="token operator">++</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> j<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

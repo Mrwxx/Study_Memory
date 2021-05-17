@@ -1,0 +1,157 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【C++学习笔记（四十一）】之STL中的查找算法</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_1"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="__find_10"></a>一 . find算法</h2>
+<h3><a id="_11"></a>（一）查找基本数据类型元素</h3>
+<br>
+<pre><code class="prism language-cpp">@param beg 容器开始迭代器
+@param end 容器结束迭代器
+@param value 查找的元素
+@<span class="token keyword">return</span> 返回查找元素的位置
+</code></pre>
+<br>
+<pre><code class="prism language-cpp"><span class="token keyword">void</span> <span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	vector<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token operator">&gt;</span> v<span class="token punctuation">;</span>
+	<span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token number">10</span><span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		v<span class="token punctuation">.</span><span class="token function">push_back</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	vector<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token operator">&gt;</span><span class="token operator">::</span>iterator pos <span class="token operator">=</span> <span class="token function">find</span><span class="token punctuation">(</span>v<span class="token punctuation">.</span><span class="token function">begin</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> v<span class="token punctuation">.</span><span class="token function">end</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">if</span><span class="token punctuation">(</span> pos <span class="token operator">!=</span> v<span class="token punctuation">.</span><span class="token function">end</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> “找到了数据” <span class="token operator">&lt;&lt;</span> <span class="token operator">*</span>pos <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token keyword">else</span>
+		cout <span class="token operator">&lt;&lt;</span>”未找到<span class="token operator">!</span>” <span class="token operator">&lt;&lt;</span>endl<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h3><a id="_43"></a>（二）查找自定义元素</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>需要重载 ==运算符</strong></p>
+<pre><code class="prism language-cpp"><span class="token keyword">class</span> <span class="token class-name">Person</span>
+<span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token function">Person</span><span class="token punctuation">(</span>string name<span class="token punctuation">,</span> <span class="token keyword">int</span> age<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+	<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_Name <span class="token operator">=</span> name<span class="token punctuation">;</span>	
+	<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_Age  <span class="token operator">=</span> age<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+	<span class="token keyword">bool</span> <span class="token keyword">operator</span><span class="token operator">==</span><span class="token punctuation">(</span><span class="token keyword">const</span> Person<span class="token operator">&amp;</span>p<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		<span class="token keyword">if</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_Name <span class="token operator">==</span> p<span class="token punctuation">.</span>m_Name <span class="token operator">&amp;&amp;</span> <span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_Age <span class="token operator">==</span> p<span class="token punctuation">.</span>m_Age<span class="token punctuation">)</span>
+		<span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+	<span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	string m_Name<span class="token punctuation">;</span>	
+	string m_Age<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">void</span> <span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	vector<span class="token operator">&lt;</span>Person<span class="token operator">&gt;</span> v<span class="token punctuation">;</span>
+	Person <span class="token function">p1</span><span class="token punctuation">(</span>“a”<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	Person <span class="token function">p2</span><span class="token punctuation">(</span>“b”<span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	v<span class="token punctuation">.</span><span class="token function">push_back</span><span class="token punctuation">(</span>p1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	v<span class="token punctuation">.</span><span class="token function">push_back</span><span class="token punctuation">(</span>p2<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	vector<span class="token operator">&lt;</span>Person<span class="token operator">&gt;</span><span class="token operator">::</span>iterator pos <span class="token operator">=</span> <span class="token function">find</span><span class="token punctuation">(</span>v<span class="token punctuation">.</span><span class="token function">begin</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> v<span class="token punctuation">.</span><span class="token function">end</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> p2<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h2><a id="_find_if__78"></a>二. find_if 算法</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>条件查找，通过回调函数或者谓词（返回bool类型的函数对象）</strong><br>
+<br></p>
+<pre><code>@param beg 容器开始迭代器
+@param end 容器结束迭代器
+@param  callback 回调函数或者谓词(返回bool类型的函数对象)
+@return bool 查找返回true 否则false
+</code></pre>
+<br>
+<pre><code class="prism language-cpp"><span class="token keyword">class</span> <span class="token class-name">Person</span>
+<span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token function">Person</span><span class="token punctuation">(</span>string name<span class="token punctuation">,</span> <span class="token keyword">int</span> age<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+	<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_Name <span class="token operator">=</span> name<span class="token punctuation">;</span>
+	<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_Age <span class="token operator">=</span> age<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>	
+	string m_Name<span class="token punctuation">;</span>
+	<span class="token keyword">int</span> m_Age<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">class</span> <span class="token class-name">myCompare</span>
+<span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token keyword">bool</span> <span class="token keyword">operator</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">(</span>Person <span class="token operator">*</span> p1<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+	<span class="token keyword">if</span><span class="token punctuation">(</span>p1<span class="token operator">-</span><span class="token operator">&gt;</span>m_Name <span class="token operator">==</span> “b” <span class="token operator">&amp;&amp;</span> p1<span class="token operator">-</span><span class="token operator">&gt;</span>m_Age <span class="token operator">==</span> <span class="token number">2</span><span class="token punctuation">)</span>
+		<span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+	<span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token punctuation">}</span>
+<span class="token keyword">void</span> <span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	vector<span class="token operator">&lt;</span>Person<span class="token operator">*</span><span class="token operator">&gt;</span>v<span class="token punctuation">;</span>
+	Person <span class="token function">p1</span><span class="token punctuation">(</span>“a”<span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	Person <span class="token function">p2</span><span class="token punctuation">(</span>“b”<span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	v<span class="token punctuation">.</span><span class="token function">push_back</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>p1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	v<span class="token punctuation">.</span><span class="token function">push_back</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>p2<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	Person <span class="token operator">*</span>p <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token function">Person</span><span class="token punctuation">(</span>“b”<span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	vector<span class="token operator">&lt;</span>Person<span class="token operator">*</span><span class="token operator">&gt;</span><span class="token operator">::</span>iterator pos <span class="token operator">=</span> <span class="token function">find_if</span><span class="token punctuation">(</span>v<span class="token punctuation">.</span><span class="token function">begin</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> v<span class="token punctuation">.</span><span class="token function">end</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token function">myCompare</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h2><a id="_Adjacent_find_132"></a>三. Adjacent_find算法</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>查找相邻重复元素</strong>，返回相邻元素的第一个位置的迭代器<br>
+<br></p>
+<pre><code class="prism language-cpp">@param beg 容器开始迭代器
+@param end 容器结束迭代器
+@param  _callback 回调函数或者谓词<span class="token punctuation">(</span>返回<span class="token keyword">bool</span>类型的函数对象<span class="token punctuation">)</span>
+@<span class="token keyword">return</span> 返回相邻元素的第一个位置的迭代器
+</code></pre>
+<p>比较简单，不展示了…<br>
+<br></p>
+<h2><a id="_Binary_search_146"></a>四. Binary_search算法</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>二分法查找</strong>，返回bool类型，查找是否成功。<strong>限定在有序序列中使用</strong>。<br>
+<br></p>
+<pre><code>@param beg 容器开始迭代器
+@param end 容器结束迭代器
+@param value 查找的元素
+@return bool 查找返回true 否则false
+</code></pre>
+<br>
+<h2><a id="_Count_157"></a>五. Count算法</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>统计元素出现次数</strong></p>
+<pre><code>@param beg 容器开始迭代器
+@param end 容器结束迭代器
+@param  value回调函数或者谓词(返回bool类型的函数对象)
+@return int返回元素个数
+</code></pre>
+<br>
+<h2><a id="_Count_if_167"></a>六. Count_if算法</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;同样是统计元素出现次数，配有回调函数或者谓词</p>
+<pre><code>@param beg 容器开始迭代器
+@param end 容器结束迭代器
+@param  callback 回调函数或者谓词(返回bool类型的函数对象)
+@return int返回元素个数
+</code></pre>
+</div>
+</body>
+
+</html>

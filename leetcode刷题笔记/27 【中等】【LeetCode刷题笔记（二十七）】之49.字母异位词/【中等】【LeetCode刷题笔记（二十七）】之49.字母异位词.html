@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【中等】【LeetCode刷题笔记（二十七）】之49.字母异位词</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	题目</h2>
+<h3><a id="%09_8"></a>（一）	题干</h3>
+<p>&nbsp;  &nbsp;  &nbsp;给定一个字符串数组，将字母异位词组合在一起。字母异位词指字母相同，但排列不同的字符串。<br>
+<br></p>
+<h3><a id="%09_14"></a>（二）	示例</h3>
+<pre><code class="prism language-cpp">输入<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">"eat"</span><span class="token punctuation">,</span> <span class="token string">"tea"</span><span class="token punctuation">,</span> <span class="token string">"tan"</span><span class="token punctuation">,</span> <span class="token string">"ate"</span><span class="token punctuation">,</span> <span class="token string">"nat"</span><span class="token punctuation">,</span> <span class="token string">"bat"</span><span class="token punctuation">]</span>
+输出<span class="token operator">:</span>
+<span class="token punctuation">[</span>
+  <span class="token punctuation">[</span><span class="token string">"ate"</span><span class="token punctuation">,</span><span class="token string">"eat"</span><span class="token punctuation">,</span><span class="token string">"tea"</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+  <span class="token punctuation">[</span><span class="token string">"nat"</span><span class="token punctuation">,</span><span class="token string">"tan"</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+  <span class="token punctuation">[</span><span class="token string">"bat"</span><span class="token punctuation">]</span>
+<span class="token punctuation">]</span>
+</code></pre>
+<br>
+<h2><a id="%09_30"></a>二．	题解</h2>
+<h3><a id="%09_31"></a>（一）	思路</h3>
+<p>&nbsp;  &nbsp;  &nbsp;这个题就是判断多个字符串在排序后是否是相同的，那么首先我们将每个字符串都进行排序，如果有相同的，就把把相同的字符串放到一起即可。通过循环字符串数组，每个循环对字符串进行排序，通过创建一个map，map的键为已排序的字符串，值为当前未排序的字符串的链表，链表可以将多个字符串连接起来。</p>
+<p>&nbsp;  &nbsp;  &nbsp;每个循环首先对原有的字符串排序，若map中已经有了当前字符串排序后对应的键，说明之前已经有字母异位词存进去了，我们只需要将当前未排序的字符串连接到该键对应的链表后面；若map中没有当前字符串排序后对应的键，说明还没有字母异位词存进去，那么我们将当前未排序的字符串作为键存进map中即可。<br>
+<br></p>
+<h3><a id="%09_39"></a>（二）	代码实现</h3>
+<p>Java：</p>
+<pre><code class="prism language-java"><span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> List<span class="token operator">&lt;</span>List<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">&gt;</span></span><span class="token operator">&gt;</span> <span class="token function">groupAnagrams</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> strs<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>strs<span class="token punctuation">.</span>length<span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">return</span>  <span class="token keyword">new</span> <span class="token class-name">ArrayList</span><span class="token operator">&lt;</span><span class="token operator">&gt;</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        Map<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">,</span> List<span class="token punctuation">&gt;</span></span> ans <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">HashMap</span><span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">,</span> List<span class="token punctuation">&gt;</span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span>String s <span class="token operator">:</span> strs<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">char</span><span class="token punctuation">[</span><span class="token punctuation">]</span> ca <span class="token operator">=</span> s<span class="token punctuation">.</span><span class="token function">toCharArray</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            Arrays<span class="token punctuation">.</span><span class="token function">sort</span><span class="token punctuation">(</span>ca<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            String key <span class="token operator">=</span> String<span class="token punctuation">.</span><span class="token function">valueOf</span><span class="token punctuation">(</span>ca<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token operator">!</span>ans<span class="token punctuation">.</span><span class="token function">containsKey</span><span class="token punctuation">(</span>key<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                ans<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span>key<span class="token punctuation">,</span> <span class="token keyword">new</span> <span class="token class-name">ArrayList</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            ans<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>key<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">ArrayList</span><span class="token punctuation">(</span>ans<span class="token punctuation">.</span><span class="token function">values</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

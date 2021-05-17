@@ -1,0 +1,105 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【C++学习笔记（十八）】之用多态的思想实现计算器</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="__7"></a>一. 多态的开发优缺点</h2>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;开发思想：开闭原则，对拓展开放，对修改关闭。</strong></p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;多态优点：利于后期拓展，结构性好，可读性强。</strong></p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;多态缺点：效率偏低，结构中增加了指针，复杂了一点。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如果是用之前的定义一个类，在类中定义各种计算函数，那么在需要拓展时，就得修改类中的某些函数，以达到拓展的目的。但是，开发中忌讳修改之前的代码，以免造成其他错误的产生。因此，要用多态的思想，拓展功能，避免修改之前的代码。</p>
+<br>
+<h2><a id="__18"></a>二. 实例</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;下面用一个计算器案例来说明多态思想的优势：</p>
+<h3><a id="_20"></a>（一）</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;首先，我们定义了父类 abstractCalculator，在其中定义了虚函数getResult()。</p>
+<h3><a id="_22"></a>（二）</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;之后，定义了子类加法计算器类 PlusCalculator，继承父类 abstractCalculator。同时，其中还定义了 函数 getResult()，计算两个数之和。</p>
+<h3><a id="_24"></a>（三）</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;之后，功能扩展，要添加减法计算器时，直接增加一个减法计算器类，同样继承父类abstractCalculator，定义函数 getResult()，计算两数之差。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;当我们调用子类的getResult时，它就通过多态指向了子类的getResult()，并实现相应的功能。</p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;不需要修改之前的代码，直接添加一个子类，继承了父类的成员和函数，并通过多态将父类函数getReult()指向了子类自己的getResult()。</strong><br>
+<br></p>
+<h2><a id="__31"></a>三. 代码</h2>
+<pre><code class="prism language-cpp"><span class="token macro property">#<span class="token directive keyword">define</span> _CRT_SECURE_NO_WARNINGS</span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+<span class="token keyword">class</span> <span class="token class-name">abstractCalculator</span>
+<span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token keyword">virtual</span> <span class="token keyword">int</span> <span class="token function">getResult</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+	<span class="token keyword">void</span> <span class="token function">setv1</span><span class="token punctuation">(</span><span class="token keyword">int</span> v<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>val1 <span class="token operator">=</span> v<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+	<span class="token keyword">void</span> <span class="token function">setv2</span><span class="token punctuation">(</span><span class="token keyword">int</span> v<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>val2 <span class="token operator">=</span> v<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token keyword">int</span> val1<span class="token punctuation">;</span>
+	<span class="token keyword">int</span> val2<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token comment">//加法计算器</span>
+<span class="token keyword">class</span> <span class="token class-name">PlusCalculator</span> <span class="token operator">:</span> <span class="token keyword">public</span> abstractCalculator
+<span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token keyword">virtual</span> <span class="token keyword">int</span> <span class="token function">getResult</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		<span class="token keyword">return</span> val1 <span class="token operator">+</span> val2<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token comment">//减法计算器</span>
+<span class="token keyword">class</span> <span class="token class-name">SubCalculator</span> <span class="token operator">:</span> <span class="token keyword">public</span> abstractCalculator
+<span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token keyword">virtual</span> <span class="token keyword">int</span> <span class="token function">getResult</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		<span class="token keyword">return</span> val1 <span class="token operator">-</span> val2<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+
+<span class="token keyword">void</span> <span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	abstractCalculator<span class="token operator">*</span> abc<span class="token punctuation">;</span>
+	abc <span class="token operator">=</span> <span class="token keyword">new</span> PlusCalculator<span class="token punctuation">;</span>
+
+	abc<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">setv1</span><span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	abc<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">setv2</span><span class="token punctuation">(</span><span class="token number">20</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	cout <span class="token operator">&lt;&lt;</span> abc<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">getResult</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+
+<span class="token punctuation">}</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	<span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

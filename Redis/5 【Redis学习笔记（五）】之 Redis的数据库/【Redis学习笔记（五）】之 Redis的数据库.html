@@ -1,0 +1,84 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Redis学习笔记（五）】之 Redis的数据库</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_8"></a>一．	数据库</h2>
+<h3><a id="%09_10"></a>（一）	服务器中的数据库</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; Redis服务器将所有数据库都保存在服务器状态redisServer结构的db数组中，db数组中的每个项都是一个redisDb结构，代表着一个数据库。在初始化服务器时，程序会根据服务器状态的dbnum属性来决定应该创建多少个数据库，默认是16个，因此db数组的大小默认是16。<br>
+<br></p>
+<h3><a id="%09_16"></a>（二）	切换数据库</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 每个Redis客户端都有自己的目标数据库，不同的客户端会操作不同的数据库，默认的目标数据库是0号数据库，客户端可以通过SELECT命令来切换目标数据库，切换的数据库会显示在终端。在服务器内部，表示客户端状态的redisClient结构的db属性记录了客户端当前的目标数据库，是一个指向redisDb结构的指针。</p>
+<br>
+<h3><a id="%09_22"></a>（三）	数据库键空间</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; Redsi是一个键值对数据库服务器，服务器中的每个数据库都由一个redsiDb结构表示，该结构中的dict字典保存了数据库中的所有键值对，这个字典称为键空间。键空间的键就是数据库的键，键空间的值就是数据库的值，针对数据库的操作就是在操作键空间。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 当读取一个键之后，服务器会根据键是否存在来更新服务器的键空间命中次数或者键空间不命中次数，还会更新键的LRU时间，用于计算键的闲置时间。</p>
+<br>
+<h3><a id="%09_30"></a>（四）	键的生存时间和过期时间</h3>
+<h4><a id="1%09_32"></a>1.	生存时间</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 还有多长时间存活（TTL）。有两个命令来设置生存时间：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; EXPIRE key 5: 客户端以秒为精度为键设置TTL，时间一到服务器就会自动删除该键；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; PEXPIRE key 5: 以毫秒为精度设置TTL；</p>
+<br>
+<h4><a id="2%09_41"></a>2.	过期时间</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 一个UNIX时间戳，到达该时间戳，就会自动删除该键。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; EXPIREAT key 123123123: 以秒为单位；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; PEXPIREAT key 123123123: 以毫秒为单位</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; TTL命令和PTTL命令接受一个带有生存时间或者过期时间的键，返回这个键的剩余生存时间。</p>
+<br>
+<h4><a id="3%09_52"></a>3.	命令转换</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 设置生存时间的4个命令最终都会转换到EXPIREAT命令来实现，使用毫秒级的UNIX时间戳来设置。</p>
+<br>
+<h4><a id="4%09_58"></a>4.	保存过期时间</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; redisDB结构中的expires字典保存了数据库中所有键的过期时间，这个字典称为过期字典。过期字典的键是一个指针，指向键空间中的某个键对象，过期字典的值是一个long long类型的整数，保存了键所指向的数据库键的过期时间（毫秒精度的UNIX时间戳）。</p>
+<br>
+<h4><a id="5%09_64"></a>5.	移除过期时间</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; PERSIST命令可以移除一个键的过期时间，解除键和值在过期字典中的关联。</p>
+<br>
+<h3><a id="%09_70"></a>（五）	过期键的删除策略</h3>
+<h4><a id="1%09_72"></a>1.	定时删除</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 在设置键的过期时间时，创建一个定时器，定时结束删除键。对内存最友好，但是对CPU时间最不友好，因为会创建大量的定时器，将CPU时间浪费在创建定时器上。</p>
+<br>
+<h4><a id="2%09_77"></a>2.	惰性删除</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 放任键过期不管，但是每次从键空间中获取键时，都检查取得的键是否过期，然后删除该键。对CPU时间是友好的，对内存不友好，因为会堆积很多的过期键，占用了大量的内存，相当于内存泄露。</p>
+<br>
+<h4><a id="3%09_82"></a>3.	定期删除</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 每隔一段时间，检查数据库，删除里面的过期键。这种策略，定期删除过期键，并通过限制删除的时长和频率来减少删除操作对CPU时间的影响。</p>
+<br>
+<h4><a id="4%09Redis_87"></a>4.	Redis采用的策略</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; Redis中实际采用的是惰性和定期删除策略，过期键的惰性删除策略由expireIfNeeded函数实现，所有读写数据库的Redis命令在执行之前都会调用该函数进行检查，如果输入键已经过期，则将该键从数据库中删除。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 对于定期删除策略，由activeExpireCycle函数实现，在规定的时间内，分多次遍历服务器中的各个数据库，从数据库的expires字典中随机检查一部分键的过期时间，并删除过期键。<br>
+<br></p>
+<h3><a id="%09AOFRDB_95"></a>（六）	AOF，RDB和复制对于过期键的处理</h3>
+<h4><a id="1%09RDB_97"></a>1.	生成RDB文件</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 生成RDB文件时，会对数据库中的键进行检查，已过期的键不会被保存到RDB文件中。</p>
+<br>
+<h4><a id="2%09RDB_103"></a>2.	载入RDB文件</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 启动Redis服务器时，如果开启了RDB功能，将会载入RDB文件，如果服务器以主服务器模式运行，则会检查文件中保存的键，未过期的键会被载入到数据库中，过期键会被忽略。如果以从服务器模式运行，则不论是否过期，RDB文件中的键都会被载入到数据库中。</p>
+<br>
+<h4><a id="3%09AOF_108"></a>3.	AOF文件写入</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 当服务器以AOF持久化模式运行时，如果某个键已经过期，但它还没有被删除，那么AOF不会因为这个过期键而产生任何影响，当国期间被删除后，程序回向AOF文件中追加一条DEL命令，来显示地记录该键已经被删除了。</p>
+<br>
+<h4><a id="4%09AOF_114"></a>4.	AOF重写</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 执行AOF重写时，已过期的键不会被保存到重写后的AOF文件中。</p>
+<br>
+<h4><a id="5%09_119"></a>5.	复制</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 当服务器运行在复制模式下，从服务器的过期键删除动作由主服务器控制，只有主服务器才能够自主删除过期键，从服务器只能在接到主服务器发来的命令后删除过期键。</p>
+<br>
+<h3><a id="%09_125"></a>（七）	数据库通知</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; Redis2.8新增的功能，可以让客户端通过订阅给定的频道或者模式，来获知数据库中键的变化，以及数据库中命令的执行情况。键空间通知关注某个键执行了什么命令，键事件通知管制某个命令被什么键执行了。</p>
+</div>
+</body>
+
+</html>

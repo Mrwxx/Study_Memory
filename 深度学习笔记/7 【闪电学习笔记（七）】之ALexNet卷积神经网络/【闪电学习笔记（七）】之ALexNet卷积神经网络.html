@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【闪电学习笔记（七）】之ALexNet卷积神经网络</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="_AlexNet_7"></a>一. AlexNet网络结构：</h2>
+<br>
+<pre><code class="prism language-cpp">Input 
+Layer1 <span class="token operator">:</span> conv <span class="token operator">+</span> pool
+Layer2 <span class="token operator">:</span> conv <span class="token operator">+</span> pool
+Layer3 <span class="token operator">:</span> conv
+Layer4 <span class="token operator">:</span> conv
+Layer5 <span class="token operator">:</span> conv <span class="token operator">+</span> pool
+Layer6 <span class="token operator">:</span> Full
+Layer7 <span class="token operator">:</span> Full
+Softmax Output
+</code></pre>
+<br>
+<h2><a id="_AlexNet_23"></a>二. AlexNet网络每一层的参数：</h2>
+<br>
+<h3><a id="Input_26"></a>(一)Input：</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;227 x 227 x 3，输入图像的尺寸为227 x 227，3通道。<br>
+<br></p>
+<h3><a id="Layer1__31"></a>（二）Layer1 :</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>CONV1</strong> : 96个滤波器， 每个滤波器的尺寸为 11 x 11， 步长为4， pad 为0</p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;从这些参数可以看出，第一层的卷积只是为了粗略地提取图像中的特征，非常大的滤波器尺寸，步长，得到的图像特征比较少。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>MAX POOL1</strong>: 使用3 x 3的滤波器，步长为2，进行特征压缩</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>NORM1</strong>:归一化层<br>
+<br></p>
+<h3><a id="Layer2_41"></a>（三）Layer2:</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>CONV2:</strong> 256个滤波器，滤波器的尺寸为 5 x 5，步长为 1， pad 为2。从这些参数可以看出，这是为了提取更加多的图像特征。</p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;为什么滤波器的个数增加为256个呢？<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;因为第一层池化后，特征图的尺寸减小，即特征被压缩了。因此需要增大滤波器的个数，使特征图中的特征数保持平衡。有利于更好地表达特征。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>MAX POOL2</strong>: 使用3 x 3的滤波器，步长为2，进行特征压缩。与之前的POOL选择同样的大小。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>NORM2</strong>:归一化层<br>
+<br></p>
+<h3><a id="Layer3_52"></a>（四）Layer3:</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>CONV3</strong>: 384个滤波器，滤波器的尺寸减小为3 x 3，步长为1， pad 为1。</p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;增大滤波器的个数，保持特征图中特征个数的平衡。滤波器的尺寸降低，步长降低，提取更多的特征。</strong><br>
+<br></p>
+<h3><a id="Layer4_58"></a>（五）Layer4：</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>CONV4</strong>: 384个滤波器，滤波器的尺寸减小为3 x 3，步长为1， pad 为1。与上一层的卷积层参数尺寸相同。<br>
+<br></p>
+<h3><a id="Layer5_62"></a>（六）Layer5:</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>CONV5</strong>: 256个滤波器，滤波器的尺寸减小为3 x 3，步长为1， pad 为1。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>MAX POOL3:</strong> 同样是3 x 3的滤波器，步长为2，与之前的POOL层参数相同。<br>
+<br></p>
+<h3><a id="Layer6_69"></a>（七）Layer6:</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>FC6</strong>: 4096个神经元。全连接层就是之前的经典神经网络。<br>
+<br></p>
+<h3><a id="Layer7_74"></a>（八）Layer7:</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>FC7</strong>: 4096个神经元。<br>
+<br></p>
+<h3><a id="Layer8_78"></a>（九）Layer8:</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>FC8</strong>: Softmax分类器，全连接输出1000 个神经元（类别数）</p>
+<p><img src="https://img-blog.csdnimg.cn/2020072321221099.png" alt="在这里插入图片描述"></p>
+</div>
+</body>
+
+</html>

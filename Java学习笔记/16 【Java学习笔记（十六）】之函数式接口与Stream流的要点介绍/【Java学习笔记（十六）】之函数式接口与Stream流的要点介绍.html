@@ -1,0 +1,432 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Java学习笔记（十六）】之函数式接口与Stream流的要点介绍</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_8"></a>一．	函数式接口</h2>
+<h3><a id="%09_9"></a>（一）	概念</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;有且仅有一个抽象方法的接口。该接口可以用具体的实现类，匿名内部类，Lambda表达式实现。最方便简介的是Lambda表达式实现，注意Lambda表达式都是用于重写接口的抽象方法的。<br>
+<br></p>
+<h3><a id="%09_13"></a>（二）	函数式接口作方法的参数</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;函数式接口可以作为方法的参数，用匿名内部类实现或者Lambda表达式实现。<br>
+<br></p>
+<pre><code class="prism language-java"><span class="token keyword">package</span> 函数式接口<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">RunnableDemo</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<span class="token comment">//        startThread(new Runnable() {</span>
+<span class="token comment">//            @Override</span>
+<span class="token comment">//            public void run() {</span>
+<span class="token comment">//                System.out.println(Thread.currentThread().getName() + "线程启动");</span>
+<span class="token comment">//            }</span>
+<span class="token comment">//        });</span>
+
+        <span class="token comment">//Lambda</span>
+        <span class="token function">startThread</span><span class="token punctuation">(</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">&gt;</span> System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>Thread<span class="token punctuation">.</span><span class="token function">currentThread</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">"线程启动"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">startThread</span><span class="token punctuation">(</span>Runnable r<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">new</span> <span class="token class-name">Thread</span><span class="token punctuation">(</span>r<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h3><a id="%09_42"></a>（三）	函数式接口作方法的返回值</h3>
+<br>
+<pre><code class="prism language-java"><span class="token keyword">package</span> 函数式接口<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>ArrayList<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>Collections<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>Comparator<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ComparatorDemo</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        ArrayList<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">&gt;</span></span> array <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ArrayList</span><span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">&gt;</span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        array<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token string">"CC"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        array<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token string">"D"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        array<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token string">"B"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        array<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token string">"A"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"排序前："</span> <span class="token operator">+</span> array<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        Collections<span class="token punctuation">.</span><span class="token function">sort</span><span class="token punctuation">(</span>array<span class="token punctuation">,</span> <span class="token function">getComparator</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"排序后："</span> <span class="token operator">+</span> array<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">private</span> <span class="token keyword">static</span> Comparator<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">&gt;</span></span> <span class="token function">getComparator</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token comment">//匿名内部类</span>
+<span class="token comment">//        return new Comparator&lt;String&gt;() {</span>
+<span class="token comment">//            @Override</span>
+<span class="token comment">//            public int compare(String s1, String s2) {</span>
+<span class="token comment">//                    return s1.length()  - s2.length();</span>
+<span class="token comment">//            }</span>
+<span class="token comment">//        };</span>
+
+        <span class="token comment">//Lambda</span>
+        <span class="token keyword">return</span> <span class="token punctuation">(</span>s1<span class="token punctuation">,</span> s2<span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">&gt;</span> s1<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span> s2<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h2><a id="%09_85"></a>二．	常用的函数式接口</h2>
+<h3><a id="%09Supplier_86"></a>（一）	Supplier接口</h3>
+<h3><a id="1%09_87"></a>1.	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;生产型接口，产生对应的类型数据。接口中有一个抽象方法get()用于产生数据。<br>
+<br></p>
+<h3><a id="2%09_91"></a>2.	方法</h3>
+<br>
+
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T get()</td>
+<td>按照某种实现逻辑(由Lambda表达式实现)返回一个数据</td>
+</tr>
+</tbody>
+</table><br>
+<h4><a id="3%09_100"></a>3.	代码实现</h4>
+<br>
+<pre><code class="prism language-java"><span class="token keyword">package</span> 函数式接口<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>function<span class="token punctuation">.</span>Supplier<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">SupplierDemo</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment">//Lambda重写该抽象方法</span>
+        Integer i <span class="token operator">=</span> <span class="token function">getInteget</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token number">30</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        String s <span class="token operator">=</span> <span class="token function">getString</span><span class="token punctuation">(</span> <span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token string">"xx"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">private</span> <span class="token keyword">static</span> Integer <span class="token function">getInteget</span><span class="token punctuation">(</span>Supplier<span class="token generics function"><span class="token punctuation">&lt;</span>Integer<span class="token punctuation">&gt;</span></span> sup<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token comment">//调用Supllier接口中的唯一抽象方法</span>
+        <span class="token keyword">return</span> sup<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">private</span> <span class="token keyword">static</span> String <span class="token function">getString</span><span class="token punctuation">(</span>Supplier<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">&gt;</span></span> sup<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">return</span> sup<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h3><a id="%09Consumer_133"></a>（二）	Consumer接口</h3>
+<h4><a id="1%09_134"></a>1.	概述</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>消费型接口，对给定的数据进行操作。不同于Supplier，Consumer用于进行数据的操作。</strong><br>
+<br></p>
+<h4><a id="2%09_138"></a>2.	方法</h4>
+<br>
+
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>void accept(T t)</td>
+<td>对给定的参数执行此操作</td>
+</tr>
+<tr>
+<td>default Consumer andThen(Consumer after)</td>
+<td>返回一个组合的Consumer，依次执行此操作，然后执行after操作</td>
+</tr>
+</tbody>
+</table><br>
+<h4><a id="3%09_147"></a>3.	代码实现</h4>
+<br>
+<pre><code class="prism language-java"><span class="token keyword">package</span> 函数式接口<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>function<span class="token punctuation">.</span>Consumer<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ConsumerDemo</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">operatorString</span><span class="token punctuation">(</span><span class="token string">"xx"</span><span class="token punctuation">,</span> s <span class="token operator">-</span><span class="token operator">&gt;</span> System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">,</span> s <span class="token operator">-</span><span class="token operator">&gt;</span> System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"dd"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">//连续处理两次一个String</span>
+    <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">operatorString</span><span class="token punctuation">(</span>String name<span class="token punctuation">,</span> Consumer<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">&gt;</span></span> con1<span class="token punctuation">,</span> Consumer<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">&gt;</span></span> con2<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        con1<span class="token punctuation">.</span><span class="token function">andThen</span><span class="token punctuation">(</span>con2<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">accept</span><span class="token punctuation">(</span>name<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">//处理一次</span>
+    <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">operatorString</span><span class="token punctuation">(</span>String name<span class="token punctuation">,</span> Consumer<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">&gt;</span></span> con<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        con<span class="token punctuation">.</span><span class="token function">accept</span><span class="token punctuation">(</span>name<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h3><a id="%09Predicate_173"></a>（三）	Predicate接口</h3>
+<h4><a id="1%09_174"></a>1.	概述</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;布尔逻辑判断，与或非，对于参数是否满足指定的条件进行判断，通常用于筛选数据，筛选出满足条件的数据。<br>
+<br></p>
+<h4><a id="2%09_178"></a>2.	方法</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;test()是抽象方法，用于对条件进行判断。<br>
+<br></p>
+
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>boolean test(T t)</td>
+<td>对给定的参数进行判断(判断逻辑由Lambda表达式实现)，返回一个布尔值</td>
+</tr>
+<tr>
+<td>default Predicate negate()</td>
+<td>返回一个逻辑的否定，对应逻辑非</td>
+</tr>
+<tr>
+<td>default Predicate and(Predicate other)</td>
+<td>返回一个组合判断，对应短路与</td>
+</tr>
+<tr>
+<td>default Predicate or(Predicate other)</td>
+<td>返回一个组合判断，对应短路或</td>
+</tr>
+</tbody>
+</table><br>
+<h4><a id="3_190"></a>3．代码实现</h4>
+<br>
+<pre><code class="prism language-java"><span class="token keyword">package</span> 函数式接口<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>function<span class="token punctuation">.</span>Predicate<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">PredicateDemo</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">boolean</span> b1 <span class="token operator">=</span> <span class="token function">checkString</span><span class="token punctuation">(</span><span class="token string">"hello"</span><span class="token punctuation">,</span> s <span class="token operator">-</span><span class="token operator">&gt;</span> s<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">&gt;</span> <span class="token number">8</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>b1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">boolean</span> b2 <span class="token operator">=</span> <span class="token function">checkString2</span><span class="token punctuation">(</span><span class="token string">"hello"</span><span class="token punctuation">,</span> s <span class="token operator">-</span><span class="token operator">&gt;</span> s<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">&gt;</span> <span class="token number">8</span><span class="token punctuation">,</span> s <span class="token operator">-</span><span class="token operator">&gt;</span> s<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">&lt;</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>b2<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">//判断非逻辑</span>
+    <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">boolean</span> <span class="token function">checkString</span><span class="token punctuation">(</span>String s<span class="token punctuation">,</span> Predicate<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">&gt;</span></span> pre<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">return</span> pre<span class="token punctuation">.</span><span class="token function">negate</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">test</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">//判断或逻辑</span>
+    <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">boolean</span> <span class="token function">checkString2</span><span class="token punctuation">(</span>String s<span class="token punctuation">,</span> Predicate<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">&gt;</span></span> pre1<span class="token punctuation">,</span>  Predicate<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">&gt;</span></span> pre2<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">return</span> pre1<span class="token punctuation">.</span><span class="token function">or</span><span class="token punctuation">(</span>pre2<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">test</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">//判断与逻辑</span>
+    <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">boolean</span> <span class="token function">checkString3</span><span class="token punctuation">(</span>String s<span class="token punctuation">,</span> Predicate<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">&gt;</span></span> pre1<span class="token punctuation">,</span> Predicate<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">&gt;</span></span> pre2<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">return</span> pre1<span class="token punctuation">.</span><span class="token function">and</span><span class="token punctuation">(</span>pre2<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">test</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h3><a id="%09Function_226"></a>（四）	Function接口</h3>
+<h4><a id="1%09_227"></a>1.	概述</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;也是对参数进行处理操作的，可以对同一参数进行多次操作。<br>
+<br></p>
+<h4><a id="2%09_231"></a>2.	方法</h4>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Lambda表达式只是在重写抽象方法apply()。<br>
+<br></p>
+
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R apply(T t)</td>
+<td>将此函数应用于给定的参数</td>
+</tr>
+<tr>
+<td>default Function andThen(Function after)</td>
+<td>返回一个组合函数，首先将该函数应用于输入，然后将after函数应用于结果</td>
+</tr>
+</tbody>
+</table><br>
+<h4><a id="3%09_243"></a>3.	代码实现</h4>
+<br>
+<pre><code class="prism language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">FunctionDemo</span> <span class="token punctuation">{</span>
+  <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<span class="token comment">//操作一</span>
+    <span class="token function">convert</span><span class="token punctuation">(</span><span class="token string">"100"</span><span class="token punctuation">,</span>s <span class="token operator">-</span><span class="token operator">&gt;</span> Integer<span class="token punctuation">.</span><span class="token function">parseInt</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">//操作二</span>
+    <span class="token function">convert</span><span class="token punctuation">(</span><span class="token number">100</span><span class="token punctuation">,</span>i <span class="token operator">-</span><span class="token operator">&gt;</span> String<span class="token punctuation">.</span><span class="token function">valueOf</span><span class="token punctuation">(</span>i <span class="token operator">+</span> <span class="token number">566</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">//使用andThen的方式连续执行两个操作</span>
+    <span class="token function">convert</span><span class="token punctuation">(</span><span class="token string">"100"</span><span class="token punctuation">,</span> s <span class="token operator">-</span><span class="token operator">&gt;</span> Integer<span class="token punctuation">.</span><span class="token function">parseInt</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">,</span> i <span class="token operator">-</span><span class="token operator">&gt;</span> String<span class="token punctuation">.</span><span class="token function">valueOf</span><span class="token punctuation">(</span>i <span class="token operator">+</span> <span class="token number">566</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+ <span class="token punctuation">}</span>
+  <span class="token comment">//定义一个方法，把一个字符串转换int类型，在控制台输出</span>
+  <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">convert</span><span class="token punctuation">(</span>String s<span class="token punctuation">,</span> Function<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">,</span>Integer<span class="token punctuation">&gt;</span></span> fun<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<span class="token comment">//    Integer i = fun.apply(s);</span>
+    <span class="token keyword">int</span> i <span class="token operator">=</span> fun<span class="token punctuation">.</span><span class="token function">apply</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">;</span>
+ <span class="token punctuation">}</span>
+  <span class="token comment">//定义一个方法，把一个int类型的数据加上一个整数之后，转为字符串在控制台输出</span>
+  <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">convert</span><span class="token punctuation">(</span><span class="token keyword">int</span> i<span class="token punctuation">,</span> Function<span class="token generics function"><span class="token punctuation">&lt;</span>Integer<span class="token punctuation">,</span>String<span class="token punctuation">&gt;</span></span> fun<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    String s <span class="token operator">=</span> fun<span class="token punctuation">.</span><span class="token function">apply</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">;</span>
+ <span class="token punctuation">}</span>
+  <span class="token comment">//定义一个方法，把一个字符串转换int类型，把int类型的数据加上一个整数之后，转为字符串在控制台</span>
+输出
+  <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">convert</span><span class="token punctuation">(</span>String s<span class="token punctuation">,</span> Function<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">,</span>Integer<span class="token punctuation">&gt;</span></span> fun1<span class="token punctuation">,</span>
+Function<span class="token generics function"><span class="token punctuation">&lt;</span>Integer<span class="token punctuation">,</span>String<span class="token punctuation">&gt;</span></span> fun2<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    String ss <span class="token operator">=</span> fun1<span class="token punctuation">.</span><span class="token function">andThen</span><span class="token punctuation">(</span>fun2<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">apply</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>ss<span class="token punctuation">)</span><span class="token punctuation">;</span>
+ <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h2><a id="%09Stream_279"></a>三．	Stream流</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;使用Stream流可以极大地简化代码，将解决问题而忽略复杂语法发挥到了极致，体现了函数式编程的真谛。<br>
+<br></p>
+<h3><a id="%09Stream_283"></a>（一）	生成Stream流</h3>
+<h4><a id="1%09Collection_284"></a>1.	Collection集合</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;默认方法stream()生成stream流<br>
+<br></p>
+<h4><a id="2%09Map_288"></a>2.	Map集合</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;将Map转为Set，在生成Stream流<br>
+<br></p>
+<h4><a id="3%09_292"></a>3.	数组</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通过Stream接口的静态方法of(T… values)生成流<br>
+<br></p>
+<h4><a id="4%09_296"></a>4.	代码实现</h4>
+<br>
+<pre><code class="prism language-java"><span class="token keyword">package</span> 函数式接口<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>ArrayList<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>HashMap<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>List<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>Map<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>stream<span class="token punctuation">.</span>Stream<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> 生成Stream流 <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        List<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">&gt;</span></span> list <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ArrayList</span><span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">&gt;</span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        Stream<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">&gt;</span></span> listStream <span class="token operator">=</span> list<span class="token punctuation">.</span><span class="token function">stream</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        Map<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">,</span> Integer<span class="token punctuation">&gt;</span></span> map <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">HashMap</span><span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">,</span> Integer<span class="token punctuation">&gt;</span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        Stream<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">&gt;</span></span> keyStream <span class="token operator">=</span> map<span class="token punctuation">.</span><span class="token function">keySet</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">stream</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        Stream<span class="token generics function"><span class="token punctuation">&lt;</span>Integer<span class="token punctuation">&gt;</span></span> valueStream <span class="token operator">=</span> map<span class="token punctuation">.</span><span class="token function">values</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">stream</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        Stream<span class="token operator">&lt;</span>Map<span class="token punctuation">.</span>Entry<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">,</span> Integer<span class="token punctuation">&gt;</span></span><span class="token operator">&gt;</span> entryStream <span class="token operator">=</span> map<span class="token punctuation">.</span><span class="token function">entrySet</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">stream</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        String<span class="token punctuation">[</span><span class="token punctuation">]</span> strArray <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token string">"hello"</span><span class="token punctuation">,</span> <span class="token string">"world"</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+        Stream<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">&gt;</span></span> strArrayStream <span class="token operator">=</span> Stream<span class="token punctuation">.</span><span class="token function">of</span><span class="token punctuation">(</span>strArray<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h3><a id="%09Stream_326"></a>（二）	Stream流的中间操作</h3>
+<h4><a id="1%09_327"></a>1.	概述</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;中间操作，即在执行完这些操作后，Stream流依然可以执行其他操作，不会终止。<br>
+<br></p>
+<h4><a id="2%09_331"></a>2.	常用方法</h4>
+<br>
+
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Stream filter(Predicate predicate)</td>
+<td>用于对流中的数据进行过滤</td>
+</tr>
+<tr>
+<td>Stream limit(long maxSize)</td>
+<td>返回此流中的元素组成的流，截取前指定参数个数的数据</td>
+</tr>
+<tr>
+<td>Stream skip(long n)</td>
+<td>跳过指定参数个数的数据，返回由该流的剩余元素组成的流</td>
+</tr>
+<tr>
+<td>static Stream concat(Stream a, Stream b)</td>
+<td>合并a和b两个流为一个流</td>
+</tr>
+<tr>
+<td>Stream distinct()</td>
+<td>返回由该流的不同元素（根据Object.equals(Object) ）组成的流</td>
+</tr>
+<tr>
+<td>Stream sorted()</td>
+<td>返回由此流的元素组成的流，根据自然顺序排序</td>
+</tr>
+<tr>
+<td>Stream sorted(Comparator comparator)</td>
+<td>返回由该流的元素组成的流，根据提供的Comparator进行排序</td>
+</tr>
+<tr>
+<td>Stream map(Function mapper)</td>
+<td></td>
+</tr>
+<tr>
+<td>IntStream mapToInt(ToIntFunction mapper)</td>
+<td>返回一个IntStream其中包含将给定函数应用于此流的元素的结果</td>
+</tr>
+</tbody>
+</table><br>
+<h3><a id="%09Stream_347"></a>（三）	Stream流的终结操作</h3>
+<h4><a id="1%09_348"></a>1.	概述</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;终结操作即最后一步操作，之后Stream流就会终止。<br>
+<br></p>
+<h4><a id="2%09_352"></a>2.	常用方法</h4>
+<br>
+
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>void forEach(Consumer action)</td>
+<td>对此流的每个元素执行操作</td>
+</tr>
+<tr>
+<td>long count()</td>
+<td>返回此流中的元素数</td>
+</tr>
+</tbody>
+</table></div>
+</body>
+
+</html>

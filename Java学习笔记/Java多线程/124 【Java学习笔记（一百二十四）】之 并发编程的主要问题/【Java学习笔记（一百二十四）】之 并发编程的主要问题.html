@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Java学习笔记（一百二十四）】之 并发编程的主要问题</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><p></p><div class="toc"><h3>文章目录</h3><ul><ul><li><a href="#_1">本文章由公号【开发小鸽】发布！欢迎关注！！！</a></li><li><a href="#%09_8">一．	并发编程的主要问题</a></li><ul><li><a href="#%09_10">（一）	概述</a></li><li><a href="#%09_16">（二）	上下文切换</a></li><ul><li><a href="#1%09_17">1.	概述</a></li><li><a href="#2%09_22">2.	减少上下文切换</a></li><ul><li><a href="#1%09_28">（1）	无锁并发</a></li><li><a href="#2%09CAS_34">（2）	CAS</a></li><li><a href="#3%09_39">（3）	使用最少线程</a></li><li><a href="#4%09_45">（4）	协程</a></li></ul><li><a href="#3%09jstack_50">3.	jstack使用</a></li></ul><li><a href="#%09_56">（三）	死锁</a></li><li><a href="#%09_70">（四）	资源限制问题</a></li><ul><li><a href="#1%09_72">1.	硬件资源限制</a></li><li><a href="#2%09_78">2.	软件资源限制</a></li></ul></ul></ul></ul></div><p></p>
+<h2><a id="_1"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_8"></a>一．	并发编程的主要问题</h2>
+<h3><a id="%09_10"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 并发编程的目的是让程序运行地更快，通过多线程执行任务可以让程序运行地更快，但是会有很多的挑战，如上下文切换问题，死锁的问题，以及受限于硬件和软件的资源限制问题。<br>
+<br></p>
+<h3><a id="%09_16"></a>（二）	上下文切换</h3>
+<h4><a id="1%09_17"></a>1.	概述</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 即时是单核CPU也支持多线程执行代码，CPU通过给每个线程分配CPU时间片来实现这个机制，CPU通过不断地切换线程执行，让我们感觉多个线程是同时执行的。上下文切换指的就是CPU在切换时间片时，会保存上一个任务的状态，以便下一次直接加载，任务从保存到加载的过程就是一次上下文切换，会影响线程的执行速度。<br>
+<br></p>
+<h4><a id="2%09_22"></a>2.	减少上下文切换</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 减少上下文切换的方式有无锁并发编程，CAS算法，使用最少线程和使用协程。</p>
+<br>
+<h5><a id="1%09_28"></a>（1）	无锁并发</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 避免使用锁，如将数据的ID按照Hash算法取模分段，不同的线程处理不同段的数据。<br>
+<br></p>
+<h5><a id="2%09CAS_34"></a>（2）	CAS</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; Java的Atomic包使用CAS算法来更新数据，不需要加锁。<br>
+<br></p>
+<h5><a id="3%09_39"></a>（3）	使用最少线程</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 避免创建不需要的线程，不然会有很多线程处于等待状态，减少上下文切换次数，因为每次从等待状态到RUNNABLE状态都会进行一次上下文切换。<br>
+<br></p>
+<h5><a id="4%09_45"></a>（4）	协程</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 在单线程里实现多任务的调度，在单线程里维持多个任务间的切换。<br>
+<br></p>
+<h4><a id="3%09jstack_50"></a>3.	jstack使用</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 使用自带的jstack命令来dump线程信息，可以直接查询某个进程中的线程的状态。如发现其中WAITING状态的线程过多，可以通过减少该进程的线程池数量来减少上下文切换次数。<br>
+<br></p>
+<h3><a id="%09_56"></a>（三）	死锁</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 避免死锁的方法：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 1.	避免一个线程同时获取多个锁；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 2.	避免一个线程在锁内同时占用多个资源；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 3.	尝试使用定时锁，lock.tryLock(timeout)；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 4.	对于数据库锁，加锁和解锁必须在一个数据库连接中，否则会出现解锁失败的问题；<br>
+<br></p>
+<h3><a id="%09_70"></a>（四）	资源限制问题</h3>
+<h4><a id="1%09_72"></a>1.	硬件资源限制</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 带宽的上传和下载速度，硬盘读写速度和CPU的处理速度，可以考虑使用集群并行执行程序，不同的机器处理不同的数据。</p>
+<br>
+<h4><a id="2%09_78"></a>2.	软件资源限制</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 数据库的连接数和socket连接数问题，考虑使用资源池将资源复用，如数据库连接池和socket连接复用，不需要每次连接时再创建和关闭连接。</p>
+</div>
+</body>
+
+</html>

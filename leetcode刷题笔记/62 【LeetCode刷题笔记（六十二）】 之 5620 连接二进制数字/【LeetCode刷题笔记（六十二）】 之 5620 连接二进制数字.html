@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【LeetCode刷题笔记（六十二）】 之 5620 连接二进制数字</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	题目</h2>
+<h3><a id="%09_8"></a>（一）	题干</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;给你一个整数 n ，请你将 1 到 n 的二进制表示连接起来，并返回连接结果对应的 十进制 数字对 109 + 7 取余的结果。<br>
+<br></p>
+<h3><a id="%09_13"></a>（二）	示例</h3>
+<p>示例 1：</p>
+<pre><code class="prism language-cpp">输入：n <span class="token operator">=</span> <span class="token number">1</span>
+输出：<span class="token number">1</span>
+解释：二进制的 <span class="token string">"1"</span> 对应着十进制的 <span class="token number">1</span> 。
+</code></pre>
+<p>示例 2：</p>
+<pre><code class="prism language-cpp">输入：n <span class="token operator">=</span> <span class="token number">3</span>
+输出：<span class="token number">27</span>
+解释：二进制下，<span class="token number">1</span>，<span class="token number">2</span> 和 <span class="token number">3</span> 分别对应 <span class="token string">"1"</span> ，<span class="token string">"10"</span> 和 <span class="token string">"11"</span> 。
+将它们依次连接，我们得到 <span class="token string">"11011"</span> ，对应着十进制的 <span class="token number">27</span> 。
+</code></pre>
+<p>示例 3：</p>
+<pre><code class="prism language-cpp">输入：n <span class="token operator">=</span> <span class="token number">12</span>
+输出：<span class="token number">505379714</span>
+解释：连接结果为 <span class="token string">"1101110010111011110001001101010111100"</span> 。
+对应的十进制数字为 <span class="token number">118505380540</span> 。
+对 <span class="token number">109</span> <span class="token operator">+</span> <span class="token number">7</span> 取余后，结果为 <span class="token number">505379714</span> 。
+</code></pre>
+<p>提示：</p>
+<pre><code class="prism language-cpp"><span class="token number">1</span> <span class="token operator">&lt;=</span> n <span class="token operator">&lt;=</span> <span class="token number">105</span>
+</code></pre>
+<br>
+<h2><a id="%09_53"></a>二．	题解</h2>
+<h3><a id="%09_54"></a>（一）	思路</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;从题目上来看，这是一个十进制转二进制，再转十进制的问题，如果按照这种思路硬做的话会比较麻烦。再仔细分析，可以得出这是一个二进制的左移问题，给出整数n，从1开始连接二进制数一直到n，我们发现，已经连接过的数在这个过程中会不断地左移，每次左移的位数都是当前整数的二进制位数， 然后加上当前的整数。因此，可以得出递推公式：</p>
+<pre><code class="prism language-cpp">res <span class="token operator">=</span> res <span class="token operator">&lt;&lt;</span> 二进制位数<span class="token punctuation">(</span>i<span class="token punctuation">)</span> <span class="token operator">+</span> I<span class="token punctuation">;</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;因此，可以从1开始迭代到n，得出最终的结果，不过要注意的是这种数值比较大的运算中要时刻警惕溢出的问题，首先，我们需要设定res结果为Long类型，同时在每个迭代中也要及时地取模防止溢出问题出现。<br>
+<br></p>
+<h3><a id="%09_65"></a>（二）	代码实现</h3>
+<br>
+<p>Java:</p>
+<pre><code class="prism language-java"><span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">int</span> <span class="token function">concatenatedBinary</span><span class="token punctuation">(</span><span class="token keyword">int</span> n<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment">//获取每个数字转换为二进制的长度</span>
+        <span class="token keyword">int</span> mod <span class="token operator">=</span> <span class="token number">1000000007</span><span class="token punctuation">;</span>
+        <span class="token comment">//二进制移位</span>
+        <span class="token comment">//当前的结果左移二进制的位数 + 当前的数</span>
+        <span class="token keyword">long</span> res <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span> i <span class="token operator">&lt;=</span> n<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            res <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>res <span class="token operator">&lt;&lt;</span> <span class="token function">ten2two</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">+</span> i<span class="token punctuation">)</span> <span class="token operator">%</span> mod<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> <span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">)</span>res<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">int</span> <span class="token function">ten2two</span><span class="token punctuation">(</span><span class="token keyword">int</span> ten<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        StringBuilder out <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">StringBuilder</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">while</span><span class="token punctuation">(</span>ten <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            out<span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span>ten <span class="token operator">%</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            ten <span class="token operator">/=</span> <span class="token number">2</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> out<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

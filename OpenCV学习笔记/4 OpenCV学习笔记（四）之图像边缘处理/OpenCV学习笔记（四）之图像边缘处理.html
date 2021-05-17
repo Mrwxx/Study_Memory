@@ -1,0 +1,100 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenCV学习笔记（四）之图像边缘处理</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="__7"></a>一. 图像边缘问题</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;图像做卷积操作时，边缘像素无法处理到，原因在于边缘像素没有完全和kernel重叠。因此，当3 X 3滤波时，边缘有1个像素没有被处理，5 X 5时有2个像素没有被处理。</p>
+<h2><a id="__9"></a>二. 处理边缘</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在卷积之前增加边缘像素，填充像素值。比如在3 X 3的kernel作用的图像上添加1个像素的边缘，这样就能确保图像的边缘被处理，在卷积处理之后再去掉这些添加的边缘。</p>
+<h2><a id="__12"></a>三. 处理边缘的方式</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>OpenCV中默认的边缘处理方式是</strong>: BORDER_DEFAULT,此外还有以下几种：</p>
+<ol>
+<li><strong>BORDER_CONSTANT</strong>–用指定像素值填充边缘</li>
+<li><strong>BORDER_REPLICATE</strong>–用已经存在的边缘像素值填充边缘</li>
+<li><strong>BORDER_WRAP</strong>–用另一边的像素来填充边缘</li>
+</ol>
+<h2><a id="_API_18"></a>四. 添加边缘API</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>cv::copyMakeBorder</strong></p>
+<pre><code class="prism language-cpp"><span class="token function">copyMakeBorder</span><span class="token punctuation">(</span>
+	Mat src<span class="token punctuation">,</span>	<span class="token comment">//输入图像</span>
+	Mat dst<span class="token punctuation">,</span>	<span class="token comment">//输出图像</span>
+	<span class="token keyword">int</span> top<span class="token punctuation">,</span>		<span class="token comment">//边缘尺寸</span>
+	<span class="token keyword">int</span> bottom<span class="token punctuation">,</span>
+	<span class="token keyword">int</span> left<span class="token punctuation">,</span> 
+	<span class="token keyword">int</span> right<span class="token punctuation">,</span>
+	<span class="token keyword">int</span> borderType<span class="token punctuation">,</span>	<span class="token comment">//边缘类型</span>
+	Scalar color
+<span class="token punctuation">)</span>
+</code></pre>
+<h2><a id="_32"></a>下面是代码：</h2>
+<pre><code class="prism language-cpp"><span class="token comment">/*****处理边缘*****/</span>
+
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;opencv2/opencv.hpp&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;string&gt;</span></span>
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+string in_title <span class="token operator">=</span> <span class="token string">"input image"</span><span class="token punctuation">;</span>
+string ou_title <span class="token operator">=</span> <span class="token string">"output image"</span><span class="token punctuation">;</span>
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	cv<span class="token operator">::</span>Mat src<span class="token punctuation">,</span> dst<span class="token punctuation">;</span>
+	src <span class="token operator">=</span> cv<span class="token operator">::</span><span class="token function">imread</span><span class="token punctuation">(</span><span class="token string">"1.jpg"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span>in_title<span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span>in_title<span class="token punctuation">,</span> src<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//边缘的尺寸</span>
+	<span class="token keyword">int</span> top <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token number">0.05</span> <span class="token operator">*</span> src<span class="token punctuation">.</span>rows<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">int</span> bottom <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token number">0.05</span> <span class="token operator">*</span> src<span class="token punctuation">.</span>rows<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">int</span> left <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token number">0.05</span> <span class="token operator">*</span> src<span class="token punctuation">.</span>cols<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">int</span> right <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token number">0.05</span> <span class="token operator">*</span> src<span class="token punctuation">.</span>cols<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//随机数</span>
+	cv<span class="token operator">::</span>RNG <span class="token function">rng</span><span class="token punctuation">(</span><span class="token number">12345</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">int</span> border_type <span class="token operator">=</span> cv<span class="token operator">::</span>BORDER_DEFAULT<span class="token punctuation">;</span>
+
+	<span class="token keyword">int</span> c <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+	<span class="token keyword">while</span> <span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		c <span class="token operator">=</span> cv<span class="token operator">::</span><span class="token function">waitKey</span><span class="token punctuation">(</span><span class="token number">500</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token comment">//ESC</span>
+		<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token keyword">char</span><span class="token punctuation">)</span>c <span class="token operator">==</span> <span class="token number">27</span><span class="token punctuation">)</span>
+			<span class="token keyword">break</span><span class="token punctuation">;</span>
+		<span class="token comment">//各种边缘类型</span>
+		<span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token keyword">char</span><span class="token punctuation">)</span>c <span class="token operator">==</span> <span class="token string">'r'</span><span class="token punctuation">)</span>
+			border_type <span class="token operator">=</span> cv<span class="token operator">::</span>BORDER_REPLICATE<span class="token punctuation">;</span>
+		<span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token keyword">char</span><span class="token punctuation">)</span>c <span class="token operator">==</span> <span class="token string">'w'</span><span class="token punctuation">)</span>
+			border_type <span class="token operator">=</span> cv<span class="token operator">::</span>BORDER_WRAP<span class="token punctuation">;</span>
+		<span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token keyword">char</span><span class="token punctuation">)</span>c <span class="token operator">==</span> <span class="token string">'d'</span><span class="token punctuation">)</span>
+			border_type <span class="token operator">=</span> cv<span class="token operator">::</span>BORDER_DEFAULT<span class="token punctuation">;</span>
+		<span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token keyword">char</span><span class="token punctuation">)</span>c <span class="token operator">==</span> <span class="token string">'c'</span><span class="token punctuation">)</span>
+			border_type <span class="token operator">=</span> cv<span class="token operator">::</span>BORDER_CONSTANT<span class="token punctuation">;</span>
+		<span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token keyword">char</span><span class="token punctuation">)</span>c <span class="token operator">==</span> <span class="token string">'i'</span><span class="token punctuation">)</span>
+			border_type <span class="token operator">=</span> cv<span class="token operator">::</span>BORDER_ISOLATED<span class="token punctuation">;</span>
+		
+		<span class="token comment">//颜色</span>
+		cv<span class="token operator">::</span>Scalar color <span class="token operator">=</span> cv<span class="token operator">::</span><span class="token function">Scalar</span><span class="token punctuation">(</span>rng<span class="token punctuation">.</span><span class="token function">uniform</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">255</span><span class="token punctuation">)</span><span class="token punctuation">,</span> rng<span class="token punctuation">.</span><span class="token function">uniform</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">255</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+			rng<span class="token punctuation">.</span><span class="token function">uniform</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">255</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token comment">//添加边缘</span>
+		cv<span class="token operator">::</span><span class="token function">copyMakeBorder</span><span class="token punctuation">(</span>src<span class="token punctuation">,</span> dst<span class="token punctuation">,</span> top<span class="token punctuation">,</span> bottom<span class="token punctuation">,</span> left<span class="token punctuation">,</span> right<span class="token punctuation">,</span>
+			border_type<span class="token punctuation">,</span> color<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span>ou_title<span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span>ou_title<span class="token punctuation">,</span> dst<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token punctuation">}</span>
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>！！​**</p>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,134 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenCV学习笔记（十二）之直方图比较</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="__7"></a>一. 直方图比较方法</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;对输入的两张图像计算得到直方图H1和H2，归一化到相同的尺度空间，然后通过计算H1和H2之间的距离得到两个直方图的相似程度。</p>
+<h2><a id="_OpenCV_9"></a>二. OpenCV提供的比较方法：</h2>
+<ol>
+<li>Correlation - 相关性比较</li>
+<li>Chi-Square - 卡方比较</li>
+<li>Intersection - 十字交叉性</li>
+<li>Bhattacharyya - 巴氏距离</li>
+</ol>
+<h3><a id="HISTCOM_CORREL_15"></a>(一).相关性比较（HISTCOM_CORREL）</h3>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200602215523573.png" width="70%">
+</center><h3><a id="HISTCOM_CHISQE_20"></a>(二).卡方比较（HISTCOM_CHISQE）</h3>
+<center>
+<img src="https://img-blog.csdnimg.cn/2020060221561165.png" width="70%">
+</center><h3><a id="_HISTCOM_INTERSECT_25"></a>(三). 十字交叉性（HISTCOM_INTERSECT）</h3>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200602215659923.png" width="70%">
+</center><h3><a id="_HISTCOM_BHATTACHARYYA_30"></a>(四). 巴氏距离（HISTCOM_BHATTACHARYYA）</h3>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200602215728536.png" width="70%">
+</center><h2><a id="_API_35"></a>三. API分析</h2>
+<pre><code class="prism language-cpp">cv<span class="token operator">::</span><span class="token function">compareHist</span><span class="token punctuation">(</span>
+	InputArray h1<span class="token punctuation">,</span>		<span class="token comment">//直方图数据</span>
+	InputArray h2<span class="token punctuation">,</span>
+	<span class="token keyword">int</span> method<span class="token punctuation">,</span>			<span class="token comment">//比较方法</span>
+<span class="token punctuation">)</span>
+</code></pre>
+<h2><a id="__45"></a>四. 代码实现：</h2>
+<pre><code class="prism language-cpp"><span class="token comment">/*****直方图比较*****/</span>
+
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;opencv2/opencv.hpp&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;math.h&gt;</span></span>
+
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+string <span class="token function">DoubleToString</span><span class="token punctuation">(</span><span class="token keyword">double</span> b<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token keyword">int</span> argc<span class="token punctuation">,</span> <span class="token keyword">char</span><span class="token operator">*</span><span class="token operator">*</span> argv<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	cv<span class="token operator">::</span>Mat src1<span class="token punctuation">,</span> src2<span class="token punctuation">,</span> src3<span class="token punctuation">;</span>			<span class="token comment">//测试三张图片的相似度</span>
+	src1 <span class="token operator">=</span> cv<span class="token operator">::</span><span class="token function">imread</span><span class="token punctuation">(</span><span class="token string">"1.jpg"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	src2 <span class="token operator">=</span> cv<span class="token operator">::</span><span class="token function">imread</span><span class="token punctuation">(</span><span class="token string">"10.jpg"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	src3 <span class="token operator">=</span> cv<span class="token operator">::</span><span class="token function">imread</span><span class="token punctuation">(</span><span class="token string">"10.png"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token comment">//将RGB空间转为HSV空间</span>
+	cv<span class="token operator">::</span><span class="token function">cvtColor</span><span class="token punctuation">(</span>src1<span class="token punctuation">,</span> src1<span class="token punctuation">,</span> cv<span class="token operator">::</span>COLOR_BGR2HSV<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">cvtColor</span><span class="token punctuation">(</span>src2<span class="token punctuation">,</span> src2<span class="token punctuation">,</span> cv<span class="token operator">::</span>COLOR_BGR2HSV<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">cvtColor</span><span class="token punctuation">(</span>src3<span class="token punctuation">,</span> src3<span class="token punctuation">,</span> cv<span class="token operator">::</span>COLOR_BGR2HSV<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	
+	<span class="token comment">//准备直方图的参数</span>
+	<span class="token comment">//两维的直方图</span>
+	<span class="token keyword">int</span> h_bins <span class="token operator">=</span> <span class="token number">50</span><span class="token punctuation">;</span>		<span class="token comment">//H的直方图的尺寸</span>
+	<span class="token keyword">int</span> s_bins <span class="token operator">=</span> <span class="token number">60</span><span class="token punctuation">;</span>		<span class="token comment">//S的直方图的尺寸</span>
+	<span class="token keyword">int</span> histSize<span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">{</span> h_bins<span class="token punctuation">,</span> s_bins <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+	<span class="token comment">//直方图的变化范围</span>
+	<span class="token keyword">float</span> h_ranges<span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">{</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">180</span> <span class="token punctuation">}</span><span class="token punctuation">;</span>	<span class="token comment">//H的变化范围</span>
+	<span class="token keyword">float</span> s_ranges<span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">{</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">256</span> <span class="token punctuation">}</span><span class="token punctuation">;</span>	<span class="token comment">//S的变化范围</span>
+	<span class="token keyword">const</span> <span class="token keyword">float</span><span class="token operator">*</span> ranges<span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">{</span> h_ranges<span class="token punctuation">,</span> s_ranges <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+	<span class="token comment">//二维的直方图使用两个通道0， 1</span>
+	<span class="token keyword">int</span> channels<span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">{</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">1</span> <span class="token punctuation">}</span><span class="token punctuation">;</span>
+	<span class="token comment">//直方图数据</span>
+	cv<span class="token operator">::</span>MatND hist_src1<span class="token punctuation">;</span>
+	cv<span class="token operator">::</span>MatND hist_src2<span class="token punctuation">;</span>
+	cv<span class="token operator">::</span>MatND hist_src3<span class="token punctuation">;</span>
+
+	<span class="token comment">//生成直方图，并将数据归一化到0-1之间</span>
+	cv<span class="token operator">::</span><span class="token function">calcHist</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>src1<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> channels<span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Mat</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> hist_src1<span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> histSize<span class="token punctuation">,</span>
+		ranges<span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">calcHist</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>src2<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> channels<span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Mat</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> hist_src2<span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> histSize<span class="token punctuation">,</span>
+		ranges<span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">calcHist</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>src3<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> channels<span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Mat</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> hist_src3<span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> histSize<span class="token punctuation">,</span>
+		ranges<span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//归一化</span>
+	cv<span class="token operator">::</span><span class="token function">normalize</span><span class="token punctuation">(</span>hist_src1<span class="token punctuation">,</span> hist_src1<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>NORM_MINMAX<span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Mat</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">normalize</span><span class="token punctuation">(</span>hist_src2<span class="token punctuation">,</span> hist_src2<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>NORM_MINMAX<span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Mat</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">normalize</span><span class="token punctuation">(</span>hist_src3<span class="token punctuation">,</span> hist_src3<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>NORM_MINMAX<span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Mat</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token comment">//求出直方图的数据后，就可以进行比较了</span>
+	<span class="token keyword">double</span> src1_2 <span class="token operator">=</span> cv<span class="token operator">::</span><span class="token function">compareHist</span><span class="token punctuation">(</span>hist_src1<span class="token punctuation">,</span> hist_src2<span class="token punctuation">,</span> cv<span class="token operator">::</span>HISTCMP_CORREL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">double</span> src1_3 <span class="token operator">=</span> cv<span class="token operator">::</span><span class="token function">compareHist</span><span class="token punctuation">(</span>hist_src1<span class="token punctuation">,</span> hist_src3<span class="token punctuation">,</span> cv<span class="token operator">::</span>HISTCMP_CORREL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">double</span> src2_3 <span class="token operator">=</span> cv<span class="token operator">::</span><span class="token function">compareHist</span><span class="token punctuation">(</span>hist_src2<span class="token punctuation">,</span> hist_src3<span class="token punctuation">,</span> cv<span class="token operator">::</span>HISTCMP_CORREL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	cout <span class="token operator">&lt;&lt;</span> <span class="token string">"src1 compares with src2 correlation value: "</span> <span class="token operator">&lt;&lt;</span> src1_2 <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	cout <span class="token operator">&lt;&lt;</span> <span class="token string">"src1 compares with src3 correlation value: "</span> <span class="token operator">&lt;&lt;</span> src1_3 <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	cout <span class="token operator">&lt;&lt;</span> <span class="token string">"src2 compares with src3 correlation value: "</span> <span class="token operator">&lt;&lt;</span> src2_3 <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+
+	<span class="token comment">//将比较数值显示到图像上</span>
+	cv<span class="token operator">::</span><span class="token function">putText</span><span class="token punctuation">(</span>src1<span class="token punctuation">,</span> <span class="token function">DoubleToString</span><span class="token punctuation">(</span>src1_2<span class="token punctuation">)</span><span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Point</span><span class="token punctuation">(</span><span class="token number">50</span><span class="token punctuation">,</span> <span class="token number">50</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+		cv<span class="token operator">::</span>FONT_HERSHEY_COMPLEX<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Scalar</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">255</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>LINE_AA<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">putText</span><span class="token punctuation">(</span>src2<span class="token punctuation">,</span> <span class="token function">DoubleToString</span><span class="token punctuation">(</span>src2_3<span class="token punctuation">)</span><span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Point</span><span class="token punctuation">(</span><span class="token number">50</span><span class="token punctuation">,</span> <span class="token number">50</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+		cv<span class="token operator">::</span>FONT_HERSHEY_COMPLEX<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Scalar</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">255</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>LINE_AA<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span><span class="token string">"src1_1"</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span><span class="token string">"src1_2"</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span><span class="token string">"src1_2"</span><span class="token punctuation">,</span> src1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span><span class="token string">"src2_3"</span><span class="token punctuation">,</span> src2<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	cv<span class="token operator">::</span><span class="token function">waitKey</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+
+<span class="token punctuation">}</span>
+
+<span class="token comment">//Doublle 转 String</span>
+string <span class="token function">DoubleToString</span><span class="token punctuation">(</span><span class="token keyword">double</span> b<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	ostringstream os<span class="token punctuation">;</span>
+	<span class="token keyword">if</span> <span class="token punctuation">(</span>os <span class="token operator">&lt;&lt;</span> b<span class="token punctuation">)</span>
+		<span class="token keyword">return</span> os<span class="token punctuation">.</span><span class="token function">str</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">return</span> <span class="token string">"invalid value"</span><span class="token punctuation">;</span>  
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

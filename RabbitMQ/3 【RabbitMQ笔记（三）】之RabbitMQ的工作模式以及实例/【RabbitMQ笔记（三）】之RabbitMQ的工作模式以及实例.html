@@ -1,0 +1,167 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【RabbitMQ笔记（三）】之RabbitMQ的工作模式以及实例</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="%09Rabbitmq_0"></a>一．	Rabbitmq的工作模式</h2>
+<h3><a id="%09Work_queues_1"></a>（一）	Work queues工作队列模式</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;与简单模式不同，工作队列模式多了一个或者一些消费端，多个消费端共同消费同一个队列中的消息。这种模式常常应用于任务过多的情况，可以提高任务处理的速度。消费者之间对于同一个消息的关系是竞争的关系。<br>
+<br></p>
+<h3><a id="%09PubSub__7"></a>（二）	Pub/Sub 订阅模式</h3>
+<h4><a id="1%09_8"></a>1.	流程介绍</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;订阅模式中，多了交换机的转发过程。生产者将消息发送给交换机，交换机决定如何处理这些消息，如交给所有的队列，或交给特定的队列，或是丢弃这些消息，这些操作取决于 交换机的类型。队列得到这些消息后，消费者监听队列并得到消息。<br>
+<br></p>
+<h4><a id="2%09_14"></a>2.	交换机类型</h4>
+<h5><a id="1%09Fanout_15"></a>（1）	Fanout</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;广播，将消息交给所有绑定到交换机的队列。<br>
+<br></p>
+<h5><a id="2%09Direct_21"></a>（2）	Direct</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;定向，将消息交给符合指定Routing key的队列。<br>
+<br></p>
+<h5><a id="3%09Topic_27"></a>（3）	Topic</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通配符，将消息交给符合Routing pattern（路由模式）的队列。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;注意，交换机没有存储能力，只负责转发消息，因此若没有队列和交换机绑定或没有符合路由规则的队列时，消息会丢失。<br>
+<br></p>
+<h4><a id="3%09Fanout_35"></a>3.	Fanout模式实例</h4>
+<h5><a id="1%09_36"></a>（1）	创建生产者类</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;生产者类的流程与之前差不多，多了创建交换机，绑定队列和交换机的流程。<br>
+<br></p>
+<h6><a id="a%09_42"></a>a)	创建交换机</h6>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;创建交换机是使用通道的exchangeDeclare方法进行创建，exchangeDeclare方法的声明如下：</p>
+<pre><code class="prism language-java"><span class="token function">exchangeDeclare</span><span class="token punctuation">(</span>String exchange<span class="token punctuation">,</span> BuiltinExchangeType type<span class="token punctuation">,</span> <span class="token keyword">boolean</span> durable<span class="token punctuation">,</span> <span class="token keyword">boolean</span> autoDelete<span class="token punctuation">,</span> <span class="token keyword">boolean</span> internal<span class="token punctuation">,</span> Map<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">,</span>Object<span class="token punctuation">&gt;</span></span> arguments<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>参数介绍；</p>
+<pre><code class="prism language-java">exchange<span class="token operator">:</span> 交换机名称
+type<span class="token operator">:</span> 交换机类型
+		<span class="token function">DIRECT</span><span class="token punctuation">(</span>“direct”<span class="token punctuation">)</span><span class="token operator">:</span> 定向
+		<span class="token function">FANOUT</span><span class="token punctuation">(</span>“fanout”<span class="token punctuation">)</span><span class="token operator">:</span> 扇形（广播），发送消息到每个与之绑定的队列
+		<span class="token function">TOPIC</span><span class="token punctuation">(</span>“topic”<span class="token punctuation">)</span><span class="token operator">:</span> 通配符
+		<span class="token function">HEADERS</span><span class="token punctuation">(</span>“headers”<span class="token punctuation">)</span><span class="token operator">:</span>参数匹配
+durable<span class="token operator">:</span> 是否持久化
+autoDelete<span class="token operator">:</span> 是否自动删除
+internal<span class="token operator">:</span> 是否内部使用，一般为<span class="token boolean">false</span>
+arguments<span class="token operator">:</span> 参数
+</code></pre>
+<p>调用exchangeDeclare函数如下：</p>
+<pre><code class="prism language-java">String exchangeName <span class="token operator">=</span> “test_fanout”<span class="token punctuation">;</span>
+channel<span class="token punctuation">.</span><span class="token function">exchangeDeclare</span><span class="token punctuation">(</span>exchangeName<span class="token punctuation">,</span> BuiltinExchangeType<span class="token punctuation">.</span>FANOUT<span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">,</span> null<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h6><a id="b%09_74"></a>b)	创建多个队列</h6>
+<pre><code class="prism language-java">String queue1Name <span class="token operator">=</span> “test_fanout_queue1”<span class="token punctuation">;</span>
+String queue2Name <span class="token operator">=</span> “test_fanout_queue2”<span class="token punctuation">;</span>
+channel<span class="token punctuation">.</span><span class="token function">queueDeclare</span><span class="token punctuation">(</span>queue1Name<span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+channel<span class="token punctuation">.</span><span class="token function">queueDeclare</span><span class="token punctuation">(</span>queue2Name<span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h6><a id="c%09_86"></a>c)	绑定队列和交换机</h6>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;使用通道的queueBind函数进行绑定，queueBind函数的声明如下：</p>
+<pre><code class="prism language-java"><span class="token function">queueBind</span><span class="token punctuation">(</span>String queue<span class="token punctuation">,</span> String exchange<span class="token punctuation">,</span> String routingkey<span class="token punctuation">)</span>
+</code></pre>
+<p>参数介绍：</p>
+<pre><code class="prism language-java">queue<span class="token operator">:</span> 队列名称
+exchange<span class="token operator">:</span> 交换机名称
+routingkey<span class="token operator">:</span> 路由键，绑定规则，若交换机的类型为fanout<span class="token punctuation">,</span>则routingkey设置为””，即全部发送。
+</code></pre>
+<p>queueBind函数的调用如下所示：</p>
+<pre><code class="prism language-java">channel<span class="token punctuation">.</span><span class="token function">queueBind</span><span class="token punctuation">(</span>queue1Name<span class="token punctuation">,</span> exchangeName<span class="token punctuation">,</span> “”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+channel<span class="token punctuation">.</span><span class="token function">queueBind</span><span class="token punctuation">(</span>queue2Name<span class="token punctuation">,</span> exchangeName<span class="token punctuation">,</span> “”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h3><a id="_111"></a>（二）测试生产者类</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;执行生产者类的代码后，我们可以在Rabbitmq的管理界面看到，队列多了两个，每个队列中有同等数量的消息，因为是广播发送的。</p>
+<p>完整的生产类代码如下：</p>
+<pre><code class="prism language-java"><span class="token keyword">package</span> com<span class="token punctuation">.</span>rabbitmq<span class="token punctuation">.</span>producer<span class="token punctuation">;</span>
+
+
+<span class="token keyword">import</span> com<span class="token punctuation">.</span>rabbitmq<span class="token punctuation">.</span>client<span class="token punctuation">.</span>BuiltinExchangeType<span class="token punctuation">;</span>
+<span class="token keyword">import</span> com<span class="token punctuation">.</span>rabbitmq<span class="token punctuation">.</span>client<span class="token punctuation">.</span>Channel<span class="token punctuation">;</span>
+<span class="token keyword">import</span> com<span class="token punctuation">.</span>rabbitmq<span class="token punctuation">.</span>client<span class="token punctuation">.</span>Connection<span class="token punctuation">;</span>
+<span class="token keyword">import</span> com<span class="token punctuation">.</span>rabbitmq<span class="token punctuation">.</span>client<span class="token punctuation">.</span>ConnectionFactory<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>io<span class="token punctuation">.</span>IOException<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>concurrent<span class="token punctuation">.</span>TimeoutException<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Producer_PubSub</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> TimeoutException<span class="token punctuation">,</span> IOException <span class="token punctuation">{</span>
+        <span class="token comment">//1. 创建连接工厂</span>
+        ConnectionFactory factory <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ConnectionFactory</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">//2. 设置参数</span>
+        factory<span class="token punctuation">.</span><span class="token function">setHost</span><span class="token punctuation">(</span><span class="token string">"192.168.211.128"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        factory<span class="token punctuation">.</span><span class="token function">setPort</span><span class="token punctuation">(</span><span class="token number">5672</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        factory<span class="token punctuation">.</span><span class="token function">setVirtualHost</span><span class="token punctuation">(</span><span class="token string">"hello"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        factory<span class="token punctuation">.</span><span class="token function">setUsername</span><span class="token punctuation">(</span><span class="token string">"wxx"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        factory<span class="token punctuation">.</span><span class="token function">setPassword</span><span class="token punctuation">(</span><span class="token string">"wxx"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">//3.创建连接</span>
+        Connection connection <span class="token operator">=</span> factory<span class="token punctuation">.</span><span class="token function">newConnection</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">//4.创建通道</span>
+        Channel channel <span class="token operator">=</span> connection<span class="token punctuation">.</span><span class="token function">createChannel</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">//5.创建交换机</span>
+        String exchangeName <span class="token operator">=</span> <span class="token string">"test_fanout"</span><span class="token punctuation">;</span>
+        channel<span class="token punctuation">.</span><span class="token function">exchangeDeclare</span><span class="token punctuation">(</span>exchangeName<span class="token punctuation">,</span> BuiltinExchangeType<span class="token punctuation">.</span>FANOUT<span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">,</span> null<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment">//6.创建队列</span>
+        String queue1Name <span class="token operator">=</span> <span class="token string">"test_fanout_queue1"</span><span class="token punctuation">;</span>
+        String queue2Name <span class="token operator">=</span> <span class="token string">"test_fanout_queue2"</span><span class="token punctuation">;</span>
+        channel<span class="token punctuation">.</span><span class="token function">queueDeclare</span><span class="token punctuation">(</span>queue1Name<span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">,</span> null<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        channel<span class="token punctuation">.</span><span class="token function">queueDeclare</span><span class="token punctuation">(</span>queue2Name<span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">,</span>   null<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">//7.绑定交换机和队列</span>
+        channel<span class="token punctuation">.</span><span class="token function">queueBind</span><span class="token punctuation">(</span>queue1Name<span class="token punctuation">,</span> exchangeName<span class="token punctuation">,</span> <span class="token string">""</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        channel<span class="token punctuation">.</span><span class="token function">queueBind</span><span class="token punctuation">(</span>queue2Name<span class="token punctuation">,</span> exchangeName<span class="token punctuation">,</span> <span class="token string">""</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">//6. 发送消息</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span> i <span class="token operator">&lt;=</span><span class="token number">10</span> <span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            String body <span class="token operator">=</span> i <span class="token operator">+</span> <span class="token string">"Pub/Sub"</span><span class="token punctuation">;</span>
+            channel<span class="token punctuation">.</span><span class="token function">basicPublish</span><span class="token punctuation">(</span>exchangeName<span class="token punctuation">,</span> <span class="token string">""</span><span class="token punctuation">,</span> null<span class="token punctuation">,</span> body<span class="token punctuation">.</span><span class="token function">getBytes</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment">//7. 释放资源</span>
+        channel<span class="token punctuation">.</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        connection<span class="token punctuation">.</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h3><a id="%09Routing__170"></a>（三）	Routing 路由模式</h3>
+<h4><a id="1%09_171"></a>1.	流程概述</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;路由模式中交换机与队列进行绑定时，需要指定一个RoutingKey，同时消息在发送给交换机时也必须制定消息的RoutingKey。交换机在转发消息时，根据消息的RoutingKey进行判断，只有队列的RoutingKey与消息的RoutingKey一致，才会收到消息。<br>
+<br></p>
+<h4><a id="2%09_177"></a>2.	创建交换机</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;路由模式需要修改交换机的类型，改为DIRECT类型。</p>
+<pre><code class="prism language-java">String exchangeName <span class="token operator">=</span> “test_direct”<span class="token punctuation">;</span>
+channel<span class="token punctuation">.</span><span class="token function">exchangeDeclare</span><span class="token punctuation">(</span>exchangeName<span class="token punctuation">,</span> BuiltinExchangeType<span class="token punctuation">.</span>DIRECT<span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">,</span> null<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h4><a id="3%09_188"></a>3.	创建队列</h4>
+<pre><code class="prism language-java">String queue1Name <span class="token operator">=</span> “test_direct_queue1”<span class="token punctuation">;</span>
+String queue2Name <span class="token operator">=</span> “test_direct_queue2”<span class="token punctuation">;</span>
+channel<span class="token punctuation">.</span><span class="token function">queueDeclare</span><span class="token punctuation">(</span>queue1Name<span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">,</span> null<span class="token punctuation">)</span><span class="token punctuation">;</span>
+channel<span class="token punctuation">.</span><span class="token function">queueDeclare</span><span class="token punctuation">(</span>queue2Name<span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">,</span> null<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h4><a id="4%09_200"></a>4.	绑定交换机和队列</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;这里绑定交换机和队列时我们需要制定RoutingKey，本案例的RoutingKey是日志的级别，第一个队列绑定error级别，第二个队列绑定info, error, warning级别。</p>
+<pre><code class="prism language-java">channel<span class="token punctuation">.</span><span class="token function">queueBind</span><span class="token punctuation">(</span>queue1Name<span class="token punctuation">,</span> exchangeName<span class="token punctuation">,</span> “error”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+channel<span class="token punctuation">.</span><span class="token function">queueBind</span><span class="token punctuation">(</span>queue2Name<span class="token punctuation">,</span> exchangeName<span class="token punctuation">,</span> “info”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+channel<span class="token punctuation">.</span><span class="token function">queueBind</span><span class="token punctuation">(</span>queue2Name<span class="token punctuation">,</span> exchangeName <span class="token punctuation">,</span> “error”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+channel<span class="token punctuation">.</span><span class="token function">queueBind</span><span class="token punctuation">(</span>queue2Name<span class="token punctuation">,</span> exchangeName<span class="token punctuation">,</span> “warning”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h4><a id="5%09_213"></a>5.	发送消息</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;路由模式下发送消息同样需要绑定RoutingKey。</p>
+<pre><code class="prism language-java">String body <span class="token operator">=</span> “log<span class="token operator">:</span>… loglevel<span class="token operator">:</span>info”<span class="token punctuation">;</span>
+channel<span class="token punctuation">.</span><span class="token function">basicPublish</span><span class="token punctuation">(</span>exchangeName<span class="token punctuation">,</span> “info”<span class="token punctuation">,</span> null<span class="token punctuation">.</span> body<span class="token punctuation">.</span><span class="token function">getBytes</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h3><a id="%09Topics_224"></a>（四）	Topics通配符模式</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通配符模式即使用通配符制定规则。如news.#，凡是以news.开头的RoutingKey都能被匹配到。#代表了零到多个单词，*代表了一个单词。</p>
+<br>
+</div>
+</body>
+
+</html>

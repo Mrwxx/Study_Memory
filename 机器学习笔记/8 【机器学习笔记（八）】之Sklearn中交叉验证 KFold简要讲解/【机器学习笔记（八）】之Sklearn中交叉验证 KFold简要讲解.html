@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【机器学习笔记（八）】之Sklearn中交叉验证 KFold简要讲解</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="SklearnAPI_KFold_7"></a>Sklearn中交叉验证API KFold讲解</h2>
+<h3><a id="__8"></a>一. 交叉验证原理讲解</h3>
+<h4><a id="1__9"></a>1. 设置验证集的原因</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在机器学习建模过程中，将数据分为<strong>训练集和测试集</strong>。测试集合训练集是完全分开的两个数据集，完全不参与训练，只是用于模型最终确定后，来测试模型的效果。而训练集又要分出一部分数据用来验证模型的训练效果，即<strong>验证集</strong>。验证集在每次训练集训练结束后，对模型的效果进行初步地测试。之所以要设置验证集，是因为训练数据会有<strong>过拟合</strong>的情况出现，即训练数据能够很好地匹配训练数据，但对于训练数据之外的数据效果非常差。验证集不参与训练，可以<strong>客观地评价模型对于训练集之外的数据的匹配度</strong>。</p>
+<h4><a id="2__13"></a>2. 交叉验证原理</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;交叉验证经常用于数据的验证，原理是<strong>将数据分为 n 组</strong>，每组数据都要作为一次验证集进行一次验证，而其余的 n-1 组数据作为训练集。这样一共要循环 n 次，<strong>验证 n 次，得到 n 个模型</strong>，这 n 个模型得到的 n 个误差<strong>计算均值</strong>，得到交叉验证误差。</p>
+<h3><a id="_API__17"></a>二. API 讲解</h3>
+<h5><a id="1__18"></a>1. 导入</h5>
+<pre><code class="prism language-python"><span class="token keyword">from</span> sklearn<span class="token punctuation">.</span>model_selection <span class="token keyword">import</span> KFold
+</code></pre>
+<h5><a id="2__23"></a>2. 参数</h5>
+<h6><a id="1n_splits_24"></a>（1）n_splits:</h6>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;将训练集分为 n 份，n份数据，每一份都要作为作为一次验证集来验证训练的结果，一共 n 次循环，其余n-1份数据作为训练集进行训练。</p>
+<h6><a id="2__shuffle_27"></a>(2).  shuffle:</h6>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;表示是否打乱数据的顺序 ，bool 类型。</p>
+<h6><a id="3__random_state_30"></a>(3).  random_state:</h6>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;同一个数字保证每次循环都是分成同样的份。</p>
+<h5><a id="3__34"></a>3. 调用：</h5>
+<pre><code class="prism language-python">kf <span class="token operator">=</span> KFold<span class="token punctuation">(</span>n_splits<span class="token operator">=</span><span class="token number">3</span><span class="token punctuation">,</span> shuffle<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span> random_state<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">)</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>返回 train_index, test_index，训练集的索引，验证集的索引</strong></p>
+<h5><a id="4__42"></a>4. 使用：</h5>
+<pre><code class="prism language-python"><span class="token keyword">for</span> train_index<span class="token punctuation">,</span> test_index <span class="token keyword">in</span> kf<span class="token punctuation">.</span>split<span class="token punctuation">(</span>titanic<span class="token punctuation">)</span><span class="token punctuation">:</span>
+	<span class="token string">""</span>"
+</code></pre>
+</div>
+</body>
+
+</html>

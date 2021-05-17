@@ -1,0 +1,108 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【LeetCode刷题笔记（六十四）】之 101.对称二叉树</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	题目</h2>
+<h3><a id="%09_8"></a>（一）	题干</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;给定一个二叉树，检查它是否是镜像对称的。<br>
+<br></p>
+<h3><a id="%09_14"></a>（二）	示例</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;二叉树 [1,2,2,3,4,4,3] 是对称的。</p>
+<pre><code class="prism language-cpp">    <span class="token number">1</span>
+   <span class="token operator">/</span> \
+  <span class="token number">2</span>   <span class="token number">2</span>
+ <span class="token operator">/</span> \ <span class="token operator">/</span> \
+<span class="token number">3</span>  <span class="token number">4</span> <span class="token number">4</span>  <span class="token number">3</span>
+</code></pre>
+<br>
+<h2><a id="%09_30"></a>二．	题解</h2>
+<h3><a id="%09_31"></a>（一）	思路</h3>
+<h4><a id="1%09_32"></a>1.	递归思路</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;二叉树的题目一般都可以用递归和迭代两种思路来做。这个题目要求判断一个树的左子树是否和右子树镜像对称，那么镜像对称要如何判断呢？应该满足以下的条件：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;1.	两棵树的根节点值相等</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 2.	每棵树的左子树都和另一棵树的右子树镜像对称</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;这样，就形成了递归的条件，之前我们做的递归题目都是通过一个节点指针进行递归，这种需要比较的题目就可以尝试使用两个节点指针进行递归，比较两个指针所指的节点是否镜像对称。<br>
+<br></p>
+<h4><a id="2_44"></a>2.迭代思路</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通常，当我们要将递归思路转换为迭代时，通过一个队列或者栈来过渡。初始时，将根节点入队两次，在每次迭代中我们取出队列的两个节点，比较两个节点是否相等。然后分别插入第一个节点的左子树，第二个节点的右子树；然后插入第一个节点的右子树，第二个节点的左子树。反正就是比较不同节点的左右子树，只要有不相等的，就返回false。<br>
+<br></p>
+<h3><a id="%09_50"></a>（二）	代码</h3>
+<h4><a id="1%09_53"></a>1．	递归思路：</h4>
+<p>Java：</p>
+<pre><code class="prism language-java"><span class="token comment">/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */</span>
+<span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">isSymmetric</span><span class="token punctuation">(</span>TreeNode root<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment">//镜像对称，左子树和右子树镜像对称，使用两个指针分别指向左子树，右子树</span>
+        <span class="token keyword">return</span> <span class="token function">dfs</span><span class="token punctuation">(</span>root<span class="token punctuation">,</span> root<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">dfs</span><span class="token punctuation">(</span>TreeNode left<span class="token punctuation">,</span> TreeNode right<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token comment">//都为null</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>left <span class="token operator">==</span> null <span class="token operator">&amp;&amp;</span> right <span class="token operator">==</span> null<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token comment">//单个为null，说明不相等</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>left <span class="token operator">==</span> null <span class="token operator">||</span> right <span class="token operator">==</span> null<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token comment">//都不为null，需要比较两个节点的值是否相等，以及子树的对称情况</span>
+        <span class="token keyword">return</span> <span class="token punctuation">(</span>left<span class="token punctuation">.</span>val <span class="token operator">==</span> right<span class="token punctuation">.</span>val<span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span> <span class="token function">dfs</span><span class="token punctuation">(</span>left<span class="token punctuation">.</span>left<span class="token punctuation">,</span> right<span class="token punctuation">.</span>right<span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span> <span class="token function">dfs</span><span class="token punctuation">(</span>left<span class="token punctuation">.</span>right<span class="token punctuation">,</span> right<span class="token punctuation">.</span>left<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h4><a id="2_91"></a>2.迭代思路</h4>
+<p>Java：</p>
+<pre><code class="prism language-java"><span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">isSymmetric</span><span class="token punctuation">(</span>TreeNode root<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token function">check</span><span class="token punctuation">(</span>root<span class="token punctuation">,</span> root<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">check</span><span class="token punctuation">(</span>TreeNode u<span class="token punctuation">,</span> TreeNode v<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        Queue<span class="token generics function"><span class="token punctuation">&lt;</span>TreeNode<span class="token punctuation">&gt;</span></span> q <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">LinkedList</span><span class="token generics function"><span class="token punctuation">&lt;</span>TreeNode<span class="token punctuation">&gt;</span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        q<span class="token punctuation">.</span><span class="token function">offer</span><span class="token punctuation">(</span>u<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        q<span class="token punctuation">.</span><span class="token function">offer</span><span class="token punctuation">(</span>v<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">while</span> <span class="token punctuation">(</span><span class="token operator">!</span>q<span class="token punctuation">.</span><span class="token function">isEmpty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            u <span class="token operator">=</span> q<span class="token punctuation">.</span><span class="token function">poll</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            v <span class="token operator">=</span> q<span class="token punctuation">.</span><span class="token function">poll</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>u <span class="token operator">==</span> null <span class="token operator">&amp;&amp;</span> v <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">continue</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>u <span class="token operator">==</span> null <span class="token operator">||</span> v <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token operator">||</span> <span class="token punctuation">(</span>u<span class="token punctuation">.</span>val <span class="token operator">!=</span> v<span class="token punctuation">.</span>val<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+
+            q<span class="token punctuation">.</span><span class="token function">offer</span><span class="token punctuation">(</span>u<span class="token punctuation">.</span>left<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            q<span class="token punctuation">.</span><span class="token function">offer</span><span class="token punctuation">(</span>v<span class="token punctuation">.</span>right<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+            q<span class="token punctuation">.</span><span class="token function">offer</span><span class="token punctuation">(</span>u<span class="token punctuation">.</span>right<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            q<span class="token punctuation">.</span><span class="token function">offer</span><span class="token punctuation">(</span>v<span class="token punctuation">.</span>left<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

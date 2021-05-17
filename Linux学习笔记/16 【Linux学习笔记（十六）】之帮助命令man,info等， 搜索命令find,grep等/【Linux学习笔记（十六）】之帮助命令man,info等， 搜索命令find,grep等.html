@@ -1,0 +1,166 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Linux学习笔记（十六）】之帮助命令man,info等， 搜索命令find,grep等</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	帮助命令</h2>
+<h3><a id="%09man__8"></a>（一）	man 命令</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通过man命令查看其它命令的详细文档。</p>
+<h4><a id="1%09_11"></a>1.	命令格式</h4>
+<pre><code class="prism language-cpp">man <span class="token punctuation">[</span>选项<span class="token punctuation">]</span> 命令
+</code></pre>
+<pre><code class="prism language-cpp"><span class="token operator">-</span>f <span class="token operator">:</span> 查看命令拥有哪个级别的帮助
+<span class="token operator">-</span>k：查看和命令相关的所有帮助
+</code></pre>
+<pre><code class="prism language-cpp">man <span class="token operator">-</span>f ls
+</code></pre>
+<h4><a id="2%09_26"></a>2.	命令的帮助级别</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;不同的命令有不同的帮助级别，使用man查看命令的文档时可以看到命令后的数字就是该命令的帮助级别。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;1： 普通用户可执行的系统命令和可执行文件的帮助</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;2： 内核可以调用的函数和工具的帮助</p>
+<p>级别过多，懒得记录…</p>
+<h3><a id="%09info_35"></a>（二）	info命令</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;最完整的命令资料，如同天书。</p>
+<h3><a id="%09help__38"></a>（三）	help 命令</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;help只能获取Shell内置命令的帮助， 可以使用type命令来区分内置命令和外部命令。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;cd是shell内置命令，使用<br>
+<code>type cd</code>就会展示如下内容，表示cd是Shell内置命令：</p>
+<pre><code class="prism language-cpp">cd is a shell builtin
+</code></pre>
+<h3><a id="%09help_48"></a>（四）	--help选项</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;这种方法比较简单，输出的帮助信息基本上时man命令的信息简要版。</p>
+<pre><code class="prism language-cpp">ls <span class="token operator">--</span>help
+</code></pre>
+<h2><a id="___56"></a>二．  搜索命令</h2>
+<h3><a id="whereis_57"></a>（一）whereis命令</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;只能搜索系统命令，不能搜索普通文件。在搜索系统命令时，可以查找出二进制命令，命令的源文件位置，帮助文档。</p>
+<pre><code class="prism language-cpp">whereis ls
+</code></pre>
+<h3><a id="_which_64"></a>（二） which命令</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;which命令在查找二进制命令的同时，如果该命令有别名，还可以找到别名。</p>
+<p>如下所示：</p>
+<pre><code class="prism language-cpp">which ls
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;查找系统的别名命令为alias，可以查找到如 ls -l –color=auto 命令的别名是ll。</p>
+<h3><a id="_locate_75"></a>（三） locate命令</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;按照文件名搜索普通文件，优点是按照数据库搜索，搜索速度极快，消耗资源小。数据库的位置在/var/lib/mlocate/mlocate.db，当搜索不到文件的时候，可能是数据库未更新，可以使用updatedb命令更新数据库。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;配置文件在 /etc/updated.conf中，可以配置搜索的禁止选项，如下所示：</p>
+<pre><code class="prism language-cpp">PRUNE_BIND_MOUNTS <span class="token operator">=</span> “yes” # 开启搜索限制，让配置文件生效
+PRUNEFS <span class="token operator">=</span> “…” #禁止搜索的系统文件类型
+PRUNENAMES <span class="token operator">=</span> “…” #禁止搜索的扩展名
+PRUNEPATHS <span class="token operator">=</span> “…” #禁止搜索的系统目录
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;这就可以解释为什么我们搜不到有些目录的文件了，因为都在配置文件中禁止了。</p>
+<h3><a id="%09find_90"></a>（四）	find命令</h3>
+<h4><a id="1%09_91"></a>1.	按照文件名搜索</h4>
+<p>格式如下：</p>
+<pre><code class="prism language-cpp">find 搜索路径 <span class="token punctuation">[</span>选项<span class="token punctuation">]</span> 搜索内容
+</code></pre>
+<p>选项：</p>
+<pre><code class="prism language-cpp"><span class="token operator">-</span>name<span class="token operator">:</span> 按照文件名搜索
+<span class="token operator">-</span>iname<span class="token operator">:</span> 不区分大小写，搜索文件名
+<span class="token operator">-</span>inum<span class="token operator">:</span> 按照文件的I节点号搜索
+</code></pre>
+<h4><a id="2%09_106"></a>2.	按照文件大小搜索</h4>
+<p>格式如下：</p>
+<pre><code class="prism language-cpp">find 搜索路径 <span class="token punctuation">[</span>选项<span class="token punctuation">]</span> 搜索内容
+</code></pre>
+<p>选项：<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;-size [+|-]大小： 按照指定大小搜索文件，“+”代表比指定大小大的文件，“-”代表比指定大小小的文件。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;搜索大小的单位默认是“b”，表示512个字节；“c”表示字节；“w”表示两个字节（中文）；“k”表示KB，注意是小写；M表示MB，注意是大写；G表示GB，注意是大写。</p>
+<pre><code class="prism language-cpp">find <span class="token punctuation">.</span> <span class="token operator">-</span>size <span class="token operator">+</span><span class="token number">4096</span>c
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;表示在本目录下搜索大于4096字节的文件或目录。</p>
+<h4><a id="3%09_124"></a>3.	按照修改时间搜索</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Linux中的文件有访问时间（atime）, 数据修改时间（mtime）， 状态修改时间（ctime）三种时间，选项就是三种时间的缩写。</p>
+<p>选项：</p>
+<pre><code class="prism language-cpp"><span class="token operator">-</span>atime <span class="token punctuation">[</span><span class="token operator">+</span><span class="token operator">|</span><span class="token operator">-</span><span class="token punctuation">]</span> 时间
+<span class="token operator">-</span>mtime <span class="token punctuation">[</span><span class="token operator">+</span><span class="token operator">|</span><span class="token operator">-</span><span class="token punctuation">]</span> 时间
+<span class="token operator">-</span>ctime <span class="token punctuation">[</span><span class="token operator">+</span><span class="token operator">|</span><span class="token operator">-</span><span class="token punctuation">]</span> 时间
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;注意，这里的±时间比较特殊，-5代表着5天内修改的文件，单独的5代表着5-6天那天修改的文件，+5代表着6天前修改的文件。</p>
+<h4><a id="4%09_137"></a>4.	按照权限搜索</h4>
+<p>格式：</p>
+<pre><code class="prism language-cpp">find 搜索路径 <span class="token punctuation">[</span>选项<span class="token punctuation">]</span> 搜索内容
+</code></pre>
+<p>选项：</p>
+<pre><code class="prism language-cpp"><span class="token operator">-</span>perm 权限： 查找文件权限刚好等于该权限的文件
+<span class="token operator">-</span>perm <span class="token operator">-</span>权限<span class="token operator">:</span>  查找文件权限中每个权限都大于给出的权限的文件
+<span class="token operator">-</span>perm <span class="token operator">+</span>权限：查找文件权限中大于任意一个权限的文件。
+</code></pre>
+<p>如：</p>
+<pre><code class="prism language-cpp">find <span class="token punctuation">.</span> <span class="token operator">-</span>perm <span class="token operator">+</span><span class="token number">456</span> 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;找所属用户权限，所属组权限，其他人权限中任一大于对应权限的文件即可。</p>
+<pre><code class="prism language-cpp">find <span class="token punctuation">.</span> <span class="token operator">-</span>perm <span class="token operator">-</span><span class="token number">456</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;找出所属用户权限，所属组权限，其他人权限中都要大于对应权限的文件。</p>
+<h4><a id="5%09_166"></a>5.	按照所有者和所属组搜索</h4>
+<p>选项：</p>
+<pre><code class="prism language-cpp"><span class="token operator">-</span>uid 用户ID
+<span class="token operator">-</span>gid 组ID
+<span class="token operator">-</span>user 用户名
+<span class="token operator">-</span>group 组名
+<span class="token operator">-</span>nouser 查找没有所有者的文件
+</code></pre>
+<pre><code class="prism language-cpp">find <span class="token punctuation">.</span> <span class="token operator">-</span>user wxx
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;-nouser选项是最常用的，用于查找垃圾文件，还有外来文件或者是手工源码包安装的文件。</p>
+<h4><a id="6%09_184"></a>6.	按照文件类型搜索</h4>
+<p>选项：</p>
+<pre><code class="prism language-cpp"><span class="token operator">-</span>type d<span class="token operator">:</span> 查找目录
+<span class="token operator">-</span>type f<span class="token operator">:</span> 查找普通文件
+</code></pre>
+<pre><code class="prism language-cpp">find <span class="token punctuation">.</span> <span class="token operator">-</span>type d
+</code></pre>
+<h4><a id="7%09_197"></a>7.	逻辑运算符</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;使用find搜索时，可以使用逻辑运算符来整合两个搜索条件。</p>
+<p>选项：</p>
+<pre><code class="prism language-cpp"><span class="token operator">-</span>a <span class="token operator">:</span> 逻辑与
+<span class="token operator">-</span>o：逻辑或
+<span class="token operator">-</span><span class="token operator">not</span><span class="token operator">:</span> 逻辑非
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;逻辑与即表示搜索的两个条件要同时满足，如下所示：</p>
+<pre><code class="prism language-cpp">find <span class="token punctuation">.</span> <span class="token operator">-</span>size <span class="token operator">+</span><span class="token number">2</span>k <span class="token operator">-</span>a <span class="token operator">-</span>type f
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在当前目录下搜索大于2KB，且文件类型是普通文件的文件。</p>
+<h4><a id="8%09_216"></a>8.	其他选项</h4>
+<h5><a id="1%09exec_218"></a>（1）	-exec选项</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;该选项将find命令的搜索结果交由-exec调用的第二条命令来处理，{}就代表着find命令查找结果，\和-exec配合使用。</p>
+<pre><code class="prism language-cpp">find <span class="token punctuation">.</span> <span class="token operator">-</span>size <span class="token operator">+</span><span class="token number">2</span>k <span class="token operator">-</span>exec ls <span class="token operator">-</span>lh <span class="token punctuation">{</span><span class="token punctuation">}</span>\<span class="token punctuation">;</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;表示将搜索大小大于2KB的文件信息详细地展示出来。</p>
+<h5><a id="2%09ok_227"></a>（2）	-ok选项</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;与-exec基本一致，不过-ok选项在每次执行时会询问用户是否这样做。</p>
+<h3><a id="%09grep_230"></a>（六）	grep命令</h3>
+<h4><a id="1%09_231"></a>1.	格式</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;grep命令是在文件中提取出和匹配符合条件的字符串行。</p>
+<pre><code class="prism language-cpp">grep  <span class="token punctuation">[</span>选项<span class="token punctuation">]</span> “搜索内容” 文件名
+</code></pre>
+<pre><code class="prism language-cpp">grep “<span class="token punctuation">[</span><span class="token number">0</span><span class="token operator">-</span><span class="token number">9</span><span class="token punctuation">]</span>$” abc
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;这里使用正则表达式在abc文件中查找以数字结尾的字符行。</p>
+<h4><a id="2%09_244"></a>2.	选项</h4>
+<pre><code class="prism language-cpp"><span class="token operator">-</span>I ： 忽略大小写
+<span class="token operator">-</span>n：  输出行号
+<span class="token operator">-</span>v：  反向查找，即与条件相反
+<span class="token operator">--</span>color<span class="token operator">=</span><span class="token keyword">auto</span><span class="token operator">:</span> 搜索出的关键字用颜色突出
+</code></pre>
+<h4><a id="3%09grepfind_253"></a>3.	grep与find的区别</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;find命令只能搜索文件名，如果需要模糊查询，则使用通配符进行匹配，通配符是完全匹配，是严格相等的。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;grep命令在文件中搜索符合条件的字符串，若需要模糊查询，可以使用正则表达式匹配，正则式包含匹配的，并不需要严格相等，只需要包含即可。</p>
+</div>
+</body>
+
+</html>

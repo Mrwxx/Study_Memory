@@ -1,0 +1,138 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【数字图像处理笔记（七）】之冲激和取样的傅里叶变换</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	冲激和取样特性</h2>
+<h3><a id="_8"></a>（一）连续冲激的定义</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;线性系统和傅里叶变换研究的核心是<strong>冲激及其取样特性</strong>。连续变量t在t= 0处的单位冲激表示：<br>
+<br><br>
+<img src="https://img-blog.csdnimg.cn/20200806220418997.png" alt="在这里插入图片描述"></p>
+<p><strong>满足等式</strong><br>
+<br></p>
+<p><img src="https://img-blog.csdnimg.cn/20200806220425383.png" alt="在这里插入图片描述"></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;物理上，如果我们把t解释为时间，那么<strong>一个冲激可看成是幅度无限、持续时间为0.具有单位面积的尖峰信号</strong>。一个冲激具有关于如下积分的所谓取样特性:<br>
+<img src="https://img-blog.csdnimg.cn/20200806220431714.png" alt="在这里插入图片描述"></p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;假设f(t)在t = 0处是连续的，取样特性得到函数f(t)在冲激位置的值。</strong></p>
+<p><strong>更一般的取样特性：<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;位于任一点t0的冲激，与f(t)相乘，得到任意点冲激位置的函数值：</strong></p>
+<p><img src="https://img-blog.csdnimg.cn/20200806220438221.png" alt="在这里插入图片描述"><br>
+<br></p>
+<h3><a id="_32"></a>（二）离散冲激的定义</h3>
+ <br>
+<p><strong>单位离散冲激：</strong><br>
+<img src="https://img-blog.csdnimg.cn/20200806220444392.png" alt="在这里插入图片描述"><br>
+<br></p>
+<p>同样满足等式：<br>
+<img src="https://img-blog.csdnimg.cn/20200806220451850.png" alt="在这里插入图片描述"><br>
+<br></p>
+<p>离散变量的取样特性：<br>
+<img src="https://img-blog.csdnimg.cn/20200806220458787.png" alt="在这里插入图片描述"></p>
+<p>一般的取样特性：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>任意位置的离散冲激取样特性可以得到任意冲激位置处的函数值。</strong></p>
+<p><img src="https://img-blog.csdnimg.cn/2020080622050635.png" alt="在这里插入图片描述"></p>
+ <br>
+<h3><a id="_56"></a>（三）冲激串</h3>
+ <br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>无限个分离的周期冲激单元之和</strong></p>
+<p><img src="https://img-blog.csdnimg.cn/20200806220511829.png" alt="在这里插入图片描述"></p>
+<p><strong>冲激串的示例</strong>：</p>
+<p><img src="https://img-blog.csdnimg.cn/20200806220517487.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01yd3h4eHg=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+ <br>
+<h2><a id="%09_70"></a>二．	傅里叶变换</h2>
+<h3><a id="_71"></a>（一）连续函数的傅里叶变换</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;连续变量t的连续函数f(t)的傅里叶变换：<br>
+<img src="https://img-blog.csdnimg.cn/20200806220524542.png" alt="在这里插入图片描述"><br>
+<br></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;给定F(u)，通过傅里叶反变换可以得到f(t)：<br>
+<img src="https://img-blog.csdnimg.cn/20200806220530946.png" alt="在这里插入图片描述"></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;说明函数可以由变换来恢复。<br>
+<br></p>
+<h3><a id="_82"></a>（二）冲激和冲激串的傅里叶变换</h3>
+<h4><a id="1__83"></a>1. 冲激的傅里叶变换</h4>
+ <br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;位于原点的单位冲激的傅里叶变换为：<br>
+<img src="https://img-blog.csdnimg.cn/2020080622053877.png" alt="在这里插入图片描述"></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;可以得出，<strong>一个位于空间域原点的冲激的傅里叶变换，在频率域是一个常数</strong>。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;一般情况下，任意位置的冲激的傅里叶变换为：</p>
+<p><img src="https://img-blog.csdnimg.cn/20200806220544934.png" alt="在这里插入图片描述"></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;最后一步由<strong>欧拉公式</strong>得到。<br>
+<br></p>
+<h4><a id="2__98"></a>2. 冲激串的傅里叶变换</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;周期为△T的冲激串的傅里叶变换还是冲激串，其周期为1 / △T。</p>
+ <br>
+<h2><a id="%09_103"></a>三．	卷积</h2>
+<h3><a id="%09_105"></a>（一）	连续函数的卷积</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;两个连续函数f(t)和h(t)的卷积：<br>
+<img src="https://img-blog.csdnimg.cn/2020080622103255.png" alt="在这里插入图片描述"></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;t是一个函数滑过另一个函数的位移。<br>
+<br></p>
+<h3><a id="_113"></a>（二）卷积定理</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;再将两个函数的卷积经过傅里叶变换，得到如下结论：<strong>空间域中两个函数的卷积的傅里叶变换等于两个函数的傅里叶变换在频率域中的乘积。</strong><br>
+<br><img src="https://img-blog.csdnimg.cn/20200806220600907.png" alt="在这里插入图片描述"></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>H(u)是h(u)的傅里叶变换，F(u)是f(u)的傅里叶变换，t所在的域为空间域，u所在的域为频率域</strong>。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;双箭头用于表示右边的表达式是通过对左边的表达式 执行傅里叶变换得到的；而左边的表达式是通过求右边的表达式的傅里叶反变换得到的。</p>
+ <br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;同理，<strong>频率域的卷积和空间域的乘积也是同样的关系：</strong></p>
+<p><img src="https://img-blog.csdnimg.cn/20200806220608505.png" alt="在这里插入图片描述"><br>
+<br></p>
+<h2><a id="%09_129"></a>四．	取样和取样函数的傅里叶变换</h2>
+ <br>
+<h3><a id="%09_132"></a>（一）	取样</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>计算机处理连续函数，需要转换为离散值序列，可以通过取样来完成</strong>。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>取样可以通过单位间隔的冲激串来作为取样函数乘以f(t)。</strong><br>
+<img src="https://img-blog.csdnimg.cn/20200806220616236.png" alt="在这里插入图片描述"><br>
+<br></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;取样的过程如下图所示：<br>
+<img src="https://img-blog.csdnimg.cn/20200806220621568.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01yd3h4eHg=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>
+<br></p>
+<h3><a id="%09_144"></a>（二）	取样函数的傅里叶变换</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;由于取样后的函数是原始函数和冲激串的乘积，根据卷积定理得知，空间域两个函数乘积的傅里叶变换是两个函数在频率域的卷积。那么，<strong>取样函数的傅里叶变换就是两个函数在频率域的卷积。</strong></p>
+<p><img src="https://img-blog.csdnimg.cn/20200806220635238.png" alt="在这里插入图片描述"><br>
+<br></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;冲激串的傅里叶变换：<br>
+<img src="https://img-blog.csdnimg.cn/20200806220642220.png" alt="在这里插入图片描述"></p>
+ <br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;于是<strong>得到取样后的函数的傅里叶变换为：</strong></p>
+<p><img src="https://img-blog.csdnimg.cn/20200806220648536.png" alt="在这里插入图片描述"><br>
+<br></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;可以看出，<strong>取样后的函数的傅里叶变换是F(u)的一个拷贝的无限周期序列，也是原始连续函数的傅里叶变换</strong>。拷贝间的间隔有 1 / △T的值决定。<strong>较高的1 / △T值在会使周期之间有更为清晰的间隔；而较低的 1 / △T值将会使周期之间融合。</strong><br>
+<br></p>
+<h3><a id="%09_163"></a>（三）	取样定理</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>一个连续函数完全可以由其取样集合恢复。</strong><br>
+<br></p>
+<h4><a id="1%09_167"></a>1.	带限函数</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;对于以原点为中心的有限区间[-umax, umax]之外的频率值，其傅里叶变换为0的函数f(t)称为带限函数。<br>
+<img src="https://img-blog.csdnimg.cn/2020080622065556.png" alt="在这里插入图片描述"><br>
+<br></p>
+<h4><a id="2%09ft_172"></a>2.	恢复f(t)</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>如果能从取样函数的傅里叶变换这个周期序列中分离出F(u)的一个拷贝，就可以通过傅里叶反变换恢复出f(t)。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;因此，我们需要使1 / △T的值足够大，提取出一个单周期。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;即要<strong>满足以下公式</strong>：<br>
+<img src="https://img-blog.csdnimg.cn/20200806220701869.png" alt="在这里插入图片描述"></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;该公式表明：<strong>如果以超过函数最高频率的两倍的取样率来取样本，连续的带限函数可以从它的样本集中恢复。这就是取样定理。</strong><br>
+<br></p>
+<h4><a id="3%09_185"></a>3.	函数复原完整过程</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>带限函数</strong>H(u):（<strong>该带限函数又称为低通滤波器，因为它通过频率范围低端的频率）</strong><br>
+<img src="https://img-blog.csdnimg.cn/20200806220709377.png" alt="在这里插入图片描述"><br>
+<br></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;将H(u)乘以取样后的函数得到F(u)<br>
+<img src="https://img-blog.csdnimg.cn/2020080622071684.png" alt="在这里插入图片描述"><br>
+<br></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通过<strong>傅里叶反变换</strong>复原f(t)：</p>
+<p><img src="https://img-blog.csdnimg.cn/2020080622072131.png" alt="在这里插入图片描述"></p>
+</div>
+</body>
+
+</html>

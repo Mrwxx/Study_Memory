@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Java学习笔记（七十）】之代理的介绍</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	代理的意义</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;当我们想要构造一个类的对象时，这个类实现了一个或者多个接口，在编译时可能是不知道这些接口到底是什么。普通的类可以使用newInstance方法或者使用反射找出构造器，但是接口是无法直接实例化的，需要在运行的程序中定义一个新的实现类。为了解决这个问题，代理机制出现了，代理类可以在运行时创建一个全新的类，这样的代理类能够实现你指定的接口。</p>
+<br>
+<h2><a id="%09_13"></a>二．	调用处理器</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;调用处理器的作用是在调用代理对象的方法时，都会转向调用处理器，调用其中的invoke方法。调用处理器是一个实现了InvocationHandler接口的类对象，这个接口只有一个invoke方法：</p>
+<pre><code class="prism language-cpp">Object <span class="token function">invoke</span><span class="token punctuation">(</span>Object proxy<span class="token punctuation">,</span> Method method<span class="token punctuation">,</span> Object<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h2><a id="%09_23"></a>三．	创建代理对象</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;要想创建一个代理对象，需要使用Proxy类的newProxyInstance方法，这个方法有三个参数：</p>
+<pre><code class="prism language-cpp">类加载器
+Class对象数组
+调用处理器
+</code></pre>
+<pre><code class="prism language-cpp">Object proxy <span class="token operator">=</span> Proxy<span class="token punctuation">.</span><span class="token function">newProxyInstance</span><span class="token punctuation">(</span>ClassLoader<span class="token punctuation">.</span><span class="token function">getSystemClassLoader</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token keyword">new</span> Class<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">{</span>Comparable<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">}</span><span class="token punctuation">,</span> handler<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h2><a id="%09_39"></a>四．	使用代理的场景</h2>
+<ol>
+<li>
+<p>将方法调用路由到远程服务器</p>
+</li>
+<li>
+<p>在运行的程序中将用户界面时间和动作关联起来</p>
+</li>
+<li>
+<p>为了调试，跟踪方法调用</p>
+</li>
+</ol>
+<br>
+<h2><a id="%09_50"></a>五．	调用代理对象的方法</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;使用代理对象跟踪一个二分查找，首先在elements数组中添加代理，然后调用Arrays类的binarySearch方法在数组中查找一个随机整数，在binarySearch方法中就会有以下的调用：</p>
+<pre><code class="prism language-cpp"><span class="token keyword">if</span><span class="token punctuation">(</span>elements<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token function">compareTo</span><span class="token punctuation">(</span>key<span class="token punctuation">)</span><span class="token operator">&lt;</span><span class="token number">0</span><span class="token punctuation">)</span>…
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;由于elements数组中填充了代理对象，所以compareTo调用了调用处理器中的invoke方法，可以看出，只要调用了代理对象的方法，都会调用invoke方法。</p>
+<br>
+<h2><a id="%09_64"></a>六．	代理类的特性</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;代理类是在程序运行过程中动态创建的，一旦被创建，它们就变成了常规类，与虚拟机中的其他类没有什么区别。所有的代理类都会扩展Proxy类，且一个代理类中只有一个实例字段，就是调用处理器，完成代理对象任务所需要的所有额外数据都需要存储在调用处理器之中。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;所有的代理类都会覆盖Object类的toString, equals和hashCode方法，这些方法都会调用处理器的invoke方法。代理类是没有定义名字的，虚拟机将会给它自动生成一个以字符串 $Proxy开头的类名。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;使用同一个类加载器和预设的接口，只能得到一个代理类。如果使用同一个类加载器和接口数组调用两次newProxyInstance方法， 将得到同一个类的两个对象。使用Proxy类的isProxyClass方法可以检测出一个特定的Class对象是否表示一个代理类。</p>
+<br>
+<h2><a id="%09_76"></a>七．	代理实例</h2>
+<h3><a id="1%09_77"></a>1.	调用处理器</h3>
+<pre><code class="prism language-java"><span class="token keyword">package</span> proxy<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>reflect<span class="token punctuation">.</span>InvocationHandler<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>reflect<span class="token punctuation">.</span>Method<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">TraceHandler</span> <span class="token keyword">implements</span> <span class="token class-name">InvocationHandler</span> <span class="token punctuation">{</span>
+
+    <span class="token keyword">private</span> Object target<span class="token punctuation">;</span>
+    <span class="token keyword">public</span> <span class="token function">TraceHandler</span><span class="token punctuation">(</span>Object t<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        target <span class="token operator">=</span> t<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> Object <span class="token function">invoke</span><span class="token punctuation">(</span>Object proxy<span class="token punctuation">,</span> Method method<span class="token punctuation">,</span> Object<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> Throwable <span class="token punctuation">{</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>target<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"."</span> <span class="token operator">+</span> method<span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">"("</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>args <span class="token operator">!=</span> null<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> args<span class="token punctuation">.</span>length<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span><span class="token punctuation">{</span>
+                System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>args<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token keyword">if</span><span class="token punctuation">(</span>i <span class="token operator">&lt;</span> args<span class="token punctuation">.</span>length<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">", "</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">")"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> method<span class="token punctuation">.</span><span class="token function">invoke</span><span class="token punctuation">(</span>target<span class="token punctuation">,</span> args<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h3><a id="2%09_113"></a>2.	创建代理对象并且调用</h3>
+<pre><code class="prism language-java"><span class="token keyword">package</span> proxy<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>reflect<span class="token punctuation">.</span>Proxy<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>Arrays<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>Random<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ProxyTest</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        Object<span class="token punctuation">[</span><span class="token punctuation">]</span> elements <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Object</span><span class="token punctuation">[</span><span class="token number">1000</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> elements<span class="token punctuation">.</span>length<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            Integer value <span class="token operator">=</span> i<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">;</span>
+            TraceHandler handler <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">TraceHandler</span><span class="token punctuation">(</span>value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            Object proxy <span class="token operator">=</span> Proxy<span class="token punctuation">.</span><span class="token function">newProxyInstance</span><span class="token punctuation">(</span>ClassLoader<span class="token punctuation">.</span><span class="token function">getSystemClassLoader</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token keyword">new</span> <span class="token class-name">Class</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">{</span>Comparable<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">}</span><span class="token punctuation">,</span> handler<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            elements<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">=</span> proxy<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        Integer key <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Random</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">nextInt</span><span class="token punctuation">(</span>elements<span class="token punctuation">.</span>length<span class="token punctuation">)</span><span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">;</span>
+        <span class="token keyword">int</span> result <span class="token operator">=</span> Arrays<span class="token punctuation">.</span><span class="token function">binarySearch</span><span class="token punctuation">(</span>elements<span class="token punctuation">,</span> key<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>result <span class="token operator">&gt;=</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>elements<span class="token punctuation">[</span>result<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

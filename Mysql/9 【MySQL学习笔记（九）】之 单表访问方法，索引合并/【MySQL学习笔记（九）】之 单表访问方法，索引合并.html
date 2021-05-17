@@ -1,0 +1,54 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【MySQL学习笔记（九）】之 单表访问方法，索引合并</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	单表访问方法</h2>
+<h3><a id="%09_9"></a>（一）	访问方法</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;查询语句本质上是一种声明式的语法，只是告诉MySQL要获取的数据符合哪些规则，置于MySQL是如何查询出数据的是MySQL自己负责的。MySQL执行查询语句的方式称为访问男方法，同一个查询语句可以使用多种不同的访问方法来执行，不同的访问方法效率大大不同。<br>
+<br></p>
+<h3><a id="%09const_15"></a>（二）	const</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;直接通过主键列或者唯一二级索引与常数的等值比较来定位一条记录，注意这两点的共同点都是UNIQUE，只有唯一一条记录能够查询出来，这种直接定位的访问方法称为const，因为查询代价是常数级别的，代价忽略不计。对于唯一二级索引列来说，在查询列为NULL值时，，由于不限制NULL值的数量，所以可以访问到多条记录，因此查询NULL不能使用const。<br>
+<br></p>
+<h3><a id="%09ref_21"></a>（三）	ref</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;搜索条件为二级索引列与常数进行等值比较，形成的扫描区间为单点扫描区间，采用二级索引来执行查询的访问方法称为ref。查询NULL值可以使用ref方法。<br>
+<br></p>
+<h3><a id="%09ref_or_null_27"></a>（四）	ref_or_null</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;有时我们不仅想找出某个二级索引列的值等于某个常数的记录，还想将该列中值为NULL的记录也找出来，这种比ref访问方法多了一个查询NULL值的访问方法就是ref_or_null。<br>
+<br></p>
+<h3><a id="%09range_32"></a>（五）	range</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;对于非等值查询，如范围查询这种，对应的扫描区间为若干个单点扫描区间或者范围扫描区间的访问方法称为range。仅包含一个单点扫描区间的访问方法不是range访问方法，扫描区间为负无穷-正无穷的也不是。<br>
+<br></p>
+<h3><a id="%09index_38"></a>（六）	index</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;直接扫描全部二级索引记录的访问方法称为index访问方法，不需要回表操作，对于添加了ORDER BY的也是index访问方法。</p>
+<br>
+<h3><a id="%09all_44"></a>（七）	all</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;全表扫描，直接扫描所有的聚簇索引记录为all访问方法。</p>
+<br>
+<h2><a id="%09_51"></a>二．	索引合并</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在使用索引来减少需要扫描的记录数量时，一般情况下只会为单个索引生成扫描区间，但也有特殊情况，MySQL也可能为多个索引生成扫描区间，这种使用多个索引来完成一次查询的执行方法称为index merge，索引合并共有三种。<br>
+<br></p>
+<h3><a id="%09intersection_57"></a>（一）	intersection索引合并</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;同时使用多个索引执行查询，同时查询出第一个二级索引记录的查询结果和第二个二级索引记录的查询结果，在两个的结果中找出主键值相同的记录，再根据这些共有的主键值进行回表，省下很多回表操作消耗，即取交集。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;要使用这种索引合并，要求是从每个索引中获取到的二级索引记录都是按照主键排序的，首先是因为有序集合取交集更加容易，还有是因为如果二级索引记录是按照主键排序的，那么根据这些主键进行回表时就不再是随机I/O了，因为索引页中的记录也是按照主键进行排序的，提高了效率。<br>
+<br></p>
+<h3><a id="%09Union_65"></a>（二）	Union索引合并</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;取结果的并集，同样要求取到的二级索引记录是按照主键排序的。<br>
+<br></p>
+<h3><a id="%09SortUnion_71"></a>（三）	Sort-Union索引合并</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;由于Union索引合并条件太苛刻了，我们可以采用Sort-Union索引合并，还是同时进行索引查询，然后将查询的二级索引记录按照主键排序，之后就和Union索引合并一样了。</p>
+</div>
+</body>
+
+</html>

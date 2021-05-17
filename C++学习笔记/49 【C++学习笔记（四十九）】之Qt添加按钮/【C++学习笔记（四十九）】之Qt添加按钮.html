@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【C++学习笔记（四十九）】之Qt添加按钮</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="__7"></a>一. 按钮</h2>
+<h3><a id="QPushButton_9"></a>（一）QPushButton</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>查询帮助文档</strong>可以看到 QPushButton这个类的相关信息如下：</p>
+<p><img src="https://img-blog.csdnimg.cn/20200725161626432.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01yd3h4eHg=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;1. Header:代表需要添加的头文件</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;2. qmake代表所属的模块，在.pro工程配置文件中添加，widgets是默认添加的。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;3. Inherits : 继承的父类 QAbstractButton</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;4. Inherited By: 它的子类是QCommandLinkButton<br>
+<br></p>
+<h3><a id="_26"></a>（二）如何在窗口中添加按钮？</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;按钮其实就是一个QPushButton的类对象，生成这个类对象后，我们需要将<strong>按钮和窗口联系</strong>起来，窗口是一个QWidget类对象，这个类是QPushButton类的基类，所以我们需要将<strong>按钮和父类用setParent联系起来</strong>。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;其他的常用操作还有设置显示文字，移动按钮位置，修改按钮尺寸，修改窗口大小等等<br>
+<br></p>
+<pre><code class="prism language-cpp"><span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;QPushButton&gt;</span></span>
+
+Widget<span class="token operator">::</span><span class="token function">Widget</span><span class="token punctuation">(</span>QWidget <span class="token operator">*</span>parent<span class="token punctuation">)</span>
+    <span class="token operator">:</span> <span class="token function">QWidget</span><span class="token punctuation">(</span>parent<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token comment">//按钮</span>
+    QPushButton <span class="token operator">*</span> btn <span class="token operator">=</span> <span class="token keyword">new</span> QPushButton<span class="token punctuation">;</span>
+    <span class="token comment">//设置父类关系,因为是widget基类的</span>
+    btn<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">setParent</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">//设置显示文字</span>
+    btn<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">setText</span><span class="token punctuation">(</span><span class="token string">"第一个按钮"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  <span class="token comment">// char* 隐式转换为QString</span>
+
+    <span class="token comment">//第二种按钮创建方式</span>
+    QPushButton <span class="token operator">*</span> btn2 <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token function">QPushButton</span><span class="token punctuation">(</span><span class="token string">"第二个按钮"</span><span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">resize</span><span class="token punctuation">(</span><span class="token number">600</span><span class="token punctuation">,</span> <span class="token number">600</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">//移动第二个按钮</span>
+    btn2<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">move</span><span class="token punctuation">(</span><span class="token number">100</span><span class="token punctuation">,</span> <span class="token number">100</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">//重置按钮尺寸</span>
+    btn2<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">resize</span><span class="token punctuation">(</span><span class="token number">200</span><span class="token punctuation">,</span><span class="token number">200</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">//修改窗口标题</span>
+    <span class="token function">setWindowTitle</span><span class="token punctuation">(</span><span class="token string">"窗口"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">//设置固定的窗口</span>
+    <span class="token function">setFixedSize</span><span class="token punctuation">(</span><span class="token number">600</span><span class="token punctuation">,</span><span class="token number">600</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

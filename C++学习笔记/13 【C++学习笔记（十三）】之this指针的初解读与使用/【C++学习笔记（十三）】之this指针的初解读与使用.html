@@ -1,0 +1,76 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【C++学习笔记（十三）】之this指针的初解读与使用</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="__7"></a>一. 问题</h2>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;非内联成员函数只会产生一份函数实例，也就是说多个类对象公用一份函数代码</strong>，那么这块函数代码如何区分到底是哪个类对象调用的自己呢？<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>用this指针来区分类对象。</strong></p>
+<h2><a id="_this_11"></a>二. this指针介绍</h2>
+<h3><a id="_12"></a>（一）定义</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;this指针，指向被调用的成员函数所属的对象。</p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;啥意思呢?</strong></p>
+<h3><a id="_16"></a>（二）举例</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;假设Person是一个类，func()是非静态成员函数</p>
+<pre><code class="prism language-cpp">Person p1<span class="token punctuation">;</span>
+p1<span class="token punctuation">.</span><span class="token function">func</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;func()是被调用的成员函数，是由p1这个类对象调用的，因此，this指针便指向了Person p1这个类对象。即</p>
+<pre><code class="prism language-cpp"> <span class="token operator">*</span><span class="token keyword">this</span> <span class="token operator">=</span> p1<span class="token punctuation">;</span>
+</code></pre>
+<p>*<em>&nbsp;  &nbsp;  &nbsp;  &nbsp;当调用p1调用func（）时，其实编译器在func()中隐含地添加了参数func(Person <em>this)， 意思就是将p1这个类对象当参数传了进去，因此，成员函数func()就能够区分出来是p1调用了它。</em></em></p>
+<h3><a id="_31"></a>（三）总结</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;this指针是隐含在类对象内的一种指针， 当类对象被创建后，它的非静态成员函数都隐含有指针this，指向的是这个类对象的地址。<strong>this指针是隐含的，不是类对象的一部分，不占类对象的空间。</strong><br>
+<strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;那为什么静态成员函数没有this指针呢？这还得从静态成员函数的性质说起，静态成员函数是整个类共享的，并不属于某一个类对象，因此不需要区分类对象。而this指针的作用是为了区分每个类对象，提供类对象的地址，从这里可以看出，静态成员函数是不需要this指针的。</strong></p>
+<h2><a id="_this_35"></a>三. this指针的使用</h2>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;那么，什么时候用this指针呢？</strong></p>
+<ol>
+<li>当传入的参数和类对象的参数命名冲突时，我们就可以用this-&gt;来区分两种同名参数。</li>
+<li>当要返回类对象或类的参数时，用this-&gt;来返回。</li>
+</ol>
+<h2><a id="__40"></a>四. 空指针访问成员函数的注意事项</h2>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;注意：若用空指针访问成员函数时，参数中隐含着this指针，此时的this指针为空指针NULL，，当该成员函数中没有用到this指针时，是可以正常地输出的，如下面代码中的”text函数，若成员函数由用到this指针，则会报错，因为是空指针，如下面代码中的”num”成员函数。</strong></p>
+<p>代码如下：</p>
+<pre><code class="prism language-cpp"><span class="token macro property">#<span class="token directive keyword">define</span> _CRT_SECURE_NO_WARNINGS</span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+<span class="token keyword">class</span> <span class="token class-name">Person</span>
+<span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token keyword">void</span> <span class="token function">text</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> “text” <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token keyword">void</span> <span class="token function">num</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> num <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+	<span class="token keyword">int</span> num<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token keyword">void</span> <span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	Person <span class="token operator">*</span>p <span class="token operator">=</span> <span class="token constant">NULL</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	<span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

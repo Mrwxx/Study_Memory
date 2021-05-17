@@ -1,0 +1,136 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【云计算学习笔记（五）】之Docker镜像特性，DockerFile介绍，DockerFile语法介绍</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><p></p><div class="toc"><h3>文章目录</h3><ul><ul><li><a href="#_1">本文章由公号【开发小鸽】发布！欢迎关注！！！</a></li><li><a href="#%09_8">一．	镜像的特性</a></li><ul><li><a href="#%09ID_10">（一）	镜像的ID</a></li><li><a href="#%09_15">（二）	镜像的分层</a></li><ul><li><a href="#1%09bootfs_20">1.	bootfs</a></li><li><a href="#2%09rootfs_25">2.	rootfs</a></li></ul></ul><li><a href="#%09DockerFile_32">二．	DockerFile</a></li><ul><li><a href="#%09_38">（一）	容器和镜像的转换</a></li><li><a href="#%09DockerFile_52">（二）	DockerFile</a></li><ul><li><a href="#1%09_54">1.	概述</a></li><li><a href="#2%09DockerFile_63">2.	DockerFile语法</a></li><ul><li><a href="#1%09FROM_image_65">（1）	FROM image</a></li><li><a href="#2%09MAINTAIN_74">（2）	MAINTAIN</a></li><li><a href="#3%09RUN_83">（3）	RUN（用于安装软件）</a></li><li><a href="#4%09CMD__92">（4）	CMD （设置容器启动时执行的操作）</a></li><li><a href="#5%09ENTRYPOINT_101">（5）	ENTRYPOINT（设置容器启动时执行的操作）</a></li><li><a href="#6%09USER_121">（6）	USER（设置容器的用户）</a></li><li><a href="#7%09EXPOSE_130">（7）	EXPOSE</a></li><li><a href="#8%09ENV_152">（8）	ENV（设置环境变量）</a></li><li><a href="#9%09ADD_170">（9）	ADD（复制文件，下载文件，解压文件）</a></li><li><a href="#10%09COPY_183">（10）	COPY</a></li><li><a href="#11%09WORKDIR_188">（11）	WORKDIR（切换目录）</a></li><li><a href="#12%09ONBUILD_197">（12）	ONBUILD（子镜像中执行）</a></li><li><a href="#13%09VOLUME_207">（13）	VOLUME（指定挂载点）</a></li></ul><li><a href="#3%09_216">3.	注意点</a></li></ul></ul></ul></ul></div><p></p>
+<h2><a id="_1"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_8"></a>一．	镜像的特性</h2>
+<h3><a id="%09ID_10"></a>（一）	镜像的ID</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;容器创建时需要指定镜像，每个镜像都有唯一的标识Image ID，和容器的Container ID一样，默认是128位的，可以使用前16位缩写形式，也可以使用镜像名+版本号的组合形式，如果省略版本号，则使用最新版本。<br>
+<br></p>
+<h3><a id="%09_15"></a>（二）	镜像的分层</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;之前说过镜像是分层的，通过联合文件系统（union filesystem，ufs）将各层文件系统叠加在一起，对外展示为一个统一的整体。对于已有的镜像分层是只能读而不能修改的，这就保证了当一个镜像生成容器后，该镜像不会被改变；且如果多层镜像中有相似的内容，那么容器在获取该内容时，上层镜像的优先级是大于底层镜像的。</p>
+<br>
+<h4><a id="1%09bootfs_20"></a>1.	bootfs</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;首先加载的bootfs，这个是用于系统引导的文件系统，包括bootloader和kernel，主要作用就是用于引导系统的，加载内核，传统模式和Docker中都会存在，容器启动完成后会被卸载以节省内存资源，之后就会引入rootfs。<br>
+<br></p>
+<h4><a id="2%09rootfs_25"></a>2.	rootfs</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;位于bootfs之上，表现为Docker容器的根文件系统，在bootfs加载完成后加载，获取了内核的指令，然后对整个操作系统进行自检操作。在传统模式中，系统启动时，内核挂载rootfs时会首先将其挂载为“只读”模式，完成完整性自检后会将其挂载为读写模式。而在Docker中，rootfs始终挂载为只读模式，而后通过UFS技术挂载一个可写层在rootfs之上，用于读写操作，所有的容器读写操作都在读写层中，不会影响rootfs的根文件系统，即不会对镜像造成影响。</p>
+<br>
+<h2><a id="%09DockerFile_32"></a>二．	DockerFile</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通常，我们会自己构建镜像，生成镜像的方式有两种，一种是容器直接转镜像，另一种是使用DockerFile。注意，一个镜像在生成容器运行时，至少容器中得有一个工作在前台的守护进程，如果一个镜像中干净地连一个前台守护进程都没有，那么由该镜像生成的容器就会自动退出。如Nginx通过配置daemon来转为前台运行，如mysqld这个前台的守护进程，只要有一个前台守护进程在镜像中，那么就不会自动退出。每个镜像在启动为容器时，都会使用一个命令/bin/bash，该命令就是寻找前台的守护进程的，如果没有找到，则会默认退出。</p>
+<br>
+<h3><a id="%09_38"></a>（一）	容器和镜像的转换</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;容器与镜像是可以互相转换的，要将镜像转换为容器，即开启一个新的容器即可，使用docker run命令；要将容器转换为镜像，使用docker commit命令即可，就可以将一个容器转换为Docker镜像。</p>
+<pre><code class="prism language-cpp">docker commit CID xx<span class="token punctuation">.</span>xx<span class="token punctuation">.</span>xx
+CID是容器的ID号
+xx<span class="token punctuation">.</span>xx是镜像的标签号
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;commit命令只是将容器当时的状态保存为镜像，但是它并不知道将该镜像运行为容器的时候应该怎么做。所以它依然会沿用镜像中的启动命令，如果我们想要让该镜像在运行为容器时连带着启动镜像中的其他软件，那么就需要将启动命令替换为启动软件的命令。commit命令只能说是一个备份的作用，而DockerFile就可以通过脚本来实现容器的定制化启动。</p>
+<br>
+<h3><a id="%09DockerFile_52"></a>（二）	DockerFile</h3>
+<h4><a id="1%09_54"></a>1.	概述</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;DockerFile相当于创建Docker镜像的语法，它是一种被Docker程序解释的脚本，由一条条的指令组成，每条指令对应Linux下面的一条命令，Docker程序将这些DockerFile指令翻译成真正的Linux命令，DockerFile有自己的书写格式和支持的命令，Docker程序解决这些命令之间的依赖关系，类似于MakeFile。Docker程序将读取DockerFile，根据指令生成定制的镜像，生成命令为：</p>
+<pre><code class="prism language-cpp">docker build <span class="token operator">-</span>t xx
+</code></pre>
+<br>
+<h4><a id="2%09DockerFile_63"></a>2.	DockerFile语法</h4>
+<h5><a id="1%09FROM_image_65"></a>（1）	FROM image</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;构建指令，必须指定且 DockerFile的其他指令之前，后续的命令都是依赖于该指令的image，每个镜像都会依赖于一个基础镜像image，可以是官方镜像，也可以是本地仓库的镜像，但是该命令只能用一次，只能引入一个基础镜像。</p>
+<pre><code class="prism language-cpp">FROM centos<span class="token operator">:</span><span class="token number">7.2</span>
+</code></pre>
+<br>
+<h5><a id="2%09MAINTAIN_74"></a>（2）	MAINTAIN</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;构建指令，指定该镜像的制作者信息，当我们对该镜像执行docker inspect命令时，会输出该信息。</p>
+<pre><code class="prism language-cpp">MAINTAIN wxx@qq<span class="token punctuation">.</span>com
+</code></pre>
+<br>
+<h5><a id="3%09RUN_83"></a>（3）	RUN（用于安装软件）</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;构建指令，RUN可以运行任何被基础image支持的命令，如基础image选择了Centos，那么软件管理部分就只能使用Centos的包管理命令。</p>
+<pre><code class="prism language-cpp">RUN cd <span class="token operator">/</span>tmp <span class="token operator">&amp;&amp;</span> echo “exx”
+</code></pre>
+<br>
+<h5><a id="4%09CMD__92"></a>（4）	CMD （设置容器启动时执行的操作）</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;设置指令，用于容器启动时指定的操作，该操作可以是执行自定义脚本，也可以是执行系统命令，该指令只能在文件中存在一次，如果有多个，只执行最后一条。如果要执行多次操作，就将多次操作使用&amp;&amp;连接起来。</p>
+<pre><code class="prism language-cpp">CMD echo “wxx”
+</code></pre>
+<br>
+<h5><a id="5%09ENTRYPOINT_101"></a>（5）	ENTRYPOINT（设置容器启动时执行的操作）</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;设置指令，指定容器启动时执行的命令，可多次设置，但是只执行最后一个。</p>
+<pre><code class="prism language-cpp">ENTRYPOINT ls <span class="token operator">-</span>l
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;该命令可以和CMD配合使用，前提是CMD不是一个完整的可执行命令，仅仅代表命令的参数部分，而ENTRYPOINT代表着命令的命令部分，而不能指定参数，注意，使用的是JSON格式。如下所示：</p>
+<pre><code class="prism language-cpp">FROM ubuntu
+CMD <span class="token punctuation">[</span>“<span class="token operator">-</span>l”<span class="token punctuation">]</span>
+ENTRYPOINT <span class="token punctuation">[</span>“<span class="token operator">/</span>usr<span class="token operator">/</span>bin<span class="token operator">/</span>ls”<span class="token punctuation">]</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如果CMD和ENTRYPOINT都使用完整的命令，那么只有一个会执行。<br>
+<br></p>
+<h5><a id="6%09USER_121"></a>（6）	USER（设置容器的用户）</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;设置指令，默认是root用户：</p>
+<pre><code class="prism language-cpp">USER daemon<span class="token operator">=</span>ENTRYPOINT<span class="token punctuation">[</span>“memcached”<span class="token punctuation">,</span> “<span class="token operator">-</span>u”<span class="token punctuation">,</span> “daemon”<span class="token punctuation">]</span>
+</code></pre>
+<br>
+<h5><a id="7%09EXPOSE_130"></a>（7）	EXPOSE</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;指定容器需要暴露的端口A，如果该端口需要和宿主机端口进行映射，则该端口A会映射到宿主机器的某个端口B中。这是一个设置指令，当我们需要访问该容器时，可以直接指定-p选项访问容器，如果是通过宿主机的端口映射来访问的，则通过宿主机的端口B映射到容器的端口A来访问的，在运行容器时指定-p选项加上 B:A即可。</p>
+<pre><code class="prism language-cpp">EXPOSE port1
+</code></pre>
+<p>运行时： <code>docker run -p port1 image</code></p>
+<pre><code class="prism language-cpp">EXPOSE port1<span class="token punctuation">,</span> port2<span class="token punctuation">,</span> port3
+</code></pre>
+<p>运行时： <code>docker run -p port1, -p port2, -p port3</code><br>
+与宿主机的映射：</p>
+<pre><code class="prism language-cpp">docker run <span class="token operator">-</span>p B<span class="token operator">:</span>A image
+</code></pre>
+<br>
+<h5><a id="8%09ENV_152"></a>（8）	ENV（设置环境变量）</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;构建指令，在镜像中设置环境变量。后续的RUN命令都可以使用该变量，容器启动后，可以通过docker inspect来查看这个环境变量，也可以通过在</p>
+<pre><code class="prism language-cpp">docker run –env key<span class="token operator">=</span>value
+</code></pre>
+<p>来设置或者修改环境变量。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;例如，安装了Java程序，需要设置JAVA_HOME，则设置：</p>
+<pre><code class="prism language-cpp">ENV JAVA_HOME <span class="token operator">/</span>path<span class="token operator">/</span>to<span class="token operator">/</span>java
+</code></pre>
+<br>
+<h5><a id="9%09ADD_170"></a>（9）	ADD（复制文件，下载文件，解压文件）</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;从URL下载文件，或者从源地址复制文件，解压文件到目的地。</p>
+<pre><code class="prism language-cpp">ADD <span class="token operator">&lt;</span>src<span class="token operator">&gt;</span> <span class="token operator">&lt;</span>dest<span class="token operator">&gt;</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;src是相对被构建的源目录的相对路径，可以是文件或目录的路径，也可以是一个URL，可以下载；<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;dest 是容器中的绝对路径；</p>
+<br>
+<h5><a id="10%09COPY_183"></a>（10）	COPY</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;也是复制文件，但是不支持下载文件以及解压文件。<br>
+<br></p>
+<h5><a id="11%09WORKDIR_188"></a>（11）	WORKDIR（切换目录）</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;设置指令，可以多次切换，相当于cd命令，可以在RUN，CMD，ENTRYPOINT中使用。</p>
+<pre><code class="prism language-cpp">WORKDIR <span class="token operator">/</span>P1 WORKDIR <span class="token operator">/</span>P2 RUN vim a<span class="token punctuation">.</span>txt
+</code></pre>
+<br>
+<h5><a id="12%09ONBUILD_197"></a>（12）	ONBUILD（子镜像中执行）</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;指定的命令在构建的当前镜像中不会执行，也不会在构建的容器中执行，如果我们将该镜像作为基础镜像再来构建一个新的镜像时，这些命令就会执行了，可以用于数据保护等操作，保护子镜像中的数据等。</p>
+<pre><code class="prism language-cpp">ONBUILD ADD <span class="token operator">/</span>APP<span class="token operator">/</span>SRC
+</code></pre>
+<br>
+<h5><a id="13%09VOLUME_207"></a>（13）	VOLUME（指定挂载点）</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;设置指令，使容器中的一个目录具有持久化存储数据的功能，该目录可以被容器本身使用，也可以共享给其他容器使用。由于容器使用的是UFS，这种文件系统不能持久化数据，当容器关闭后，所有的更改都会丢失，当容器中的应用有持久化数据的需求时，可以在DockerFile中使用该命令：</p>
+<pre><code class="prism language-cpp">VOLUME <span class="token punctuation">[</span>“<span class="token operator">/</span>tmp<span class="token operator">/</span>data”<span class="token punctuation">]</span>
+</code></pre>
+<br>
+<h4><a id="3%09_216"></a>3.	注意点</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;DockerFile最多不超过128层，因为每一层指令都会更新为一个新的镜像，所有的镜像最终会堆叠在基础镜像之上，形成最终的镜像。</p>
+</div>
+</body>
+
+</html>

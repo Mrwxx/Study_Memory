@@ -1,0 +1,53 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Java学习笔记（一百二十九）】之 final域重排序规则，JMM内存可见性保证</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><p></p><div class="toc"><h3>文章目录</h3><ul><ul><li><a href="#_1">本文章由公号【开发小鸽】发布！欢迎关注！！！</a></li><li><a href="#%09final_8">一．	final域</a></li><ul><li><a href="#%09_10">（一）	重排序规则</a></li><li><a href="#%09final_20">（二）	写final域的重排序规则</a></li><li><a href="#%09final_26">（三）	读final域的重排序规则</a></li><li><a href="#%09final_32">（四）	final引用不能逸出构造函数</a></li><li><a href="#%09JSR133final_38">（五）	JSR-133增强final语义的意义</a></li></ul><li><a href="#%09happensbefore_44">二．	happens-before</a></li><li><a href="#%09JMM_51">三．	JMM的内存可见性保证</a></li><ul><li><a href="#%09_57">（一）	单线程程序</a></li><li><a href="#%09_63">（二）	正确同步的多线程程序</a></li><li><a href="#%09_69">（三）	未正确同步的多线程程序</a></li></ul></ul></ul></div><p></p>
+<h2><a id="_1"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09final_8"></a>一．	final域</h2>
+<h3><a id="%09_10"></a>（一）	重排序规则</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 对于final域，编译器和处理器要遵守两个重排序规则：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 1.	在构造函数内对一个final域的写入，与随后把这个被构造对象的引用赋值给一个引用变量，这两个操作之间不能重排序。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 2.	初次读一个包含final域的对象的引用，与随后初次读这个final域，这两个操作之间不能重排序。<br>
+<br></p>
+<h3><a id="%09final_20"></a>（二）	写final域的重排序规则</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 写final域的重排序规则禁止把final域的写重排序到构造函数之外，同时编译器在final域的写之后，构造函数return之前，插入一个StoreStore屏障，这个屏障禁止处理器把final域写重排序到构造函数之外。<br>
+<br></p>
+<h3><a id="%09final_26"></a>（三）	读final域的重排序规则</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 在一个线程中，初次读对象引用与初次读该对象包含的final域，JMM禁止处理器重排序这两个操作，编译器会在读final域操作前面插入一个LoadLoad屏障，确保读final域之前该对象已经初始化。<br>
+<br></p>
+<h3><a id="%09final_32"></a>（四）	final引用不能逸出构造函数</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 写final域的重排序规则可以保证，在引用变量为任意线程可见之前，该引用变量指向的对象的final域已经在构造函数中被正确初始化了。要得到这种效果，还需要保证在构造函数内部，不能让这个被构造对象的引用被其他线程所见。<br>
+<br></p>
+<h3><a id="%09JSR133final_38"></a>（五）	JSR-133增强final语义的意义</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 通过为final域增加写和读重排序规则，可以为Java程序员提供初始化安全保证，只要对象是正确构造的，那么不需要同步就可以保证任意线程都能看到这个final域在构造函数中被初始化之后的值 。<br>
+<br></p>
+<h2><a id="%09happensbefore_44"></a>二．	happens-before</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; JSR-133使用happens-before来指定两个操作之间的执行顺序，由于这两个操作可以在一个线程之内，也可以在不同线程之间，因此，JMM通过happens-before关系向程序员提供跨线程的内存可见性保障，即确保正确同步的多线程程序的执行结果不被改变。<br>
+<br></p>
+<h2><a id="%09JMM_51"></a>三．	JMM的内存可见性保证</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; Java的内存可见性保证分为三类：<br>
+<br></p>
+<h3><a id="%09_57"></a>（一）	单线程程序</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 不会出现内存可见性问题，因为编译器和处理器会确保单线程程序执行结果和顺序一致性模型中的执行结果一致，通过重排序规则来禁止有依赖关系的重排序优化。<br>
+<br></p>
+<h3><a id="%09_63"></a>（二）	正确同步的多线程程序</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 将具有顺序一致性，JMM通过限制编译器和处理器的重排序来提供内存可见性保证。<br>
+<br></p>
+<h3><a id="%09_69"></a>（三）	未正确同步的多线程程序</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; JMM提供了最小安全性保障，线程执行时读取到的值，要么是之前某个线程写入的值，要么是默认值（0，null，false）。</p>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,85 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenCV学习笔记（七）之Canny边缘检测</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="_Canny_7"></a>一. Canny算法步骤：</h2>
+<ol>
+<li>高斯模糊-GaussianBlur</li>
+<li>灰度转换-cvtColor</li>
+<li>计算梯度-Sobel/Scharr</li>
+<li>非最大信号抑制</li>
+<li>高低阈值输出二值图像</li>
+</ol>
+<h2><a id="__14"></a>二. 高低阈值输出二值图像</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;T1,T2为阈值，凡是高于T2的都保留，凡是低于T1的都丢弃，从高于T2的像素出发，凡是大于T1且相互连接的都保留。最终得到一个输出二值图像。<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;推荐的高低阈值比值为T2:T1= 3:1/2:1，其中T2为高阈值，T1为低阈值。</p>
+<h2><a id="_Canny_API_18"></a>三. Canny API介绍：</h2>
+<pre><code class="prism language-cpp"><span class="token function">Canny</span><span class="token punctuation">(</span>
+	InputArray src<span class="token punctuation">,</span>		<span class="token comment">//8-bit的输入图像</span>
+	OutputArray edges<span class="token punctuation">,</span>	<span class="token comment">//输出边缘图像</span>
+	<span class="token keyword">double</span> threshold1<span class="token punctuation">,</span>	<span class="token comment">//低阈值</span>
+	<span class="token keyword">double</span> threshold2<span class="token punctuation">,</span>	<span class="token comment">//高阈值</span>
+	<span class="token keyword">int</span> aptertureSize<span class="token punctuation">,</span>		<span class="token comment">//Sobel算子的Size，通常取3</span>
+	<span class="token keyword">bool</span> L2gradient		<span class="token comment">//选择true表示用L2来归一化，否则用L1</span>
+<span class="token punctuation">)</span>
+</code></pre>
+<h2><a id="__31"></a>四. <strong>下面是代码：</strong></h2>
+<pre><code class="prism language-cpp"><span class="token comment">/*****Canny算子*****/</span>
+
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;opencv2/opencv.hpp&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;string&gt;</span></span>
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+string in_title <span class="token operator">=</span> <span class="token string">"input image"</span><span class="token punctuation">;</span>
+string ou_title <span class="token operator">=</span> <span class="token string">"output image"</span><span class="token punctuation">;</span>
+<span class="token keyword">int</span> t1_value <span class="token operator">=</span> <span class="token number">50</span><span class="token punctuation">;</span>				<span class="token comment">//最小阈值</span>
+<span class="token keyword">int</span> max_value <span class="token operator">=</span> <span class="token number">255</span><span class="token punctuation">;</span>			<span class="token comment">//最大阈值</span>
+cv<span class="token operator">::</span>Mat src<span class="token punctuation">,</span> dst<span class="token punctuation">;</span>
+cv<span class="token operator">::</span>Mat gray_src<span class="token punctuation">;</span>
+<span class="token keyword">void</span> <span class="token function">Canny_Demo</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">,</span> <span class="token keyword">void</span><span class="token operator">*</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	src <span class="token operator">=</span> cv<span class="token operator">::</span><span class="token function">imread</span><span class="token punctuation">(</span><span class="token string">"1.jpg"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span>in_title<span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span>in_title<span class="token punctuation">,</span> src<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	
+	cv<span class="token operator">::</span><span class="token function">cvtColor</span><span class="token punctuation">(</span>src<span class="token punctuation">,</span> gray_src<span class="token punctuation">,</span> cv<span class="token operator">::</span>COLOR_BGR2GRAY<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span>ou_title<span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">createTrackbar</span><span class="token punctuation">(</span><span class="token string">"Threshold Value: "</span><span class="token punctuation">,</span> ou_title<span class="token punctuation">,</span> <span class="token operator">&amp;</span>t1_value<span class="token punctuation">,</span>
+		max_value<span class="token punctuation">,</span> Canny_Demo<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token function">Canny_Demo</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	cv<span class="token operator">::</span><span class="token function">waitKey</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">void</span> <span class="token function">Canny_Demo</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">,</span> <span class="token keyword">void</span><span class="token operator">*</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	cv<span class="token operator">::</span>Mat edge_image<span class="token punctuation">;</span>
+	<span class="token comment">//先模糊操作，再Canny操作</span>
+	cv<span class="token operator">::</span><span class="token function">blur</span><span class="token punctuation">(</span>gray_src<span class="token punctuation">,</span> gray_src<span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Size</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Point</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+		cv<span class="token operator">::</span>BORDER_DEFAULT<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">Canny</span><span class="token punctuation">(</span>gray_src<span class="token punctuation">,</span> edge_image<span class="token punctuation">,</span> t1_value<span class="token punctuation">,</span> t1_value<span class="token operator">*</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	dst<span class="token punctuation">.</span><span class="token function">create</span><span class="token punctuation">(</span>src<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> src<span class="token punctuation">.</span><span class="token function">type</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//掩膜操作</span>
+	<span class="token comment">//src.copyTo(dst, edge_image);</span>
+	
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span>ou_title<span class="token punctuation">,</span> edge_image<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

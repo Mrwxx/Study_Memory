@@ -1,0 +1,211 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Linux学习笔记（九）】之进程操作，fork，exec函数族，wait,waitpid函数</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09fork_7"></a>一．	fork函数</h2>
+<h3><a id="%09_8"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; fork函数在一个进程的基础上创建一个新的子进程。<br>
+<br></p>
+<h3><a id="%09_13"></a>（二）	函数原型</h3>
+<pre><code class="prism language-cpp">pid_t <span class="token function">fork</span><span class="token punctuation">(</span><span class="token keyword">void</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h3><a id="%09_22"></a>（三）	函数返回值</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 创建成功时，返回两次。父进程返回子进程的id，子进程返回0.。<br>
+<br></p>
+<h3><a id="%09getpid_28"></a>（四）	getpid</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 获得当前进程的id（pid）。</p>
+<pre><code class="prism language-cpp">pid_t <span class="token function">getpid</span><span class="token punctuation">(</span><span class="token keyword">void</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h3><a id="%09getppid_38"></a>（五）	getppid</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 获得当前进程的父进程的id（ppid）。</p>
+<pre><code class="prism language-cpp">pid_t <span class="token function">getppid</span><span class="token punctuation">(</span><span class="token keyword">void</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h3><a id="%09_48"></a>（六）	使用示例</h3>
+<br>
+<pre><code class="prism language-cpp"><span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;stdio.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;unisted.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;stdlib.h&gt;</span></span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+	<span class="token function">printf</span><span class="token punctuation">(</span>“Begin\n”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	pid_t pid <span class="token operator">=</span> <span class="token function">fork</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">if</span><span class="token punctuation">(</span>pid <span class="token operator">&lt;</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+		<span class="token function">perror</span><span class="token punctuation">(</span>“fork err”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token function">exit</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token comment">//子进程</span>
+	<span class="token keyword">if</span><span class="token punctuation">(</span>pid <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+		<span class="token function">printf</span><span class="token punctuation">(</span>“I am a child<span class="token punctuation">,</span> pid<span class="token operator">=</span><span class="token operator">%</span>d<span class="token punctuation">,</span> ppid<span class="token operator">=</span><span class="token operator">%</span>d\n”<span class="token punctuation">,</span> <span class="token function">getpid</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token function">getppid</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token keyword">else</span> <span class="token keyword">if</span><span class="token punctuation">(</span>pid <span class="token operator">&gt;</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+		<span class="token function">printf</span><span class="token punctuation">(</span>“childpid<span class="token operator">=</span><span class="token operator">%</span>d<span class="token punctuation">,</span> self<span class="token operator">=</span><span class="token operator">%</span>d<span class="token punctuation">,</span> ppid<span class="token operator">=</span><span class="token operator">%</span>d\n”<span class="token punctuation">,</span> pid<span class="token punctuation">,</span> <span class="token function">getpid</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token function">getppid</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token function">sleep</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token function">printf</span><span class="token punctuation">(</span>“End … \n”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h2><a id="%09_82"></a>二．	进程操作</h2>
+<h3><a id="%09_83"></a>（一）	查看进程信息</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; init进程是所有进程的祖先。</p>
+<pre><code class="prism language-cpp">ps aux
+ps ajx 可以追溯进程之间的父子关系、
+</code></pre>
+<br>
+<h3><a id="%09_94"></a>（二）	杀死进程</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; kill -l 查看信号相关的信息</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 给进程发送一个信号，杀死进程的信号为 SIGKILL  9号信号。</p>
+<pre><code class="prism language-cpp">kill <span class="token operator">-</span>SIGKILL pid
+	pid为进程的id
+</code></pre>
+<br>
+<h2><a id="%09_108"></a>三．	创建多个子进程</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 上面已经讲解过了创建单个子进程，直接使用fork函数创建子进程即可。那么，在创建多个子进程时，如果直接使用for循环创建多个子进程就会出现子进程会接着循环创建自己的子进程，即如果循环5次，那么会创建32个子进程，而不是5个子进程。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 要想解决这个问题，就要在确认是新创建的子进程处通过break离开循环。<br>
+<br></p>
+<pre><code class="prism language-cpp"><span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;stdio.h&gt;</span></span>
+<span class="token macro property">#Include&lt;unisted.h&gt;</span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;stdlib.h&gt;</span></span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+	<span class="token keyword">int</span> n <span class="token operator">=</span><span class="token number">5</span><span class="token punctuation">;</span>
+	<span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+	pid_t pid <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+	<span class="token keyword">for</span><span class="token punctuation">(</span>I <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> I <span class="token operator">&lt;</span> <span class="token number">5</span><span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span><span class="token punctuation">{</span>
+		pid <span class="token operator">=</span> <span class="token function">fork</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token keyword">if</span><span class="token punctuation">(</span>pid <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+			<span class="token function">printf</span><span class="token punctuation">(</span>“I am child<span class="token punctuation">,</span> pid<span class="token operator">=</span><span class="token operator">%</span>d<span class="token punctuation">,</span> ppid<span class="token operator">=</span><span class="token operator">%</span>d\n”<span class="token punctuation">,</span> <span class="token function">getpid</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token function">getppid</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+			<span class="token keyword">break</span><span class="token punctuation">;</span>
+		<span class="token punctuation">}</span>
+		<span class="token keyword">else</span> <span class="token keyword">if</span><span class="token punctuation">(</span>pid <span class="token operator">&gt;</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+			<span class="token function">printf</span><span class="token punctuation">(</span>“fater<span class="token punctuation">,</span> pid<span class="token operator">=</span><span class="token operator">%</span>d<span class="token punctuation">,</span> ppid<span class="token operator">=</span><span class="token operator">%</span>d\n”<span class="token punctuation">,</span> <span class="token function">getpid</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token function">getppid</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token punctuation">}</span>
+	<span class="token punctuation">}</span>
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h2><a id="%09exec_143"></a>四．	exec函数族</h2>
+<h3><a id="%09execlp_144"></a>（一）	execlp函数</h3>
+<h4><a id="1%09_145"></a>1.	用途</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 借助PATH环境变量，加载一个进程。<br>
+<br></p>
+<h4><a id="2%09_151"></a>2.	函数原型</h4>
+<pre><code class="prism language-cpp"><span class="token keyword">int</span> <span class="token function">execlp</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span><span class="token operator">*</span> file<span class="token punctuation">,</span> <span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span> arg<span class="token punctuation">,</span>…<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h4><a id="3%09_160"></a>3.	函数返回值</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 成功不返回，失败返回-1<br>
+<br></p>
+<h4><a id="4%09_166"></a>4.	函数参数</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; <strong>file:</strong>  要加载的程序的名称，该函数需要配合PATH环境变量使用，在环境变量的目录中搜索有无参数1，通常用于调用系统程序，如：ls, cp…</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; <strong>arg:</strong>  参数列表，参数列表最后需要一个NULL作为结尾<br>
+<br></p>
+<h3><a id="%09execl_174"></a>（二）	execl函数</h3>
+<h4><a id="1%09_175"></a>1.	用途</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 通过路径 + 程序名 来加载一个进程。<br>
+<br></p>
+<h4><a id="2%09_181"></a>2.	函数原型</h4>
+<pre><code class="prism language-cpp"><span class="token keyword">int</span> <span class="token function">execl</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span> path<span class="token punctuation">,</span> <span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span> arg<span class="token punctuation">,</span> …<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h4><a id="3%09_190"></a>3.	函数返回值</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 成功无返回，失败返回-1<br>
+<br></p>
+<h4><a id="4%09_196"></a>4.	函数参数</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 参数与execlp函数一样，只不过path要加上路径名。<br>
+<br></p>
+<p>如： 加载 ls 命令并带有 -l,-F 参数</p>
+<pre><code class="prism language-cpp"><span class="token function">execlp</span><span class="token punctuation">(</span>“ls”<span class="token punctuation">,</span> “ls”<span class="token punctuation">,</span> “<span class="token operator">-</span>l”<span class="token punctuation">,</span> “<span class="token operator">-</span>F”<span class="token punctuation">,</span> <span class="token constant">NULL</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>execlp函数在PATH的目录下搜索ls 程序名称<br>
+<br></p>
+<pre><code class="prism language-cpp"><span class="token function">execl</span><span class="token punctuation">(</span>“<span class="token operator">/</span>bin<span class="token operator">/</span>ls”<span class="token punctuation">,</span> “ls”<span class="token punctuation">,</span> “<span class="token operator">-</span>l”<span class="token punctuation">,</span> “<span class="token operator">-</span>F”<span class="token punctuation">,</span> <span class="token constant">NULL</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>execl函数在绝对路径中搜索ls 程序名称</p>
+<br>
+<h2><a id="%09_223"></a>五．	孤儿进程与僵尸进程</h2>
+<h3><a id="%09_224"></a>（一）	孤儿进程</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该进程的父进程被kill了，该进程被init进程给领养了。<br>
+<br></p>
+<h3><a id="%09_230"></a>（二）	僵尸进程</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 子进程被kill了，父进程没有回收子进程的资源，则该子进程成为了僵尸进程。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 那么僵尸进程如何被回收呢？通过kill父进程，init进程领养子进程，init进程负责回收子进程。</p>
+<br>
+<h2><a id="%09wait_239"></a>六．	wait函数</h2>
+<h3><a id="%09_240"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; wait函数一般用于回收子进程的资源，如果子进程没有被Kill，则wait函数一直阻塞等待着子进程的死亡，并且能够知晓子进程的死亡原因。<br>
+<br></p>
+<h3><a id="%09_246"></a>（二）	作用</h3>
+<ol>
+<li>
+<p>阻塞等待</p>
+</li>
+<li>
+<p>回收子进程资源</p>
+</li>
+<li>
+<p>查看死亡原因<br>
+<br></p>
+</li>
+</ol>
+<h3><a id="%09_256"></a>（三）	函数原型</h3>
+<pre><code class="prism language-cpp">pid_t <span class="token function">wait</span><span class="token punctuation">(</span><span class="token keyword">int</span> <span class="token operator">*</span> status<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>status： 传出参数<br>
+<br></p>
+<h3><a id="%09_267"></a>（四）	函数返回值</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 成功返回 终止的子进程ID<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp; 失败返回 -1<br>
+<br></p>
+<h3><a id="%09_274"></a>（五）	子进程死亡原因</h3>
+<h4><a id="1%09_WIFEXITED_275"></a>1.	正常死亡 WIFEXITED</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 如果WIFEXITED为真，则使用WEXITSTATUS得到退出状态<br>
+<br></p>
+<h4><a id="2%09_WIFSIGNALED_281"></a>2.	非正常死亡 WIFSIGNALED</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 如果WIFSIGNALED为真，则使用WTERMSIG得到信号</p>
+<br>
+<h2><a id="%09waitpid_288"></a>七．	waitpid函数</h2>
+<h3><a id="%09_289"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 回收子进程。<br>
+<br></p>
+<h3><a id="%09_295"></a>（二）	函数原型</h3>
+<pre><code class="prism language-cpp">pid_t <span class="token function">waitpid</span><span class="token punctuation">(</span>pid_t pid<span class="token punctuation">,</span> <span class="token keyword">int</span> <span class="token operator">*</span> status<span class="token punctuation">,</span> <span class="token keyword">int</span> options<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h3><a id="__304"></a>（三） 函数参数</h3>
+<h4><a id="1_pid_305"></a>1. pid</h4>
+<pre><code class="prism language-cpp"><span class="token operator">&lt;</span><span class="token operator">-</span><span class="token number">1</span> 传递的是组id
+<span class="token operator">-</span><span class="token number">1</span> 回收任意
+<span class="token number">0</span>  回收和调用进程组id相同组内的子进程
+<span class="token operator">&gt;</span><span class="token number">0</span> 回收指定的pid
+</code></pre>
+<br>
+<h4><a id="2_options_317"></a>2. options</h4>
+<pre><code class="prism language-cpp"><span class="token number">0</span>和wait相同，也会阻塞
+设置WNOHANG<span class="token punctuation">,</span>如果当前没有子进程退出，会立刻返回
+</code></pre>
+<br>
+<h3><a id="__328"></a>（四） 函数返回值</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 如果设置了WNOHANG,那么如果没有子进程退出，则返回0；如果有子进程退出，则返回退出的pid</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 失败返回-1（没有子进程）</p>
+</div>
+</body>
+
+</html>

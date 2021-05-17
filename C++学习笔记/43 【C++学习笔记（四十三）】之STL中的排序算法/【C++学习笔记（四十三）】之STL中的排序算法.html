@@ -1,0 +1,52 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【C++学习笔记（四十三）】之STL中的排序算法</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09merge_7"></a>一.	merge算法</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>将两个容器中的元素合并存储到另一个容器中。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;原始的两个容器必须是<strong>有序</strong>的，且顺序相同。<br>
+<br></p>
+<pre><code class="prism language-cpp">@param beg1 容器<span class="token number">1</span>开始迭代器
+@param end1 容器<span class="token number">1</span>结束迭代器
+@param beg2 容器<span class="token number">2</span>开始迭代器
+@param end2 容器<span class="token number">2</span>结束迭代器
+@param dest  目标容器开始迭代器
+</code></pre>
+<br>
+<h2><a id="sort_22"></a>二．sort算法</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;容器中的元素排序<br>
+<br></p>
+<pre><code class="prism language-cpp">@param beg 容器<span class="token number">1</span>开始迭代器
+@param end 容器<span class="token number">1</span>结束迭代器
+@param _callback 回调函数或者谓词<span class="token punctuation">(</span>返回<span class="token keyword">bool</span>类型的函数对象<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h2><a id="random_shuffle_33"></a>三．random_shuffle算法</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;对容器中的元素进行随机排序，即<strong>打乱元素的排序</strong><br>
+<br></p>
+<pre><code class="prism language-cpp">@param beg 容器开始迭代器
+@param end 容器结束迭代器
+</code></pre>
+<br>
+<h2><a id="reverse_43"></a>四．reverse算法</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;将容器中的元素<strong>顺序反转</strong><br>
+<br></p>
+<pre><code class="prism language-cpp">@param beg 容器开始迭代器
+@param end 容器结束迭代器
+</code></pre>
+</div>
+</body>
+
+</html>

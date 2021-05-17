@@ -1,0 +1,105 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenCV学习笔记（十）之像素重映射</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="__9"></a>一. 像素重映射</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;把输入图像中各个像素按照一定的规则映射到另外一张图像的对应位置上。</p>
+<h2><a id="_API__12"></a>二. API 分析</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>cv::remap API分析</strong></p>
+<pre><code class="prism language-cpp">cv<span class="token operator">::</span><span class="token function">remap</span><span class="token punctuation">(</span>
+	InputArray src<span class="token punctuation">,</span>		<span class="token comment">//输入图像</span>
+	OutputArray dst<span class="token punctuation">,</span>	<span class="token comment">//输出图像</span>
+	InputArray map1<span class="token punctuation">,</span><span class="token comment">//x映射表 	CV_32FC1/CV_32FC2</span>
+	InputArray map2<span class="token punctuation">,</span><span class="token comment">//y映射表</span>
+	Int interpolation<span class="token punctuation">,</span>	<span class="token comment">//插值方式</span>
+	Int borderMode<span class="token punctuation">,</span>	<span class="token comment">//边界模式</span>
+	Const Scalar borderValue <span class="token comment">//Color</span>
+<span class="token punctuation">)</span>
+</code></pre>
+<h2><a id="__26"></a>三. 像素重映射代码</h2>
+<pre><code class="prism language-cpp"><span class="token comment">/*****图像重映射*****/</span>
+
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;opencv2/opencv.hpp&gt;</span></span>
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+<span class="token keyword">int</span> index <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+cv<span class="token operator">::</span>Mat src<span class="token punctuation">,</span> dst<span class="token punctuation">;</span>
+<span class="token comment">//x, y 映射表</span>
+cv<span class="token operator">::</span>Mat map_x<span class="token punctuation">,</span> map_y<span class="token punctuation">;</span>
+<span class="token keyword">void</span> <span class="token function">update_map</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	
+	src <span class="token operator">=</span> cv<span class="token operator">::</span><span class="token function">imread</span><span class="token punctuation">(</span><span class="token string">"1.jpg"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span><span class="token string">"in_image"</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span><span class="token string">"in_image"</span><span class="token punctuation">,</span> src<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token comment">//映射表，单通道</span>
+	map_x<span class="token punctuation">.</span><span class="token function">create</span><span class="token punctuation">(</span>src<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> CV_32FC1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	map_y<span class="token punctuation">.</span><span class="token function">create</span><span class="token punctuation">(</span>src<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> CV_32FC1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token keyword">int</span> c <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+	<span class="token keyword">while</span> <span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		c <span class="token operator">=</span> cv<span class="token operator">::</span><span class="token function">waitKey</span><span class="token punctuation">(</span><span class="token number">500</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token keyword">char</span><span class="token punctuation">)</span>c <span class="token operator">==</span> <span class="token number">27</span><span class="token punctuation">)</span>
+			<span class="token keyword">break</span><span class="token punctuation">;</span>
+		index <span class="token operator">=</span> c <span class="token operator">%</span> <span class="token number">4</span><span class="token punctuation">;</span>
+		<span class="token function">update_map</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		cv<span class="token operator">::</span><span class="token function">remap</span><span class="token punctuation">(</span>src<span class="token punctuation">,</span> dst<span class="token punctuation">,</span> map_x<span class="token punctuation">,</span> map_y<span class="token punctuation">,</span> cv<span class="token operator">::</span>INTER_LINEAR<span class="token punctuation">,</span>
+			cv<span class="token operator">::</span>BORDER_CONSTANT<span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Scalar</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">255</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span><span class="token string">"ou_image"</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span><span class="token string">"ou_image"</span><span class="token punctuation">,</span> dst<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+
+<span class="token punctuation">}</span>
+
+<span class="token keyword">void</span> <span class="token function">update_map</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	<span class="token comment">//更改映射表</span>
+	<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> row <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> row <span class="token operator">&lt;</span> src<span class="token punctuation">.</span>rows<span class="token punctuation">;</span> <span class="token operator">++</span>row<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> col <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> col <span class="token operator">&lt;</span> src<span class="token punctuation">.</span>cols<span class="token punctuation">;</span> <span class="token operator">++</span>col<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+			<span class="token keyword">switch</span> <span class="token punctuation">(</span>index<span class="token punctuation">)</span>
+			<span class="token punctuation">{</span>
+			<span class="token comment">//缩小一半的图像</span>
+			<span class="token keyword">case</span> <span class="token number">0</span><span class="token operator">:</span>
+				<span class="token keyword">if</span> <span class="token punctuation">(</span>col <span class="token operator">&gt;</span> <span class="token punctuation">(</span>src<span class="token punctuation">.</span>cols <span class="token operator">*</span> <span class="token number">0.25</span><span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span> col <span class="token operator">&lt;</span> <span class="token punctuation">(</span>src<span class="token punctuation">.</span>cols <span class="token operator">*</span> <span class="token number">0.75</span><span class="token punctuation">)</span>
+					<span class="token operator">&amp;&amp;</span> row <span class="token operator">&gt;</span><span class="token punctuation">(</span>src<span class="token punctuation">.</span>rows <span class="token operator">*</span> <span class="token number">0.25</span><span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span> row <span class="token operator">&lt;</span> <span class="token punctuation">(</span>src<span class="token punctuation">.</span>rows <span class="token operator">*</span> <span class="token number">0.75</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+					map_x<span class="token punctuation">.</span>at<span class="token operator">&lt;</span><span class="token keyword">float</span><span class="token operator">&gt;</span><span class="token punctuation">(</span>row<span class="token punctuation">,</span> col<span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token number">2</span> <span class="token operator">*</span> <span class="token punctuation">(</span>col <span class="token operator">-</span> src<span class="token punctuation">.</span>cols <span class="token operator">*</span> <span class="token number">0.25</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+					map_y<span class="token punctuation">.</span>at<span class="token operator">&lt;</span><span class="token keyword">float</span><span class="token operator">&gt;</span><span class="token punctuation">(</span>row<span class="token punctuation">,</span> col<span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token number">2</span> <span class="token operator">*</span> <span class="token punctuation">(</span>row <span class="token operator">-</span> src<span class="token punctuation">.</span>rows <span class="token operator">*</span> <span class="token number">0.25</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+				<span class="token punctuation">}</span>
+				<span class="token comment">//除中心位置外为黑色</span>
+				<span class="token keyword">else</span> <span class="token punctuation">{</span>
+					map_x<span class="token punctuation">.</span>at<span class="token operator">&lt;</span><span class="token keyword">float</span><span class="token operator">&gt;</span><span class="token punctuation">(</span>row<span class="token punctuation">,</span> col<span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+					map_x<span class="token punctuation">.</span>at<span class="token operator">&lt;</span><span class="token keyword">float</span><span class="token operator">&gt;</span><span class="token punctuation">(</span>row<span class="token punctuation">,</span> col<span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+				<span class="token punctuation">}</span>
+			<span class="token comment">//左右颠倒</span>
+			<span class="token keyword">case</span> <span class="token number">1</span><span class="token operator">:</span>
+				map_x<span class="token punctuation">.</span>at<span class="token operator">&lt;</span><span class="token keyword">float</span><span class="token operator">&gt;</span><span class="token punctuation">(</span>row<span class="token punctuation">,</span> col<span class="token punctuation">)</span> <span class="token operator">=</span> src<span class="token punctuation">.</span>cols <span class="token operator">-</span> col <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">;</span>
+				map_x<span class="token punctuation">.</span>at<span class="token operator">&lt;</span><span class="token keyword">float</span><span class="token operator">&gt;</span><span class="token punctuation">(</span>row<span class="token punctuation">,</span> col<span class="token punctuation">)</span> <span class="token operator">=</span> row<span class="token punctuation">;</span>
+			<span class="token comment">//上下颠倒</span>
+			<span class="token keyword">case</span> <span class="token number">2</span><span class="token operator">:</span>
+				map_x<span class="token punctuation">.</span>at<span class="token operator">&lt;</span><span class="token keyword">float</span><span class="token operator">&gt;</span><span class="token punctuation">(</span>row<span class="token punctuation">,</span> col<span class="token punctuation">)</span> <span class="token operator">=</span> col<span class="token punctuation">;</span>
+				map_y<span class="token punctuation">.</span>at<span class="token operator">&lt;</span><span class="token keyword">float</span><span class="token operator">&gt;</span><span class="token punctuation">(</span>row<span class="token punctuation">,</span> col<span class="token punctuation">)</span> <span class="token operator">=</span> src<span class="token punctuation">.</span>rows <span class="token operator">-</span> row <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">;</span>
+			<span class="token keyword">default</span><span class="token operator">:</span>
+				<span class="token keyword">break</span><span class="token punctuation">;</span>
+			<span class="token punctuation">}</span>
+		<span class="token punctuation">}</span>
+	<span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

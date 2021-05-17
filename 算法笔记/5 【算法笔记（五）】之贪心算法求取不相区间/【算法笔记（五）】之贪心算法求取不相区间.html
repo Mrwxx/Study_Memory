@@ -1,0 +1,87 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【算法笔记（五）】之贪心算法求取不相区间</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一.	贪心算法：</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>求解最优化问题的方法，考虑在当前状态下局部最优的策略，使得全局的结果达到最优的状态。因为，全局的最优是由中间的每一步最优组成的，那么可以用局部的最优一步步推得全部的最优。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;一个问题的最优解可以有它的子问题的最优解构造出来。<strong>这其实用的就是迭代的思维，将一个问题分解为许多子问题求解。</strong><br>
+<br></p>
+<h2><a id="_13"></a>二．区间贪心</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;区间不相交问题：给出N个开区间(x,y)，从中选择尽可能多的开区间，使得这些开区间两两之间没有交集。<br>
+<br></p>
+<h2><a id="_17"></a>三．思路：</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>局部的最优，将区间按照左端点或者右端点排序，然后从左端点最大的区间开始，向左查找是否有区间的右端点不大于该区间的左端点</strong>，这样一直循环，直到结束，就可以找出所有的不相交区间。<br>
+<br></p>
+<h2><a id="_21"></a>四．代码：</h2>
+<br>
+<pre><code class="prism language-cpp"><span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;algorithm&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;vector&gt;</span></span>
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+<span class="token keyword">class</span> <span class="token class-name">Line</span>
+<span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token keyword">int</span> x<span class="token punctuation">;</span>
+	<span class="token keyword">int</span> y<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+vector<span class="token operator">&lt;</span>Line<span class="token operator">&gt;</span> lines<span class="token punctuation">;</span>
+
+<span class="token keyword">bool</span> <span class="token function">cmp</span><span class="token punctuation">(</span>Line l1<span class="token punctuation">,</span> Line l2<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	<span class="token keyword">if</span> <span class="token punctuation">(</span>l1<span class="token punctuation">.</span>x <span class="token operator">!=</span> l2<span class="token punctuation">.</span>x<span class="token punctuation">)</span>
+		<span class="token keyword">return</span> l1<span class="token punctuation">.</span>x <span class="token operator">&gt;</span> l2<span class="token punctuation">.</span>x<span class="token punctuation">;</span>
+	<span class="token keyword">else</span>
+		<span class="token keyword">return</span> l1<span class="token punctuation">.</span>y <span class="token operator">&lt;</span> l2<span class="token punctuation">.</span>y<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	<span class="token keyword">int</span> n<span class="token punctuation">;</span>
+	cin <span class="token operator">&gt;&gt;</span> n<span class="token punctuation">;</span>
+	<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> n<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		Line l1 <span class="token operator">=</span> <span class="token function">Line</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		cin <span class="token operator">&gt;&gt;</span> l1<span class="token punctuation">.</span>x <span class="token operator">&gt;&gt;</span> l1<span class="token punctuation">.</span>y<span class="token punctuation">;</span>
+		lines<span class="token punctuation">.</span><span class="token function">push_back</span><span class="token punctuation">(</span>l1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+	<span class="token function">sort</span><span class="token punctuation">(</span>lines<span class="token punctuation">.</span><span class="token function">begin</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> lines<span class="token punctuation">.</span><span class="token function">end</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> cmp<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token keyword">int</span> ans <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>			<span class="token comment">//不相交区间个数</span>
+	<span class="token keyword">int</span> lastx <span class="token operator">=</span> lines<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">.</span>x<span class="token punctuation">;</span>	<span class="token comment">//上一个被选中区间的左端点</span>
+	cout <span class="token operator">&lt;&lt;</span> lines<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">.</span>x <span class="token operator">&lt;&lt;</span> <span class="token string">"-"</span><span class="token operator">&lt;&lt;</span>  lines<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">.</span>y <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> n<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		<span class="token keyword">if</span> <span class="token punctuation">(</span>lines<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>y <span class="token operator">&lt;=</span> lastx<span class="token punctuation">)</span>	<span class="token comment">//该区间左端点在lastx左边</span>
+		<span class="token punctuation">{</span>
+			lastx <span class="token operator">=</span> lines<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>x<span class="token punctuation">;</span>
+			ans<span class="token operator">++</span><span class="token punctuation">;</span>					<span class="token comment">//选中</span>
+			cout <span class="token operator">&lt;&lt;</span> lines<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>x <span class="token operator">&lt;&lt;</span><span class="token string">"-"</span><span class="token operator">&lt;&lt;</span> lines<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>y <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+		<span class="token punctuation">}</span>
+		
+	<span class="token punctuation">}</span>
+
+	cout <span class="token operator">&lt;&lt;</span> ans <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

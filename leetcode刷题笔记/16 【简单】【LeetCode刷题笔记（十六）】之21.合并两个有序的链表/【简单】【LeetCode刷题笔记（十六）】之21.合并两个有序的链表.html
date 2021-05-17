@@ -1,0 +1,82 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【简单】【LeetCode刷题笔记（十六）】之21.合并两个有序的链表</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	题目</h2>
+<h3><a id="%09_8"></a>（一）	题干</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;将两个升序链表合并为一个新的 升序 链表并返回。新链表是通过拼接给定的两个链表的所有节点组成的。<br>
+<br></p>
+<h3><a id="%09_13"></a>（二）	示例</h3>
+<pre><code class="prism language-cpp">输入：<span class="token number">1</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token number">2</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token number">3</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token number">4</span>
+输出：<span class="token number">1</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token number">1</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token number">2</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token number">3</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token number">4</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token number">4</span>
+</code></pre>
+<br>
+<h2><a id="%09_24"></a>二．	题解</h2>
+<h3><a id="%09_25"></a>（一）	思路</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;这是一道简单的题目，通过循环比较两个链表的每个值，并创建一个新的链表用于存储合并后的值。注意，创建新的链表要创建两个指针，一个指针指向头结点是不动的，用于方便最后返回链表的节点；一个指针在链表的前端进行移动。最后返回头结点的下一个节点即可。<br>
+<br></p>
+<h3><a id="%09_31"></a>（二）	代码实现</h3>
+<h4><a id="1%09C_33"></a>1.	C++</h4>
+<pre><code class="prism language-cpp"><span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	ListNode<span class="token operator">*</span> <span class="token function">mergeTwoLists</span><span class="token punctuation">(</span>ListNode<span class="token operator">*</span> l1<span class="token punctuation">,</span> ListNode<span class="token operator">*</span> l2<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		<span class="token comment">//哨兵节点，更加方便最后返回合并后的链表</span>
+		ListNode<span class="token operator">*</span> preHead <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token function">ListNode</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		ListNode<span class="token operator">*</span> prev <span class="token operator">=</span> preHead<span class="token punctuation">;</span>
+		<span class="token keyword">while</span> <span class="token punctuation">(</span>l1 <span class="token operator">!=</span> <span class="token keyword">nullptr</span> <span class="token operator">&amp;&amp;</span> l2 <span class="token operator">!=</span> <span class="token keyword">nullptr</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+			<span class="token keyword">if</span> <span class="token punctuation">(</span>l1<span class="token operator">-</span><span class="token operator">&gt;</span>val <span class="token operator">&lt;</span> l2<span class="token operator">-</span><span class="token operator">&gt;</span>val<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+				prev<span class="token operator">-</span><span class="token operator">&gt;</span>next <span class="token operator">=</span> l1<span class="token punctuation">;</span>
+				l1 <span class="token operator">=</span> l1<span class="token operator">-</span><span class="token operator">&gt;</span>next<span class="token punctuation">;</span>
+			<span class="token punctuation">}</span>
+			<span class="token keyword">else</span> <span class="token punctuation">{</span>
+				prev<span class="token operator">-</span><span class="token operator">&gt;</span>next <span class="token operator">=</span> l2<span class="token punctuation">;</span>
+				l2 <span class="token operator">=</span> l2<span class="token operator">-</span><span class="token operator">&gt;</span>next<span class="token punctuation">;</span>
+			<span class="token punctuation">}</span>
+			prev <span class="token operator">=</span> prev<span class="token punctuation">.</span>next<span class="token punctuation">;</span>
+		<span class="token punctuation">}</span>
+
+		<span class="token comment">//一个链表没有全部合并完</span>
+		prev<span class="token operator">-</span><span class="token operator">&gt;</span>next <span class="token operator">=</span> l1 <span class="token operator">==</span> <span class="token keyword">nullptr</span> <span class="token operator">?</span> l2 <span class="token operator">:</span> l1<span class="token punctuation">;</span>
+		<span class="token keyword">return</span> preHead<span class="token operator">-</span><span class="token operator">&gt;</span>next<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h4><a id="2%09Java_66"></a>2.	Java</h4>
+<pre><code class="prism language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">List21</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> ListNode <span class="token function">mergeTwoLists</span><span class="token punctuation">(</span>ListNode l1<span class="token punctuation">,</span> ListNode l2<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        ListNode prehead <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ListNode</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        ListNode prev <span class="token operator">=</span> prehead<span class="token punctuation">;</span>
+        <span class="token keyword">while</span><span class="token punctuation">(</span>l1 <span class="token operator">!=</span> null <span class="token operator">&amp;&amp;</span> l2 <span class="token operator">!=</span> null<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span>l1<span class="token punctuation">.</span>val <span class="token operator">&lt;=</span> l2<span class="token punctuation">.</span>val<span class="token punctuation">)</span><span class="token punctuation">{</span>
+                prev<span class="token punctuation">.</span>next <span class="token operator">=</span> l1<span class="token punctuation">;</span>
+                l1 <span class="token operator">=</span> l1<span class="token punctuation">.</span>next<span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token keyword">else</span><span class="token punctuation">{</span>
+                prev<span class="token punctuation">.</span>next <span class="token operator">=</span> l2<span class="token punctuation">;</span>
+                l2 <span class="token operator">=</span> l2<span class="token punctuation">.</span>next<span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            prev <span class="token operator">=</span> prev<span class="token punctuation">.</span>next<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        prev<span class="token punctuation">.</span>next <span class="token operator">=</span> l1<span class="token operator">==</span>null <span class="token operator">?</span> l2 <span class="token operator">:</span> l1<span class="token punctuation">;</span>
+        <span class="token keyword">return</span> prehead<span class="token punctuation">.</span>next<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

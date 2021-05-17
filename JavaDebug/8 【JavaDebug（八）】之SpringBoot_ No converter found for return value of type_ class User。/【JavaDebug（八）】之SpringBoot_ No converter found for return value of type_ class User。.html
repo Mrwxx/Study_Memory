@@ -1,0 +1,21 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【JavaDebug（八）】之SpringBoot: No converter found for return value of type: class User。</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="%09BUG_0"></a>一．	BUG出现环境</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;使用SpringBoot搭建简单的Web项目时，定义了一个User类，在Controller中返回一个User对象，出现以下BUG：No converter found for return value of type: class User。<br>
+<br></p>
+<h2><a id="Bug_5"></a>二.Bug解决</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;根据英文，意思是没有返回User对象的转换器，感觉跟User类内部的定义有关，一般这种情况都可能是User类内部没有定义一些函数导致的。<br>
+查看User类，果然，没有定义get和set方法，添加上之后，问题解决。</p>
+</div>
+</body>
+
+</html>

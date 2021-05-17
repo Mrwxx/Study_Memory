@@ -1,0 +1,141 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【JavaDebug（十二）】之NoSuchMethodError，使用arthas工具查找jar包，maven命令搜索jar包</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09BUG_8"></a>一．	BUG描述</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 本质就是一个NoSuchMethodError，如下所示：</p>
+<pre><code class="prism language-java">java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>NoSuchMethodError<span class="token operator">:</span> org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>core<span class="token punctuation">.</span>annotation<span class="token punctuation">.</span>AnnotationAwareOrderComparator<span class="token punctuation">.</span><span class="token function">sort</span><span class="token punctuation">(</span>Ljava<span class="token operator">/</span>util<span class="token operator">/</span>List<span class="token punctuation">;</span><span class="token punctuation">)</span>V
+    at org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>boot<span class="token punctuation">.</span>SpringApplication<span class="token punctuation">.</span><span class="token function">getSpringFactoriesInstances</span><span class="token punctuation">(</span>SpringApplication<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">394</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>boot<span class="token punctuation">.</span>SpringApplication<span class="token punctuation">.</span><span class="token function">getSpringFactoriesInstances</span><span class="token punctuation">(</span>SpringApplication<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">383</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>boot<span class="token punctuation">.</span>SpringApplication<span class="token punctuation">.</span><span class="token function">initialize</span><span class="token punctuation">(</span>SpringApplication<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">249</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>boot<span class="token punctuation">.</span>SpringApplication<span class="token punctuation">.</span><span class="token generics function"><span class="token punctuation">&lt;</span>init<span class="token punctuation">&gt;</span></span><span class="token punctuation">(</span>SpringApplication<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">225</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>boot<span class="token punctuation">.</span>SpringApplication<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span>SpringApplication<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">1118</span><span class="token punctuation">)</span>
+    at org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>boot<span class="token punctuation">.</span>SpringApplication<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span>SpringApplication<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">1107</span><span class="token punctuation">)</span>
+at com<span class="token punctuation">.</span>example<span class="token punctuation">.</span>demoNoSuchMethodError<span class="token punctuation">.</span>DemoNoSuchMethodErrorApplication<span class="token punctuation">.</span><span class="token function">main</span><span class="token punctuation">(</span>DemoNoSuchMethodErrorApplication<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">13</span><span class="token punctuation">)</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;这个异常的意思是AnnotationAwareOrderComparator类缺少sort(Ljava/util/List;)V这个函数，后面的函数使用的是JVM中的函数表示方式。</p>
+<br>
+<h2><a id="%09_28"></a>二．	解决思路</h2>
+<h3><a id="%09_30"></a>（一）.	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;某个包的某个类缺少某个函数，这貌似不是我们的问题，可能是某个包的版本原因导致这个包的这个类没有这个函数，也有可能是这个包的优先级高于同名的其他包，导致其他包被覆盖了，因此我们需要找到这个包的位置。<br>
+<br></p>
+<h3><a id="%09arthas_36"></a>（二）	arthas工具</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;那么，如何找到这个类是从哪个包引入的呢？使用阿里开源的arthas工具来解决，它能够解决以下的问题：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;1.	这个类从哪个 jar 包加载的？为什么会报各种类相关的 Exception？</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;2.	我改的代码为什么没有执行到？难道是我没 commit？分支搞错了？</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;3.	遇到问题无法在线上 debug，难道只能通过加日志再重新发布吗？</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;4.	线上遇到某个用户的数据处理有问题，但线上同样无法 debug，线下无法重现！</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;5.	是否有一个全局视角来查看系统的运行状况？</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;6.	有什么办法可以监控到JVM的实时运行状态？</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通过这个工具来查看这个类是从哪个包引入的，但是首先我们要保证在使用该工具时出现异常的类所在的进程依然在执行，这就需要我们在可能出现异常的代码块中使用try-catch语句块来抓住异常，这里使用Throwable类对象而不是Exception类对象来catch，可能是因为如果使用Exception类的话，由于报错的是一个Error，它无法catch到这个Error，因此会直接报错并且退出，而Throwable类是Error类和Exception类的父类，包含了Error类，因此可以catch这个Error，进入catch代码块中，执行阻塞的语句，保持进程的运行，这样arthas工具可以在进程运行时找出错误。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;下载完arthas的jar包后，新建一个文件夹将jar包放进去。之后可以在IDEA的控制台使用，也可以在CMD中使用，进入该文件夹中，输入</p>
+<pre><code class="prism language-java">java <span class="token operator">-</span>jar arthas<span class="token operator">-</span>boot<span class="token punctuation">.</span>jar 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;arthas会扫描JVM启动的进程，我们可以选择对应的进程，进入该进程中，并执行sc命令来查询</p>
+<pre><code class="prism language-java">sc <span class="token operator">-</span>d org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>core<span class="token punctuation">.</span>annotation<span class="token punctuation">.</span>AnnotationAwareOrderComparator
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;可以看到输出如下所示，spring-2.5.6jar包就被找出来了：</p>
+<pre><code class="prism language-java">$ sc <span class="token operator">-</span>d org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>core<span class="token punctuation">.</span>annotation<span class="token punctuation">.</span>AnnotationAwareOrderComparator
+ <span class="token keyword">class</span><span class="token operator">-</span>info        org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>core<span class="token punctuation">.</span>annotation<span class="token punctuation">.</span>AnnotationAwareOrderComparator
+ code<span class="token operator">-</span>source       <span class="token operator">/</span>Users<span class="token operator">/</span>hengyunabc<span class="token operator">/</span><span class="token punctuation">.</span>m2<span class="token operator">/</span>repository<span class="token operator">/</span>org<span class="token operator">/</span>springframework<span class="token operator">/</span>spring<span class="token operator">/</span><span class="token number">2.5</span><span class="token number">.6</span><span class="token punctuation">.</span>SEC03<span class="token operator">/</span>spring<span class="token operator">-</span><span class="token number">2.5</span><span class="token number">.6</span><span class="token punctuation">.</span>SEC03<span class="token punctuation">.</span>jar
+ name              org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>core<span class="token punctuation">.</span>annotation<span class="token punctuation">.</span>AnnotationAwareOrderComparator
+ isInterface       <span class="token boolean">false</span>
+ isAnnotation      <span class="token boolean">false</span>
+ isEnum            <span class="token boolean">false</span>
+ isAnonymousClass  <span class="token boolean">false</span>
+ isArray           <span class="token boolean">false</span>
+ isLocalClass      <span class="token boolean">false</span>
+ isMemberClass     <span class="token boolean">false</span>
+ isPrimitive       <span class="token boolean">false</span>
+ isSynthetic       <span class="token boolean">false</span>
+ simple<span class="token operator">-</span>name       AnnotationAwareOrderComparator
+ modifier          <span class="token keyword">public</span>
+ annotation
+ interfaces
+ <span class="token keyword">super</span><span class="token operator">-</span><span class="token keyword">class</span>       <span class="token operator">+</span><span class="token operator">-</span>org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>core<span class="token punctuation">.</span>OrderComparator
+                     <span class="token operator">+</span><span class="token operator">-</span>java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Object
+ <span class="token keyword">class</span><span class="token operator">-</span>loader      <span class="token operator">+</span><span class="token operator">-</span>sun<span class="token punctuation">.</span>misc<span class="token punctuation">.</span>Launcher$AppClassLoader<span class="token annotation punctuation">@5c647e05</span>
+                     <span class="token operator">+</span><span class="token operator">-</span>sun<span class="token punctuation">.</span>misc<span class="token punctuation">.</span>Launcher$ExtClassLoader<span class="token annotation punctuation">@689e3d07</span>
+ classLoaderHash   <span class="token number">5</span>c647e05
+
+<span class="token function">Affect</span><span class="token punctuation">(</span>row<span class="token operator">-</span>cnt<span class="token operator">:</span><span class="token number">1</span><span class="token punctuation">)</span> cost in <span class="token number">41</span> ms<span class="token punctuation">.</span>
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;使用jad命令查看反编译的AnnotationAwareOrderComparator源码：</p>
+<pre><code class="prism language-java">    $ jad org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>core<span class="token punctuation">.</span>annotation<span class="token punctuation">.</span>AnnotationAwareOrderComparator
+
+ClassLoader<span class="token operator">:</span>
+<span class="token operator">+</span><span class="token operator">-</span>sun<span class="token punctuation">.</span>misc<span class="token punctuation">.</span>Launcher$AppClassLoader<span class="token annotation punctuation">@5c647e05</span>
+  <span class="token operator">+</span><span class="token operator">-</span>sun<span class="token punctuation">.</span>misc<span class="token punctuation">.</span>Launcher$ExtClassLoader<span class="token annotation punctuation">@689e3d07</span>
+
+Location<span class="token operator">:</span>
+<span class="token operator">/</span>Users<span class="token operator">/</span>hengyunabc<span class="token operator">/</span><span class="token punctuation">.</span>m2<span class="token operator">/</span>repository<span class="token operator">/</span>org<span class="token operator">/</span>springframework<span class="token operator">/</span>spring<span class="token operator">/</span><span class="token number">2.5</span><span class="token number">.6</span><span class="token punctuation">.</span>SEC03<span class="token operator">/</span>spring<span class="token operator">-</span><span class="token number">2.5</span><span class="token number">.6</span><span class="token punctuation">.</span>SEC03<span class="token punctuation">.</span>jar
+
+<span class="token comment">/*
+ * Decompiled with CFR 0_132.
+ */</span>
+<span class="token keyword">package</span> org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>core<span class="token punctuation">.</span>annotation<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>annotation<span class="token punctuation">.</span>Annotation<span class="token punctuation">;</span>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>core<span class="token punctuation">.</span>OrderComparator<span class="token punctuation">;</span>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>core<span class="token punctuation">.</span>Ordered<span class="token punctuation">;</span>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>core<span class="token punctuation">.</span>annotation<span class="token punctuation">.</span>Order<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">AnnotationAwareOrderComparator</span>
+<span class="token keyword">extends</span> <span class="token class-name">OrderComparator</span> <span class="token punctuation">{</span>
+    <span class="token keyword">protected</span> <span class="token keyword">int</span> <span class="token function">getOrder</span><span class="token punctuation">(</span>Object obj<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        Order order<span class="token punctuation">;</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>obj <span class="token keyword">instanceof</span> <span class="token class-name">Ordered</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">return</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>Ordered<span class="token punctuation">)</span>obj<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getOrder</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>obj <span class="token operator">!=</span> null <span class="token operator">&amp;&amp;</span> <span class="token punctuation">(</span>order <span class="token operator">=</span> obj<span class="token punctuation">.</span><span class="token function">getClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getAnnotation</span><span class="token punctuation">(</span>Order<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">return</span> order<span class="token punctuation">.</span><span class="token function">value</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> Integer<span class="token punctuation">.</span>MAX_VALUE<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token function">Affect</span><span class="token punctuation">(</span>row<span class="token operator">-</span>cnt<span class="token operator">:</span><span class="token number">1</span><span class="token punctuation">)</span> cost in <span class="token number">286</span> ms<span class="token punctuation">.</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;发现，里面确实没有sort函数，终于找到问题所在了，只要将这个jar包排除即可。</p>
+<br>
+<h3><a id="%09maven_141"></a>（三）.	maven命令</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如何找到这个spring的jar包呢？首先，从Maven命令入手，查看maven的依赖树，没有以依赖冲突，可以使用CTRL + F 来搜索jar包。也可以直接使用maven命令搜索指定的包的依赖树，如搜索spring包的依赖树：</p>
+<pre><code class="prism language-java">mvn dependency<span class="token operator">:</span>tree <span class="token operator">-</span>Dincludes<span class="token operator">=</span>org<span class="token operator">/</span>springframework<span class="token operator">/</span>spring
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;这样过于麻烦，接着找到一个maven插件maven-helper，直接在File -&gt; setting -&gt; Plugins -&gt; 搜索maven helper ，然后点击安装，重启IDEA。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Maven Helper成功后，在左下角会多一个tab页Dependency Analyzer，通过它可以进行如下操作：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;1.	Conflicts（查看冲突）</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;2.	All Dependencies as List（列表形式查看所有依赖）</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;3.	All Dependencies as Tree（树形式查看所有依赖）</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;因此，找到了spring包的位置在新添加的一个包中，那么直接在该包的坐标导入中使用以下的方式来排除这个spring依赖：</p>
+<pre><code class="prism language-java"><span class="token operator">&lt;</span><span class="token operator">!</span><span class="token operator">--</span>        Canal客户端<span class="token operator">--</span><span class="token operator">&gt;</span>
+<span class="token generics function"><span class="token punctuation">&lt;</span>dependency<span class="token punctuation">&gt;</span></span>
+    <span class="token generics function"><span class="token punctuation">&lt;</span>groupId<span class="token punctuation">&gt;</span></span>com<span class="token punctuation">.</span>alibaba<span class="token punctuation">.</span>otter<span class="token operator">&lt;</span><span class="token operator">/</span>groupId<span class="token operator">&gt;</span>
+    <span class="token generics function"><span class="token punctuation">&lt;</span>artifactId<span class="token punctuation">&gt;</span></span>canal<span class="token punctuation">.</span>client<span class="token operator">&lt;</span><span class="token operator">/</span>artifactId<span class="token operator">&gt;</span>
+    <span class="token generics function"><span class="token punctuation">&lt;</span>version<span class="token punctuation">&gt;</span></span><span class="token number">1.0</span><span class="token number">.24</span><span class="token operator">&lt;</span><span class="token operator">/</span>version<span class="token operator">&gt;</span>
+    <span class="token generics function"><span class="token punctuation">&lt;</span>exclusions<span class="token punctuation">&gt;</span></span>
+        <span class="token generics function"><span class="token punctuation">&lt;</span>exclusion<span class="token punctuation">&gt;</span></span>
+            <span class="token generics function"><span class="token punctuation">&lt;</span>groupId<span class="token punctuation">&gt;</span></span>org<span class="token punctuation">.</span>springframework<span class="token operator">&lt;</span><span class="token operator">/</span>groupId<span class="token operator">&gt;</span>
+            <span class="token generics function"><span class="token punctuation">&lt;</span>artifactId<span class="token punctuation">&gt;</span></span>spring<span class="token operator">&lt;</span><span class="token operator">/</span>artifactId<span class="token operator">&gt;</span>
+        <span class="token operator">&lt;</span><span class="token operator">/</span>exclusion<span class="token operator">&gt;</span>
+    <span class="token operator">&lt;</span><span class="token operator">/</span>exclusions<span class="token operator">&gt;</span>
+<span class="token operator">&lt;</span><span class="token operator">/</span>dependency<span class="token operator">&gt;</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;至此，问题解决！！！</p>
+</div>
+</body>
+
+</html>

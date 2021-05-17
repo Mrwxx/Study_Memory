@@ -1,0 +1,175 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【C++学习笔记（三十五）】之set容器详细介绍</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="set_7"></a>一．set容器</h2>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp; 之间已经讲过，set容器与map容器都是关联型容器，set容器不像map容器那样，有键值和对应的实值，set容器的元素的键值就是实值。因此set容器是不允许有相同的键值的。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 由于set容器的键值就是对应的实值，且关联型容器在数据插入时已经将键值和实值绑定了，因此，<strong>不能随意更改set的元素值</strong>，修改set的元素值相当于修改键值，这会破坏set的排序结构。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 因此，无法通过set的迭代器修改set元素值，即set的iterator是const_iterator<br>
+<br></p>
+<h2><a id="multiset_15"></a>二．multiset容器</h2>
+<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp; multiset特性和用法和set完全一样，差别在于multiset允许键值重复。
+<br>
+<h2><a id="set_21"></a>三．set容器常用操作</h2>
+<h3><a id="%09set_22"></a>（一）	set构造函数</h3>
+<pre><code class="prism language-cpp">set<span class="token operator">&lt;</span>T<span class="token operator">&gt;</span> st<span class="token punctuation">;</span><span class="token comment">//set默认构造函数：</span>
+mulitset<span class="token operator">&lt;</span>T<span class="token operator">&gt;</span> mst<span class="token punctuation">;</span> <span class="token comment">//multiset默认构造函数: </span>
+<span class="token function">set</span><span class="token punctuation">(</span><span class="token keyword">const</span> set <span class="token operator">&amp;</span>st<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//拷贝构造函数</span>
+</code></pre>
+<br>
+<h3><a id="%09set_31"></a>（二）	set赋值操作</h3>
+<br>
+<pre><code class="prism language-cpp">set<span class="token operator">&amp;</span> <span class="token keyword">operator</span><span class="token operator">=</span><span class="token punctuation">(</span><span class="token keyword">const</span> set <span class="token operator">&amp;</span>st<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//重载等号操作符</span>
+<span class="token function">swap</span><span class="token punctuation">(</span>st<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//交换两个集合容器</span>
+</code></pre>
+<br>
+<h3><a id="%09set_40"></a>（三）	set大小操作</h3>
+<br>
+<pre><code class="prism language-cpp">set<span class="token operator">&amp;</span> <span class="token keyword">operator</span><span class="token operator">=</span><span class="token punctuation">(</span><span class="token keyword">const</span> set <span class="token operator">&amp;</span>st<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//重载等号操作符</span>
+<span class="token function">swap</span><span class="token punctuation">(</span>st<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//交换两个集合容器</span>
+</code></pre>
+<br>
+<h3><a id="%09set_51"></a>（四）	set插入和删除操作</h3>
+<br>
+<pre><code class="prism language-cpp"><span class="token function">insert</span><span class="token punctuation">(</span>elem<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//在容器中插入元素。</span>
+<span class="token function">clear</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//清除所有元素</span>
+<span class="token function">erase</span><span class="token punctuation">(</span>pos<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//删除pos迭代器所指的元素，返回下一个元素的迭代器。</span>
+<span class="token function">erase</span><span class="token punctuation">(</span>beg<span class="token punctuation">,</span> end<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//删除区间[beg,end)的所有元素 ，返回下一个元素的迭代器。</span>
+<span class="token function">erase</span><span class="token punctuation">(</span>elem<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//删除容器中值为elem的元素。</span>
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; insert返回 pair&lt;set&lt;&gt;::iterator,bool&gt;，<strong>bool意味着是否插入成功</strong></p>
+<pre><code class="prism language-cpp">pair<span class="token operator">&lt;</span>set<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token operator">&gt;</span><span class="token operator">::</span>iterator<span class="token punctuation">,</span> <span class="token keyword">bool</span><span class="token operator">&gt;</span> ret <span class="token operator">=</span> s1<span class="token punctuation">.</span><span class="token function">insert</span><span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp; 对组(pair)将一对值组合成一个值，这一对值可以具有不同的数据类型，两个值可以分别用pair的两个公有属性first和second访问。</strong><br>
+<br></p>
+<pre><code class="prism language-cpp">pair<span class="token punctuation">.</span>first
+pair<span class="token punctuation">.</span>second
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 如何<strong>构造pair</strong>呢？两种方法：</p>
+<p>第一种：</p>
+<pre><code class="prism language-cpp">pair<span class="token operator">&lt;</span>string<span class="token punctuation">,</span> <span class="token keyword">int</span><span class="token operator">&gt;</span> <span class="token function">p</span><span class="token punctuation">(</span><span class="token function">string</span><span class="token punctuation">(</span>“Tom”<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">100</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>第二种：</p>
+<pre><code class="prism language-cpp">pair<span class="token operator">&lt;</span>string<span class="token punctuation">,</span> <span class="token keyword">int</span><span class="token operator">&gt;</span> p2 <span class="token operator">=</span> <span class="token function">make_pair</span><span class="token punctuation">(</span>“Jerry”<span class="token punctuation">,</span> <span class="token number">200</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h3><a id="%09set_96"></a>（五）	set查找操作</h3>
+<br>
+<pre><code class="prism language-cpp"><span class="token function">find</span><span class="token punctuation">(</span>key<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//查找键key是否存在,若存在，返回该键的元素的迭代器；若不存在，返回set.end();</span>
+<span class="token function">count</span><span class="token punctuation">(</span>key<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//查找键key的元素个数</span>
+<span class="token function">lower_bound</span><span class="token punctuation">(</span>keyElem<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//返回第一个key&gt;=keyElem元素的迭代器。</span>
+<span class="token function">upper_bound</span><span class="token punctuation">(</span>keyElem<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//返回第一个key&gt;keyElem元素的迭代器。</span>
+<span class="token function">equal_range</span><span class="token punctuation">(</span>keyElem<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//返回容器中key与keyElem相等的上下限的两个迭代器。</span>
+</code></pre>
+<br>
+<h3><a id="%09set_109"></a>（六）	set的排序规则</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; set容器的元素在插入后就已经和键值绑定了，顺序是无法修改的，因此要想修改set的排序规则，<strong>就必须在元素插入前修改。即set容器初始化时可以设置排序规则。</strong></p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp; set容器在初始化set时，第二个模板参数可以设置排序规则</strong>，如下所示：</p>
+<pre><code class="prism language-cpp">set<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token punctuation">,</span> myCompare<span class="token operator">&gt;</span> s1<span class="token punctuation">;</span>
+</code></pre>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp; myCompare是一个仿函数</strong>，该仿函数也是一个类。为什么不能是函数呢？</p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp; 因为set是类模板，类模板的参数只能放数据类型，而函数不是数据类型，因此只能用仿函数（类），</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; Set容器排序默认升序，想要降序，在插入之前指定排序规则：</p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp; 用仿函数myCompare重载()运算符，指定排序规则。注意重载函数后的const。</strong><br>
+<br></p>
+<pre><code class="prism language-cpp"><span class="token keyword">class</span> <span class="token class-name">myCompare</span>
+<span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+<span class="token comment">//重载()运算符，要加const</span>
+	<span class="token keyword">bool</span> <span class="token keyword">operator</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token keyword">int</span> v1<span class="token punctuation">,</span> <span class="token keyword">int</span> v2<span class="token punctuation">)</span>	<span class="token keyword">const</span>
+<span class="token punctuation">{</span>
+	<span class="token keyword">return</span> v1 <span class="token operator">&gt;</span> v2<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+set<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token punctuation">,</span> myCompare<span class="token operator">&gt;</span> s1<span class="token punctuation">;</span>
+</code></pre>
+<br>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp; 当Set中插入自定义数据类型，如自定义的Person类时，需自定义排序规则。</strong><br>
+<br></p>
+<pre><code class="prism language-cpp"><span class="token macro property">#<span class="token directive keyword">define</span> _CRT_SECURE_NO_WARNINGS</span>
+
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;set&gt;</span></span>
+
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+
+<span class="token keyword">class</span> <span class="token class-name">Person</span>
+<span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token function">Person</span><span class="token punctuation">(</span>string name<span class="token punctuation">,</span> <span class="token keyword">int</span> age<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_Name <span class="token operator">=</span> name<span class="token punctuation">;</span>
+		<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_Age <span class="token operator">=</span> age<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+	string m_Name<span class="token punctuation">;</span>
+	<span class="token keyword">int</span> m_Age<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">class</span> <span class="token class-name">myCompare</span>
+<span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token keyword">bool</span> <span class="token keyword">operator</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token keyword">const</span> Person<span class="token operator">&amp;</span> p1<span class="token punctuation">,</span><span class="token keyword">const</span> Person<span class="token operator">&amp;</span> p2<span class="token punctuation">)</span>  <span class="token keyword">const</span>
+	<span class="token punctuation">{</span>
+		<span class="token keyword">if</span> <span class="token punctuation">(</span>p1<span class="token punctuation">.</span>m_Age <span class="token operator">&gt;</span> p2<span class="token punctuation">.</span>m_Age<span class="token punctuation">)</span>
+		<span class="token punctuation">{</span>
+			<span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+		<span class="token punctuation">}</span>
+		<span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">void</span> <span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	set<span class="token operator">&lt;</span>Person<span class="token punctuation">,</span> myCompare<span class="token operator">&gt;</span> s1<span class="token punctuation">;</span>
+
+	Person <span class="token function">p1</span><span class="token punctuation">(</span><span class="token string">"w"</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	Person <span class="token function">p2</span><span class="token punctuation">(</span><span class="token string">"a"</span><span class="token punctuation">,</span> <span class="token number">20</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	Person <span class="token function">p3</span><span class="token punctuation">(</span><span class="token string">"n"</span><span class="token punctuation">,</span> <span class="token number">30</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	Person <span class="token function">p4</span><span class="token punctuation">(</span><span class="token string">"g"</span><span class="token punctuation">,</span> <span class="token number">40</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	Person <span class="token function">p5</span><span class="token punctuation">(</span><span class="token string">"x"</span><span class="token punctuation">,</span> <span class="token number">50</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	Person <span class="token function">p6</span><span class="token punctuation">(</span><span class="token string">"u"</span><span class="token punctuation">,</span> <span class="token number">60</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	s1<span class="token punctuation">.</span><span class="token function">insert</span><span class="token punctuation">(</span>p1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	s1<span class="token punctuation">.</span><span class="token function">insert</span><span class="token punctuation">(</span>p2<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	s1<span class="token punctuation">.</span><span class="token function">insert</span><span class="token punctuation">(</span>p3<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	s1<span class="token punctuation">.</span><span class="token function">insert</span><span class="token punctuation">(</span>p4<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	s1<span class="token punctuation">.</span><span class="token function">insert</span><span class="token punctuation">(</span>p5<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	s1<span class="token punctuation">.</span><span class="token function">insert</span><span class="token punctuation">(</span>p6<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token keyword">for</span> <span class="token punctuation">(</span>set<span class="token operator">&lt;</span>Person<span class="token punctuation">,</span> myCompare<span class="token operator">&gt;</span><span class="token operator">::</span>iterator it <span class="token operator">=</span> s1<span class="token punctuation">.</span><span class="token function">begin</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> it <span class="token operator">!=</span> s1<span class="token punctuation">.</span><span class="token function">end</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token operator">++</span>it<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token string">"姓名： "</span> <span class="token operator">&lt;&lt;</span> <span class="token punctuation">(</span><span class="token operator">*</span>it<span class="token punctuation">)</span><span class="token punctuation">.</span>m_Name <span class="token operator">&lt;&lt;</span> <span class="token string">" 年龄："</span> <span class="token operator">&lt;&lt;</span> <span class="token punctuation">(</span><span class="token operator">*</span>it<span class="token punctuation">)</span><span class="token punctuation">.</span>m_Age <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+<span class="token punctuation">}</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	<span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,64 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【LeetCode刷题笔记（五十七）】之 1217. 玩筹码</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	题目</h2>
+<h3><a id="%09_8"></a>（一）	题干</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;数轴上放置了一些筹码，每个筹码的位置存在数组 chips 当中。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;你可以对 任何筹码 执行下面两种操作之一（不限操作次数，0 次也可以）：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;将第 i 个筹码向左或者右移动 2 个单位，代价为 0。<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;将第 i 个筹码向左或者右移动 1 个单位，代价为 1。<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;最开始的时候，同一位置上也可能放着两个或者更多的筹码。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;返回将所有筹码移动到同一位置（任意位置）上所需要的最小代价。<br>
+<br></p>
+<h3><a id="%09_22"></a>（二）	示例</h3>
+<p>示例 1：</p>
+<pre><code class="prism language-cpp">输入：chips <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">]</span>
+输出：<span class="token number">1</span>
+解释：第二个筹码移动到位置三的代价是 <span class="token number">1</span>，第一个筹码移动到位置三的代价是 <span class="token number">0</span>，总代价为 <span class="token number">1</span>。
+</code></pre>
+<p>示例 2：</p>
+<pre><code class="prism language-cpp">输入：chips <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">]</span>
+输出：<span class="token number">2</span>
+解释：第四和第五个筹码移动到位置二的代价都是 <span class="token number">1</span>，所以最小总代价为 <span class="token number">2</span>。
+</code></pre>
+<p>提示：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;1 &lt;= chips.length &lt;= 100<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;1 &lt;= chips[i] &lt;= 10^9</p>
+<br>
+<h2><a id="%09_51"></a>二．	题解</h2>
+<h3><a id="%09_52"></a>（一）	思路</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;从题目来看，要想用最小的开销来将所有的筹码移动到一个位置，就要尽量使用开销为0的移动方式，在真的无法继续使用开销0的方式时，再使用开销为1的方式。开销为0的方式要求我们间隔两个格子来移动，那么我们可以将所有的奇数位置的筹码都通过这种方式移动到一个奇数位置Odd， 将所有的偶数位置的筹码都移动到跟Odd位置相邻的偶数Even位置，这样移动的开销就为0。此时Odd位置中的就有position数组中所有奇数个数的筹码，Even位置就有position数组中所有偶数个数的筹码。之后，就必须使用开销为1的移动方式了，两个位置中，哪个位置的筹码数少就移动哪个位置的筹码到另一个位置中，问题解决！！！！<br>
+<br></p>
+<h3><a id="%09_59"></a>（二）	代码实现</h3>
+<p>Java：</p>
+<pre><code class="prism language-java"><span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">int</span> <span class="token function">minCostToMoveChips</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> position<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">int</span> even <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">,</span> odd <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> pos <span class="token operator">:</span> position<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span>pos <span class="token operator">%</span> <span class="token number">2</span> <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                even<span class="token operator">++</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span><span class="token keyword">else</span><span class="token punctuation">{</span>
+                odd<span class="token operator">++</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> Math<span class="token punctuation">.</span><span class="token function">min</span><span class="token punctuation">(</span>even<span class="token punctuation">,</span> odd<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

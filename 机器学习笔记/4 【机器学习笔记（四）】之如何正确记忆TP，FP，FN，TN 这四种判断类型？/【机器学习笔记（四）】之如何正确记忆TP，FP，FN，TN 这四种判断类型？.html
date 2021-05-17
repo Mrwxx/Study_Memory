@@ -1,0 +1,40 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【机器学习笔记（四）】之如何正确记忆TP，FP，FN，TN 这四种判断类型？</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="__8"></a><strong>一. 问题</strong>:</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如何记忆TP，FP，FN，TN 四种判断类型，如何不混淆这4种类型？</p>
+<h2><a id="__10"></a>二. 记忆方法</h2>
+<h3><a id="1_TP_11"></a>1. TP</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;True Positive，从英文名可以看出，首先是<strong>true</strong>，正确的，说明判断正确；再看后面的是<strong>Positive</strong>，正类，那么联系前文可知是判断正确的，即<strong>将正类判断为正类</strong>。</p>
+<h3><a id="2_FP_13"></a>2. FP</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;False Positive，同理，首先是<strong>False</strong>,错误的，说明判断错误；再看后者，<strong>Positive</strong>，正类，那么联系前文可以记忆将<strong>负类判断错误为正类</strong>。</p>
+<h3><a id="3_FN_15"></a>3. FN</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;False Negative。首先是<strong>False</strong>，判断错误；再看后者，<strong>Negative</strong>,负类，可以记忆为将<strong>正类判断错误为负类</strong>。</p>
+<h3><a id="4_TN_17"></a>4. TN</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;True Negative,首先是<strong>True</strong>,判断正确；再看后者，<strong>Negative</strong>,负类，可以记忆为<strong>负类判断为负类</strong>。<br>
+<br></p>
+<h2><a id="___20"></a>三.  根据四种判断类型计算的指标</h2>
+<h3><a id="1__22"></a>1. 准确率</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Accuracy=（TP+TN） / （TP+FP+TN+FN）， 即预测正确的比上所有的数据</p>
+<h3><a id="2__25"></a>2. 精确率</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Precision=TP / （TP+FP），即在预测为正例的数据中，有多少是预测正确。</p>
+<h3><a id="3__28"></a>3. 召回率</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Recall=TP / （TP+FN），即在所有正例的数据中，有多少是预测正确的。<br>
+*</p>
+</div>
+</body>
+
+</html>

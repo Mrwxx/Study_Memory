@@ -1,0 +1,132 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【C++学习笔记（四十八）】之Qt项目初始化的说明与注意事项</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_1"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09__11"></a>一.	创建项目 注意事项</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;注意：路径名不支持中文和空格</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;QWidget是QMainWindow和QDialog的基类。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;QWidget只是一个窗口，没有具体的功能</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;QMainWindow实现菜单栏，状态栏</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;QDialog实现弹出对话框</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;git vss svn都是用于团队开发，项目的版本管理。</p>
+<br>
+<h2><a id="Maincpp_27"></a>二．Main.cpp初始化分析</h2>
+<br>
+<pre><code class="prism language-cpp"><span class="token macro property">#<span class="token directive keyword">include</span> “myWidget.h”</span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;QApplication&gt;</span> 头文件 应用程序</span>
+
+<span class="token comment">//程序入口，  argc命令行变量数量， argv命令行变量数组</span>
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token keyword">int</span> argc<span class="token punctuation">,</span> <span class="token keyword">char</span> <span class="token operator">*</span>argv<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	QAppliaction <span class="token function">a</span><span class="token punctuation">(</span>argc<span class="token punctuation">,</span> argv<span class="token punctuation">)</span><span class="token punctuation">;</span>		<span class="token comment">//应用程序对象a，Qt中有且只有一个应用程序对象</span>
+	MyWidget w<span class="token punctuation">;</span>		<span class="token comment">//MyWidget的基类是QWidget，窗口对象</span>
+	w<span class="token punctuation">.</span><span class="token function">show</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>			<span class="token comment">//窗口默认是不会弹出的，调用show()弹出</span>
+
+	<span class="token keyword">return</span> a<span class="token punctuation">.</span><span class="token function">exec</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>	<span class="token comment">//进入消息循环机制，窗口能够一直保持</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3><a id="QApplication_45"></a><strong>QApplication应用程序类</strong></h3>
+<br>
+<ol>
+<li>
+<p>管理图形用户界面应用程序的控制流和主要设置。</p>
+</li>
+<li>
+<p><strong>Qt的整个后台管理，它包含主事件循环，在其中来自窗口系统和其它资源的所有事件处理和调度</strong>。它也处理应用程序的初始化和结束，并且提供对话管理。</p>
+</li>
+<li>
+<p><strong>有且只存在一个QApplication 对象</strong>。<br>
+<br></p>
+</li>
+</ol>
+<h3><a id="aexec_55"></a>a.exec()</h3>
+<ol>
+<li>
+<p><strong>程序进入消息循环，等待对用户输入进行响应</strong>。这里main()把控制权转交给Qt，Qt完成事件处理工作，当应用程序退出的时候exec()的值就会返回。</p>
+</li>
+<li>
+<p><strong>在exec()中，Qt接受并处理用户和系统的事件并且把它们传递给适当的窗口部件</strong>。</p>
+</li>
+</ol>
+<br>
+<h2><a id="pro_62"></a>三．pro配置文件分析</h2>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;.pro就是工程文件(project)，它是qmake自动生成的用于生产makefile的配置文件</strong></p>
+<pre><code class="prism language-cpp">QT		<span class="token operator">+</span><span class="token operator">=</span> core gui			<span class="token comment">//Qt包含的模块</span>
+
+<span class="token function">greaterThan</span><span class="token punctuation">(</span>QT_MAJOR_VERSION<span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">)</span>：QT <span class="token operator">+</span><span class="token operator">=</span> widgets		<span class="token comment">//大于4的版本，会包含widget模块</span>
+TARGET <span class="token operator">=</span> <span class="token number">01</span>_Qt_First			<span class="token comment">//生成的.exe可执行文件的名称</span>
+TEMPLATE <span class="token operator">=</span> app				<span class="token comment">//模板，应用程序</span>
+
+SOURCES <span class="token operator">+</span><span class="token operator">=</span> main<span class="token punctuation">.</span>cpp\
+			Mywidget<span class="token punctuation">.</span>app	<span class="token comment">//源文件</span>
+
+HEADERS  <span class="token operator">+</span><span class="token operator">=</span> mywidget<span class="token punctuation">.</span>h		<span class="token comment">//头文件</span>
+</code></pre>
+<br>
+<h3><a id="_81"></a><strong>模板变量</strong></h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>模板变量告诉qmake为这个应用程序生成哪种makefile</strong>。下面是可供使用的选择：TEMPLATE = app</p>
+<ol>
+<li>app -建立一个应用程序的makefile。这是默认值，所以如果模板没有被指定，这个将被使用。</li>
+<li>lib - 建立一个库的makefile。</li>
+<li>vcapp - 建立一个应用程序的VisualStudio项目文件。</li>
+<li>vclib - 建立一个库的VisualStudio项目文件。</li>
+<li>subdirs -这是一个特殊的模板，它可以创建一个能够进入特定目录并且为一个项目文件生成makefile并且为它调用make的makefile。</li>
+</ol>
+<h3><a id="_90"></a><strong>#配置信息</strong></h3>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;CONFIG用来告诉qmake关于应用程序的配置信息。</strong></p>
+<pre><code class="prism language-cpp">CONFIG <span class="token operator">+</span><span class="token operator">=</span> c<span class="token operator">++</span><span class="token number">11</span>	<span class="token comment">//使用c++11的特性</span>
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在这里使用“+=”，是因为我们添加我们的配置选项到任何一个已经存在中。这样做比使用“=”那样替换已经指定的所有选项更安全。<br>
+<br></p>
+<h2><a id="Mywidgeth_105"></a>四．Mywidget.h文件分析</h2>
+<br>
+<pre><code class="prism language-cpp"><span class="token macro property">#<span class="token directive keyword">ifndef</span> MYWIDGET_H		</span><span class="token comment">//防止mywidget.h头文件重复编译</span>
+<span class="token macro property">#<span class="token directive keyword">define</span> MYWIDGET_H</span>
+
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;QWidget&gt;</span>		</span><span class="token comment">//基类</span>
+
+<span class="token keyword">class</span> <span class="token class-name">MyWidget</span> <span class="token operator">:</span> <span class="token keyword">public</span> QWidget	<span class="token comment">//继承基类QWidget</span>
+<span class="token punctuation">{</span>
+	Q_OBJECT			<span class="token comment">//宏，写上就支持Qt中的信号和槽机制</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token function">MyWidget</span><span class="token punctuation">(</span>QWidget <span class="token operator">*</span> parent <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token operator">~</span><span class="token function">MyWidget</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token macro property">#<span class="token directive keyword">endif</span>  </span><span class="token comment">//MYWIDGET_H</span>
+</code></pre>
+<br>
+<h2><a id="_127"></a>五．命名规则</h2>
+<p><strong>类名</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;一个单词，首字母大写</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;多个单词，单词和单词之间 ，首字母大写</p>
+<p><strong>函数和变量</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;一个单词 首字母小写</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;多个单词，单词与单词之间，首字母大写</p>
+<br>
+<h2><a id="_143"></a>六．快捷键</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;运行  ctrl + R</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;编译  ctrl + B</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;查找  ctrl + F<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;帮助文档 F1</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;字体缩放  ctrl + 鼠标滚轮</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;自动对齐  ctrl + i</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;整行移动  ctrl + shift + ↑或者↓</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;同名的.h和.cpp切换  F4</p>
+</div>
+</body>
+
+</html>

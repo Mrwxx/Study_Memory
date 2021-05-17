@@ -1,0 +1,66 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【中等】【LeetCode刷题笔记（三十二）】之62.动态规划_不同路径</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	题目</h2>
+<h3><a id="%09_8"></a>（一）	题干</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 一个机器人位于一个 m x n 网格的左上角 （起始点在下图中标记为“Start” ）。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 机器人每次只能向下或者向右移动一步。机器人试图达到网格的右下角（在下图中标记为“Finish”）。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 问总共有多少条不同的路径？<br>
+<br></p>
+<h3><a id="%09_18"></a>（二）	示例</h3>
+<p>示例 1:</p>
+<pre><code class="prism language-cpp">输入<span class="token operator">:</span> m <span class="token operator">=</span> <span class="token number">3</span><span class="token punctuation">,</span> n <span class="token operator">=</span> <span class="token number">2</span>
+输出<span class="token operator">:</span> <span class="token number">3</span>
+解释<span class="token operator">:</span>
+从左上角开始，总共有 <span class="token number">3</span> 条路径可以到达右下角。
+<span class="token number">1.</span> 向右 <span class="token operator">-</span><span class="token operator">&gt;</span> 向右 <span class="token operator">-</span><span class="token operator">&gt;</span> 向下
+<span class="token number">2.</span> 向右 <span class="token operator">-</span><span class="token operator">&gt;</span> 向下 <span class="token operator">-</span><span class="token operator">&gt;</span> 向右
+<span class="token number">3.</span> 向下 <span class="token operator">-</span><span class="token operator">&gt;</span> 向右 <span class="token operator">-</span><span class="token operator">&gt;</span> 向右
+</code></pre>
+<p>示例 2:</p>
+<pre><code class="prism language-cpp">输入<span class="token operator">:</span> m <span class="token operator">=</span> <span class="token number">7</span><span class="token punctuation">,</span> n <span class="token operator">=</span> <span class="token number">3</span>
+输出<span class="token operator">:</span> <span class="token number">28</span>
+</code></pre>
+<br>
+<h2><a id="%09_42"></a>二．	题解</h2>
+<h3><a id="%09_43"></a>（一）	思路</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 这是一个组合问题，从某个点走到某个点有多少种路径。首先，规则是只允许往右和往下走，每次只能走一格，因此，我们可以得知每个点只能通过它上面的点和左边的点到达。这样就可以构造状态转移方程了。设置一个二维数组dp[][]来存储从起始点(0,0)走到(i,j)的路径数量，那么状态转移方程为： dp[i][j] = dp[i-1][j] +dp[i][j-1]。由于(i,j-1)和(i-1,j)能够到达(i,j)，因此他们两个的dp数组的值加起来就是dp[i][j]的值。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 确定边界条件：当i=0或者j=0时会从状态转移方程中越界，而当i=0是处在最上面一行之中，而最上面一行的点都只有一条路径可以到达，因为从起始点（0,0）只能往右才能到达最上面一行的每个点，因此dp[0][j] = 1。同理，当j=0时也只有一条路径可以到达，因此dp[i][0] = 1;<br>
+<br></p>
+<h3><a id="%09_51"></a>（二）	代码实现</h3>
+<p>JAVA：</p>
+<pre><code class="prism language-java"><span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">int</span> <span class="token function">uniquePaths</span><span class="token punctuation">(</span><span class="token keyword">int</span> m<span class="token punctuation">,</span> <span class="token keyword">int</span> n<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token punctuation">]</span> dp <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">int</span><span class="token punctuation">[</span>m<span class="token punctuation">]</span><span class="token punctuation">[</span>n<span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span>m<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            dp<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> n<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            dp<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> m<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> j <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span> j <span class="token operator">&lt;</span> n<span class="token punctuation">;</span> <span class="token operator">++</span>j<span class="token punctuation">)</span><span class="token punctuation">{</span>
+                dp<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">[</span>j<span class="token punctuation">]</span> <span class="token operator">=</span> dp<span class="token punctuation">[</span>i<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">[</span>j<span class="token punctuation">]</span> <span class="token operator">+</span> dp<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">[</span>j<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> dp<span class="token punctuation">[</span>m<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">[</span>n<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

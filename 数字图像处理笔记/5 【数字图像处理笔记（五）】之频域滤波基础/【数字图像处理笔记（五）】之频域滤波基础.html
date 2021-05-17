@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【数字图像处理笔记（五）】之频域滤波基础</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="_8"></a>一．卷积定理</h2>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;空间域和频域线性滤波的基础都是卷积定理：</strong></p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;f(x,y) * h(x,y) &lt;=&gt; H(u,v)F(u,v)</strong></p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;其中，符号“*”表示两个函数的卷积，双箭头两边的表达式组成了傅里叶变换对。表达式表明两个空间函数的卷积可以通过计算两个傅里叶变换函数的乘积的逆变换得到。<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;相反地，两个空间函数的卷积的傅里叶变换恰好等于两个函数的傅里叶变换的乘积。</strong></p>
+<br>
+<h2><a id="_18"></a>二．滤波传递函数</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;空间域中的滤波由图像f(x,y)与滤波掩模h(x, y)组成。根据卷积定理，我们可以在频城中通过让F(u, v)乘以H(u, v)来得到相同的结果，即空间滤波器的傅里叶变换。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>我们通常将H(u, v)称为滤波传递函数。</strong></p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;频域滤波的目的是选择一个滤波器传递函数，以便按照指定的方式修改F(u,v)。</strong></p>
+<p>如低通滤波器：<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;该传递函数会衰减F(u, v)的高频分量，而保持低频分量相对不变。具有这种特性的滤波器称为低通滤波器。<strong>低通滤波器的结果会导致图像出现模糊现象(平滑)。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;基于卷积理论,我们知道为了在空间域中得到相应的滤波后的图像，仅需要计算积H(u, v)F(u, v)的傅里叶逆变换。应当记住，上述方法所得到的结果与我们在空间域中使用卷积所得到的结果是相同的，只要滤波掩模h(x, y)是H(u, u)的傅里叶逆变换。</p>
+<h2><a id="DFT_30"></a>三．DFT滤波的周期性</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;若我们使用DFT进行滤波操作，则图像及其变换都将自动地看成是周期性的。不难发现,若周期关于函数的非零部分的持续时间很靠近，则对周期函数执行卷积运算会导致相邻周期之间的干扰。</p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;这种称为折叠误差的干扰，可以通过使用零来填充函数的方法来避免。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;假设函数f(x, y)和h(x, y)的大小分别为A x B和C x D。通过对f和g补零，我们构造两个大小均为P x Q的扩充(填充)的函数。可以看出，选择</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;P≥A+C- 1<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;和<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;Q≥B+D- 1</p>
+<h2><a id="DFT_44"></a>四．DFT滤波的步骤：</h2>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;其中f是待滤波处理的图像，g为处理结果，同时假设滤波函数H(u, v)的大小与填充后的图像的大小相等。</strong><br>
+<br></p>
+<h3><a id="1paddedsize_47"></a>1.使用函数paddedsize获得填充参数:</h3>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;PQ = paddedsize (size(f));</strong></p>
+<h3><a id="2_51"></a>2.得到使用填充的傅里叶变换:</h3>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;F = ft2(f，PQ(1)， PQ(2)) ;</strong></p>
+<h3><a id="3PQ1_x_PQ2H_54"></a>3.生成一个大小为PQ(1) x PQ(2)的滤波函数H。</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;若它未居中，则在使用该滤波函数之前要令H= fftshilt (H)。</p>
+<h3><a id="4_57"></a>4.将变换乘以滤波函数:</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;G = H.*E;</p>
+<h3><a id="5G_60"></a>5.获得G的傅里叶逆变换的实部:</h3>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;g = real (ifft2 (G)) ;</strong></p>
+<h3><a id="6_63"></a>6.将左上部的矩形修剪为原始大小:</h3>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;g = g(1:size (f,1) ,1:size(f，2)) ;</strong></p>
+<br>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;可以看到我们在频域中进行滤波的目的就是为了改变F(u,v)，然后通过傅里叶逆变换转换回空间域，达到更改输入图像的目的。</strong></p>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,84 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【C++学习笔记（三十一）】之deque容器详细介绍</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_1"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09deque_8"></a>一．	deque容器的概念</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;之前我们介绍了vector容器的概念，vector容器相当于数组，不过vector的空间扩充是动态的。</p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;而且vector容器是单向开口的，虽然也允许在头部插入元素，但是效率非常低。deque容器是双向开口的连续线性空间，可以在头尾两端进行元素的插入和删除操作。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;deque容器使用常量时间复杂度在头部进行元素的插入和删除操作。</p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;deque容器是以动态的分段连读空间链接而成，需要扩充空间时，就链接一段新的空间。</strong><br>
+<br></p>
+<h2><a id="%09deque_17"></a>二．	deque容器的实现原理</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;deque容器是由一些连续空间链接而成的，当我们需要为deque容器扩充时，则配置一段连续空间，链接在deque的头部或者尾部。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;这样，就避免了vector容器的配置空间，复制内容，释放原空间的操作。但是，这也是有代价的，deque容器需要维护这些分段的内存空间，并提供随机存取的接口，<strong>因此，deque容器的迭代器结构十分复杂。</strong></p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;deque容器划出一小块内存空间（中控器）存储着各个分段内存空间的地址，这些分段内存空间称为缓冲区。这些缓冲区中即存储着deque容器的内容。</strong><br>
+<br></p>
+<h2><a id="%09deque_24"></a>三．	deque容器的函数操作</h2>
+<h3><a id="%09deque_25"></a>（一）	deque构造函数</h3>
+<br>
+<pre><code class="prism language-cpp">deque<span class="token operator">&lt;</span>T<span class="token operator">&gt;</span> deqT<span class="token punctuation">;</span><span class="token comment">//默认构造形式</span>
+<span class="token function">deque</span><span class="token punctuation">(</span>beg<span class="token punctuation">,</span> end<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//构造函数将[beg, end)区间中的元素拷贝给本身。</span>
+<span class="token function">deque</span><span class="token punctuation">(</span>n<span class="token punctuation">,</span> elem<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//构造函数将n个elem拷贝给本身。</span>
+<span class="token function">deque</span><span class="token punctuation">(</span><span class="token keyword">const</span> deque <span class="token operator">&amp;</span>deq<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//拷贝构造函数。</span>
+</code></pre>
+<br>
+<h3><a id="%09deque_36"></a>（二）	deque赋值操作</h3>
+<br>
+<pre><code class="prism language-cpp"><span class="token function">assign</span><span class="token punctuation">(</span>beg<span class="token punctuation">,</span> end<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//将[beg, end)区间中的数据拷贝赋值给本身。</span>
+<span class="token function">assign</span><span class="token punctuation">(</span>n<span class="token punctuation">,</span> elem<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//将n个elem拷贝赋值给本身。</span>
+deque<span class="token operator">&amp;</span> <span class="token keyword">operator</span><span class="token operator">=</span><span class="token punctuation">(</span><span class="token keyword">const</span> deque <span class="token operator">&amp;</span>deq<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">//重载等号操作符 </span>
+<span class="token function">swap</span><span class="token punctuation">(</span>deq<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">// 将deq与本身的元素互换</span>
+</code></pre>
+<br>
+<h3><a id="%09deque_47"></a>（三）	deque大小操作</h3>
+<br>
+<pre><code class="prism language-cpp">deque<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//返回容器中元素的个数</span>
+deque<span class="token punctuation">.</span><span class="token function">empty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//判断容器是否为空</span>
+deque<span class="token punctuation">.</span><span class="token function">resize</span><span class="token punctuation">(</span>num<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//重新指定容器的长度为num,若容器变长，则以默认值填充新位置。如果容器变短，则末尾超出容器长度的元素被删除。</span>
+deque<span class="token punctuation">.</span><span class="token function">resize</span><span class="token punctuation">(</span>num<span class="token punctuation">,</span> elem<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">//重新指定容器的长度为num,若容器变长，则以elem值填充新位置,如果容器变短，则末尾超出容器长度的元素被删除。</span>
+</code></pre>
+<br>
+<h3><a id="%09deque_58"></a>（四）	deque两端插入和删除操作</h3>
+<br>
+<pre><code class="prism language-cpp"><span class="token function">push_back</span><span class="token punctuation">(</span>elem<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//在容器尾部添加一个数据</span>
+<span class="token function">push_front</span><span class="token punctuation">(</span>elem<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//在容器头部插入一个数据</span>
+<span class="token function">pop_back</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//删除容器最后一个数据</span>
+<span class="token function">pop_front</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//删除容器第一个数据</span>
+</code></pre>
+<br>
+<h3><a id="%09deque_69"></a>（五）	deque数据存取</h3>
+<br>
+<pre><code class="prism language-cpp"><span class="token function">at</span><span class="token punctuation">(</span>idx<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//返回索引idx所指的数据，如果idx越界，抛出out_of_range。</span>
+<span class="token keyword">operator</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span><span class="token comment">//返回索引idx所指的数据，如果idx越界，不抛出异常，直接出错。</span>
+<span class="token function">front</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//返回第一个数据。</span>
+<span class="token function">back</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//返回最后一个数据</span>
+</code></pre>
+<br>
+<h3><a id="%09deque_80"></a>（六）	deque插入操作</h3>
+<pre><code class="prism language-cpp"><span class="token function">insert</span><span class="token punctuation">(</span>pos<span class="token punctuation">,</span>elem<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//在pos位置插入一个elem元素的拷贝，返回新数据的位置。</span>
+<span class="token function">insert</span><span class="token punctuation">(</span>pos<span class="token punctuation">,</span>n<span class="token punctuation">,</span>elem<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//在pos位置插入n个elem数据，无返回值。</span>
+<span class="token function">insert</span><span class="token punctuation">(</span>pos<span class="token punctuation">,</span>beg<span class="token punctuation">,</span>end<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//在pos位置插入[beg,end)区间的数据，无返回值。</span>
+</code></pre>
+<br>
+<h3><a id="%09deque_89"></a>（七）	deque删除操作</h3>
+<br>
+<pre><code class="prism language-cpp"><span class="token function">clear</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//移除容器的所有数据</span>
+<span class="token function">erase</span><span class="token punctuation">(</span>beg<span class="token punctuation">,</span>end<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//删除[beg,end)区间的数据，返回下一个数据的位置。</span>
+<span class="token function">erase</span><span class="token punctuation">(</span>pos<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//删除pos位置的数据，返回下一个数据的位置。</span>
+</code></pre>
+</div>
+</body>
+
+</html>

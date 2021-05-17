@@ -1,0 +1,58 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【LeetCode刷题笔记（四十四）】之 96. 不同的二叉搜索树</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	题目</h2>
+<h3><a id="%09_8"></a>（一）	题干</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 给定一个整数 n，求以 1 … n 为节点组成的二叉搜索树有多少种？<br>
+<br></p>
+<h3><a id="%09_14"></a>（二）	示例</h3>
+<pre><code class="prism language-cpp">输入<span class="token operator">:</span> <span class="token number">3</span>
+输出<span class="token operator">:</span> <span class="token number">5</span>
+解释<span class="token operator">:</span>
+给定 n <span class="token operator">=</span> <span class="token number">3</span><span class="token punctuation">,</span> 一共有 <span class="token number">5</span> 种不同结构的二叉搜索树<span class="token operator">:</span>
+
+   <span class="token number">1</span>         <span class="token number">3</span>     <span class="token number">3</span>      <span class="token number">2</span>      <span class="token number">1</span>
+    \       <span class="token operator">/</span>     <span class="token operator">/</span>      <span class="token operator">/</span> \      \
+     <span class="token number">3</span>     <span class="token number">2</span>     <span class="token number">1</span>      <span class="token number">1</span>   <span class="token number">3</span>      <span class="token number">2</span>
+    <span class="token operator">/</span>     <span class="token operator">/</span>       \                 \
+   <span class="token number">2</span>     <span class="token number">1</span>         <span class="token number">2</span>                 <span class="token number">3</span>
+</code></pre>
+<br>
+<h2><a id="%09_33"></a>二．	题解</h2>
+<h3><a id="%09_34"></a>（一）	思路</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 二叉搜索树，树的根节点大于左子树中的所有值，小于右子树的所有值。关于树的题目，一般都要往递归和动态规划方面去思考。很明显，这个题目可以使用动态规划解决，n个数的二叉搜索树数量是依赖于n-1个数的二叉搜索树的数量的，因此可以从n=1开始迭代，迭代n次。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 每次迭代中，选取列表中的一个数作为根节点，分出左右子树。每个子树能够构成的二叉搜索树只和每个子树的节点个数相关，与节点的内容是没有关系的，因为每个子树都是有序的，二叉搜索树都是按照顺序排列的。因此，每个根节点能组成的二叉搜索树的种类为左子树的种类乘以右子树的种类。而左右子树的种类数在n值较小的迭代中已经求出了，因此，直接使用即可。</p>
+<br>
+<h3><a id="%09_43"></a>（二）	代码实现</h3>
+<p>Java：</p>
+<pre><code class="prism language-java"><span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">int</span> <span class="token function">numTrees</span><span class="token punctuation">(</span><span class="token keyword">int</span> n<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> dp <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">int</span><span class="token punctuation">[</span>n<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        dp<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+        dp<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">2</span><span class="token punctuation">;</span> i <span class="token operator">&lt;=</span> n<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> j <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span> j <span class="token operator">&lt;=</span> i<span class="token punctuation">;</span> <span class="token operator">++</span>j<span class="token punctuation">)</span><span class="token punctuation">{</span>
+                dp<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">+=</span> dp<span class="token punctuation">[</span>j<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">*</span> dp<span class="token punctuation">[</span>i<span class="token operator">-</span>j<span class="token punctuation">]</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> dp<span class="token punctuation">[</span>n<span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,115 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【C++学习笔记（二十九 ）】之string容器</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="string_7"></a>一．string容器</h2>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;C++标准库定义了一种string类，定义在头文件 string 中。<br>
+<br></p>
+<h2><a id="%09string_C_13"></a>二．	string 和C风格字符串对比：</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;1.char<em>是一个指针，string是一个类string封装了char</em>，管理这个字符串，是一个char*型的容器。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;2.string封装了很多实用的成员方法查找find，拷贝copy，删除delete 替换replace，插入insert</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;3.不用考虑内存释放和越界 string管理char*所分配的内存。每一次string的复制，取值都由string类负责维护，不用担心复制越界和取值越界等。</p>
+<br>
+<h2><a id="string_22"></a>三．string容器的常用操作</h2>
+<br>
+<p><strong>1.	string的构造函数</strong><br>
+<br></p>
+<pre><code class="prism language-cpp"><span class="token function">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//创建一个空的字符串 例如: string str;      </span>
+<span class="token function">string</span><span class="token punctuation">(</span><span class="token keyword">const</span> string<span class="token operator">&amp;</span> str<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//使用一个string对象初始化另一个string对象</span>
+<span class="token function">string</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span><span class="token operator">*</span> s<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//使用字符串s初始化</span>
+<span class="token function">string</span><span class="token punctuation">(</span><span class="token keyword">int</span> n<span class="token punctuation">,</span> <span class="token keyword">char</span> c<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//使用n个字符c初始化 </span>
+</code></pre>
+<br>
+<p><strong>2.	string的基本赋值操作</strong><br>
+<br></p>
+<pre><code class="prism language-cpp">string<span class="token operator">&amp;</span> <span class="token keyword">operator</span><span class="token operator">=</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span><span class="token operator">*</span> s<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//char*类型字符串 赋值给当前的字符串</span>
+string<span class="token operator">&amp;</span> <span class="token keyword">operator</span><span class="token operator">=</span><span class="token punctuation">(</span><span class="token keyword">const</span> string <span class="token operator">&amp;</span>s<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//把字符串s赋给当前的字符串</span>
+string<span class="token operator">&amp;</span> <span class="token keyword">operator</span><span class="token operator">=</span><span class="token punctuation">(</span><span class="token keyword">char</span> c<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//字符赋值给当前的字符串</span>
+string<span class="token operator">&amp;</span> <span class="token function">assign</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span>s<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//把字符串s赋给当前的字符串</span>
+string<span class="token operator">&amp;</span> <span class="token function">assign</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span>s<span class="token punctuation">,</span> <span class="token keyword">int</span> n<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//把字符串s的前n个字符赋给当前的字符串</span>
+string<span class="token operator">&amp;</span> <span class="token function">assign</span><span class="token punctuation">(</span><span class="token keyword">const</span> string <span class="token operator">&amp;</span>s<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//把字符串s赋给当前字符串</span>
+string<span class="token operator">&amp;</span> <span class="token function">assign</span><span class="token punctuation">(</span><span class="token keyword">int</span> n<span class="token punctuation">,</span> <span class="token keyword">char</span> c<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//用n个字符c赋给当前字符串</span>
+string<span class="token operator">&amp;</span> <span class="token function">assign</span><span class="token punctuation">(</span><span class="token keyword">const</span> string <span class="token operator">&amp;</span>s<span class="token punctuation">,</span> <span class="token keyword">int</span> start<span class="token punctuation">,</span> <span class="token keyword">int</span> n<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//将s从start开始n个字符赋值给字符串</span>
+</code></pre>
+<br>
+<p><strong>3.	string存取字符操作</strong><br>
+<br></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;当访问越界时，[]会直接挂掉，at会抛出异常。</p>
+<pre><code class="prism language-cpp"><span class="token keyword">char</span><span class="token operator">&amp;</span> <span class="token keyword">operator</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token keyword">int</span> n<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//通过[]方式取字符</span>
+<span class="token keyword">char</span><span class="token operator">&amp;</span> <span class="token function">at</span><span class="token punctuation">(</span><span class="token keyword">int</span> n<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//通过at方法获取字符</span>
+</code></pre>
+<br>
+<p><strong>4.	string拼接操作</strong><br>
+<br></p>
+<pre><code class="prism language-cpp">string<span class="token operator">&amp;</span> <span class="token keyword">operator</span><span class="token operator">+</span><span class="token operator">=</span><span class="token punctuation">(</span><span class="token keyword">const</span> string<span class="token operator">&amp;</span> str<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//重载+=操作符</span>
+string<span class="token operator">&amp;</span> <span class="token keyword">operator</span><span class="token operator">+</span><span class="token operator">=</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span><span class="token operator">*</span> str<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//重载+=操作符</span>
+string<span class="token operator">&amp;</span> <span class="token keyword">operator</span><span class="token operator">+</span><span class="token operator">=</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span> c<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//重载+=操作符</span>
+string<span class="token operator">&amp;</span> <span class="token function">append</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span>s<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//把字符串s连接到当前字符串结尾</span>
+string<span class="token operator">&amp;</span> <span class="token function">append</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span>s<span class="token punctuation">,</span> <span class="token keyword">int</span> n<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//把字符串s的前n个字符连接到当前字符串结尾</span>
+string<span class="token operator">&amp;</span> <span class="token function">append</span><span class="token punctuation">(</span><span class="token keyword">const</span> string <span class="token operator">&amp;</span>s<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//同operator+=()</span>
+string<span class="token operator">&amp;</span> <span class="token function">append</span><span class="token punctuation">(</span><span class="token keyword">const</span> string <span class="token operator">&amp;</span>s<span class="token punctuation">,</span> <span class="token keyword">int</span> pos<span class="token punctuation">,</span> <span class="token keyword">int</span> n<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//把字符串s中从pos开始的n个字符连接到当前字符串结尾</span>
+string<span class="token operator">&amp;</span> <span class="token function">append</span><span class="token punctuation">(</span><span class="token keyword">int</span> n<span class="token punctuation">,</span> <span class="token keyword">char</span> c<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//在当前字符串结尾添加n个字符</span>
+</code></pre>
+<br>
+<p><strong>5.	string查找和替换</strong><br>
+<br></p>
+<pre><code class="prism language-cpp"><span class="token keyword">int</span> <span class="token function">find</span><span class="token punctuation">(</span><span class="token keyword">const</span> string<span class="token operator">&amp;</span> str<span class="token punctuation">,</span> <span class="token keyword">int</span> pos <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token keyword">const</span><span class="token punctuation">;</span> <span class="token comment">//查找str第一次出现位置,从pos开始查找</span>
+<span class="token keyword">int</span> <span class="token function">find</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span><span class="token operator">*</span> s<span class="token punctuation">,</span> <span class="token keyword">int</span> pos <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token keyword">const</span><span class="token punctuation">;</span>  <span class="token comment">//查找s第一次出现位置,从pos开始查找</span>
+<span class="token keyword">int</span> <span class="token function">find</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span><span class="token operator">*</span> s<span class="token punctuation">,</span> <span class="token keyword">int</span> pos<span class="token punctuation">,</span> <span class="token keyword">int</span> n<span class="token punctuation">)</span> <span class="token keyword">const</span><span class="token punctuation">;</span>  <span class="token comment">//从pos位置查找s的前n个字符第一次位置</span>
+<span class="token keyword">int</span> <span class="token function">find</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span> c<span class="token punctuation">,</span> <span class="token keyword">int</span> pos <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token keyword">const</span><span class="token punctuation">;</span>  <span class="token comment">//查找字符c第一次出现位置</span>
+<span class="token keyword">int</span> <span class="token function">rfind</span><span class="token punctuation">(</span><span class="token keyword">const</span> string<span class="token operator">&amp;</span> str<span class="token punctuation">,</span> <span class="token keyword">int</span> pos <span class="token operator">=</span> npos<span class="token punctuation">)</span> <span class="token keyword">const</span><span class="token punctuation">;</span><span class="token comment">//查找str最后一次位置,从pos开始查找</span>
+<span class="token keyword">int</span> <span class="token function">rfind</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span><span class="token operator">*</span> s<span class="token punctuation">,</span> <span class="token keyword">int</span> pos <span class="token operator">=</span> npos<span class="token punctuation">)</span> <span class="token keyword">const</span><span class="token punctuation">;</span><span class="token comment">//查找s最后一次出现位置,从pos开始查找</span>
+<span class="token keyword">int</span> <span class="token function">rfind</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span><span class="token operator">*</span> s<span class="token punctuation">,</span> <span class="token keyword">int</span> pos<span class="token punctuation">,</span> <span class="token keyword">int</span> n<span class="token punctuation">)</span> <span class="token keyword">const</span><span class="token punctuation">;</span><span class="token comment">//从pos查找s的前n个字符最后一次位置</span>
+<span class="token keyword">int</span> <span class="token function">rfind</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span> c<span class="token punctuation">,</span> <span class="token keyword">int</span> pos <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token keyword">const</span><span class="token punctuation">;</span> <span class="token comment">//查找字符c最后一次出现位置</span>
+string<span class="token operator">&amp;</span> <span class="token function">replace</span><span class="token punctuation">(</span><span class="token keyword">int</span> pos<span class="token punctuation">,</span> <span class="token keyword">int</span> n<span class="token punctuation">,</span> <span class="token keyword">const</span> string<span class="token operator">&amp;</span> str<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">//替换从pos开始n个字符为字符串str</span>
+string<span class="token operator">&amp;</span> <span class="token function">replace</span><span class="token punctuation">(</span><span class="token keyword">int</span> pos<span class="token punctuation">,</span> <span class="token keyword">int</span> n<span class="token punctuation">,</span> <span class="token keyword">const</span> <span class="token keyword">char</span><span class="token operator">*</span> s<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">//替换从pos开始的n个字符为字符串s</span>
+</code></pre>
+<br>
+<p><strong>6.	string比较操作</strong><br>
+<br></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;compare函数在&gt;时返回 1，&lt;时返回 -1，==时返回 0。比较区分大小写，比较时参考字典顺序，排越前面的越小。大写的A比小写的a小。</p>
+<pre><code class="prism language-cpp"><span class="token keyword">int</span> <span class="token function">compare</span><span class="token punctuation">(</span><span class="token keyword">const</span> string <span class="token operator">&amp;</span>s<span class="token punctuation">)</span> <span class="token keyword">const</span><span class="token punctuation">;</span><span class="token comment">//与字符串s比较</span>
+<span class="token keyword">int</span> <span class="token function">compare</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span>s<span class="token punctuation">)</span> <span class="token keyword">const</span><span class="token punctuation">;</span><span class="token comment">//与字符串s比较</span>
+</code></pre>
+<br>
+<p><strong>7.	string子串</strong><br>
+<br></p>
+<pre><code class="prism language-cpp">string <span class="token function">substr</span><span class="token punctuation">(</span><span class="token keyword">int</span> pos <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token keyword">int</span> n <span class="token operator">=</span> npos<span class="token punctuation">)</span> <span class="token keyword">const</span><span class="token punctuation">;</span><span class="token comment">//返回由pos开始的n个字符组成的字符串</span>
+</code></pre>
+<br>
+<p><strong>8.	string插入和删除操作</strong><br>
+<br></p>
+<pre><code class="prism language-cpp">string<span class="token operator">&amp;</span> <span class="token function">insert</span><span class="token punctuation">(</span><span class="token keyword">int</span> pos<span class="token punctuation">,</span> <span class="token keyword">const</span> <span class="token keyword">char</span><span class="token operator">*</span> s<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">//插入字符串</span>
+string<span class="token operator">&amp;</span> <span class="token function">insert</span><span class="token punctuation">(</span><span class="token keyword">int</span> pos<span class="token punctuation">,</span> <span class="token keyword">const</span> string<span class="token operator">&amp;</span> str<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">//插入字符串</span>
+string<span class="token operator">&amp;</span> <span class="token function">insert</span><span class="token punctuation">(</span><span class="token keyword">int</span> pos<span class="token punctuation">,</span> <span class="token keyword">int</span> n<span class="token punctuation">,</span> <span class="token keyword">char</span> c<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//在指定位置插入n个字符c</span>
+string<span class="token operator">&amp;</span> <span class="token function">erase</span><span class="token punctuation">(</span><span class="token keyword">int</span> pos<span class="token punctuation">,</span> <span class="token keyword">int</span> n <span class="token operator">=</span> npos<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//删除从Pos开始的n个字符 </span>
+</code></pre>
+<br>
+<p><strong>9.	string和c风格字符串的转换</strong><br>
+<br></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在c++中存在一个从const char*到string的隐式类型转换，却不存在从一个string对象到C_string的自动类型转换。对于string类型的字符串，可以通过c_str()函数返回string对象对应的C_string.</p>
+<pre><code class="prism language-cpp"><span class="token comment">//string 转 char*</span>
+string str <span class="token operator">=</span> <span class="token string">"itcast"</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> <span class="token keyword">char</span><span class="token operator">*</span> cstr <span class="token operator">=</span> str<span class="token punctuation">.</span><span class="token function">c_str</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">//char* 转 string </span>
+<span class="token keyword">char</span><span class="token operator">*</span> s <span class="token operator">=</span> <span class="token string">"itcast"</span><span class="token punctuation">;</span>
+string <span class="token function">str</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+</div>
+</body>
+
+</html>

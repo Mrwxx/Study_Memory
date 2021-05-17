@@ -1,0 +1,119 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenCV学习笔记（二十一）之自定义Harris角点检测器</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="_Harris_8"></a>一. 自定义Harris角点检测器</h2>
+<ol>
+<li>基于Harris角点检测</li>
+<li>首先通过计算矩阵M得到两个特征值，然后计算得到角点响应值</li>
+<li>设置阈值，通过阈值计算得到有效响应的角点位置</li>
+</ol>
+<h2><a id="_API_13"></a>二. API分析</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;  <strong>cv::cornerEigenValsAndVecs</strong><br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>自定义角点检测器</strong></p>
+<pre><code class="prism language-cpp">cv<span class="token operator">::</span><span class="token function">cornerEigenValsAndVecs</span><span class="token punctuation">(</span>
+	InputArray src<span class="token punctuation">,</span>
+	OutputArray dst<span class="token punctuation">,</span>
+	<span class="token keyword">int</span> blockSize<span class="token punctuation">,</span>
+	<span class="token keyword">int</span> kSize<span class="token punctuation">,</span>
+	<span class="token keyword">int</span> borderType<span class="token operator">=</span>BORDER_DEFAULT
+<span class="token punctuation">)</span>
+</code></pre>
+<h2><a id="__25"></a>二. 代码实现：</h2>
+<pre><code class="prism language-cpp"><span class="token comment">/*****自定义Harris角点检测器*****/</span>
+
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;opencv2/opencv.hpp&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;math.h&gt;</span></span>
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+cv<span class="token operator">::</span>Mat src<span class="token punctuation">,</span> gray_src<span class="token punctuation">;</span>
+<span class="token comment">//最小Harris响应</span>
+<span class="token keyword">double</span> harris_min_rsp<span class="token punctuation">;</span>
+<span class="token keyword">double</span> harris_max_rsp<span class="token punctuation">;</span>
+
+<span class="token keyword">int</span> qualityLevel <span class="token operator">=</span> <span class="token number">30</span><span class="token punctuation">;</span>
+<span class="token keyword">int</span> max_count <span class="token operator">=</span> <span class="token number">100</span><span class="token punctuation">;</span>
+<span class="token comment">//Harris结果</span>
+cv<span class="token operator">::</span>Mat harris_dst<span class="token punctuation">;</span>
+<span class="token comment">//每个像素响应的值存储</span>
+cv<span class="token operator">::</span>Mat harrisRspImg<span class="token punctuation">;</span>
+<span class="token keyword">void</span> <span class="token function">CumstomHarris_Demo</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">,</span> <span class="token keyword">void</span><span class="token operator">*</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token keyword">int</span> argc<span class="token punctuation">,</span> <span class="token keyword">char</span><span class="token operator">*</span><span class="token operator">*</span> argv<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	src <span class="token operator">=</span> cv<span class="token operator">::</span><span class="token function">imread</span><span class="token punctuation">(</span><span class="token string">"建筑.jpg"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span><span class="token string">"in"</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span><span class="token string">"in"</span><span class="token punctuation">,</span> src<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	cv<span class="token operator">::</span><span class="token function">cvtColor</span><span class="token punctuation">(</span>src<span class="token punctuation">,</span> gray_src<span class="token punctuation">,</span> cv<span class="token operator">::</span>COLOR_BGR2GRAY<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//计算特征值</span>
+	<span class="token keyword">int</span> blockSize <span class="token operator">=</span> <span class="token number">3</span><span class="token punctuation">;</span>
+	<span class="token keyword">int</span> kSize <span class="token operator">=</span> <span class="token number">3</span><span class="token punctuation">;</span>
+	<span class="token keyword">double</span> k <span class="token operator">=</span> <span class="token number">0.04</span><span class="token punctuation">;</span>
+
+	<span class="token comment">//3个通道，每个通道两个值</span>
+	harris_dst <span class="token operator">=</span> cv<span class="token operator">::</span>Mat<span class="token operator">::</span><span class="token function">zeros</span><span class="token punctuation">(</span>src<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token function">CV_32FC</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//角点计算</span>
+	cv<span class="token operator">::</span><span class="token function">cornerEigenValsAndVecs</span><span class="token punctuation">(</span>gray_src<span class="token punctuation">,</span> harris_dst<span class="token punctuation">,</span> blockSize<span class="token punctuation">,</span> kSize<span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token comment">//计算响应</span>
+
+	harrisRspImg <span class="token operator">=</span> cv<span class="token operator">::</span>Mat<span class="token operator">::</span><span class="token function">zeros</span><span class="token punctuation">(</span>src<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> CV_32FC1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> row <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> row <span class="token operator">&lt;</span> harris_dst<span class="token punctuation">.</span>rows<span class="token punctuation">;</span> <span class="token operator">++</span>row<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> col <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> col <span class="token operator">&lt;</span> harris_dst<span class="token punctuation">.</span>cols<span class="token punctuation">;</span> <span class="token operator">++</span>col<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+			<span class="token keyword">double</span> lambda1 <span class="token operator">=</span> harris_dst<span class="token punctuation">.</span>at<span class="token operator">&lt;</span>cv<span class="token operator">::</span>Vec6f<span class="token operator">&gt;</span><span class="token punctuation">(</span>row<span class="token punctuation">,</span> col<span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+			<span class="token keyword">double</span> lambda2 <span class="token operator">=</span> harris_dst<span class="token punctuation">.</span>at<span class="token operator">&lt;</span>cv<span class="token operator">::</span>Vec6f<span class="token operator">&gt;</span><span class="token punctuation">(</span>row<span class="token punctuation">,</span> col<span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+			<span class="token comment">//公式计算响应值</span>
+			harrisRspImg<span class="token punctuation">.</span>at<span class="token operator">&lt;</span><span class="token keyword">float</span><span class="token operator">&gt;</span><span class="token punctuation">(</span>row<span class="token punctuation">,</span> col<span class="token punctuation">)</span> <span class="token operator">=</span> lambda1 <span class="token operator">*</span> lambda2 <span class="token operator">-</span> k <span class="token operator">*</span> <span class="token function">pow</span><span class="token punctuation">(</span><span class="token punctuation">(</span>lambda1 <span class="token operator">+</span> lambda2<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token punctuation">}</span>
+	<span class="token punctuation">}</span>
+	<span class="token comment">//查找最小值，最大值的位置</span>
+	cv<span class="token operator">::</span><span class="token function">minMaxLoc</span><span class="token punctuation">(</span>harrisRspImg<span class="token punctuation">,</span> <span class="token operator">&amp;</span>harris_min_rsp<span class="token punctuation">,</span> <span class="token operator">&amp;</span>harris_max_rsp<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Mat</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span><span class="token string">"ou"</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">createTrackbar</span><span class="token punctuation">(</span><span class="token string">"Quality Value:"</span><span class="token punctuation">,</span> <span class="token string">"ou"</span><span class="token punctuation">,</span> <span class="token operator">&amp;</span>qualityLevel<span class="token punctuation">,</span> max_count<span class="token punctuation">,</span>
+		CumstomHarris_Demo<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token function">CumstomHarris_Demo</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	cv<span class="token operator">::</span><span class="token function">waitKey</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">void</span> <span class="token function">CumstomHarris_Demo</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">,</span> <span class="token keyword">void</span><span class="token operator">*</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	<span class="token keyword">if</span> <span class="token punctuation">(</span>qualityLevel <span class="token operator">&lt;</span> <span class="token number">10</span><span class="token punctuation">)</span>
+		qualityLevel <span class="token operator">=</span> <span class="token number">10</span><span class="token punctuation">;</span>
+
+	cv<span class="token operator">::</span>Mat resultImg <span class="token operator">=</span> src<span class="token punctuation">.</span><span class="token function">clone</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//响应值的阈值</span>
+	<span class="token keyword">float</span> t <span class="token operator">=</span> harris_min_rsp <span class="token operator">+</span> <span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token keyword">double</span><span class="token punctuation">)</span>qualityLevel<span class="token punctuation">)</span> <span class="token operator">/</span> max_count<span class="token punctuation">)</span> <span class="token operator">*</span>
+		<span class="token punctuation">(</span>harris_max_rsp <span class="token operator">-</span> harris_min_rsp<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> row <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> row <span class="token operator">&lt;</span> src<span class="token punctuation">.</span>rows<span class="token punctuation">;</span> <span class="token operator">++</span>row<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> col <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> col <span class="token operator">&lt;</span> src<span class="token punctuation">.</span>cols<span class="token punctuation">;</span> <span class="token operator">++</span>col<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+			<span class="token comment">//响应值只有大于阈值才是角点</span>
+			<span class="token keyword">float</span> v <span class="token operator">=</span> harrisRspImg<span class="token punctuation">.</span>at<span class="token operator">&lt;</span><span class="token keyword">float</span><span class="token operator">&gt;</span><span class="token punctuation">(</span>row<span class="token punctuation">,</span> col<span class="token punctuation">)</span><span class="token punctuation">;</span>
+			<span class="token keyword">if</span> <span class="token punctuation">(</span>v <span class="token operator">&gt;</span> t<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+				<span class="token comment">//画出角点，关键，col,row是反过来的，因为图像的横坐标是图像的列，纵坐标是图像的行</span>
+				<span class="token function">circle</span><span class="token punctuation">(</span>resultImg<span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Point</span><span class="token punctuation">(</span>col<span class="token punctuation">,</span> row<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Scalar</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">255</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+					<span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+			<span class="token punctuation">}</span>
+		<span class="token punctuation">}</span>
+	<span class="token punctuation">}</span>
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span><span class="token string">"ou"</span><span class="token punctuation">,</span> resultImg<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【算法笔记（七）】之快速排序</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	快速排序</h2>
+<h3><a id="%09_8"></a>（一）	思路</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 快速排序的思路是对于序列中的某一元素，调整序列中元素的位置，使得该元素左边的元素都不大于该元素，该元素右边的元素都大于该元素。<br>
+<br></p>
+<h3><a id="%09_12"></a>（二）	解决方法</h3>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 用two pointers的方法解决，设置两个指针，分别指向序列a的首尾。<br>
+<br></p>
+<ol>
+<li>
+<p>令两个下标指向首尾，即left指向a[1]，right指向a[n]，并将a[1]存至temp中。</p>
+</li>
+<li>
+<p>从序列末端开始，只要a[right]大于temp，则将right不断左移，当a[right]&lt;= temp时，就将a[right]移到a[left]处。</p>
+</li>
+<li>
+<p>接着是序列首端，只要a[left]&lt;=temp，则将left不断右移，当a[left] &gt; temp时，将a[left[移到a[right]处。</p>
+</li>
+<li>
+<p>重复2, 3，直到left和right相遇，将temp放到相遇的地方。</p>
+</li>
+</ol>
+<br>
+<h2><a id="%09_29"></a>二．	代码实现</h2>
+<br>
+<pre><code class="prism language-cpp"><span class="token comment">//对区间进行快速排序</span>
+<span class="token keyword">int</span> <span class="token function">Partition</span><span class="token punctuation">(</span><span class="token keyword">int</span> a<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token keyword">int</span> left<span class="token punctuation">,</span> <span class="token keyword">int</span> right<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	<span class="token keyword">int</span> temp <span class="token operator">=</span> a<span class="token punctuation">[</span>left<span class="token punctuation">]</span><span class="token punctuation">;</span>		<span class="token comment">//将a[left]放在临时变量中</span>
+	<span class="token keyword">while</span> <span class="token punctuation">(</span>left <span class="token operator">&lt;</span> right<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		<span class="token comment">//从右边开始，不断左移</span>
+		<span class="token keyword">while</span> <span class="token punctuation">(</span>left <span class="token operator">&lt;</span> right <span class="token operator">&amp;&amp;</span> a<span class="token punctuation">[</span>right<span class="token punctuation">]</span> <span class="token operator">&gt;</span> temp<span class="token punctuation">)</span>
+			right<span class="token operator">--</span><span class="token punctuation">;</span>
+		
+		<span class="token comment">//从左边开始，不断右移</span>
+		<span class="token keyword">while</span> <span class="token punctuation">(</span>left <span class="token operator">&lt;</span> right <span class="token operator">&amp;&amp;</span> a<span class="token punctuation">[</span>left<span class="token punctuation">]</span> <span class="token operator">&lt;=</span> temp<span class="token punctuation">)</span>
+			left<span class="token operator">++</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token comment">//当left和right碰上时，将temp放到该处</span>
+	a<span class="token punctuation">[</span>left<span class="token punctuation">]</span> <span class="token operator">=</span> temp<span class="token punctuation">;</span>
+	<span class="token keyword">return</span> left<span class="token punctuation">;</span>	<span class="token comment">//返回最后的下标</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">//快速排序</span>
+<span class="token keyword">void</span> <span class="token function">quickSort</span><span class="token punctuation">(</span><span class="token keyword">int</span> a<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token keyword">int</span> left<span class="token punctuation">,</span> <span class="token keyword">int</span> right<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	<span class="token keyword">if</span> <span class="token punctuation">(</span>left <span class="token operator">&lt;</span> right<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		<span class="token keyword">int</span> pos <span class="token operator">=</span> <span class="token function">Partition</span><span class="token punctuation">(</span>a<span class="token punctuation">,</span> left<span class="token punctuation">,</span> right<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token comment">//递归左右两边</span>
+		<span class="token function">quickSort</span><span class="token punctuation">(</span>a<span class="token punctuation">,</span> left<span class="token punctuation">,</span> pos <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token function">quickSort</span><span class="token punctuation">(</span>a<span class="token punctuation">,</span> pos <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">,</span> right<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

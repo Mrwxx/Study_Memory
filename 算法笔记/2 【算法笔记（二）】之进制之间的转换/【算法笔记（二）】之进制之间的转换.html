@@ -1,0 +1,101 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【C++学习笔记（二）】之进制之间的转换</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="__7"></a>一. 进制转换</h2>
+<br>
+<p><strong>十进制，二进制，八进制，十六进制之间如何转换？</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;除了十进制外的进制数之间的转换需要<strong>以十进制为跳板</strong>，如二进制要转换为八进制，那么就要先将二进制转换为十进制，再 将十进制转换为八进制。<br>
+<br></p>
+<h2><a id="_pxy_15"></a>二. p进制数x转换为十进制数y</h2>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;设p进制数x为a1a2…an，那么转换成十进制数y就可以表示成：<br>
+<img src="https://img-blog.csdnimg.cn/20200726223452559.png" alt="在这里插入图片描述"></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;从式子中可以看出，P的幂次从个位向高位是不断递增地，<strong>可以用循环来实现</strong>。从个位数开始乘以P的0次幂，之后用取余不断取出每个位子的数，P的幂次也随着位数不断递增，累加可以得到最终的十进制数。<br>
+<br></p>
+<pre><code class="prism language-cpp"><span class="token comment">//y是十进制数，product是P的累乘结果</span>
+<span class="token keyword">int</span> y <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">,</span> product <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+<span class="token keyword">while</span><span class="token punctuation">(</span>x <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	y <span class="token operator">=</span> y <span class="token operator">+</span> <span class="token punctuation">(</span>x <span class="token operator">%</span> <span class="token number">10</span><span class="token punctuation">)</span> <span class="token operator">*</span> product<span class="token punctuation">;</span>	<span class="token comment">// x % 10取余获取x的个位数</span>
+	x <span class="token operator">=</span> x <span class="token operator">/</span> <span class="token number">10</span><span class="token punctuation">;</span>				<span class="token comment">//整数相除去掉x的个位</span>
+	product <span class="token operator">=</span> product <span class="token operator">*</span> p<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h2><a id="_ypx_39"></a>三. 将十进制数y转换为p进制数x</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;将y除以p，得到的余数作为低位存储在数组中，得到的商则继续除以p，直到商为0时，将得到的余数数组从高到低输出就是p进制数x。<br>
+<br></p>
+<p><strong>如将7转换为二进制数：</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;7 / 2  商为 3， 余数为1	低位</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;3 / 2  商为 1， 余数为1</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;1 / 2  商为 0， 余数为1	高位</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;所以，将余数的数组从高位到低位输出，即二进制数 111.<br>
+<br></p>
+<p><strong>代码为：</strong></p>
+<pre><code class="prism language-cpp"><span class="token keyword">int</span> x<span class="token punctuation">[</span><span class="token number">20</span><span class="token punctuation">]</span><span class="token punctuation">,</span> num <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>			<span class="token comment">//余数数组x</span>
+<span class="token keyword">do</span>
+<span class="token punctuation">{</span>
+	x<span class="token punctuation">[</span>num<span class="token operator">++</span><span class="token punctuation">]</span> <span class="token operator">=</span> y <span class="token operator">%</span> p<span class="token punctuation">;</span>		<span class="token comment">//y除以p取出余数</span>
+	y <span class="token operator">/</span><span class="token operator">=</span> p<span class="token punctuation">;</span>				<span class="token comment">//得到商</span>
+<span class="token punctuation">}</span><span class="token keyword">while</span><span class="token punctuation">(</span>y <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>		<span class="token comment">//y是十进制数</span>
+</code></pre>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;数组x[num-1] 到 x[0]输出就是p进制数x。</strong><br>
+<br></p>
+<h2><a id="__PAT_B1022_68"></a>四. 实例 PAT B1022</h2>
+<h3><a id="_70"></a>(一)题目</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;输入两个非负十进制整数A和B以及D（进制数），输出A+B的D（1 &lt; D &lt;= 10）进制数。<br>
+<br></p>
+<h3><a id="_74"></a>（二）输入格式</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;12 13 2<br>
+<br></p>
+<h3><a id="_78"></a>（三）输出格式：</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;11001<br>
+<br></p>
+<h3><a id="_82"></a>（四）思路：</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;先相加，再用除以进制的方法求得余数。<br>
+<br></p>
+<h3><a id="_86"></a>（五）代码如下：</h3>
+<br>
+<pre><code class="prism language-cpp"><span class="token macro property">#<span class="token directive keyword">define</span> _CRT_SECURE_NO_WARNINGS</span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	<span class="token keyword">int</span> a<span class="token punctuation">,</span> b<span class="token punctuation">,</span> d<span class="token punctuation">;</span>
+	cin <span class="token operator">&gt;&gt;</span> a <span class="token operator">&gt;&gt;</span> b <span class="token operator">&gt;&gt;</span> d<span class="token punctuation">;</span>
+	<span class="token comment">//相加</span>
+	<span class="token keyword">int</span> sum <span class="token operator">=</span> a <span class="token operator">+</span> b<span class="token punctuation">;</span>		
+	<span class="token comment">//设置存放转换后的数</span>
+	<span class="token keyword">int</span> ans<span class="token punctuation">[</span><span class="token number">31</span><span class="token punctuation">]</span><span class="token punctuation">,</span> num <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+	<span class="token keyword">do</span>
+	<span class="token punctuation">{</span>
+		ans<span class="token punctuation">[</span>num<span class="token operator">++</span><span class="token punctuation">]</span> <span class="token operator">=</span> sum <span class="token operator">%</span> d<span class="token punctuation">;</span>
+		sum <span class="token operator">/</span><span class="token operator">=</span> d<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span> <span class="token keyword">while</span> <span class="token punctuation">(</span>sum <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token comment">//输出转换后的数</span>
+	<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> num <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">;</span> i <span class="token operator">&gt;=</span> <span class="token number">0</span><span class="token punctuation">;</span> <span class="token operator">--</span>i<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> ans<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

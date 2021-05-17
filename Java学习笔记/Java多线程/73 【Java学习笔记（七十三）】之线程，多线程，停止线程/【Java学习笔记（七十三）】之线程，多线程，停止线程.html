@@ -1,0 +1,176 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Java学习笔记（七十三）】之线程，多线程，停止线程</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	线程初见</h2>
+<h3><a id="%09_8"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;进程是受操作系统管理的基本运行单元，线程是 进程中独立运行的子任务。使用多线程技术，可以在同一时间内运行更多不同种类的任务。一个进程运行时至少会有一个线程在运行，如main方法的线程至少有一个main线程在运行。<br>
+<br></p>
+<h3><a id="%09_13"></a>（二）	实现多线程的方式</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;实现多线程有两种方式，一种是继承Thread类，一种是实现Runnable接口。使用继承Thread类的方式创建新线程时，最大的局限就是不支持多继承，因此，Runnable解决了这个问题，可以一边实现该接口同时继承其他的类。<br>
+<br></p>
+<h3><a id="%09Thread_19"></a>（三）	继承Thread类</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;创建一个自定义的线程类，继承Thread类，重写run方法，该方法中填写的是线程要执行的任务。</p>
+<pre><code class="prism language-java"><span class="token keyword">package</span> thread<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MyThread</span> <span class="token keyword">extends</span> <span class="token class-name">Thread</span> <span class="token punctuation">{</span>
+
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">super</span><span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"MyThread"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;再创建一个测试类，启动自定义线程，可以看到线程中的run方法的操作虽然先被调用，但是仍然在后面输出，这就是线程的随机调用。</p>
+<pre><code class="prism language-java"><span class="token keyword">package</span> thread<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Run</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        MyThread myThread <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">MyThread</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        myThread<span class="token punctuation">.</span><span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"结束！"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;start()方法通知“线程规划器”，这个线程准备好了，可以调用该线程对象中的run方法了，之后，系统可以在某一个时间点来调用run方法，线程会开始运行，启动，这就让多线程有了异步执行的效果。如果直接调用run方法的话，就只是同步了，该线程对象不会交给“线程规划器”来处理，而是由main主线程调用run方法。</p>
+<br>
+<h3><a id="%09Runnable_54"></a>（四）	实现Runnable接口</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;创建一个实现了Runnable接口的类MyRunnable，同样是重写run方法。</p>
+<pre><code class="prism language-java"><span class="token keyword">package</span> thread<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MyRunnable</span> <span class="token keyword">implements</span> <span class="token class-name">Runnable</span> <span class="token punctuation">{</span>
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"ing"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;创建一个测试类，测试能够传入Runnable接口的Thread构造器：</p>
+<pre><code class="prism language-java"><span class="token keyword">package</span> thread<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Run</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        Runnable myRunnable <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">MyRunnable</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        Thread myThread <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Thread</span><span class="token punctuation">(</span>myRunnable<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        myThread<span class="token punctuation">.</span><span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"结束！"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h2><a id="%09_86"></a>二．	多线程</h2>
+<h3><a id="%09_87"></a>（一）	问题概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;当多个线程要同时访问一个变量时，一定会出现变量的状态异常，即非线程安全问题。要使得多个线程之间进行同步，依然按照顺序进行处理，就需要将该变量上锁，当该变量被使用时，就将该变量锁上，其他变量发现该变量已上锁，就进行等待。只有该变量的锁被取消时，其他的线程才能够访问该变量。<br>
+<br></p>
+<h3><a id="%09synchronized_93"></a>（二）	synchronized关键字</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;非线程安全的问题可以用synchronized关键字解决，在需要上锁的变量，方法上添加这个关键字，多线程的访问就不会出现非线程安全问题，加锁的这段代码称为“互斥区”。</p>
+<br>
+<h3><a id="%09_99"></a>（三）	线程方法介绍</h3>
+<h4><a id="1%09currentThread_100"></a>1.	currentThread()</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;该方法返回代码段正在被哪个线程调用，注意，这个线程并不是该代码段所在的线程，而是它被调用的线程。<br>
+<br></p>
+<h4><a id="2%09isAlive_106"></a>2.	isAlive()</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;判断当前的线程是否处于活动状态，所谓的活动状态指的是线程已经启动但是还没有终止，只要正在运行或者准备开始运行都是存活的。<br>
+<br></p>
+<h4><a id="3%09sleep_112"></a>3.	sleep()</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在指定的毫秒数内让当前正在执行的线程暂停执行，注意！！！这个线程指的是this.currentThread()返回的线程，即正在进行调用操作的线程。而不是我们想当然的sleep所处的代码段的线程！！！<br>
+<br></p>
+<h4><a id="4%09getId_118"></a>4.	getId()</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;该方法用于取得线程的唯一标识。</p>
+<br>
+<h2><a id="%09_125"></a>三．	停止线程</h2>
+<h3><a id="%09_126"></a>（一）	问题概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;停止一个线程意味着停止正在做的操作，这可能会出现很大的风险，如数据的丢失，必须要做好防范措施。<br>
+<br></p>
+<h3><a id="%09interrupt_132"></a>（二）	interrupt()</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通常使用的是Thread.interrupt()方法，该方法在当前线程中打了一个停止的标记，但是并没有真正地停止线程，还需要加上一个判断才能停止线程。</p>
+<h4><a id="1%09thisinterrupted_135"></a>1.	this.interrupted()</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;该方法可以得知运行该方法的线程是否中断，太拗口了！！！即一个线程运行了该方法，该方法可以测试出该线程是否中断。并不是说哪个线程调用了该方法，就是测试这个线程是否中断。如下所示，即是我们新建了一个线程并且中断该线程，用该线程调用interrupted()方法，该方法依然返回的是false，因为该方法是由main线程运行的，main线程并没有中断。</p>
+<pre><code class="prism language-java"><span class="token keyword">package</span> thread<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Run2</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">try</span> <span class="token punctuation">{</span>
+            MyThread2 myThread2 <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">MyThread2</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            myThread2<span class="token punctuation">.</span><span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            Thread<span class="token punctuation">.</span><span class="token function">sleep</span><span class="token punctuation">(</span><span class="token number">1000</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            myThread2<span class="token punctuation">.</span><span class="token function">interrupt</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>myThread2<span class="token punctuation">.</span><span class="token function">interrupted</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">InterruptedException</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            e<span class="token punctuation">.</span><span class="token function">printStackTrace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"end"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;总结，interrupted()方法测试运行该方法的线程是否中断，可以理解为该方法在哪个线程中运行就是判断该线程的状态；并且执行后可以将状态清除为false，即如果执行两次该方法，如果第一次为true，那么第一次执行后，该状态就被清楚为了false，第二次执行就返回false了。<br>
+<br></p>
+<h4><a id="2%09thisisInterrupted_162"></a>2.	this.isInterrupted()</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;该方法不是static方法，因此需要使用一个线程对象调用它，因此该方法返回的就是调用的线程对象是否中断，并且不会清楚状态标志。<br>
+<br></p>
+<h4><a id="3%09_168"></a>3.	停止线程</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在run()方法中通过判断当前的线程是否中断，来结束当前线程的执行。</p>
+<pre><code class="prism language-java"><span class="token keyword">package</span> thread<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MyThread3</span> <span class="token keyword">extends</span> <span class="token class-name">Thread</span> <span class="token punctuation">{</span>
+
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">super</span><span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token number">500000</span><span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">interrupted</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"停止！！！"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token keyword">break</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"i = "</span> <span class="token operator">+</span> i<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;注意，上面的示例中虽然停止了线程，但是如果for语句下面还有语句，还是会继续运行的，这个可以用抛出异常解决，将break语句替换为抛出异常，这样，代码就会进入catch中，不会继续执行for语句下面的语句了。</p>
+<pre><code class="prism language-java"><span class="token keyword">package</span> thread<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MyThread3</span> <span class="token keyword">extends</span> <span class="token class-name">Thread</span> <span class="token punctuation">{</span>
+
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">super</span><span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">try</span> <span class="token punctuation">{</span>
+            <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token number">500000</span><span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span><span class="token punctuation">{</span>
+                <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">interrupted</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"停止！！！"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">InterruptedException</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+                System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"i = "</span> <span class="token operator">+</span> i<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"?????"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">InterruptedException</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"catch"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            e<span class="token punctuation">.</span><span class="token function">printStackTrace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h3><a id="%09sleep_220"></a>（三）	在sleep中停止线程</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在sleep状态下停止某一线程，会进入catch语句中，并且清除线程的停止状态值，使之变为false。</p>
+<br>
+<h3><a id="%09return_226"></a>（四）	使用return停止线程</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;可以将break语句替换为return语句，同样可以达到停止线程的目的，但是这样的话代码中就会有很多的return语句，因此不建议这样的操作。最好的方式还是使用抛出异常的方式，在catch块中可以对异常的信息进行相关的处理。</p>
+</div>
+</body>
+
+</html>

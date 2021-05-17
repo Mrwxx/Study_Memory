@@ -1,0 +1,162 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Java学习笔记（六）】之基本类型包装类</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	基本类型包装类</h2>
+<h3><a id="%09_8"></a>（一）	定义</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>将基本的数据类型封装成一个类，可以在该类中定义更多的功能方法来操作该数据类型。</strong><br>
+<br></p>
+<h3><a id="%09_12"></a>（二）	常用操作</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;基本数据类型与字符串之间的转换<br>
+<br></p>
+<h3><a id="_15"></a>（三）包装类</h3>
+<br>
+
+<table>
+<thead>
+<tr>
+<th>基本数据类型</th>
+<th>包装类</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>byte</td>
+<td>Byte</td>
+</tr>
+<tr>
+<td>short</td>
+<td>Short</td>
+</tr>
+<tr>
+<td>int</td>
+<td>Integer</td>
+</tr>
+<tr>
+<td>long</td>
+<td>Long</td>
+</tr>
+<tr>
+<td>float</td>
+<td>Float</td>
+</tr>
+<tr>
+<td>double</td>
+<td>Double</td>
+</tr>
+<tr>
+<td>char</td>
+<td>Character</td>
+</tr>
+<tr>
+<td>boolean</td>
+<td>Boolean</td>
+</tr>
+</tbody>
+</table><br>
+<h2><a id="%09Integer_32"></a>二．	Integer类</h2>
+<h3><a id="%09_33"></a>（一）	定义</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;将原始类型int包装成类<br>
+<br></p>
+<h3><a id="%09_38"></a>（二）	构造方法</h3>
+<h4><a id="1%09public_static_Integer_valueOfint_i_39"></a>1.	public static Integer valueOf(int i)</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;返回表示指定的 int 值的 Integer 实例</p>
+<br>
+<h4><a id="2%09public_static_Integer_valueOfString_s_44"></a>2.	public static Integer valueOf(String s)</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;返回一个保存指定值的 Integer 对象 String</p>
+<br>
+<h3><a id="%09_49"></a>（三）	使用示例</h3>
+<br>
+<pre><code class="prism language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Integer</span>类 <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        Integer i1 <span class="token operator">=</span> Integer<span class="token punctuation">.</span><span class="token function">valueOf</span><span class="token punctuation">(</span><span class="token number">100</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>i1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        Integer i2 <span class="token operator">=</span> Integer<span class="token punctuation">.</span><span class="token function">valueOf</span><span class="token punctuation">(</span><span class="token string">"100"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>i2<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h2><a id="%09intString_68"></a>三．	int和String类型的相互转换</h2>
+<h3><a id="%09intString_69"></a>（一）	int转为String</h3>
+<br>
+<h4><a id="1%09int_72"></a>1.	int后直接加空字符串</h4>
+<br>
+<h4><a id="2%09StringvalueOf_76"></a>2.	String类的静态方法valueOf()</h4>
+<br>
+<p>示例：</p>
+<pre><code class="prism language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">int</span>转String <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">int</span> num <span class="token operator">=</span> <span class="token number">200</span><span class="token punctuation">;</span>
+        String s1 <span class="token operator">=</span> num <span class="token operator">+</span> <span class="token string">""</span><span class="token punctuation">;</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>s1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        String s2 <span class="token operator">=</span> String<span class="token punctuation">.</span><span class="token function">valueOf</span><span class="token punctuation">(</span>num<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>s2<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h3><a id="%09Stringint_96"></a>（二）	String转int类型</h3>
+<br>
+<h4><a id="1%09IntegervalueOf_99"></a>1.	字符串转成Integer，在调用valueOf方法</h4>
+<br>
+<h4><a id="2%09IntegerparseInt_102"></a>2.	Integer静态方法parseInt()</h4>
+<br>
+<p>示例：</p>
+<pre><code class="prism language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">String</span>转<span class="token keyword">int</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        String s <span class="token operator">=</span> <span class="token string">"100"</span><span class="token punctuation">;</span>
+        Integer i <span class="token operator">=</span> Integer<span class="token punctuation">.</span><span class="token function">valueOf</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">int</span> x <span class="token operator">=</span> i<span class="token punctuation">.</span><span class="token function">intValue</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">int</span> y <span class="token operator">=</span> Integer<span class="token punctuation">.</span><span class="token function">parseInt</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>y<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h2><a id="%09_122"></a>四．	装箱和拆箱</h2>
+<h3><a id="_123"></a>（一）装箱</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>将基本数据类型转换为对应的包装类类型</strong><br>
+<br></p>
+<h3><a id="_127"></a>（二）拆箱</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>将包装类类型转换为对应的基本数据类型</strong><br>
+<br></p>
+<h3><a id="_131"></a>（三）自动装箱与拆箱</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;不需要调用方法，直接赋值操作即可。<br>
+<br></p>
+<h3><a id="_136"></a>（四）示例</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;</p>
+<p>手动装箱：</p>
+<pre><code class="prism language-java">Integer i1 <span class="token operator">=</span> Integer<span class="token punctuation">.</span><span class="token function">value</span><span class="token punctuation">(</span><span class="token number">100</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>自动装箱：</p>
+<pre><code class="prism language-java">Integer i2 <span class="token operator">=</span> <span class="token number">100</span><span class="token punctuation">;</span>
+</code></pre>
+<p>手动拆箱：</p>
+<pre><code class="prism language-java"><span class="token keyword">int</span> i3 <span class="token operator">=</span> i1<span class="token punctuation">.</span><span class="token function">intValue</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token number">100</span><span class="token punctuation">;</span>
+</code></pre>
+<p>自动拆箱：</p>
+<pre><code class="prism language-java"><span class="token keyword">int</span> i4 <span class="token operator">=</span> i1 <span class="token operator">+</span> <span class="token number">100</span><span class="token punctuation">;</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;</p>
+<p><strong>注意：在使用包装类时，需要进行判断null的操作。</strong></p>
+</div>
+</body>
+
+</html>

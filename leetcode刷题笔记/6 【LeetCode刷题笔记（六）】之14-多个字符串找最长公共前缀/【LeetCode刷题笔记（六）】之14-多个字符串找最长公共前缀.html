@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【LeetCode刷题笔记（六）】之14-多个字符串找最长公共前缀</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	题目</h2>
+<h3><a id="_8"></a>（一）概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 编写一个函数来查找字符串数组中的最长公共前缀。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 如果不存在公共前缀，返回空字符串 “”。<br>
+<br></p>
+<h3><a id="_15"></a>（二）示例</h3>
+<p>示例 1:</p>
+<pre><code class="prism language-cpp">输入<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">"flower"</span><span class="token punctuation">,</span><span class="token string">"flow"</span><span class="token punctuation">,</span><span class="token string">"flight"</span><span class="token punctuation">]</span>
+输出<span class="token operator">:</span> <span class="token string">"fl"</span>
+</code></pre>
+<br>
+<p>示例 2:</p>
+<pre><code class="prism language-cpp">输入<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">"dog"</span><span class="token punctuation">,</span><span class="token string">"racecar"</span><span class="token punctuation">,</span><span class="token string">"car"</span><span class="token punctuation">]</span>
+输出<span class="token operator">:</span> <span class="token string">""</span>
+</code></pre>
+<br>
+<p>解释: 输入不存在公共前缀。<br>
+说明: 所有输入只包含小写字母 a-z 。</p>
+<br>
+<h2><a id="%09_43"></a>二．	题解</h2>
+<h3><a id="%09_44"></a>（一）	思路</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 两个字符串的最长公共前缀比较好找，直接逐位比较两个字符串的每个字符即可，如果相同，则比较下一位，知道两个字符不相同为止。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 那么，多个字符串如何寻找最长公共前缀呢？可以先对两个字符串找出最长公共前缀，记录下这个前缀，再用这个前缀与下一个字符串进行比较，迭代循环。如果前缀的长度为0，则说明这些字符串没有公共前缀，则直接跳出循环即可。<br>
+<br></p>
+<h3><a id="%09_52"></a>（二）	代码实现</h3>
+<br>
+<pre><code class="prism language-cpp"><span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	string <span class="token function">longestCommonPrefix</span><span class="token punctuation">(</span>vector<span class="token operator">&lt;</span>string<span class="token operator">&gt;</span><span class="token operator">&amp;</span> strs<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>strs<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+			<span class="token keyword">return</span> <span class="token string">""</span><span class="token punctuation">;</span>
+		string prefix <span class="token operator">=</span> strs<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+		<span class="token keyword">int</span> count <span class="token operator">=</span> strs<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> count<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+			<span class="token comment">//迭代循环</span>
+			prefix <span class="token operator">=</span> <span class="token function">longestCommonPrefix</span><span class="token punctuation">(</span>prefix<span class="token punctuation">,</span> strs<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+			<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>prefix<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+				<span class="token keyword">break</span><span class="token punctuation">;</span>
+		<span class="token punctuation">}</span>
+		<span class="token keyword">return</span> prefix<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+	<span class="token comment">//两个字符串的最长公共前缀</span>
+	string <span class="token function">longestCommonPrefix</span><span class="token punctuation">(</span><span class="token keyword">const</span> string<span class="token operator">&amp;</span> str1<span class="token punctuation">,</span> <span class="token keyword">const</span> string<span class="token operator">&amp;</span> str2<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		<span class="token keyword">int</span> length <span class="token operator">=</span> <span class="token function">min</span><span class="token punctuation">(</span>str1<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> str2<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token keyword">int</span> index <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+		<span class="token keyword">while</span> <span class="token punctuation">(</span>index <span class="token operator">&lt;</span> length <span class="token operator">&amp;&amp;</span> str1<span class="token punctuation">[</span>index<span class="token punctuation">]</span> <span class="token operator">==</span> str2<span class="token punctuation">[</span>index<span class="token punctuation">]</span><span class="token punctuation">)</span>
+			index<span class="token operator">++</span><span class="token punctuation">;</span>
+		<span class="token keyword">return</span> str1<span class="token punctuation">.</span><span class="token function">substr</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> index<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre>
+</div>
+</body>
+
+</html>

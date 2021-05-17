@@ -1,0 +1,141 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【C++学习笔记（十九）】之抽象基类和纯虚函数</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="__7"></a>一. 纯虚函数</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;所谓的纯虚函数与我们之间学习的虚函数的区别在于：</p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;虚函数： virtual void speak() {}<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;纯虚函数： virtual void speak() = 0;</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;纯虚函数在虚函数的后面加上了 = 0</p>
+<h2><a id="__15"></a>二. 抽象基类</h2>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;基类中添加了至少一个纯虚函数的基类称为抽象类。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;从“抽象“这两个字可以看出，这是一个范围很大的类，抽象即不是具体的，有公共使用的意思。</p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;由于抽象基类中有纯虚函数，而纯虚函数都是没有具体实现的，只是在后面加上 = 0，则抽象基类是无法实例化的，因为，纯虚函数都是没有具体实现的。</strong></p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;当继承一个抽象类时，子类必须要将父类中的纯虚函数给具体实现，不然继承下来的子类依然是抽象类，是无法实例化的。</strong></p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;纯虚函数 virtual void fun() = 0其实就是告诉编译器在抽象类的vftable中为该纯虚函数保留一个位置</strong>，但是该位置并没有存放相应的地址。是为了等待子类继承并具体实现。</p>
+<h2><a id="__26"></a>三. 总结：</h2>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;抽象类是为了建立一个公共使用的类，将子类的公共操作抽象出来，然后子类们通过继承这个抽象基类，可以在它的基础上完成更加具体的实现。因此，这个抽象基类是不需要实现的，即纯虚函数 = 0 的形式就可以理解了。</strong></p>
+<br>
+<h2><a id="__31"></a>四 .实例：</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;抽象基类是泡饮品的抽象操作</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;子类 泡咖啡是 泡饮品的具体操作</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;子类 泡茶是 泡饮品的具体操作</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;泡茶和泡咖啡通过继承泡饮品的共用操作，完成实现。</p>
+<pre><code class="prism language-cpp"><span class="token macro property">#<span class="token directive keyword">define</span> _CRT_SECURE_NO_WARNINGS</span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+<span class="token comment">//抽象基类，制作饮品</span>
+<span class="token keyword">class</span> <span class="token class-name">AbstractDrinking</span>
+<span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token comment">//烧水</span>
+	<span class="token keyword">virtual</span> <span class="token keyword">void</span> <span class="token function">Boil</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+	<span class="token comment">//泡</span>
+	<span class="token keyword">virtual</span> <span class="token keyword">void</span> <span class="token function">Brow</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+	<span class="token comment">//倒入杯子</span>
+	<span class="token keyword">virtual</span> <span class="token keyword">void</span> <span class="token function">PourInCup</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+	<span class="token comment">//辅料</span>
+	<span class="token keyword">virtual</span> <span class="token keyword">void</span> <span class="token function">PutSomething</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+
+	<span class="token comment">//规定流程</span>
+	<span class="token keyword">void</span> <span class="token function">MakeDrink</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		<span class="token function">Boil</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token function">Brow</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token function">PourInCup</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token function">PutSomething</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token comment">//子类制作咖啡</span>
+<span class="token keyword">class</span> <span class="token class-name">Coffee</span> <span class="token operator">:</span> <span class="token keyword">public</span> AbstractDrinking
+<span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token comment">//烧水</span>
+	<span class="token keyword">virtual</span> <span class="token keyword">void</span> <span class="token function">Boil</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token string">"煮山泉"</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token comment">//泡</span>
+	<span class="token keyword">virtual</span> <span class="token keyword">void</span> <span class="token function">Brow</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token string">"泡咖啡"</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token comment">//倒入杯子</span>
+	<span class="token keyword">virtual</span> <span class="token keyword">void</span> <span class="token function">PourInCup</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token string">"咖啡倒入杯子"</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token comment">//辅料</span>
+	<span class="token keyword">virtual</span> <span class="token keyword">void</span> <span class="token function">PutSomething</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token string">"加牛奶"</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token comment">//子类 泡茶</span>
+
+<span class="token keyword">class</span> <span class="token class-name">Tea</span> <span class="token operator">:</span> <span class="token keyword">public</span> AbstractDrinking
+<span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token comment">//烧水</span>
+	<span class="token keyword">virtual</span> <span class="token keyword">void</span> <span class="token function">Boil</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token string">"煮白开水"</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token comment">//泡</span>
+	<span class="token keyword">virtual</span> <span class="token keyword">void</span> <span class="token function">Brow</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token string">"泡茶"</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token comment">//倒入杯子</span>
+	<span class="token keyword">virtual</span> <span class="token keyword">void</span> <span class="token function">PourInCup</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token string">"茶倒入杯子"</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token comment">//辅料</span>
+	<span class="token keyword">virtual</span> <span class="token keyword">void</span> <span class="token function">PutSomething</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token string">"加盐"</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token comment">//业务函数</span>
+
+<span class="token keyword">void</span> <span class="token function">DoBussiness</span><span class="token punctuation">(</span>AbstractDrinking<span class="token operator">*</span> drink<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	drink<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">MakeDrink</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">delete</span> drink<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">void</span> <span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	<span class="token function">DoBussiness</span><span class="token punctuation">(</span><span class="token keyword">new</span> Coffee<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cout <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token function">DoBussiness</span><span class="token punctuation">(</span><span class="token keyword">new</span> Tea<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	<span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+ 
+</code></pre>
+</div>
+</body>
+
+</html>

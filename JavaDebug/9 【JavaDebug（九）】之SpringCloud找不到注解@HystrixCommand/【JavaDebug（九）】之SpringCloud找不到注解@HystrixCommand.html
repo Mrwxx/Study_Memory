@@ -1,0 +1,26 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【JavaDebug（九）】之SpringCloud找不到注解@HystrixCommand</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="%09Bug_0"></a>一．	Bug介绍</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 在使用SpringCloud的熔断器Hystrix时，添加注解@HystrixCommand时，无法找到该注解。<br>
+<br></p>
+<h2><a id="%09_5"></a>二．	问题解决</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 由于，注解@HystrixCommand是属于com.netflix.hystrix.contrib.javanica.annotation包的，因此需要添加以下的依赖：</p>
+<pre><code class="prism language-cpp"><span class="token operator">&lt;</span>dependency<span class="token operator">&gt;</span>
+    <span class="token operator">&lt;</span>groupId<span class="token operator">&gt;</span>com<span class="token punctuation">.</span>netflix<span class="token punctuation">.</span>hystrix<span class="token operator">&lt;</span><span class="token operator">/</span>groupId<span class="token operator">&gt;</span>
+    <span class="token operator">&lt;</span>artifactId<span class="token operator">&gt;</span>hystrix<span class="token operator">-</span>javanica<span class="token operator">&lt;</span><span class="token operator">/</span>artifactId<span class="token operator">&gt;</span>
+<span class="token operator">&lt;</span><span class="token operator">/</span>dependency<span class="token operator">&gt;</span>
+</code></pre>
+<p>至此，问题解决！！！</p>
+</div>
+</body>
+
+</html>

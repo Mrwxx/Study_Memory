@@ -1,0 +1,102 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【LeetCode刷题笔记（五十一）】之面试题16.26 计算器</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	题目</h2>
+<h3><a id="%09_8"></a>（一）	题干</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;给定一个包含正整数、加(+)、减(-)、乘(*)、除(/)的算数表达式(括号除外)，计算其结果。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;表达式仅包含非负整数，+， - ，*，/ 四种运算符和空格  。 整数除法仅保留整数部分。<br>
+<br></p>
+<h3><a id="%09_16"></a>（二）	示例</h3>
+<p>示例 1:</p>
+<pre><code class="prism language-cpp">输入<span class="token operator">:</span> <span class="token string">"3+2*2"</span>
+输出<span class="token operator">:</span> <span class="token number">7</span>
+</code></pre>
+<p>示例 2:</p>
+<pre><code class="prism language-cpp">输入<span class="token operator">:</span> <span class="token string">" 3/2 "</span>
+输出<span class="token operator">:</span> <span class="token number">1</span>
+</code></pre>
+<p>示例 3:</p>
+<pre><code class="prism language-cpp">输入<span class="token operator">:</span> <span class="token string">" 3+5 / 2 "</span>
+输出<span class="token operator">:</span> <span class="token number">5</span>
+</code></pre>
+<p>说明：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;你可以假设所给定的表达式都是有效的。<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;请不要使用内置的库函数 eval。</p>
+<br>
+<h2><a id="%09_48"></a>二．	题解</h2>
+<h3><a id="%09_49"></a>（一）	思路</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;给出一串数字和运算符，计算结果，很明显这需要使用到栈。题目限制了没有括号，这样题解就更加地简单，只需要关注于数字和+，-，*，/的入栈和出栈。能够入栈的都是最终要加起来的数，因此，规则如下：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;遇到整数时，可以直接入栈；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;遇到空格时，跳过；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;遇到+号，则说明下一个数可能要加到栈中，那么将下一个数字num要入栈；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;遇到-号，则说明下一个数字可能是要删减的，因此将下一个数字num乘以-1入栈；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;遇到*号，说明前一个数需要乘以后一个数，而前一个数在栈的顶部，那么将栈的顶部弹出，乘以后一个数并且入栈即可；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;遇到/号，说明前一个数需要除以后一个数，而前一个数在栈的顶部，那么将栈的顶部弹出，除以后一个数并且入栈即可；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;最后，将栈中的数相加就是结果了。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;注意，题目中的每个数可能是多位的，因此要把每个数构建出来。在循环中，首先判断该位置的字符是否为空格，如果是空格，则跳到下一个循环；然后记录下当前的字符，判断该字符是否是运算符，如果是运算符，则需要将索引+1，下一个字符必为空格或者数字，如果是空格则继续增加索引；如果是数字，则将该数字通过循环构建出来，然后根据之前记录的运算符符号，来相应地进行入栈出栈操作，最后将栈中的值相加即可。</p>
+<br>
+<h3><a id="%09_73"></a>（二）	代码实现</h3>
+<p>Java：</p>
+<pre><code class="prism language-java"><span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">int</span> <span class="token function">calculate</span><span class="token punctuation">(</span>String s<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        Stack<span class="token generics function"><span class="token punctuation">&lt;</span>Integer<span class="token punctuation">&gt;</span></span> out <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Stack</span><span class="token generics function"><span class="token punctuation">&lt;</span>Integer<span class="token punctuation">&gt;</span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        String trim <span class="token operator">=</span> s<span class="token punctuation">.</span><span class="token function">trim</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">int</span> n <span class="token operator">=</span> trim<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">,</span> ans <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+        <span class="token keyword">while</span><span class="token punctuation">(</span>i <span class="token operator">&lt;</span> n<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span>trim<span class="token punctuation">.</span><span class="token function">charAt</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token string">' '</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                i<span class="token operator">++</span><span class="token punctuation">;</span>
+                <span class="token keyword">continue</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token keyword">char</span> temp <span class="token operator">=</span> trim<span class="token punctuation">.</span><span class="token function">charAt</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span>temp <span class="token operator">==</span> <span class="token string">'+'</span> <span class="token operator">||</span> temp <span class="token operator">==</span> <span class="token string">'-'</span> <span class="token operator">||</span>temp <span class="token operator">==</span> <span class="token string">'*'</span> <span class="token operator">||</span>temp <span class="token operator">==</span> <span class="token string">'/'</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                i<span class="token operator">++</span><span class="token punctuation">;</span>
+                <span class="token keyword">while</span><span class="token punctuation">(</span>trim<span class="token punctuation">.</span><span class="token function">charAt</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token string">' '</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                    i<span class="token operator">++</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+            <span class="token keyword">int</span> num <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+            <span class="token keyword">while</span><span class="token punctuation">(</span>i <span class="token operator">&lt;</span> n <span class="token operator">&amp;&amp;</span> Character<span class="token punctuation">.</span><span class="token function">isDigit</span><span class="token punctuation">(</span>trim<span class="token punctuation">.</span><span class="token function">charAt</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                num <span class="token operator">=</span> num <span class="token operator">*</span> <span class="token number">10</span> <span class="token operator">+</span> trim<span class="token punctuation">.</span><span class="token function">charAt</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token string">'0'</span><span class="token punctuation">;</span>
+                i<span class="token operator">++</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token keyword">switch</span><span class="token punctuation">(</span>temp<span class="token punctuation">)</span><span class="token punctuation">{</span>
+                <span class="token keyword">case</span> <span class="token string">'-'</span><span class="token operator">:</span>
+                    num  <span class="token operator">=</span> <span class="token operator">-</span>num<span class="token punctuation">;</span>
+                    <span class="token keyword">break</span><span class="token punctuation">;</span>
+                <span class="token keyword">case</span> <span class="token string">'*'</span><span class="token operator">:</span>
+                    num <span class="token operator">=</span> out<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">*</span> num<span class="token punctuation">;</span>
+                    <span class="token keyword">break</span><span class="token punctuation">;</span>
+                <span class="token keyword">case</span> <span class="token string">'/'</span><span class="token operator">:</span>
+                    num  <span class="token operator">=</span> out<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">/</span> num<span class="token punctuation">;</span>
+                    <span class="token keyword">break</span><span class="token punctuation">;</span>
+                <span class="token keyword">default</span><span class="token operator">:</span>
+                    <span class="token keyword">break</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            out<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>num<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">while</span><span class="token punctuation">(</span><span class="token operator">!</span>out<span class="token punctuation">.</span><span class="token function">isEmpty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            ans <span class="token operator">+=</span> out<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> ans<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

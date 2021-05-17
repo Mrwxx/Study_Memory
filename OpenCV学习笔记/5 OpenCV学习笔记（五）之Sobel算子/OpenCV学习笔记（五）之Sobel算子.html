@@ -1,0 +1,116 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenCV学习笔记（五）之Sobel算子</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="__7"></a>一. 卷积应用-图像边缘提取</h2>
+<h3><a id="__8"></a>(一). 边缘是什么？</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;边缘是像素值发生跃迁的位置，是图像的显著特征之一，在图像特征提取，对象检测，模式识别等方面都有重要的作用。</p>
+<h3><a id="__10"></a>(二). 如何提取边缘？</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;对图像求一阶导数。一阶导数越大，说明像素在该方向的变化越大，边缘信号越强。</p>
+<h2><a id="_Sobel_13"></a>二. Sobel算子</h2>
+<ol>
+<li>离散微分算子，用来计算图像灰度的近似梯度。</li>
+<li>Sobel算子功能集合高斯平滑和微分求导</li>
+<li>又被称为一阶微分算子，求导算子，在水平和垂直两个方向上求导，得到图像X方向和Y方向的梯度图像。</li>
+</ol>
+<center>
+<img src="https://img-blog.csdnimg.cn/2020052920260449.png" width="70%">
+</center><center>
+<img src="https://img-blog.csdnimg.cn/20200529202626748.png" width="70%">
+</center><p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>改进版的Scharr函数，算子如下：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200529202733480.png" width="70%">
+</center><h2><a id="_SobelAPI_32"></a>三. <strong>Sobel算子API：</strong></h2>
+<pre><code class="prism language-cpp">cv<span class="token operator">::</span><span class="token function">Sobel</span><span class="token punctuation">(</span>
+	InputArray src<span class="token punctuation">,</span>			<span class="token comment">//输入图像</span>
+	OutputArray dst<span class="token punctuation">,</span>		<span class="token comment">//输出图像，大小与输入图像一致</span>
+	<span class="token keyword">int</span> depth<span class="token punctuation">,</span>				<span class="token comment">//输出图像深度</span>
+	<span class="token keyword">int</span> dx<span class="token punctuation">,</span>					<span class="token comment">//X方向，几阶导数</span>
+	<span class="token keyword">int</span> dy<span class="token punctuation">,</span>					<span class="token comment">//Y方向，几阶导数</span>
+	<span class="token keyword">int</span> ksize<span class="token punctuation">,</span>				<span class="token comment">//Sobel算子kernel大小，必须是1,3,5，7</span>
+	doublle scale <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">,</span>	
+	<span class="token keyword">double</span> delta <span class="token operator">=</span> <span class="token number">0.</span>
+	<span class="token keyword">int</span> borderType <span class="token operator">=</span> BORDER_DEFAULT
+<span class="token punctuation">)</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>输出图像的深度至少是跟输入图像持平的。</strong><br>
+cv::Scharr的参数与Sobel相同。</p>
+<h2><a id="__51"></a>四. 下面是代码：</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>Sobel算子的算法实现</strong></p>
+<pre><code class="prism language-cpp"><span class="token comment">/*****Sobel算子*****/</span>
+
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;opencv2/opencv.hpp&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;string&gt;</span></span>
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+string in_title <span class="token operator">=</span> <span class="token string">"input image"</span><span class="token punctuation">;</span>
+string ou_title <span class="token operator">=</span> <span class="token string">"output image"</span><span class="token punctuation">;</span>
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	cv<span class="token operator">::</span>Mat src<span class="token punctuation">,</span> dst<span class="token punctuation">;</span>
+	src <span class="token operator">=</span> cv<span class="token operator">::</span><span class="token function">imread</span><span class="token punctuation">(</span><span class="token string">"1.jpg"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span>in_title<span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span>in_title<span class="token punctuation">,</span> src<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	cv<span class="token operator">::</span>Mat gray_src<span class="token punctuation">;</span>
+	<span class="token comment">//先高斯模糊</span>
+	cv<span class="token operator">::</span><span class="token function">GaussianBlur</span><span class="token punctuation">(</span>src<span class="token punctuation">,</span> dst<span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Size</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//再转成灰度图</span>
+	cv<span class="token operator">::</span><span class="token function">cvtColor</span><span class="token punctuation">(</span>dst<span class="token punctuation">,</span> gray_src<span class="token punctuation">,</span> cv<span class="token operator">::</span>COLOR_BGR2GRAY<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span><span class="token string">"gray image"</span><span class="token punctuation">,</span> gray_src<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	cv<span class="token operator">::</span>Mat xgrad<span class="token punctuation">,</span> ygrad<span class="token punctuation">;</span>
+	<span class="token comment">//Sobel</span>
+	<span class="token comment">//cv::Sobel(gray_src, xgrad, CV_16S, 1, 0, 3);</span>
+	<span class="token comment">//cv::Sobel(gray_src, ygrad, CV_16S, 0, 1, 3);</span>
+	<span class="token comment">//Scharr</span>
+	cv<span class="token operator">::</span><span class="token function">Scharr</span><span class="token punctuation">(</span>gray_src<span class="token punctuation">,</span> xgrad<span class="token punctuation">,</span> CV_16S<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">Scharr</span><span class="token punctuation">(</span>gray_src<span class="token punctuation">,</span> ygrad<span class="token punctuation">,</span> CV_16S<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//将负值转正</span>
+	cv<span class="token operator">::</span><span class="token function">convertScaleAbs</span><span class="token punctuation">(</span>xgrad<span class="token punctuation">,</span> xgrad<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">convertScaleAbs</span><span class="token punctuation">(</span>ygrad<span class="token punctuation">,</span> ygrad<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span><span class="token string">"xgrad"</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span><span class="token string">"ygrad"</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span><span class="token string">"xgrad"</span><span class="token punctuation">,</span> xgrad<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span><span class="token string">"ygrad"</span><span class="token punctuation">,</span> ygrad<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	cv<span class="token operator">::</span>Mat xygrad<span class="token punctuation">;</span>
+	xygrad <span class="token operator">=</span> cv<span class="token operator">::</span><span class="token function">Mat</span><span class="token punctuation">(</span>xgrad<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> xgrad<span class="token punctuation">.</span><span class="token function">type</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//用每个像素直接进行计算</span>
+	<span class="token keyword">int</span> width <span class="token operator">=</span> xgrad<span class="token punctuation">.</span>cols<span class="token punctuation">;</span>
+	<span class="token keyword">int</span> height <span class="token operator">=</span> xgrad<span class="token punctuation">.</span>rows<span class="token punctuation">;</span>
+	<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> row <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> row <span class="token operator">&lt;</span> height<span class="token punctuation">;</span> <span class="token operator">++</span>row<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> col <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> col <span class="token operator">&lt;</span> width<span class="token punctuation">;</span> <span class="token operator">++</span>col<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+			<span class="token keyword">int</span> xg <span class="token operator">=</span> xgrad<span class="token punctuation">.</span>at<span class="token operator">&lt;</span>uchar<span class="token operator">&gt;</span><span class="token punctuation">(</span>row<span class="token punctuation">,</span> col<span class="token punctuation">)</span><span class="token punctuation">;</span>
+			<span class="token keyword">int</span> yg <span class="token operator">=</span> ygrad<span class="token punctuation">.</span>at<span class="token operator">&lt;</span>uchar<span class="token operator">&gt;</span><span class="token punctuation">(</span>row<span class="token punctuation">,</span> col<span class="token punctuation">)</span><span class="token punctuation">;</span>
+			<span class="token keyword">int</span> xy <span class="token operator">=</span> xg <span class="token operator">+</span> yg<span class="token punctuation">;</span>
+			xygrad<span class="token punctuation">.</span>at<span class="token operator">&lt;</span>uchar<span class="token operator">&gt;</span><span class="token punctuation">(</span>row<span class="token punctuation">,</span> col<span class="token punctuation">)</span> <span class="token operator">=</span> cv<span class="token operator">::</span>saturate_cast<span class="token operator">&lt;</span>uchar<span class="token operator">&gt;</span><span class="token punctuation">(</span>xy<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token punctuation">}</span>
+	<span class="token punctuation">}</span>
+	<span class="token comment">//或者使用权重函数相加</span>
+	<span class="token comment">//cv::addWeighted(xgrad, 0.5, ygrad, 0.5, 0, xygrad);</span>
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span><span class="token string">"xygrad"</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span><span class="token string">"xygrad"</span><span class="token punctuation">,</span> xygrad<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	cv<span class="token operator">::</span><span class="token function">waitKey</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

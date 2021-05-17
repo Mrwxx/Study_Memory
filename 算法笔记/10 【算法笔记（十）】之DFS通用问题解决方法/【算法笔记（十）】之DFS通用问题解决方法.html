@@ -1,0 +1,114 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【算法笔记（十）】之DFS通用问题解决方法</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09DFS_7"></a>一．	DFS</h2>
+<h3><a id="_8"></a>（一）概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;深度优先搜索，以深度为优先选项，它会走遍所有的路径，即枚举所有完整路径来找到最佳的路径。<br>
+<br></p>
+<h3><a id="_13"></a>（二）实现思路</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;DFS可以使用栈来解决，DFS的使用过程和栈十分类似，选择一条路为进栈，退出一条路为出栈。更简单的实现方法是通过递归来实现DFS，递归中必须有递归式和递归边界，DFS中的递归式即为岔道口的选择，递归边界为走到死胡同，需要后退。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如：Fibinacci数列中，只要n &gt; 1，F(n)就有两个分支，即递归式；当n= 0或1时，F(1),F(0)就是迷宫的死胡同，即递归边界。</p>
+<br>
+<h2><a id="%09_22"></a>二．	背包问题</h2>
+<h3><a id="%09_23"></a>（一）	题目</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;有n件物品，每件物品的重量为w[i]，价值为c[i]。现在需要选出若干件物品放入一个容量为V的背包中，使得在选入背包的物品重量不超过容量V的前提下，让背包中物品的价值之和最大，求最大价值。</p>
+<br>
+<h3><a id="%09_29"></a>（二）	思路</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;1.	对于每个物品有选择和不选择两种处理方式，这是岔路口，当选择的物品总重量超过V时，就会到达死胡同，需要返回最近的岔路口。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;2.	从第一个物品开始调用DFS，每个DFS有两个岔路口，一个是不选择该物品，一个是选择该物品。<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;不选择该物品时，调用的是DFS（index+1, sumW, sumC），只是增加了序列号，没有增加总重和总价值；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;选择该物品时，在添加前要判断添加该物品后总重是否会超过V，只有未超过V的才能调用DFS(index+1, sumW+s[index], sumC+c[index]);</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;3.	当枚举的物品数到了n件时，就会return。<br>
+<br></p>
+<h3><a id="%09_42"></a>（三）	代码实现</h3>
+<br>
+<pre><code class="prism language-cpp"><span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;cstdio&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+
+<span class="token keyword">const</span> <span class="token keyword">int</span> maxn <span class="token operator">=</span> <span class="token number">30</span><span class="token punctuation">;</span>
+<span class="token keyword">int</span> n<span class="token punctuation">,</span> V<span class="token punctuation">,</span> maxValue <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token keyword">int</span> w<span class="token punctuation">[</span>maxn<span class="token punctuation">]</span><span class="token punctuation">,</span> c<span class="token punctuation">[</span>maxn<span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+<span class="token keyword">void</span> <span class="token function">DFS</span><span class="token punctuation">(</span><span class="token keyword">int</span> index<span class="token punctuation">,</span> <span class="token keyword">int</span> sumW<span class="token punctuation">,</span> <span class="token keyword">int</span> sumC<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	<span class="token keyword">if</span> <span class="token punctuation">(</span>index <span class="token operator">==</span> n<span class="token punctuation">)</span>
+		<span class="token keyword">return</span><span class="token punctuation">;</span>
+	<span class="token comment">//不选择第index件物品</span>
+	<span class="token function">DFS</span><span class="token punctuation">(</span>index <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">,</span> sumW<span class="token punctuation">,</span> sumC<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//判断加入第index件物品后是否超过容量V</span>
+	<span class="token keyword">if</span> <span class="token punctuation">(</span>sumW <span class="token operator">+</span> w<span class="token punctuation">[</span>index<span class="token punctuation">]</span> <span class="token operator">&lt;=</span> V<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		<span class="token keyword">if</span> <span class="token punctuation">(</span>sumC <span class="token operator">+</span> c<span class="token punctuation">[</span>index<span class="token punctuation">]</span> <span class="token operator">&gt;</span> maxValue<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+			<span class="token comment">//更新最大价值ans</span>
+			maxValue <span class="token operator">=</span> sumC <span class="token operator">+</span> c<span class="token punctuation">[</span>index<span class="token punctuation">]</span><span class="token punctuation">;</span>
+		<span class="token punctuation">}</span>
+		<span class="token comment">//选择第index件物品</span>
+		<span class="token function">DFS</span><span class="token punctuation">(</span>index <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">,</span> sumW <span class="token operator">+</span> w<span class="token punctuation">[</span>index<span class="token punctuation">]</span><span class="token punctuation">,</span> sumC <span class="token operator">+</span> c<span class="token punctuation">[</span>index<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	<span class="token comment">//scanf("%d%d", &amp;n, &amp;V);</span>
+	cin <span class="token operator">&gt;&gt;</span> n <span class="token operator">&gt;&gt;</span> V<span class="token punctuation">;</span>
+	<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> n<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		<span class="token comment">//scanf("%d", &amp;w[i]);</span>
+		cin <span class="token operator">&gt;&gt;</span> w<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> n<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		<span class="token comment">//scanf("%d", &amp;c[i]);</span>
+		cin <span class="token operator">&gt;&gt;</span> c<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token function">DFS</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//printf("%d\n", maxValue);</span>
+	cout <span class="token operator">&lt;&lt;</span> maxValue <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h2><a id="%09DFS_94"></a>三．	DFS通用问题</h2>
+<h3><a id="_95"></a>（一）问题概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;DFS一般用于解决这样的问题：从N个整数中选择K个数，这K个数登录整数X，求出这K个数的平方和最大的方案。</p>
+<br>
+<h3><a id="_101"></a>（二）解决思路</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;这种需要枚举所有的方案的问题，第一个就要联想到DFS，同样是岔路口的选择，一个是选择该数，一个是不选择该数。我们设置一个临时数组temp，存储已选择的整数，若要退出该分支，则从数组中删除该数。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如果发现已经选择了K个数，且K个数之和恰为X时，就要判断平方和了。如果确实更大，则将temp数组赋给存放最优方案的数组ans。当所有的方案都枚举后，ans中存放的就是最优方案。<br>
+<br></p>
+<h3><a id="_109"></a>（三）代码实现</h3>
+<br>
+<pre><code class="prism language-cpp"><span class="token comment">//序列A中n个数，选择k个数使得和为x，最大平方和为maxSumSqu</span>
+<span class="token keyword">int</span> n<span class="token punctuation">,</span> k<span class="token punctuation">,</span> x<span class="token punctuation">,</span> maxSumSqu <span class="token operator">=</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> A<span class="token punctuation">[</span>maxn<span class="token punctuation">]</span><span class="token punctuation">;</span>
+vector<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token operator">&gt;</span> temp<span class="token punctuation">,</span> ans<span class="token punctuation">;</span>
+<span class="token keyword">void</span> <span class="token function">DFS</span><span class="token punctuation">(</span><span class="token keyword">int</span> index<span class="token punctuation">,</span> <span class="token keyword">int</span> nowK<span class="token punctuation">,</span> <span class="token keyword">int</span> sum<span class="token punctuation">,</span> <span class="token keyword">int</span> sumSqu<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	<span class="token keyword">if</span> <span class="token punctuation">(</span>nowK <span class="token operator">==</span> k <span class="token operator">&amp;&amp;</span> sum <span class="token operator">==</span> x<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		<span class="token keyword">if</span> <span class="token punctuation">(</span>sumSqu <span class="token operator">&gt;</span> maxSumSqu<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+			maxSumSqu <span class="token operator">=</span> sumSqu<span class="token punctuation">;</span>
+			ans <span class="token operator">=</span> temp<span class="token punctuation">;</span>
+		<span class="token punctuation">}</span>
+		<span class="token keyword">return</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token keyword">if</span> <span class="token punctuation">(</span>index <span class="token operator">==</span> n <span class="token operator">||</span> nowK <span class="token operator">&gt;</span> k <span class="token operator">||</span> sum <span class="token operator">&gt;</span> x<span class="token punctuation">)</span>
+		<span class="token keyword">return</span><span class="token punctuation">;</span>
+
+	temp<span class="token punctuation">.</span><span class="token function">push_back</span><span class="token punctuation">(</span>A<span class="token punctuation">[</span>index<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token function">DFS</span><span class="token punctuation">(</span>index <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">,</span> nowK <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">,</span> sum <span class="token operator">+</span> A<span class="token punctuation">[</span>index<span class="token punctuation">]</span><span class="token punctuation">,</span> sumSqu <span class="token operator">+</span> A<span class="token punctuation">[</span>index<span class="token punctuation">]</span> <span class="token operator">*</span> A<span class="token punctuation">[</span>index<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	temp<span class="token punctuation">.</span><span class="token function">pop_back</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token function">DFS</span><span class="token punctuation">(</span>index <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">,</span> nowK<span class="token punctuation">,</span> sum<span class="token punctuation">,</span> sumSqu<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

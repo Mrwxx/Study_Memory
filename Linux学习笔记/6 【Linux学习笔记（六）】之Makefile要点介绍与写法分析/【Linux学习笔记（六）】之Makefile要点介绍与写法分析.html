@@ -1,0 +1,139 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Linux学习笔记（六）】之Makefile要点介绍与写法分析</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09Makefile_7"></a>一．	Makefile</h2>
+<h3><a id="_8"></a>（一）概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;一个工程中的源文件不计其数，其按类型、功能、模块分别放在若干个目录中，<strong>makefile定义了一系列的规则来指定哪些文件需要先编译，哪些文件需要后编译，哪些文件需要重新编译，甚至于进行更复杂的功能操作，因为 makefile就像一个Shell脚本一样，也可以执行操作系统的命令。</strong><br>
+<br></p>
+<h3><a id="Makefile_12"></a>（二）Makefile文件的优势</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>为工程编写Makefile 的好处是能够使用一行命令来完成“自动化编译”</strong>，一旦提供一个（通常对于一个工程来说会是多个）正确的 Makefile。编译整个工程你所要做的事就是在shell 提示符下输入make命令。整个工程完全自动编译，极大提高了效率。<br>
+<br></p>
+<h3><a id="Makefile_16"></a>（三）Makefile文件写法</h3>
+<h4><a id="1__17"></a>1. 命名规则</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;makefile或者是Makefile都可以。<br>
+<br></p>
+<h4><a id="2_makefile_21"></a>2. makefile的三要素</h4>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（1）目标</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（2）依赖</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（3）规则命令<br>
+<br></p>
+<h4><a id="3_makefile_31"></a>3. makefile文件初始写法</h4>
+<br>
+<pre><code class="prism language-cpp">目标：依赖
+tab键 规则命令
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>目标</strong>是我们要生成或者操作的文件</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>依赖</strong>是我们需要的文件</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>规则命令</strong>是我们要给出的操作命令。</p>
+<p>如：</p>
+<pre><code class="prism language-cpp">app<span class="token operator">:</span>main<span class="token punctuation">.</span>c
+        gcc <span class="token operator">-</span>o app <span class="token operator">-</span>I<span class="token punctuation">.</span><span class="token operator">/</span>include main<span class="token punctuation">.</span>c
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;这种写法过于简单，且在某一个依赖文件修改时，所有的依赖文件都要重新编译，非常不方便。<br>
+<br></p>
+<h4><a id="4_makefile_57"></a>4. makefile升级写法</h4>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（1）<strong>考虑将编译过程分解，先生成.o二进制文件，再生成目标文件</strong>。当某一个.o二进制文件更新时，只需要重新编译一个文件和目标文件，其他文件没有更改。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（2）<strong>规则命令是递推的，即如果目标通过命令规则找不到相应的依赖文件，就要找是否有生成该依赖文件的命令规则，直到找到需要的文件为止。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（3）依赖文件如果比目标文件的日期新，则重新生成目标文件。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（4）若依赖文件过多，可以用变量来替换，在使用是用$(obj)的方式使用</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（5）<strong>makefile默认处理第一个目标</strong></p>
+<p>如：</p>
+<pre><code class="prism language-cpp">obj <span class="token operator">=</span> main<span class="token punctuation">.</span>o add<span class="token punctuation">.</span>o
+app<span class="token operator">:</span>$<span class="token punctuation">(</span>obj<span class="token punctuation">)</span>
+	gcc <span class="token operator">-</span>o app <span class="token operator">-</span>I <span class="token punctuation">.</span><span class="token operator">/</span>include main<span class="token punctuation">.</span>o add<span class="token punctuation">.</span>o
+</code></pre>
+<br>
+<p>makefile文件如下所示：</p>
+<pre><code class="prism language-cpp">obj <span class="token operator">=</span> main<span class="token punctuation">.</span>o
+qpp<span class="token operator">:</span>$<span class="token punctuation">(</span>obj<span class="token punctuation">)</span>
+        gcc <span class="token operator">-</span>o app <span class="token operator">-</span>I<span class="token punctuation">.</span><span class="token operator">/</span>include main<span class="token punctuation">.</span>o
+main<span class="token punctuation">.</span>o<span class="token operator">:</span>main<span class="token punctuation">.</span>c
+        gcc <span class="token operator">-</span>c main<span class="token punctuation">.</span>c <span class="token operator">-</span>I <span class="token punctuation">.</span><span class="token operator">/</span>include
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>可以看到，目标文件app依赖于main.o，main.o依赖于main.c。</strong><br>
+<br></p>
+<h4><a id="5_makefile_92"></a>5. makefile的函数</h4>
+<h5><a id="1wildcard_93"></a>（1）wildcard</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>进行文件的匹配</strong>。如，我们想查找所有的c文件，则可以用wildcard匹配所有的c文件。</p>
+<pre><code class="prism language-cpp">srcFiles<span class="token operator">=</span>$<span class="token punctuation">(</span>wildcard <span class="token operator">*</span><span class="token punctuation">.</span>c<span class="token punctuation">)</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;使用的时候，用$(srcFiles)即可。<br>
+<br></p>
+<h5><a id="2patsubst_103"></a>（2）patsubst</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>进行内容的替换</strong>，如将所有的c文件用对应的o文件替换。</p>
+<p>如：</p>
+<pre><code class="prism language-cpp">srcFiles <span class="token operator">=</span> $<span class="token punctuation">(</span>wildcard <span class="token operator">*</span><span class="token punctuation">.</span>c<span class="token punctuation">)</span>
+objFiles <span class="token operator">=</span> $<span class="token punctuation">(</span>patsubst <span class="token operator">%</span><span class="token punctuation">.</span>c<span class="token punctuation">,</span> <span class="token operator">%</span><span class="token punctuation">.</span>o<span class="token punctuation">,</span> $<span class="token punctuation">(</span>srcFiles<span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;使用的时候，依然是 $(objFiles)即可。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;可以看出，式子中srcFiles找出了所有的c文件，objFiles将所有的c文件替换为了o文件。</p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;%为通配符，表示相同的内容。</strong><br>
+<br></p>
+<h4><a id="6_makefile_120"></a>6. makefile的变量</h4>
+<h5><a id="1_121"></a>（1）$@</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;代表目标<br>
+<br></p>
+<h5><a id="2_125"></a>（2）$^</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;代表全部依赖<br>
+<br></p>
+<h5><a id="3_129"></a>（3）$&lt;</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;代表第一个依赖<br>
+<br></p>
+<h5><a id="4_133"></a>（4）$?</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;代表第一个变化的依赖<br>
+<br></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>变量只能在规则中使用，因为对应的是目标和依赖。</strong></p>
+<p>如：</p>
+<pre><code class="prism language-cpp">main<span class="token punctuation">.</span>o<span class="token operator">:</span>main<span class="token punctuation">.</span>c
+	gcc <span class="token operator">-</span>c main<span class="token punctuation">.</span>c <span class="token operator">-</span>I <span class="token punctuation">.</span><span class="token operator">/</span>include
+</code></pre>
+<br>
+<p><strong>可以转换为：</strong></p>
+<pre><code class="prism language-cpp"><span class="token operator">%</span><span class="token punctuation">.</span>o<span class="token operator">:</span><span class="token operator">%</span><span class="token punctuation">.</span>c
+	gcc <span class="token operator">-</span>c $<span class="token operator">&lt;</span> <span class="token operator">-</span>I <span class="token punctuation">.</span><span class="token operator">/</span>include
+</code></pre>
+<br>
+<h4><a id="7_makefile_155"></a>7. makefile文件再升级</h4>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>之前写的makefile文件通过函数和变量可以再升级。</strong><br>
+<br></p>
+<pre><code class="prism language-cpp">srcFiles<span class="token operator">=</span>$<span class="token punctuation">(</span>wildcard <span class="token operator">*</span><span class="token punctuation">.</span>c<span class="token punctuation">)</span>
+objFiles<span class="token operator">=</span>$<span class="token punctuation">(</span>patsubst <span class="token operator">%</span><span class="token punctuation">.</span>c<span class="token punctuation">,</span> <span class="token operator">%</span><span class="token punctuation">.</span>o<span class="token punctuation">,</span> $<span class="token punctuation">(</span>srcFiles<span class="token punctuation">)</span><span class="token punctuation">)</span>
+app<span class="token operator">:</span>$<span class="token punctuation">(</span>objFiles<span class="token punctuation">)</span>
+	gcc <span class="token operator">-</span>o app <span class="token operator">-</span>I <span class="token punctuation">.</span><span class="token operator">/</span>include $<span class="token punctuation">(</span>objFiles<span class="token punctuation">)</span>
+<span class="token operator">%</span><span class="token punctuation">.</span>o<span class="token operator">:</span><span class="token operator">%</span><span class="token punctuation">.</span>c
+	gcc <span class="token operator">-</span>c $<span class="token operator">&lt;</span> <span class="token operator">-</span>I <span class="token punctuation">.</span><span class="token operator">/</span>include <span class="token operator">-</span>o $@
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;整体变得十分简洁高效。<br>
+<br></p>
+<h4><a id="8__173"></a>8. 注意事项</h4>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（1）<strong>规则前加@表示不输出显示该命令</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（2）规则前加“-”表示如果该规则报错，仍然继续执行</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（3）如果makefile中的目标和目录中的某个文件名称相同，且该目标只是为了执行命令，而不是生成对应的目标文件。我们需要为了防止歧义，在makefile的该目标上，<strong>标注 .PHONY，表示该目标为伪目标。</strong></p>
+<p>如下所示：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>如目标clean和目录中的clean文件有冲突，则在makefile中声明</strong></p>
+<pre><code class="prism language-cpp"><span class="token punctuation">.</span>PHONY<span class="token operator">:</span>clean
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（4）make指令执行makefile文件中的规则指令，默认第一个目标，如要指定目标，则在make时需指定该目标名称</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（5）目录下有多个makefile文件时，我们可以用<strong>make -f makefileName</strong>指定执行哪个makefile文件。</p>
+</div>
+</body>
+
+</html>

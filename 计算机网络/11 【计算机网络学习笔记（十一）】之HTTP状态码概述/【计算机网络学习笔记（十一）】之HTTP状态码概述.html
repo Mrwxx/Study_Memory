@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【计算机网络学习笔记（十一）】之HTTP状态码概述</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><p></p><div class="toc"><h3>文章目录</h3><ul><ul><li><a href="#_1">本文章由公号【开发小鸽】发布！欢迎关注！！！</a></li><li><a href="#%09HTTP_9">一．	HTTP状态码</a></li><ul><li><a href="#%09_10">（一）	状态码概述</a></li><li><a href="#%09_15">（二）	状态码分类</a></li><ul><li><a href="#1%091XX_16">1.	1XX</a></li><li><a href="#2%092XX_21">2.	2XX</a></li><li><a href="#3%093XX_26">3.	3XX</a></li><li><a href="#4%094XX_31">4.	4XX</a></li><li><a href="#5%095XX_36">5.	5XX</a></li></ul><li><a href="#%092XX__41">（三）	2XX 成功</a></li><ul><li><a href="#1%09200_OK_42">1.	200 OK</a></li><li><a href="#2%09204_No_Content_47">2.	204 No Content</a></li><li><a href="#3%09206_Partial_Content_52">3.	206 Partial Content</a></li></ul><li><a href="#%093XX__57">（四）	3XX 重定向</a></li><ul><li><a href="#1%09301_Moved_Permanently_58">1.	301 Moved Permanently</a></li><li><a href="#2%09302_Found_63">2.	302 Found</a></li><li><a href="#3%09303_See_Other_68">3.	303 See Other</a></li><li><a href="#4%09304_Not_Modified_73">4.	304 Not Modified</a></li></ul><li><a href="#%094XX_78">（五）	4XX客户端错误</a></li><ul><li><a href="#1%09400_Bad_Request_79">1.	400 Bad Request</a></li><li><a href="#2%09401_Unauthorized_84">2.	401 Unauthorized</a></li><li><a href="#3%09403_Forbidden_89">3.	403 Forbidden</a></li><li><a href="#4%09404_Not_Found_94">4.	404 Not Found</a></li></ul><li><a href="#%095XX_99">（六）	5XX服务器错误</a></li><ul><li><a href="#1%09500_Internal_Server_Error_100">1.	500 Internal Server Error</a></li><li><a href="#2%09503_Service_Unavailable_105">2.	503 Service Unavailable</a></li></ul></ul></ul></ul></div><p></p>
+<h2><a id="_1"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09HTTP_9"></a>一．	HTTP状态码</h2>
+<h3><a id="%09_10"></a>（一）	状态码概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;状态码的作用是当额客户端向服务器端发送请求时，描述返回的请求结果，借助状态码，用户可以知道服务器端是否正常处理了请求。状态码的格式以3位数字和原因短语组成，如200 OK，数字中的第一位指定了响应类别，后两位没有分类。<br>
+<br></p>
+<h3><a id="%09_15"></a>（二）	状态码分类</h3>
+<h4><a id="1%091XX_16"></a>1.	1XX</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;信息性状态码，表示接受的请求正在处理。<br>
+<br></p>
+<h4><a id="2%092XX_21"></a>2.	2XX</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;成功状态码，表示请求正常处理完毕。<br>
+<br></p>
+<h4><a id="3%093XX_26"></a>3.	3XX</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;重定向状态码，表示需要附加操作以完成请求。<br>
+<br></p>
+<h4><a id="4%094XX_31"></a>4.	4XX</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;客户端错误状态码，表示客户端请求有错误。<br>
+<br></p>
+<h4><a id="5%095XX_36"></a>5.	5XX</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;服务器错误状态码，表示服务器内部错误。<br>
+<br></p>
+<h3><a id="%092XX__41"></a>（三）	2XX 成功</h3>
+<h4><a id="1%09200_OK_42"></a>1.	200 OK</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;表示从客户端发送来的请求在服务器端被正常处理了。<br>
+<br></p>
+<h4><a id="2%09204_No_Content_47"></a>2.	204 No Content</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;表示服务器接收的请求已经成功处理，但是在返回的响应报文中不包含实体的主体部分。一般在只需要从客户端往服务器发送消息，而对客户端不需要返回新消息时使用。<br>
+<br></p>
+<h4><a id="3%09206_Partial_Content_52"></a>3.	206 Partial Content</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;表示客户端进行了范围请求，服务器成功执行了这部分的GET请求，响应报文中包含了由Contenet-Range指定范围的实体内容。<br>
+<br></p>
+<h3><a id="%093XX__57"></a>（四）	3XX 重定向</h3>
+<h4><a id="1%09301_Moved_Permanently_58"></a>1.	301 Moved Permanently</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;永久性重定向，表示请求的资源已经被分配了新的URI，以后应该使用资源现在的URI。<br>
+<br></p>
+<h4><a id="2%09302_Found_63"></a>2.	302 Found</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;临时性重定向，表示请求的资源已经被分配了新的URI，希望用户能够使用新的URI访问，与301的区别是它还有可能继续变化，不是永久性的。<br>
+<br></p>
+<h4><a id="3%09303_See_Other_68"></a>3.	303 See Other</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;表示请求的资源存在着另一个URI，应该使用GET方法定向获取请求的资源。它与302作用相同，但是303指定了使用GET方法获取资源。<br>
+<br></p>
+<h4><a id="4%09304_Not_Modified_73"></a>4.	304 Not Modified</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;表示客户端发送了附带条件的请求，服务器允许请求访问资源，但是因为请求没有满足条件，直接返回了304，不包含任何响应的主体部分。<br>
+<br></p>
+<h3><a id="%094XX_78"></a>（五）	4XX客户端错误</h3>
+<h4><a id="1%09400_Bad_Request_79"></a>1.	400 Bad Request</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;表示请求报文中存在语法错误，需要修改请求内容再次发送。<br>
+<br></p>
+<h4><a id="2%09401_Unauthorized_84"></a>2.	401 Unauthorized</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;表示发送的请求需要有通过HTTP认证（BASIC认证，Digest认证）的认证信息，如果之前已经进行了一次请求，则表示用户认证失败。401响应中必定包含一个适用于被请求资源的WWW-Authenticate首部用以质询用户信息，浏览器会弹出认证窗口。<br>
+<br></p>
+<h4><a id="3%09403_Forbidden_89"></a>3.	403 Forbidden</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;表示对请求资源的访问被服务器拒绝了，服务器端可以给出拒绝的理由，如未获得资源的访问权限等。<br>
+<br></p>
+<h4><a id="4%09404_Not_Found_94"></a>4.	404 Not Found</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;表示服务器上无法找到请求的资源。<br>
+<br></p>
+<h3><a id="%095XX_99"></a>（六）	5XX服务器错误</h3>
+<h4><a id="1%09500_Internal_Server_Error_100"></a>1.	500 Internal Server Error</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;表示服务器端在执行请求时发生错误，很大可能是服务器的BUG。<br>
+<br></p>
+<h4><a id="2%09503_Service_Unavailable_105"></a>2.	503 Service Unavailable</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;表示服务器暂时处于超负载或停机维护，现在无法处理请求。</p>
+</div>
+</body>
+
+</html>

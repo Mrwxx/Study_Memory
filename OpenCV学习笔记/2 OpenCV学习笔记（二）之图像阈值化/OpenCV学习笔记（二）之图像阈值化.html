@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenCV学习笔记（二）之图像阈值化</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="__Threshold_7"></a>一.  图像阈值（Threshold）</h2>
+<h3><a id="__8"></a>(一). 阈值类型</h3>
+<h4><a id="1_Threshold_Binary_9"></a>1. 阈值二值化（Threshold Binary）</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;首先指定像素的灰度值的阈值，遍历图像中像素值，如果像素的灰度值大于这个阈值，则将这个像素设置为最大像素值(8位灰度值最大为255)；若像素的灰度值小于阈值，则将该像素点像素值赋值为0。公式以及示意图如下：<br>
+<img src="https://img-blog.csdnimg.cn/20200528213636393.png" alt="蓝色水平线代表阈值"></p>
+<h4><a id="2_Threshold_Binary_Inverted_12"></a>2. 阈值反二值化（Threshold Binary Inverted）</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;首先也要指定一个阈值，不同的是在对图像进行阈值化操作时与阈值二值化相反，当像素的灰度值超过这个阈值的时候为该像素点赋值为0；当该像素的灰度值低于该阈值时赋值为最大值。​公式及示意图如下：<br>
+<img src="https://img-blog.csdnimg.cn/20200528213810371.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01yd3h4eHg=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h4><a id="3_Truncate_15"></a>3. 截断（Truncate）</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;给定像素值阈值，在图像中像素的灰度值大于该阈值的像素点被设置为该阈值，而小于该阈值的像素值保持不变。公式以及示意图如下：<br>
+<img src="https://img-blog.csdnimg.cn/20200528213844749.png" alt="在这里插入图片描述"></p>
+<h4><a id="4_Threshold_To_Zero_18"></a>4. 阈值取零（Threshold To Zero）</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;与截断阈值化相反，像素点的灰度值如果大于该阈值则像素值不变，如果像素点的灰度值小于该阈值，则该像素值设置为0.公式以及示意图如下：<br>
+<img src="https://img-blog.csdnimg.cn/20200528213924799.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01yd3h4eHg=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h4><a id="5_Threshold_To_Zero_Inverted_21"></a>5. 阈值反取零（Threshold To Zero Inverted）</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;像素值大于阈值的像素赋值为0，而小于该阈值的像素值则保持不变，公式以及示意图如下：<br>
+<img src="https://img-blog.csdnimg.cn/20200528214007166.png" alt="在这里插入图片描述"></p>
+<h2><a id="_API_24"></a>二. API介绍</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>阈值化API：  cv::threshold​</strong></p>
+<pre><code class="prism language-cpp"><span class="token keyword">double</span> cv<span class="token operator">::</span>threshold  <span class="token punctuation">(</span> 
+	InputArray  src<span class="token punctuation">,</span>  
+  	OutputArray  dst<span class="token punctuation">,</span>  
+	<span class="token keyword">double</span>  thresh<span class="token punctuation">,</span>  
+	<span class="token keyword">double</span>  maxval<span class="token punctuation">,</span>  
+	<span class="token keyword">int</span>  type  
+ <span class="token punctuation">)</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>src</strong>：输入图像，须为单通道灰度图。<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>dst</strong>：输出的边缘图像，为单通道黑白图。<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>threshold</strong>：表示阈值<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>max_value</strong>：表示最大值。<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>threshold_type</strong>：表示二值化类型（即对图像取阈值的方法）</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>下面是代码展示：</strong></p>
+<pre><code class="prism language-cpp"><span class="token comment">/*****图像阈值化*****/</span>
+
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;opencv2/opencv.hpp&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;string&gt;</span></span>
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+cv<span class="token operator">::</span>Mat src<span class="token punctuation">,</span> dst<span class="token punctuation">;</span>
+string input_title <span class="token operator">=</span> <span class="token string">"input image"</span><span class="token punctuation">;</span>
+string output_title <span class="token operator">=</span> <span class="token string">"binary image"</span><span class="token punctuation">;</span>
+<span class="token comment">//阈值设置和最大值</span>
+<span class="token keyword">int</span> threshold_value <span class="token operator">=</span> <span class="token number">127</span><span class="token punctuation">;</span>
+<span class="token keyword">int</span> threshold_max <span class="token operator">=</span> <span class="token number">255</span><span class="token punctuation">;</span>
+<span class="token keyword">void</span> <span class="token function">Threshold_Demo</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">,</span> <span class="token keyword">void</span><span class="token operator">*</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">//阈值类型设置</span>
+<span class="token keyword">int</span> type_value <span class="token operator">=</span> <span class="token number">2</span><span class="token punctuation">;</span>
+<span class="token keyword">int</span> type_max <span class="token operator">=</span> <span class="token number">4</span><span class="token punctuation">;</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	
+	src <span class="token operator">=</span> cv<span class="token operator">::</span><span class="token function">imread</span><span class="token punctuation">(</span><span class="token string">"1.jpg"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span>input_title<span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span>output_title<span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span>input_title<span class="token punctuation">,</span> src<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token comment">//阈值调节</span>
+	cv<span class="token operator">::</span><span class="token function">createTrackbar</span><span class="token punctuation">(</span><span class="token string">"Threshold Value:"</span><span class="token punctuation">,</span> output_title<span class="token punctuation">,</span> <span class="token operator">&amp;</span>threshold_value<span class="token punctuation">,</span>
+		threshold_max<span class="token punctuation">,</span> Threshold_Demo<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//阈值类型调节</span>
+	cv<span class="token operator">::</span><span class="token function">createTrackbar</span><span class="token punctuation">(</span><span class="token string">"Type Value:"</span><span class="token punctuation">,</span> output_title<span class="token punctuation">,</span> <span class="token operator">&amp;</span>type_value<span class="token punctuation">,</span>
+		type_max<span class="token punctuation">,</span> Threshold_Demo<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token function">Threshold_Demo</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	cv<span class="token operator">::</span><span class="token function">waitKey</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">void</span> <span class="token function">Threshold_Demo</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">,</span> <span class="token keyword">void</span><span class="token operator">*</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	cv<span class="token operator">::</span><span class="token function">cvtColor</span><span class="token punctuation">(</span>src<span class="token punctuation">,</span> dst<span class="token punctuation">,</span> cv<span class="token operator">::</span>COLOR_BGR2GRAY<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">threshold</span><span class="token punctuation">(</span>dst<span class="token punctuation">,</span> dst<span class="token punctuation">,</span> threshold_value<span class="token punctuation">,</span> threshold_max<span class="token punctuation">,</span>
+		type_value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span>output_title<span class="token punctuation">,</span> dst<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token punctuation">}</span>
+</code></pre>
+<p>！**</p>
+</div>
+</body>
+
+</html>

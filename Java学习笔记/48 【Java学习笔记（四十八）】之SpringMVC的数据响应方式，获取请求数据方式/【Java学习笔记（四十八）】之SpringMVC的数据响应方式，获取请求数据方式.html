@@ -1,0 +1,314 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Java学习笔记（四十八）】之SpringMVC的数据响应方式，获取请求数据方式</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09SpringMVC_7"></a>一．	SpringMVC的数据响应</h2>
+<h3><a id="%09SpringMVC_8"></a>（一）	SpringMVC的数据响应方式</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;SpringMVC中在调用了Controller中的方法后，可能会跳转页面，也可能返回字符串。<br>
+<br></p>
+<h4><a id="1%09_13"></a>1.	页面跳转</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;跳转页面的方式又分为直接返回字符串和返回ModelAndView对象。<br>
+<br></p>
+<h5><a id="1%09_19"></a>（1）	直接返回字符串</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;返回的字符串代表的是要跳转的页面资源名称，这种方式会将返回的字符串和视图解析器的前后缀拼接后跳转。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如，在Controller的方法中返回 “index”，视图解析器中定义的前缀为 /views，后缀为.jsp，则拼接起来就是跳转的资源名称：/views/index.jsp</p>
+<p>Controller方法定义</p>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>“<span class="token operator">/</span>quick”<span class="token punctuation">)</span>
+<span class="token keyword">public</span> String <span class="token function">quickMethod</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+		<span class="token keyword">return</span> “index”<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<p>视图解析器配置：</p>
+<pre><code class="prism language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>property</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span>”prefix”</span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation">=</span>”/views”/</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>property</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span>”suffix”</span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation">=</span>”.jsp”/</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;跳转分为 转发forward和 重定向redirect，默认是转发，要使用重定向 ，要在名称前加上redirect:<br>
+<br></p>
+<h5><a id="2%09ModelAndView_48"></a>（2）	返回ModelAndView对象</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;ModelAndView对象分为Model模型对象，View视图对象。模型的作用是封装数据，视图的作用是展示数据。因此，我们可以创建一个ModelAndView对象，然后分别设置模型和视图，如设置视图的名称为success，它会根据视图解析器的前后缀配置找到success文件，同时设置模型中的数据，键值对形式，视图中可以使用模型的数据。</p>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>value<span class="token operator">=</span>”<span class="token operator">/</span>quick”<span class="token punctuation">)</span>
+<span class="token keyword">public</span> ModelAndView <span class="token function">save</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+	ModelAndView modelAndView <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ModelAndView</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">//设置模型数据</span>
+modelAndView<span class="token punctuation">.</span><span class="token function">addObject</span><span class="token punctuation">(</span>“username”<span class="token punctuation">,</span> “wxx”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">//设置视图名称</span>
+modelAndView<span class="token punctuation">.</span><span class="token function">setViewName</span><span class="token punctuation">(</span>“success”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">return</span> modelAndView<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;也可以在方法的参数中传入一个ModelAndView参数，让SpringMVC来注入这个对象，方法中可以直接使用。</p>
+<pre><code class="prism language-java"><span class="token keyword">public</span> ModelAndView <span class="token function">save</span><span class="token punctuation">(</span>ModelAndView modelAndView<span class="token punctuation">)</span><span class="token punctuation">{</span><span class="token punctuation">}</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;或者在方法中只传入Model对象，返回String字符串，即视图的名称，这种方式与之前的效果是相同的：</p>
+<pre><code class="prism language-java"><span class="token keyword">public</span> String <span class="token function">save</span><span class="token punctuation">(</span>Model model<span class="token punctuation">)</span><span class="token punctuation">{</span>
+	model<span class="token punctuation">.</span><span class="token function">addAttribute</span><span class="token punctuation">(</span>“username”<span class="token punctuation">,</span> “xxx”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">return</span> “success”<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;前端控制器收到ModelAndView对象后，会发送给视图解析器解析视图，再渲染视图返回给浏览器。</p>
+<br>
+<h4><a id="2%09_87"></a>2.	回写数据</h4>
+<h5><a id="1%09_88"></a>（1）	直接返回字符串</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;客户端发送请求给服务器，要想直接返回字符串给客户端，只需要使用response.getWriter().print(“hello world”)即可，因此，在Controller的方法参数中传入response对象即可，SpringMVC会自动注入response对象。</p>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>“<span class="token operator">/</span>quick”<span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">quickMethod</span><span class="token punctuation">(</span>HttpServletResponse response<span class="token punctuation">)</span> <span class="token keyword">throws</span> IOException<span class="token punctuation">{</span>
+		response<span class="token punctuation">.</span><span class="token function">getWriter</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">print</span><span class="token punctuation">(</span>“hello world”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;但是，这种直接调用response对象，会使得代码的耦合性提升，应尽量避免使用。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;我们可以直接返回字符串，但是这样会使得SpringMVC框架认为这是要跳转。因此，我们需要使用<code>@ResponseBody</code>注解告知SpringMVC框架，这个方法返回的字符串不是跳转，而是直接在http响应体中返回。</p>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>value<span class="token operator">=</span>”<span class="token operator">/</span>quick”<span class="token punctuation">)</span>
+<span class="token annotation punctuation">@ResponseBody</span>
+<span class="token keyword">public</span> String <span class="token function">save</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> IOException<span class="token punctuation">{</span>
+	<span class="token keyword">return</span> “hello world”<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h5><a id="2%09_116"></a>（2）	返回对象或集合</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;执行完Controller的方法后，可能会返回对象或集合，SpringMVC会自动将他们转换为json格式的数据。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;首先，我们知道Controller中的方法是由处理器映射器来调用的，因此，像视图解析器一样，我们也要配置处理器映射器的消息转换参数来自动转换数据格式，同样是在spring-mvc.xml中进行配置：<br>
+如，指定使用jackson进行对象或集合的转换</p>
+<pre><code class="prism language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>bean</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span>”org.springfreamework.web.servlet.mvc.mthod.annotation.RequestMappingHandlerAdapter”</span><span class="token punctuation">&gt;</span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>property</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span>”messageConverters”</span><span class="token punctuation">&gt;</span></span>
+			<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>list</span><span class="token punctuation">&gt;</span></span>
+				<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>bean</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span>”org.springframework.http.converter.json.MappingJackson2HttpMessageConverter”</span><span class="token punctuation">&gt;</span></span>
+			<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>list</span><span class="token punctuation">&gt;</span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>property</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>bean</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<h3><a id="%09_135"></a>（二）	简单的配置方式</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;上面我们介绍了视图解析器，处理器适配器的配置方式，看起来都比较繁琐，这里介绍一个简单的方式自动配置。在spring-mvc.xml配置文件中，使用mvc的注解驱动即可替代上述的配置，当然首先要引入mvc的命名空间：</p>
+<pre><code class="prism language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">mvc:</span>annotation-driven</span><span class="token punctuation">/&gt;</span></span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;这个注解驱动可以自动加载RequestMappingHandlerMapping(处理器映射器)， RequestMappingHandlerAdapter（处理器适配器），因此spring-mvc.xml在创建时，就应该先写上这个注解驱动。</p>
+<br>
+<h2><a id="%09SpringMVC_148"></a>二．	SpringMVC获得请求数据</h2>
+<h3><a id="%09_149"></a>（一）	获得请求参数</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;客户端请求参数的格式是： name=value&amp;name=value…，服务器端要获得请求的参数，有时还要对数据进行封装，SpringMVC可以接受如下类型的参数：</p>
+<h4><a id="1%09_151"></a>1.	基本类型参数</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;客户端发送基本类型数据，服务器端直接获取这些数据，Controller中的业务方法想要使用这些参数，那么方法的参数名称要和请求参数的name一致，参数值就会自动映射匹配。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如，请求参数为 username=zz&amp;age=12</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;则，方法需要定义为：</p>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>“<span class="token operator">/</span>quick”<span class="token punctuation">)</span>
+<span class="token annotation punctuation">@ResponseBody</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">quickMethod</span><span class="token punctuation">(</span>String username<span class="token punctuation">,</span> <span class="token keyword">int</span> age<span class="token punctuation">)</span><span class="token punctuation">{</span><span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h4><a id="2%09POJO_167"></a>2.	POJO类型参数</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在Controller中的业务方法中可以使用POJO对象，POJO对象的参数也可以通过请求参数获得，只要POJO对象的属性名和请求参数的name都对应一致即可，参数值会自动映射匹配。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如，请求参数为 username=zz&amp;age=12。定义一个POJO对象User类为：</p>
+<pre><code class="prism language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">User</span><span class="token punctuation">{</span>
+		<span class="token keyword">private</span> String username<span class="token punctuation">;</span>
+		<span class="token keyword">private</span> <span class="token keyword">int</span> age<span class="token punctuation">;</span>
+		
+<span class="token punctuation">}</span>
+</code></pre>
+<p>Controller中的业务方法定义为：</p>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>“<span class="token operator">/</span>quick”<span class="token punctuation">)</span>
+<span class="token annotation punctuation">@ResponseBody</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">quickMethod</span><span class="token punctuation">(</span>User user<span class="token punctuation">)</span><span class="token punctuation">{</span><span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h4><a id="3%09_191"></a>3.	数组类型参数</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;定义一个数组，Controller中的业务方法使用该数组，只要该数组的名称和请求参数的name一致即可，参数值后自动映射匹配。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;请求参数： strs=222<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;方法定义：</p>
+<pre><code class="prism language-java"><span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">quickMethod</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> strs<span class="token punctuation">)</span><span class="token punctuation">{</span><span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h4><a id="4%09_204"></a>4.	集合类型参数</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如果要从请求中获取集合参数，则需要将集合的参数包装到一个POJO中，一般称该POJO对象为一个VO对象，该对象存储着集合。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;我们要通过请求向服务器传递集合参数，但是整个集合是无法传递的，因此我们将集合封装到一个POJO中，且集合中的参数是一个一个地传入的。且集合的名称要对应起来。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如，定义了一个User类对象，其中有属性username和age，我们要传递的是一个集合对象userList，其中存储的User对象。因此请求中传递参数时要一个个地传递User对象的username参数和age参数，先组合成User对象，再由多个User对象组合成一个userList集合对象，这样就可以传递了。<br>
+<br></p>
+<h3><a id="%09_214"></a>（二）	请求数据乱码问题</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;当POST请求时，数据会出现乱码，我们可以设置一个过滤器来进行编码的过滤，指定以什么编码格式进行编码。</p>
+<pre><code class="prism language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>filter</span><span class="token punctuation">&gt;</span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>filter-name</span><span class="token punctuation">&gt;</span></span>CharacterEncodingFilter<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>filter-name</span><span class="token punctuation">&gt;</span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>filter-class</span><span class="token punctuation">&gt;</span></span>org.springfamework.web.filter.CharacterEncodingFilter<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>filter-class</span><span class="token punctuation">&gt;</span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>init-param</span><span class="token punctuation">&gt;</span></span>
+			<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>param-name</span><span class="token punctuation">&gt;</span></span>encoding<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>param-name</span><span class="token punctuation">&gt;</span></span>
+			<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>param-value</span><span class="token punctuation">&gt;</span></span>URF-8<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>param-value</span><span class="token punctuation">&gt;</span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>init-param</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>filter</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>filter-mapping</span><span class="token punctuation">&gt;</span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>filter-name</span><span class="token punctuation">&gt;</span></span>CharacterEncodingFilter<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>filter-name</span><span class="token punctuation">&gt;</span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>url-pattern</span><span class="token punctuation">&gt;</span></span>/*<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>url-pattern</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>filter-mapping</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<h3><a id="%09RequestParam_235"></a>（三）	参数绑定注解@RequestParam</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;当请求的参数名称和Controller中业务方法的参数名称不一致时，就需要通过@RequestParam注解显示地绑定两个不同的参数。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如，请求中传入的参数名称为name，而方法中的参数名称为username，则需要在方法的参数中使用注解@RequestParam(“name”)绑定到username上面：</p>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>“<span class="token operator">/</span>quick”<span class="token punctuation">)</span>
+<span class="token annotation punctuation">@ResponseBody</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">quickMethod</span><span class="token punctuation">(</span><span class="token annotation punctuation">@RequestParam</span><span class="token punctuation">(</span>“name”<span class="token punctuation">)</span>String username<span class="token punctuation">)</span><span class="token punctuation">{</span><span class="token punctuation">}</span>
+</code></pre>
+<br>
+<p>@RequestParam注解包含以下的参数：</p>
+<ol>
+<li>
+<p>value<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;请求参数名称，默认的参数</p>
+</li>
+<li>
+<p>required<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;在此指定的请求参数是否必须包括，默认是true，提交时如果没有此参数则会报错。</p>
+</li>
+<li>
+<p>defaultValue<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;当没有指定请求参数时，则使用指定的默认值赋值。<br>
+<br></p>
+</li>
+</ol>
+<h3><a id="%09Restful_263"></a>（四）	获得Restful风格的参数</h3>
+<h4><a id="1%09Restful_264"></a>1.	Restful概述</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Restful是一种软件架构风格，设计风格，提供了一组设计原则和约束条件，主要用于客户端和服务器之间交互的软件，基于这个风格设计的软件可以更加简洁，更有层次，更易于实现缓存机制。<br>
+<br></p>
+<h4><a id="2%09_270"></a>2.	请求方式</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Restful风格的请求是使用”url+请求方式”表示一次请求的目的，HTTP协议中四个表示操作方式的词：<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;GET : 用于获取资源</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;POST: 用于新建资源</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;PUT: 用于更新资源</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;DELETE: 用于删除资源</p>
+<p>如，<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;/user/1 GET :表示得到id=1的user</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;/user/1 DELETE:表示删除id=1的user</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;/user/1 PUT: 表示更新id=1的user</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;/user POST: 表示新增user<br>
+<br></p>
+<h4><a id="3%09GET_292"></a>3.	获取GET参数实例</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在url地址 /user/1 中的1就是要获取的请求参数，在SpringMVC中可以使用占位符进行参数绑定。可以写成 /user/{id}，占位符{id}就是1的值，在Controller的业务方法中我们可以使用<code>@PathVariable</code>注解进行占位符的匹配获取工作。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如，请求url为： http://localhost:8080/springmvc/quick/zhangsan<br>
+则要获取 zhangsan 这个参数，通过占位符{name}就可以获取，如下所示：</p>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>“<span class="token operator">/</span>quick<span class="token operator">/</span><span class="token punctuation">{</span>name<span class="token punctuation">}</span>”<span class="token punctuation">)</span>
+<span class="token annotation punctuation">@ResponseBody</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">quickMethod</span><span class="token punctuation">(</span><span class="token annotation punctuation">@PathVariable</span><span class="token punctuation">(</span>value<span class="token operator">=</span>”name” required<span class="token operator">=</span><span class="token boolean">true</span><span class="token punctuation">)</span> String name<span class="token punctuation">)</span><span class="token punctuation">{</span>
+	System<span class="token punctuation">.</span>ou<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>name<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h3><a id="%09_309"></a>（五）	自定义类型转换器</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;客户端中用户会输入各种类型的数据，我们要将用户的输入转换为服务器可以接受的数据类型，因此我们需要自定义一些类型转换器。<br>
+<br></p>
+<h4><a id="1%09_315"></a>1.	自定义类型转换器的步骤</h4>
+<h5><a id="1%09Converter_316"></a>（1）	定义转换器类实现Converter接口</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;自定义一个转换器类，将客户端输入的String字符串转换为Date格式的数据，</p>
+<pre><code class="prism language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">DataConverter</span> <span class="token keyword">implements</span> <span class="token class-name">Converter</span><span class="token generics function"><span class="token punctuation">&lt;</span>String <span class="token punctuation">,</span> Date<span class="token punctuation">&gt;</span></span><span class="token punctuation">{</span>
+		<span class="token keyword">public</span> Date <span class="token function">convert</span><span class="token punctuation">(</span>String dateStr<span class="token punctuation">)</span><span class="token punctuation">{</span>
+			SimpleDateFormat format <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">SimpleDateFormat</span><span class="token punctuation">(</span>“yyyy<span class="token operator">-</span>MM<span class="token operator">-</span>dd”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+			Date date <span class="token operator">=</span> null<span class="token punctuation">;</span>
+			<span class="token keyword">try</span><span class="token punctuation">{</span>
+				date <span class="token operator">=</span> format<span class="token punctuation">.</span><span class="token function">parse</span><span class="token punctuation">(</span>dateStr<span class="token punctuation">)</span><span class="token punctuation">;</span>_
+			<span class="token punctuation">}</span><span class="token keyword">catch</span><span class="token punctuation">(</span>ParseException<span class="token punctuation">)</span><span class="token punctuation">{</span>
+				e<span class="token punctuation">.</span><span class="token function">printStackTrace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+			<span class="token punctuation">}</span>
+			<span class="token keyword">return</span> date<span class="token punctuation">;</span>
+		<span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h5><a id="2%09springmvcxml_337"></a>（2）	在配置文件spring-mvc.xml中声明转换器</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;定义完转换器后，需要在spring-mvc.xml中配置转换器，在最外围创建一个转换器工厂Bean对象，使用这个工厂来定义一些转换器，list子标签下创建转换器Bean对象，class属性为自定义的转换器的全类名。</p>
+<pre><code class="prism language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>bean</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span>”conversionService”</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span>”org.springframework.context.support.ConversionServiceFactoryBean”</span><span class="token punctuation">&gt;</span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>property</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span>”converters”</span><span class="token punctuation">&gt;</span></span>
+			<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>list</span><span class="token punctuation">&gt;</span></span>
+				<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>bean</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span>”com.spring.converter.DateConverter”</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>bean</span><span class="token punctuation">&gt;</span></span>
+			<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>list</span><span class="token punctuation">&gt;</span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>property</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>bean</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<h5><a id="3%09annotationdriven_354"></a>（3）	在中引用转换器</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;同样是在spring-mvc.xml中的<code>&lt;annotation-driven&gt;</code>注解驱动洞，设置conversion-service属性的值为上面定义的转换器工厂Bean对象的id属性值。这是用于指定转换器。</p>
+<pre><code class="prism language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">mvc:</span>:annotation-driven</span> <span class="token attr-name">conversion-service</span><span class="token attr-value"><span class="token punctuation">=</span>”conversionService”</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<h3><a id="%09_364"></a>（六）	获取请求头的参数</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;客户端发送请求的请求头中的参数可以在Controller的方法中获取，使用@RequestHeader注解，获取请求头中的参数。注解中的属性有value，请求头的名称，注意，这里的名称必须和请求头中的名称一致；required是否必须携带此请求头。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如，获取User-Agent参数：</p>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>value<span class="token operator">=</span>”<span class="token operator">/</span>quick”<span class="token punctuation">)</span>
+<span class="token annotation punctuation">@ResponseBody</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">save</span><span class="token punctuation">(</span><span class="token annotation punctuation">@RequestHeader</span><span class="token punctuation">(</span>value<span class="token operator">=</span>”User<span class="token operator">-</span>Agent”<span class="token punctuation">,</span> required<span class="token operator">=</span><span class="token boolean">false</span><span class="token punctuation">)</span> String user<span class="token operator">-</span>agent<span class="token punctuation">)</span><span class="token punctuation">{</span><span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h3><a id="%09Cookie_378"></a>（七）	获取Cookie参数</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;虽然说Cookie参数也是请求头中的参数，但是它有单独的注解<code>@CookieValue</code>，因为Cookie参数是键值对形式的，且可能有多个Cookie，它的属性也有value，Cookie键值对的键名，reuqired是否必须携带该Cookie。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如，有一个Cookie的键名为JSESSIONID，则在Controller方法中获取该Cookie：</p>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>“<span class="token operator">/</span>quick”<span class="token punctuation">)</span>
+<span class="token annotation punctuation">@ResponseBody</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">save</span><span class="token punctuation">(</span><span class="token annotation punctuation">@CookieValue</span><span class="token punctuation">(</span>value<span class="token operator">=</span>”JSESSIONID”<span class="token punctuation">)</span> String jsessionId<span class="token punctuation">)</span><span class="token punctuation">{</span><span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h3><a id="%09_392"></a>（八）	文件上传</h3>
+<h4><a id="1%09_393"></a>1.	文件上传客户端三要素</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（1）	表单项 type=”file”</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（2）	表单的提交方式为“POST”</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（3）	表单的enctype属性是多部分表单形式，即enctype=”myltipart/form-data”</p>
+<pre><code class="prism language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>form</span> <span class="token attr-name">action</span><span class="token attr-value"><span class="token punctuation">=</span>”${pageContext.request.contextPath}/quick”</span> <span class="token attr-name">method</span><span class="token attr-value"><span class="token punctuation">=</span>”post”</span> <span class="token attr-name">enctype</span><span class="token attr-value"><span class="token punctuation">=</span>”multipart/form-data”</span><span class="token punctuation">&gt;</span></span>
+		名称：<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>input</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span>”text”</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span>”name”</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>br</span><span class="token punctuation">&gt;</span></span>
+		文件：<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>input</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span>”file”</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span>”file”</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>br</span><span class="token punctuation">&gt;</span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>input</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span>”submit”</span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation">=</span>”提交”</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>br</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>form</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<h4><a id="2%09_411"></a>2.	文件上传原理</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（1） 当form表单的enctype=”application/x-www.form-urlencoded”时，form表单的正文内容格式是： key=value&amp;key=value键值对形式</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（2）当form表单的enctype=”Multipart/form-data”时，请求正文内容就变为多部分表单形式，此时request.getParameter()将会失效。<br>
+<br></p>
+<h4><a id="3%09_419"></a>3.	单文件上传步骤</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（1）	导入fileupload和io坐标<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;在pom.xml中导入 commons-fileupload的坐标和commons-io的坐标。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（2）	配置文件上传解析器<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;在spring-mvc.xml中配置文件上传解析器：</p>
+<pre><code class="prism language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>bean</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span>”multipartResolver”</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span>”org.springframework.web.multipart.commons.CommonsMultipartResolver”</span><span class="token punctuation">&gt;</span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>!—上传文件总大小--</span><span class="token punctuation">&gt;</span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>property</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span>”maxUploadSize”</span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation">=</span>”5242800”/</span><span class="token punctuation">&gt;</span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>!—上传单个文件的大小--</span><span class="token punctuation">&gt;</span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>property</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span>”maxUploadSizePerFile”</span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation">=</span>”5242800”/</span><span class="token punctuation">&gt;</span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>!—上传文件的编码类型</span> <span class="token attr-name">--</span><span class="token punctuation">&gt;</span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>property</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span>”defaultEncoding”</span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation">=</span>”UTF-8”</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>bean</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（3）	编写文件上传代码<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;在Controller的方法中编写文件上传代码，文件会被封装为一个MultipartFile对象，且该对象的名称要和表单中文件的名称一致，其他的参数同样名称要一致。</p>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@RequestMappint</span><span class="token punctuation">(</span>value<span class="token operator">=</span>”<span class="token operator">/</span>quick”<span class="token punctuation">)</span>
+<span class="token annotation punctuation">@ResponseBody</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">save</span><span class="token punctuation">(</span>String username<span class="token punctuation">,</span> MultipartFile uploadFile<span class="token punctuation">)</span><span class="token punctuation">{</span>
+		<span class="token comment">//获取上传文件的名称</span>
+		String originalFilename <span class="token operator">=</span> uploadFile<span class="token punctuation">.</span><span class="token function">getOriginalFilename</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		uploadFile<span class="token punctuation">.</span><span class="token function">transferTo</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">File</span><span class="token punctuation">(</span>“C<span class="token operator">:</span>\\upload\\” <span class="token operator">+</span> originalFilename<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h4><a id="4%09_453"></a>4.	多文件上传实现</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;多文件上传，只需要将表单页面修改为多个文件上传项，每个文件名称相同，再将Controller中的文件上传代码的方法参数MultipartFile类型修改为MultipartFile[]数组即可，通过for循环为每个文件设置存储位置。</p>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>“quick”<span class="token punctuation">)</span>
+<span class="token annotation punctuation">@ResponseBody</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">quickMethod</span><span class="token punctuation">(</span>String name<span class="token punctuation">,</span> MultipartFile<span class="token punctuation">[</span><span class="token punctuation">]</span> uploadFiles<span class="token punctuation">)</span><span class="token punctuation">{</span>
+		<span class="token keyword">for</span><span class="token punctuation">(</span>MultipartFile uploadFile <span class="token operator">:</span> uploadFiles<span class="token punctuation">)</span><span class="token punctuation">{</span>
+			String originalFilename <span class="token operator">=</span> upliadFile<span class="token punctuation">.</span><span class="token function">getOriginalFilename</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+			uploadFile<span class="token punctuation">.</span><span class="token function">transferTo</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">File</span><span class="token punctuation">(</span>“C<span class="token operator">:</span>\\upload\\” <span class="token operator">+</span> originalFilename<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

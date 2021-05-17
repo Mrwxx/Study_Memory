@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【算法笔记（三）】之对称字符串（回文串）</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="__8"></a>一. 对称字符串（回文串）</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;一个字符串正读和反读都是一样的，称为对称字符串（回文串）。如noon，12321。<br>
+<br></p>
+<h2><a id="__13"></a>二. 实例</h2>
+<h3><a id="_14"></a>（一）题目：</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;读入一个字符串，判断是否为 “回文串”。如果是，输出YES，如果不是，输出NO。<br>
+<br></p>
+<h3><a id="_18"></a>（二）输入格式：</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;noon<br>
+<br></p>
+<h3><a id="_22"></a>（三）输出格式：</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;YES<br>
+<br></p>
+<h3><a id="_26"></a>（四）思路：</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;对称的字符串，说明前面一部分和后面一部分是一样的，<strong>那么我们只需要分析前面一部分的字符串，然后与后面一部分字符串逐个对比</strong>。即第一个string[0]和string[string.size()-1]对比，看是否相等。<br>
+<br></p>
+<h3><a id="_30"></a>（五）代码：</h3>
+<br>
+<pre><code class="prism language-cpp"><span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;string&gt;</span></span>
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+<span class="token keyword">bool</span> <span class="token function">isDou</span><span class="token punctuation">(</span>string s<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	<span class="token keyword">int</span> len <span class="token operator">=</span> s<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> len <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		<span class="token keyword">if</span> <span class="token punctuation">(</span>s<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">!=</span> s<span class="token punctuation">[</span>len <span class="token operator">-</span> i <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+		<span class="token punctuation">{</span>
+			<span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+		<span class="token punctuation">}</span>
+	<span class="token punctuation">}</span>
+	<span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+
+<span class="token punctuation">}</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	string s1<span class="token punctuation">;</span>
+	cin <span class="token operator">&gt;&gt;</span> s1<span class="token punctuation">;</span>
+	<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">isDou</span><span class="token punctuation">(</span>s1<span class="token punctuation">)</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token string">"YES"</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token keyword">else</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token string">"NO"</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

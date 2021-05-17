@@ -1,0 +1,101 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【C++学习笔记（三十）】之vector容器的详细介绍</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="vector_7"></a>一．vector容器介绍</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Vector容器，说白了也是数组，但是vector的空间运用十分灵活，不像 array十分死板。<strong>Vector是动态空间分配，随着元素的加入，它的内部机制会自动扩充空间。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;同时，vector的空间扩充并不是要多少扩充多少，而是预先多分配一些空间，以供之后的需求。<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;<br>
+<strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;vector的容量永远大于或等于其大小，一旦容量等于大小，下次再有新增元素，整个vector容器就得再次开辟新空间。</strong><br>
+<br></p>
+<h2><a id="vector_15"></a>二、vector的数据结构</h2>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;Vector的数据结构，是线性连续空间</strong>，它以两个迭代器_Myfirst和_Mylast分别指向配置得来的连续空间中目前已被使用的范围，并以迭代器_Myend指向整块连续内存空间的尾端。</p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;Vector迭代器是随机访问的迭代器，支持跳跃式访问</strong>。</p>
+<br>
+<h2><a id="Vector_22"></a>三．Vector的扩充</h2>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;Vector并不是在原有的空间中添加新的空间，而是寻找一片更大的空间，将原有的空间拷贝过去，并且释放原有的空间。因此，当vector的空间扩展时，原有的迭代器一定会失效。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;那么，vector扩充空间有规律么？用代码来看看。</p>
+<pre><code class="prism language-cpp">vector<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token operator">&gt;</span> v<span class="token punctuation">;</span>
+<span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token number">10</span><span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	v<span class="token punctuation">.</span><span class="token function">push_back</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cout <span class="token operator">&lt;&lt;</span> v<span class="token punctuation">.</span><span class="token function">capacity</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;可以看到，vector的容量扩充并不是说有一定的规律的，不是按照什么倍数增长，看起来似乎没有约定俗成的规律，只是适当地扩充。<br>
+<br></p>
+<h2><a id="vector_42"></a>四．如何降低vector的容量？</h2>
+<pre><code class="prism language-cpp">vector<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token operator">&gt;</span> v<span class="token punctuation">;</span>
+<span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token number">10000</span><span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span>
+	v<span class="token punctuation">.</span><span class="token function">push_back</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">;</span>
+v<span class="token punctuation">.</span><span class="token function">resize</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;更改v的容量，从代码中可以看出，初始化v的大小为10000，因此v的容量必定是大于10000的。之后改变v的大小为3，而v的容量依然是不变的。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;那么这样的vector就会浪费很多空间。如何优化呢？<br>
+<br></p>
+<pre><code class="prism language-cpp">vector<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token operator">&gt;</span><span class="token punctuation">(</span>v<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">swap</span><span class="token punctuation">(</span>v<span class="token punctuation">)</span>
+</code></pre>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;前面是一个匿名对象，用v来初始化匿名对象x，因此该匿名对象x的空间就是v的空间大小，同时x的容量也为3。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;后面用swap的作用是交换v和x的指针，因此，现在v指向的是一个vector，容量为3；而匿名对象x指向的是一个原始的vector，容量大于10000，后续 匿名对象x会自动被销毁。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;至此，v指向的就是一个新的vector，容量为3，大小为3，我们成功地降低了vector的容量。<br>
+<br></p>
+<h2><a id="Vector_69"></a>五．Vector的常用操作</h2>
+<h3><a id="vector_70"></a>（一）vector构造函数</h3>
+<pre><code class="prism language-cpp">vector<span class="token operator">&lt;</span>T<span class="token operator">&gt;</span> v<span class="token punctuation">;</span> <span class="token comment">//采用模板实现类实现，默认构造函数</span>
+<span class="token function">vector</span><span class="token punctuation">(</span>v<span class="token punctuation">.</span><span class="token function">begin</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> v<span class="token punctuation">.</span><span class="token function">end</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//将v[begin(), end())区间中的元素拷贝给本身。</span>
+<span class="token function">vector</span><span class="token punctuation">(</span>n<span class="token punctuation">,</span> elem<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//构造函数将n个elem拷贝给本身。</span>
+<span class="token function">vector</span><span class="token punctuation">(</span><span class="token keyword">const</span> vector <span class="token operator">&amp;</span>vec<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//拷贝构造函数。</span>
+
+<span class="token comment">//例子 使用第二个构造函数 我们可以...</span>
+<span class="token keyword">int</span> arr<span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">9</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+vector<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token operator">&gt;</span> <span class="token function">v1</span><span class="token punctuation">(</span>arr<span class="token punctuation">,</span> arr <span class="token operator">+</span> <span class="token keyword">sizeof</span><span class="token punctuation">(</span>arr<span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token keyword">sizeof</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
+</code></pre>
+<br>
+<h3><a id="vector_84"></a>（二）vector赋值操作</h3>
+<pre><code class="prism language-cpp"><span class="token function">assign</span><span class="token punctuation">(</span>beg<span class="token punctuation">,</span> end<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//将[beg, end)区间中的数据拷贝赋值给本身。</span>
+<span class="token function">assign</span><span class="token punctuation">(</span>n<span class="token punctuation">,</span> elem<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//将n个elem拷贝赋值给本身。</span>
+vector<span class="token operator">&amp;</span> <span class="token keyword">operator</span><span class="token operator">=</span><span class="token punctuation">(</span><span class="token keyword">const</span> vector  <span class="token operator">&amp;</span>vec<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//重载等号操作符</span>
+<span class="token function">swap</span><span class="token punctuation">(</span>vec<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">// 将vec与本身的元素互换。</span>
+</code></pre>
+<br>
+<h3><a id="vector_94"></a>（三）vector大小操作</h3>
+<pre><code class="prism language-cpp"><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//返回容器中元素的个数</span>
+<span class="token function">empty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//判断容器是否为空</span>
+<span class="token function">resize</span><span class="token punctuation">(</span><span class="token keyword">int</span> num<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//重新指定容器的长度为num，若容器变长，则以默认值填充新位置。如果容器变短，则末尾超出容器长度的元素被删除。</span>
+<span class="token function">resize</span><span class="token punctuation">(</span><span class="token keyword">int</span> num<span class="token punctuation">,</span> elem<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//重新指定容器的长度为num，若容器变长，则以elem值填充新位置。如果容器变短，则末尾超出容器长&gt;度的元素被删除。</span>
+<span class="token function">capacity</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//容器的容量</span>
+<span class="token function">reserve</span><span class="token punctuation">(</span><span class="token keyword">int</span> len<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//容器预留len个元素长度，预留位置不初始化，元素不可访问。</span>
+</code></pre>
+<br>
+<h3><a id="vector_106"></a>（四）vector数据存取操作</h3>
+<pre><code class="prism language-cpp"><span class="token function">at</span><span class="token punctuation">(</span><span class="token keyword">int</span> idx<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">//返回索引idx所指的数据，如果idx越界，抛出out_of_range异常。</span>
+<span class="token keyword">operator</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span><span class="token comment">//返回索引idx所指的数据，越界时，运行直接报错</span>
+<span class="token function">front</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//返回容器中第一个数据元素</span>
+<span class="token function">back</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//返回容器中最后一个数据元素</span>
+</code></pre>
+<br>
+<h3><a id="vector_116"></a>（五）vector插入和删除操作</h3>
+<pre><code class="prism language-cpp"><span class="token function">insert</span><span class="token punctuation">(</span>const_iterator pos<span class="token punctuation">,</span> <span class="token keyword">int</span> count<span class="token punctuation">,</span>ele<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//迭代器指向位置pos插入count个元素ele.</span>
+<span class="token function">push_back</span><span class="token punctuation">(</span>ele<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">//尾部插入元素ele</span>
+<span class="token function">pop_back</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//删除最后一个元素</span>
+<span class="token function">erase</span><span class="token punctuation">(</span>const_iterator start<span class="token punctuation">,</span> const_iterator end<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//删除迭代器从start到end之间的元素</span>
+<span class="token function">erase</span><span class="token punctuation">(</span>const_iterator pos<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//删除迭代器指向的元素</span>
+<span class="token function">clear</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//删除容器中所有元素</span>
+</code></pre>
+</div>
+</body>
+
+</html>

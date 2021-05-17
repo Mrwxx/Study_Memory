@@ -1,0 +1,119 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【深度学习笔记（十七）】之Tensorflow2中构造数据集对象，预处理数据以及获取使用数据集</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	创建数据集对象</h2>
+<h3><a id="tfdataDataset_8"></a>（一）tf.data.Dataset的组成</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;tensorflow2中通过tf.data.Dataset类对数据集进行了封装。tf.data.Dataset由一系列的可迭代访问的元素组成，每个元素包含一个或多个张量。如图像数据集中，每个元素可以是形状为 长 x 宽 x 通道数 的图片张量，也可以是由图片张量和图片标签张量组成的元组。<br>
+<br></p>
+<h3><a id="tfdataDataset_13"></a>（二）创建tf.data.Dataset对象</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;当数据量较小时，可以通过tf.data.Dataset.from_tensor_slices()创建tf.data.Dataset对象，传入一个张量或者多个第0维大小相同的张量，即可按张量的第0维展开构建数据集，数据集的元素数量为张量第0维的大小。当提供多个张量作为输入时，张量的第0维大小必须相同，且必须将多个张量作为元组拼接并作为输入。</p>
+<p>如：</p>
+<pre><code class="prism language-python"><span class="token keyword">import</span> tensorflow <span class="token keyword">as</span> tf
+<span class="token keyword">import</span> numpy <span class="token keyword">as</span> np
+<span class="token punctuation">.</span>
+X <span class="token operator">=</span> tf<span class="token punctuation">.</span>constant<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">2013</span><span class="token punctuation">,</span> <span class="token number">2014</span><span class="token punctuation">,</span> <span class="token number">2015</span><span class="token punctuation">,</span> <span class="token number">2016</span><span class="token punctuation">,</span> <span class="token number">2017</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+Y <span class="token operator">=</span> tf<span class="token punctuation">.</span>constant<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">12000</span><span class="token punctuation">,</span> <span class="token number">14000</span><span class="token punctuation">,</span> <span class="token number">15000</span><span class="token punctuation">,</span> <span class="token number">16500</span><span class="token punctuation">,</span> <span class="token number">17500</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+
+dataset <span class="token operator">=</span> tf<span class="token punctuation">.</span>data<span class="token punctuation">.</span>Dataset<span class="token punctuation">.</span>from_tensor_slices<span class="token punctuation">(</span><span class="token punctuation">(</span>X<span class="token punctuation">,</span> Y<span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+<span class="token keyword">for</span> x<span class="token punctuation">,</span> y <span class="token keyword">in</span> dataset<span class="token punctuation">:</span>
+	<span class="token keyword">print</span><span class="token punctuation">(</span>x<span class="token punctuation">.</span>numpy<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> y<span class="token punctuation">.</span>numpy<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h3><a id="mnist_dataset_34"></a>（三）展示mnist_dataset数据集的图片和标签</h3>
+<br>
+<pre><code class="prism language-python"><span class="token keyword">import</span> tensorflow <span class="token keyword">as</span> tf
+<span class="token keyword">import</span> matplotlib<span class="token punctuation">.</span>pyplot <span class="token keyword">as</span> plt
+<span class="token keyword">import</span> numpy <span class="token keyword">as</span> np
+<span class="token punctuation">(</span>train_data<span class="token punctuation">,</span> train_label<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span> test_data<span class="token punctuation">,</span> test_label <span class="token punctuation">)</span> <span class="token operator">=</span> tf<span class="token punctuation">.</span>keras<span class="token punctuation">.</span>datasets<span class="token punctuation">.</span>mnist<span class="token punctuation">.</span>load_data<span class="token punctuation">(</span><span class="token punctuation">)</span>
+train_data <span class="token operator">=</span> np<span class="token punctuation">.</span>expand_dims<span class="token punctuation">(</span>train_data<span class="token punctuation">.</span>astype<span class="token punctuation">(</span>np<span class="token punctuation">.</span>float32<span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token number">255</span><span class="token punctuation">.</span><span class="token punctuation">,</span> axis<span class="token operator">=</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span>
+mnist_dataset <span class="token operator">=</span> tf<span class="token punctuation">.</span>data<span class="token punctuation">.</span>Dataset<span class="token punctuation">.</span>from_tensor_slices<span class="token punctuation">(</span><span class="token punctuation">(</span>train_data<span class="token punctuation">,</span> train_label<span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+<span class="token comment">#mnist_dataset = mnist_dataset.map()</span>
+<span class="token keyword">for</span> image<span class="token punctuation">,</span> label <span class="token keyword">in</span> mnist_dataset<span class="token punctuation">:</span>
+    plt<span class="token punctuation">.</span>title<span class="token punctuation">(</span>label<span class="token punctuation">.</span>numpy<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    plt<span class="token punctuation">.</span>imshow<span class="token punctuation">(</span>image<span class="token punctuation">.</span>numpy<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    plt<span class="token punctuation">.</span>show<span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h2><a id="%09_58"></a>二．	数据集对象的预处理</h2>
+<h3><a id="%09Datasetmapfun_59"></a>（一）	Dataset.map(fun)</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;对数据集对象中的每个元素应用函数fun，得到一个新的数据集。</p>
+<pre><code class="prism language-python"><span class="token keyword">def</span> <span class="token function">rot90</span><span class="token punctuation">(</span>image<span class="token punctuation">,</span> label<span class="token punctuation">)</span><span class="token punctuation">:</span>
+	image <span class="token operator">=</span> tf<span class="token punctuation">.</span>image<span class="token punctuation">.</span>rot90<span class="token punctuation">(</span>image<span class="token punctuation">)</span>
+	<span class="token keyword">return</span> image<span class="token punctuation">,</span> label
+
+mnist_dataset <span class="token operator">=</span> mnist_dataset<span class="token punctuation">.</span><span class="token builtin">map</span><span class="token punctuation">(</span>rot90<span class="token punctuation">)</span>
+
+<span class="token keyword">for</span> image<span class="token punctuation">,</span> label <span class="token keyword">in</span> mnist_dataset<span class="token punctuation">:</span>
+	plt<span class="token punctuation">.</span>title<span class="token punctuation">(</span>label<span class="token punctuation">.</span>numpy<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+	plt<span class="token punctuation">.</span>imshow<span class="token punctuation">(</span>image<span class="token punctuation">.</span>numpy<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+	plt<span class="token punctuation">.</span>show<span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h3><a id="%09Datasetshufflebuffer_size_78"></a>（二）	Dataset.shuffle(buffer_size)</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;打乱数据集，设定一个buffer_size大小的缓冲区，取出前buffer_size个元素放到缓冲区中，再从缓冲区中随机采样，后续的数据填补空缺。当数据集的顺序分布较为随机，则缓冲区的大小可较小，否则需要大的缓冲区。<br>
+<br></p>
+<pre><code class="prism language-python">mnist_dataset <span class="token operator">=</span> mnist_dataset<span class="token punctuation">.</span>shuffle<span class="token punctuation">(</span>buffer_size<span class="token operator">=</span><span class="token number">10000</span><span class="token punctuation">)</span><span class="token punctuation">.</span>batch<span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">)</span>
+
+<span class="token keyword">for</span> images<span class="token punctuation">,</span> labels <span class="token keyword">in</span> mnist_dataset<span class="token punctuation">:</span>
+	fig<span class="token punctuation">,</span> axs <span class="token operator">=</span> plt<span class="token punctuation">.</span>subplots<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">)</span>
+	<span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+		axs<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>set_title<span class="token punctuation">(</span>labels<span class="token punctuation">.</span>numpy<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span>
+		axs<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>imshow<span class="token punctuation">(</span>images<span class="token punctuation">.</span>numpy<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">[</span>i<span class="token punctuation">,</span> <span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+	plt<span class="token punctuation">.</span>show<span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h3><a id="%09Datasetbatchbatch_size_98"></a>（三）	Dataset.batch(batch_size)</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;将数据集的数据按batch_size分成多个批次，每batch_size个元素，使用tf.stack()在第0位合并为一个元素。<br>
+<br></p>
+<pre><code class="prism language-python">mnist_dataset <span class="token operator">=</span> mnist_dataset<span class="token punctuation">.</span>batch<span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">)</span>
+
+<span class="token keyword">for</span> images<span class="token punctuation">,</span> labels <span class="token keyword">in</span> mnist_dataset<span class="token punctuation">:</span> <span class="token comment"># image: [4, 28, 28, 1], labels: [4]</span>
+fig<span class="token punctuation">,</span> axs <span class="token operator">=</span> plt<span class="token punctuation">.</span>subplots<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">)</span>
+<span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+	axs<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>set_title<span class="token punctuation">(</span>labels<span class="token punctuation">.</span>numpy<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span>
+	axs<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>imshow<span class="token punctuation">(</span>images<span class="token punctuation">.</span>numpy<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">[</span>i<span class="token punctuation">,</span> <span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+plt<span class="token punctuation">.</span>show<span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h2><a id="%09_119"></a>三．	获取数据集的元素</h2>
+<h3><a id="%09for_120"></a>（一）	for循环</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;tf.data.Dataset是一个可迭代的对象，可以使用for循环迭代获取数据。<br>
+<br></p>
+<h3><a id="%09iter_126"></a>（二）	iter()</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;使用iter()显示创建一个迭代器，并使用next()获取下一个元素：<br>
+<br></p>
+<pre><code class="prism language-python">dataset <span class="token operator">=</span> tf<span class="token punctuation">.</span>data<span class="token punctuation">.</span>Dataset<span class="token punctuation">.</span>from_tensor_slices<span class="token punctuation">(</span><span class="token punctuation">(</span>A<span class="token punctuation">,</span> B<span class="token punctuation">,</span> C<span class="token punctuation">,</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+it <span class="token operator">=</span> <span class="token builtin">iter</span><span class="token punctuation">(</span>dataset<span class="token punctuation">)</span>
+a_0<span class="token punctuation">,</span> b_0<span class="token punctuation">,</span> c_0<span class="token punctuation">,</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> <span class="token operator">=</span> <span class="token builtin">next</span><span class="token punctuation">(</span>it<span class="token punctuation">)</span>
+a_1<span class="token punctuation">,</span> b_1<span class="token punctuation">,</span> c_1<span class="token punctuation">,</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> <span class="token operator">=</span> <span class="token builtin">next</span><span class="token punctuation">(</span>it<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h2><a id="%09_142"></a>四．	使用数据集对象</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;keras支持使用tf.data.Dataset作为输入，如fit()函数需要传入训练数据，标签数据，迭代次数以及每批数据的数量。<br>
+<br></p>
+<pre><code class="prism language-python">model<span class="token punctuation">.</span>fit<span class="token punctuation">(</span>x<span class="token operator">=</span>train_data<span class="token punctuation">,</span> y<span class="token operator">=</span>train_label<span class="token punctuation">,</span> epochs<span class="token operator">=</span>num_epochs<span class="token punctuation">,</span>
+batch_size<span class="token operator">=</span>batch_size<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;我们可以直接传入Dataset，在此之前通过Dataset.batch(batch_size)进行分批，因此，fit（）函数中只需要传入Dataset以及迭代次数即可：</p>
+<pre><code class="prism language-python">model<span class="token punctuation">.</span>fit<span class="token punctuation">(</span>mnist_dataset<span class="token punctuation">,</span> epochs<span class="token operator">=</span>num_epochs<span class="token punctuation">)</span>
+</code></pre>
+</div>
+</body>
+
+</html>

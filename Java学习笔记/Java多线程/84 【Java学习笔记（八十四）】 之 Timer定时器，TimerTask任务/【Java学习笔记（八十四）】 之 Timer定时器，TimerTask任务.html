@@ -1,0 +1,78 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Java学习笔记（八十四）】 之 Timer定时器，TimerTask任务</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09Timer_7"></a>一．	Timer定时器</h2>
+<h3><a id="%09_8"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;JDK库中，Timer类负责计划任务，即确定在指定的时间开始执行某一个任务，而任务代码需要封装在TimeTask类的子类中。<br>
+<br></p>
+<h3><a id="%09Timer_13"></a>（二）	Timer类的方法</h3>
+<h4><a id="1%09scheduleTimeTask_task_Date_time_15"></a>1.	schedule(TimeTask task, Date time)</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在指定的日期执行一次任务，当指定的日期早于当前的时间时，它会从当前时间开始执行；当指定的日期晚于当前的时间时，它会从指定的日期开始执行。对于多个TimeTask任务，这些任务是以队列的方式按照顺序执行的，因此后面的任务执行的时间可能要随着每个任务的耗时来决定，可能有任务会超时导致后面的任务延时启动。</p>
+<p>创建TimerTask类的子类：</p>
+<pre><code class="prism language-java"><span class="token keyword">package</span> timer<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>sql<span class="token punctuation">.</span>Timestamp<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>Date<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>TimerTask<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MyTaskA</span> <span class="token keyword">extends</span> <span class="token class-name">TimerTask</span> <span class="token punctuation">{</span>
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"A start "</span> <span class="token operator">+</span> <span class="token keyword">new</span> <span class="token class-name">Date</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"A end "</span> <span class="token operator">+</span> <span class="token keyword">new</span> <span class="token class-name">Date</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<p>创建测试类：</p>
+<pre><code class="prism language-java"><span class="token keyword">package</span> timer<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>Calendar<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>Date<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>Timer<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Test</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"当前时间 "</span> <span class="token operator">+</span> <span class="token keyword">new</span> <span class="token class-name">Date</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        Calendar calendar <span class="token operator">=</span> Calendar<span class="token punctuation">.</span><span class="token function">getInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        Date time <span class="token operator">=</span> calendar<span class="token punctuation">.</span><span class="token function">getTime</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"A计划时间 "</span> <span class="token operator">+</span> time<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        MyTaskA myTaskA <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">MyTaskA</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        Timer timer <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Timer</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        timer<span class="token punctuation">.</span><span class="token function">schedule</span><span class="token punctuation">(</span>myTaskA<span class="token punctuation">,</span> time<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h4><a id="2%09scheduleTimerTask_task_Date_firstTime_long_period_65"></a>2.	schedule(TimerTask task, Date firstTime, long period)</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在指定的日期之后按指定的间隔周期，无限循环地执行某一任务。如果计划时间早于当前时间，则立即执行任务，且循环执行；如果计划时间晚于当前时间，则在计划时间循环执行任务；若任务耗时超过了间隔时间，则下一个任务的开始时间以超时的任务结束时间为准。<br>
+<br></p>
+<h4><a id="3%09cancel_72"></a>3.	cancel()</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Timer类的cancel()方法将任务队列中的所有任务都清空，且进程被销毁。不过有时cancel()方法也抢不到queue锁，让任务正常执行，总会有这样的情况出现。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;TimerTask类的cancel()方法将自身这个任务从任务队列中清除。<br>
+<br></p>
+<h4><a id="4%09scheduleTimerTask_task__long_delay_80"></a>4.	schedule(TimerTask task , long delay)</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;以执行schedule方法当前的时间为基准，在此基础上延迟指定的毫秒数后执行一次TimerTask任务。</p>
+<br>
+<h4><a id="5%09scheduleTimerTask_task__long_delay_long_period_86"></a>5.	schedule(TimerTask task . long delay, long period)</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;以执行schedule方法当前的时间为基准，在此基础上延迟指定的毫秒数后循环执行TimerTask任务。<br>
+<br></p>
+<h4><a id="6%09scheduleAtFixedRate_schedule_92"></a>6.	scheduleAtFixedRate方法与 schedule方法的区别</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;scheduleAtFixedRate方法具有追赶性，当任务的计划时间在当前时间之前时，schedule直接从当前时间开始执行，忽略计划时间到当前时间之间的任务。而scheduleArFixedRate方法会将计划时间到当前时间之间的任务补充性地执行。</p>
+</div>
+</body>
+
+</html>

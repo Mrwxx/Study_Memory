@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Linux学习笔记（五）】之静态库与动态库的创建和使用</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="_8"></a>一．静态库</h2>
+<h3><a id="_9"></a>（一）概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;相当于Windows中的xxx.lib文件，Linux中的静态库文件为libxxx.a文件。当我们需要向他人提供源码的功能，但又不想将源码分享，就可以只分享头文件和库文件。他人就可以通过头文件知晓如何使用库文件中的函数功能。<br>
+<br></p>
+<h3><a id="_13"></a>（二）制作步骤</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;1. 将源码文件编译为.o文件，即二进制文件。<br>
+<br></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;2. 将.0文件打包，打包的命令为：</p>
+<pre><code class="prism language-cpp"> ar rcs libxxx<span class="token punctuation">.</span>a fil1<span class="token punctuation">.</span>o file2<span class="token punctuation">.</span>o…
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;前面为静态库文件名，后面为库里添加的.o文件<br>
+<br><br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;3. 将头文件和库文件一起发布<br>
+<br></p>
+<h3><a id="_28"></a>（三）查看静态库中的内容</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;可以显示静态库包含的.0文件。</p>
+<pre><code class="prism language-cpp">nm libxxx<span class="token punctuation">.</span>a
+</code></pre>
+<br>
+<h3><a id="_37"></a>（四）优缺点</h3>
+<h4><a id="1__38"></a>1. 优点</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;执行速度快，发布应用时不需要发布库。<br>
+<br></p>
+<h4><a id="2__42"></a>2. 缺点</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;执行程序体积比较大，因为库已经编译到代码中了，库变更后需要重新编译应用。<br>
+<br></p>
+<h2><a id="_46"></a>二．动态库</h2>
+<h3><a id="__47"></a>（一） 概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Linux的动态库命名规则为：libxxx.so，Windows中动态库文件为dll文件。<br>
+<br></p>
+<h3><a id="_50"></a>（二）制作步骤</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;1. 编译与位置无关的代码，生成.o二进制文件，使用的参数是-fPIC</p>
+<pre><code class="prism language-cpp">gcc <span class="token operator">-</span>fPIC <span class="token operator">-</span>c <span class="token operator">*</span><span class="token punctuation">.</span>c <span class="token operator">-</span>I <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token operator">/</span>include<span class="token operator">/</span>
+</code></pre>
+<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;2. 将.o文件打包，使用参数 -shared，生成动态库文件libxxx.so文件。
+<pre><code class="prism language-cpp">gcc <span class="token operator">-</span>shared <span class="token operator">-</span>o libxxx<span class="token punctuation">.</span>so <span class="token operator">*</span><span class="token punctuation">.</span>o
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;3. 将库文件和头文件一起发布<br>
+<br></p>
+<h3><a id="_68"></a>（三）动态库无法加载的解决方法</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;3种方法</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;1. 拷贝到系统的库路径下：/lib，不推荐</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;2. 将库路径添加到环境变量LD_LIBRARY_PATH中，用冒号分隔。推荐</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;3. 修改/etc/Id.so.conf文件，添加库路径到该文件中，然后执行 sudo Idconfig -v<br>
+<br></p>
+<h3><a id="_78"></a>（四）优缺点</h3>
+<h4><a id="1__79"></a>1. 优点</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;执行程序体积小，库变更时，一般不需要重新编译应用。<br>
+<br></p>
+<h4><a id="2_83"></a>2．缺点</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;执行时要加载动态库，比静态库慢；发布应用时要同时发布动态库。</p>
+</div>
+</body>
+
+</html>

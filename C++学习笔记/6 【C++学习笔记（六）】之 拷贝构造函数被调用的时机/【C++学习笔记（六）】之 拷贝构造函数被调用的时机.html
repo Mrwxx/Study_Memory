@@ -1,0 +1,27 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【C++学习笔记（六）】之 拷贝构造函数被调用的时机</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h3><a id="C__7"></a>C++ 拷贝构造函数什么时候被调用呢？</h3>
+<h4><a id="1_8"></a>1.用已经创建好的类对象来初始化新的对象。</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;当我们之前已经创建好了一个类的对象时，我们可以用这个类对象来<strong>初始化</strong>一个新的对象，这时候，就需要用到拷贝构造函数。</p>
+<h4><a id="2_10"></a>2.以值传递的方式给函数的参数传值</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;当一个函数的参数需要一个类对象时，我们就可以通过拷贝构造函数将类对象通过<strong>值传递</strong>的方式传到函数的参数中。</p>
+<h4><a id="3_12"></a>3.以值传递的方式返回局部对象</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;当类对象作为函数的返回值时，且返回的是函数作用域中的<strong>局部对象</strong>，不能直接返回局部对象，而是返回它的拷贝。这时就需要拷贝构造函数拷贝一个类对象返回。</p>
+</div>
+</body>
+
+</html>

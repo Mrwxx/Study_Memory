@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【计算机网络学习笔记（九）】之HTTP协议概述</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><p></p><div class="toc"><h3>文章目录</h3><ul><ul><li><a href="#_1">本文章由公号【开发小鸽】发布！欢迎关注！！！</a></li><li><a href="#%09HTTP_8">一．	HTTP协议概述</a></li><ul><li><a href="#%09_9">（一）	作用</a></li><li><a href="#%09_14">（二）	通信方式</a></li><li><a href="#%09HTTP_19">（三）	HTTP是无状态协议</a></li><li><a href="#%09HTTP_26">（四）	HTTP方法</a></li><ul><li><a href="#1%09GET_27">1.	GET（获取资源）</a></li><li><a href="#2%09POST_32">2.	POST（传输实体主体）</a></li><li><a href="#3%09PUT_37">3.	PUT（传输文件）</a></li><li><a href="#4%09HEAD_42">4.	HEAD（获得报文首部）</a></li><li><a href="#5%09DELETE_47">5.	DELETE（删除文件）</a></li><li><a href="#6%09OPTIONS_52">6.	OPTIONS（询问支持的方法）</a></li><li><a href="#7%09TRACE_57">7.	TRACE（追踪路径）</a></li><li><a href="#8%09CONNECT_62">8.	CONNECT（隧道协议连接代理）</a></li></ul></ul></ul></ul></div><p></p>
+<h2><a id="_1"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09HTTP_8"></a>一．	HTTP协议概述</h2>
+<h3><a id="%09_9"></a>（一）	作用</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;HTTP协议和TCP/IP协议族内的其他众多协议相同，用于客户端和服务器之间的通信。<br>
+<br></p>
+<h3><a id="%09_14"></a>（二）	通信方式</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;客户端通过发送请求给服务器，服务器接收请求返回响应给客户端完成通信。请求报文是由请求行，请求首部字段和内容实体构成的；响应报文是由响应行，响应首部字段和实体构成的。<br>
+<br></p>
+<h3><a id="%09HTTP_19"></a>（三）	HTTP是无状态协议</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;HTTP协议不保存状态，不会对请求和响应之间的通信状态进行保存，即协议不会对发送过的请求和响应做持久化处理。这种设计是为了更快地处理大量事务，确保协议的可伸缩性。但是业务中通常都会有期望保持状态的功能，如保持登录状态信息，于是后期引入了Cookie技术用于管理状态。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Cookie协议通过在请求和响应报文中写入Cookie信息来控制客户端的状态，Cookie会根据从服务器端发送的响应报文内的一个叫做Set-Cookie的首部字段信息，通知客户端保存Cookie，当下次客户端再往该服务器发送请求时，客户端会自动地在请求报文中加入Cookie值后发送出去。服务器端接受到客户端发送的Cookie之后，会对比服务器中的记录，得到之前的状态信息。<br>
+<br></p>
+<h3><a id="%09HTTP_26"></a>（四）	HTTP方法</h3>
+<h4><a id="1%09GET_27"></a>1.	GET（获取资源）</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;GET方法用来请求访问已经被URI识别的资源，指定的资源经过服务器端解析后返回响应内容。<br>
+<br></p>
+<h4><a id="2%09POST_32"></a>2.	POST（传输实体主体）</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;POST方法用来传输实体的主体，虽然说GET方法也可以用来传输实体的主体，但是一般都是使用POST方法。<br>
+<br></p>
+<h4><a id="3%09PUT_37"></a>3.	PUT（传输文件）</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;PUT方法用来传输文件，要求在请求报文的主体中包含文件内容，然后保存到请求URI指定的位置。鉴于HTTP/1.1的PUT方法自身不带有验证机制，任何人都可以上传文件，存在安全性问题，因此一般不使用该方法。如果配合使用web应用程序的验证机制，或者采用REST风格，可能会使用该方法。<br>
+<br></p>
+<h4><a id="4%09HEAD_42"></a>4.	HEAD（获得报文首部）</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;只返回首部信息。</p>
+<br>
+<h4><a id="5%09DELETE_47"></a>5.	DELETE（删除文件）</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;与PUT相反的方法，按照请求的URI删除指定的资源，同样的，也没有验证机制。</p>
+<br>
+<h4><a id="6%09OPTIONS_52"></a>6.	OPTIONS（询问支持的方法）</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;查询针对请求URI指定的资源支持的方法。<br>
+<br></p>
+<h4><a id="7%09TRACE_57"></a>7.	TRACE（追踪路径）</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;让Web服务器端将之前的请求通信返回给客户端的方法，发送请求时，在Max-Forwards首部字段中填入数值，每经过一个服务器端就将该数字减1，当该数值为0时停止传输，最后接收到请求的服务器端返回200。<br>
+<br></p>
+<h4><a id="8%09CONNECT_62"></a>8.	CONNECT（隧道协议连接代理）</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;CONNECT方法要求在与代理服务器通信时建立隧道，实现用隧道协议进行TCP通信，主要使用SSL（安全套接层）和TLS（传输层安全）协议将通信内容加密后经过隧道传输。</p>
+</div>
+</body>
+
+</html>

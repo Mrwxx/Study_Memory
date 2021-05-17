@@ -1,0 +1,322 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【C++学习笔记（二十三）】之类模板的相关问题</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一.	类模板</h2>
+<p><strong>写法：</strong></p>
+<pre><code class="prism language-cpp"><span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">NameType</span><span class="token punctuation">,</span> <span class="token keyword">class</span> <span class="token class-name">AgeType</span><span class="token operator">&gt;</span>
+<span class="token keyword">class</span> <span class="token class-name">Person</span>
+<span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token function">Person</span><span class="token punctuation">(</span>NameType name<span class="token punctuation">,</span> AgeType age<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span> m_Name <span class="token operator">=</span> name<span class="token punctuation">;</span>
+		<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_Age <span class="token operator">=</span> age<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	NameType m_Name<span class="token punctuation">;</span>
+	AgeType m_Age<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<p><strong>类模板不支持自动类型推导，需要显式指定类型：</strong></p>
+<pre><code class="prism language-cpp">Person<span class="token operator">&lt;</span>string<span class="token punctuation">,</span><span class="token keyword">int</span><span class="token operator">&gt;</span> <span class="token function">p</span><span class="token punctuation">(</span>“大哥”<span class="token punctuation">,</span> <span class="token number">100</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<p><strong>类模板的类型可以有默认参数，但是函数模板没有默认参数</strong></p>
+<pre><code class="prism language-cpp"><span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">NameType</span><span class="token punctuation">,</span> <span class="token keyword">class</span> <span class="token class-name">AgeType</span><span class="token operator">=</span><span class="token keyword">int</span><span class="token operator">&gt;</span>
+<span class="token keyword">class</span> <span class="token class-name">Person</span><span class="token punctuation">{</span><span class="token punctuation">}</span>
+</code></pre>
+<h2><a id="%09_46"></a>二.	当类模板作为函数的参数</h2>
+<br>
+<p>类模板作为函数的参数有以下几种传参的形式：</p>
+<p><strong>1.	指定传入类型</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;指定要传入的类模板的类型，如下所示：</p>
+<pre><code class="prism language-cpp"><span class="token keyword">void</span> <span class="token function">doWork</span><span class="token punctuation">(</span>Person<span class="token operator">&lt;</span>string<span class="token punctuation">,</span> <span class="token keyword">int</span><span class="token operator">&gt;</span> <span class="token operator">&amp;</span> p <span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在传入的类模板中指定了类模板的参数类型。</p>
+<p><strong>2.	函数模板化</strong></p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;把类模板作为函数的参数，并且用函数模板来实现，类模板的参数类型作为函数模板的参数，函数模板可以自动推导参数的类型。</strong></p>
+<pre><code class="prism language-cpp"><span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">T1</span><span class="token punctuation">,</span> <span class="token keyword">class</span> <span class="token class-name">T2</span><span class="token operator">&gt;</span>
+<span class="token keyword">void</span> <span class="token function">doWork</span><span class="token punctuation">(</span>Person<span class="token operator">&lt;</span>T1<span class="token punctuation">,</span> T2<span class="token operator">&gt;</span> <span class="token operator">&amp;</span> p<span class="token punctuation">)</span><span class="token punctuation">{</span><span class="token punctuation">}</span>
+</code></pre>
+<p><strong>3.	将类模板整体作为一个函数参数类型</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;将整个类模板都作为函数模板的一个参数类型。</p>
+<pre><code class="prism language-cpp"><span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">T</span><span class="token operator">&gt;</span>
+<span class="token keyword">void</span> <span class="token function">doWork</span><span class="token punctuation">(</span>T <span class="token operator">&amp;</span> p<span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+</code></pre>
+<p><strong>代码如下：</strong></p>
+<pre><code class="prism language-cpp"><span class="token macro property">#<span class="token directive keyword">define</span> _CRT_SECURE_NO_WARNINGS</span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;string&gt;</span></span>
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+<span class="token comment">//类模板</span>
+<span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">NameType</span><span class="token punctuation">,</span> <span class="token keyword">class</span> <span class="token class-name">AgeType</span><span class="token operator">&gt;</span>
+<span class="token keyword">class</span> <span class="token class-name">Person</span>
+<span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token function">Person</span><span class="token punctuation">(</span>NameType name<span class="token punctuation">,</span> AgeType age<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_Name <span class="token operator">=</span> name<span class="token punctuation">;</span>
+		<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_Age <span class="token operator">=</span> age<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+	<span class="token keyword">void</span> <span class="token function">PrintPerson</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token string">"Name: "</span> <span class="token operator">&lt;&lt;</span> <span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_Name <span class="token operator">&lt;&lt;</span> <span class="token string">"Age: "</span> <span class="token operator">&lt;&lt;</span> <span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_Age <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+<span class="token keyword">public</span><span class="token operator">:</span>
+	NameType m_Name<span class="token punctuation">;</span>
+	AgeType m_Age<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token comment">//类模板作为函数参数</span>
+
+<span class="token comment">//1.指定模板类型</span>
+<span class="token keyword">void</span> <span class="token function">DoBus1</span><span class="token punctuation">(</span>Person<span class="token operator">&lt;</span>string<span class="token punctuation">,</span> <span class="token keyword">int</span><span class="token operator">&gt;</span><span class="token operator">&amp;</span> p<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	p<span class="token punctuation">.</span>m_Age <span class="token operator">+</span><span class="token operator">=</span> <span class="token number">20</span><span class="token punctuation">;</span>
+	p<span class="token punctuation">.</span>m_Name <span class="token operator">+</span><span class="token operator">=</span> <span class="token string">" vip"</span><span class="token punctuation">;</span>
+	p<span class="token punctuation">.</span><span class="token function">PrintPerson</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">//2.类模板类型作为函数模板类型</span>
+<span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">T1</span><span class="token punctuation">,</span> <span class="token keyword">class</span> <span class="token class-name">T2</span><span class="token operator">&gt;</span>
+<span class="token keyword">void</span> <span class="token function">DoBus2</span><span class="token punctuation">(</span>Person<span class="token operator">&lt;</span>T1<span class="token punctuation">,</span>T2<span class="token operator">&gt;</span><span class="token operator">&amp;</span> p<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	p<span class="token punctuation">.</span>m_Age <span class="token operator">+</span><span class="token operator">=</span> <span class="token number">30</span><span class="token punctuation">;</span>
+	p<span class="token punctuation">.</span>m_Name <span class="token operator">+</span><span class="token operator">=</span> <span class="token string">" vip"</span><span class="token punctuation">;</span>
+	p<span class="token punctuation">.</span><span class="token function">PrintPerson</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	
+<span class="token punctuation">}</span>
+
+<span class="token comment">//3.类模板整体作为函数模板的参数类型</span>
+<span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">T</span> <span class="token operator">&gt;</span>
+<span class="token keyword">void</span> <span class="token function">DoBus3</span><span class="token punctuation">(</span>T<span class="token operator">&amp;</span> p<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	p<span class="token punctuation">.</span>m_Age <span class="token operator">+</span><span class="token operator">=</span> <span class="token number">40</span><span class="token punctuation">;</span>
+	p<span class="token punctuation">.</span>m_Name <span class="token operator">+</span><span class="token operator">=</span> <span class="token string">" vip"</span><span class="token punctuation">;</span>
+	p<span class="token punctuation">.</span><span class="token function">PrintPerson</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">void</span> <span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	Person<span class="token operator">&lt;</span>string<span class="token punctuation">,</span> <span class="token keyword">int</span><span class="token operator">&gt;</span> <span class="token function">p</span><span class="token punctuation">(</span><span class="token string">"jack"</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token function">DoBus2</span><span class="token punctuation">(</span>p<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	<span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h2><a id="__152"></a>三． 继承类模板的问题</h2>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;当子类继承一个类模板时，我们必须要为类模板指定参数类型，不然类模板无法为参数类型分配指定的内存空间。因为，如果不指定参数类型，那么类模板不知道应该分配多少内存给参数。</strong><br>
+<br></p>
+<p><strong>1.	在子类中直接指定类型</strong></p>
+<pre><code class="prism language-cpp"><span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">T</span><span class="token operator">&gt;</span>
+<span class="token keyword">class</span> <span class="token class-name">Base</span><span class="token punctuation">{</span><span class="token punctuation">}</span>
+
+<span class="token keyword">class</span> <span class="token class-name">Child</span> <span class="token operator">:</span> <span class="token keyword">public</span> Base<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token operator">&gt;</span><span class="token punctuation">{</span><span class="token punctuation">}</span>
+</code></pre>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;子类后面指定了类型，那么基类模板类就知道参数类型T为int。</strong></p>
+<p><strong>2.	子类同样为类模板，无须直接指定参数类型</strong></p>
+<pre><code class="prism language-cpp"><span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">T</span><span class="token operator">&gt;</span>
+<span class="token keyword">class</span> <span class="token class-name">Base</span><span class="token punctuation">{</span><span class="token punctuation">}</span>
+
+<span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">T1</span><span class="token punctuation">,</span> <span class="token keyword">class</span> <span class="token class-name">T2</span><span class="token operator">&gt;</span>
+<span class="token keyword">class</span> <span class="token class-name">Child2</span> <span class="token operator">:</span> <span class="token keyword">public</span> Base<span class="token operator">&lt;</span>T2<span class="token operator">&gt;</span>
+<span class="token punctuation">{</span><span class="token punctuation">}</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;可以看到，子类为类模板，T1为子类的参数类型，T2为基类类模板的参数类型。这两个参数类型都可以在用户调用时指定。<br>
+<br></p>
+<h2><a id="_181"></a>四．类模板类外实现成员函数</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如何在类模板的类外实现成员函数呢？<br>
+<strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;与普通类的类外实现成员函数一样，我们需要添加类的作用域。但不同的是，类模板的作用域需要通过类模板的定义来实现。</strong></p>
+<pre><code class="prism language-cpp"><span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">T1</span><span class="token punctuation">,</span> <span class="token keyword">class</span> <span class="token class-name">T2</span><span class="token operator">&gt;</span>
+<span class="token keyword">void</span> Person<span class="token operator">&lt;</span>T1<span class="token punctuation">,</span>T2<span class="token operator">&gt;</span><span class="token operator">::</span><span class="token function">showPerson</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span><span class="token punctuation">}</span>
+</code></pre>
+<h2><a id="__190"></a>五． 类模板的分文件编写问题</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;当我们将类模板分别写到 Person.h文件和Person.cpp文件中，Person.h只是声明，Person.cpp实现类模板，最终实现会出现错误。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;因为，C++是<strong>单元编译</strong>的，所谓单元编译是对每一个文件分别编译的，因此分别对Person.cpp编译，对Person.h编译。</p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;语法当然是没有问题的，但是在Person.h中，类模板的成员函数一开始是不会创建的，因为确定不了具体的类型参数。因此，即使在类模板实现的cpp文件中引入了Person.h头文件，但是Person.cpp中成员函数的代码并没有生成，也就无法链接到Person.cpp的成员函数代码。</strong></p>
+<p><strong>如何解决：</strong></p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;建议类模板不要分文件编写。将Person.cpp中的代码都写到Person.h中，即类模板在类内声明，在类外实现。同时，将Person.h的后缀名改为Person.hpp。.hpp一般用于写模板所用。</strong></p>
+<p><strong>Person.hpp代码：</strong></p>
+<pre><code class="prism language-cpp"><span class="token macro property">#<span class="token directive keyword">pragma</span> once</span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+<span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">T1</span><span class="token punctuation">,</span> <span class="token keyword">class</span> <span class="token class-name">T2</span><span class="token operator">&gt;</span>
+<span class="token keyword">class</span> <span class="token class-name">Person</span>
+<span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token function">Person</span><span class="token punctuation">(</span>T1<span class="token punctuation">,</span> T2<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token keyword">void</span> <span class="token function">showPerson</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	T1 m_name<span class="token punctuation">;</span>
+	T2 m_age<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">T1</span><span class="token punctuation">,</span> <span class="token keyword">class</span> <span class="token class-name">T2</span><span class="token operator">&gt;</span>
+Person<span class="token operator">&lt;</span>T1<span class="token punctuation">,</span> T2<span class="token operator">&gt;</span><span class="token operator">::</span><span class="token function">Person</span><span class="token punctuation">(</span>T1 name<span class="token punctuation">,</span> T2 age<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_name <span class="token operator">=</span> name<span class="token punctuation">;</span>
+	<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_age <span class="token operator">=</span> age<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">T1</span><span class="token punctuation">,</span> <span class="token keyword">class</span> <span class="token class-name">T2</span><span class="token operator">&gt;</span>
+<span class="token keyword">inline</span> <span class="token keyword">void</span> Person<span class="token operator">&lt;</span>T1<span class="token punctuation">,</span> T2<span class="token operator">&gt;</span><span class="token operator">::</span><span class="token function">showPerson</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	cout <span class="token operator">&lt;&lt;</span> <span class="token string">"姓名： "</span> <span class="token operator">&lt;&lt;</span> <span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_name <span class="token operator">&lt;&lt;</span> <span class="token string">"年龄： "</span> <span class="token operator">&lt;&lt;</span> <span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_age <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h2><a id="__235"></a>六. 类模板的友元函数</h2>
+<br>
+<p><strong>1.直接在类模板内声明并定义友元函数</strong></p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;在类模板内直接声明定义友元函数，则该友元函数默认为全局函数，可以直接调用。</strong></p>
+<pre><code class="prism language-cpp"><span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">T1</span><span class="token punctuation">,</span><span class="token keyword">class</span> <span class="token class-name">T2</span><span class="token operator">&gt;</span>
+<span class="token keyword">class</span> <span class="token class-name">Person</span>
+<span class="token punctuation">{</span>
+	<span class="token keyword">friend</span> <span class="token keyword">void</span> <span class="token function">printPerson</span><span class="token punctuation">(</span> Person<span class="token operator">&lt;</span>T1<span class="token punctuation">,</span>T2<span class="token operator">&gt;</span> <span class="token operator">&amp;</span>p<span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<p><strong>2.友元函数类模板外实现</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;友元函数在类模板内声明，在类模板外实现，需要的步骤比较多。</p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;如果我们在类模板内声明了友元函数如下所示：</strong></p>
+<pre><code class="prism language-cpp"><span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">T1</span><span class="token punctuation">,</span><span class="token keyword">class</span> <span class="token class-name">T2</span><span class="token operator">&gt;</span>
+<span class="token keyword">class</span> <span class="token class-name">Person</span>
+<span class="token punctuation">{</span>
+	<span class="token keyword">friend</span> <span class="token keyword">void</span> <span class="token function">printPerson</span><span class="token punctuation">(</span> Person<span class="token operator">&lt;</span>T1<span class="token punctuation">,</span>T2<span class="token operator">&gt;</span> <span class="token operator">&amp;</span>p<span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;而在类模板外定义了友元函数，由于T1，T2在类模板外是未定义的，因此需要加上模板</strong>。如下所示：</p>
+<pre><code class="prism language-cpp"><span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">T1</span><span class="token punctuation">,</span> <span class="token keyword">class</span> <span class="token class-name">T2</span><span class="token operator">&gt;</span>
+<span class="token keyword">void</span> <span class="token function">printPerson</span><span class="token punctuation">(</span>Person<span class="token operator">&lt;</span>T1<span class="token punctuation">,</span> T2<span class="token operator">&gt;</span> <span class="token operator">&amp;</span>p<span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+</code></pre>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;但是可以很明显地看出，类模板内声明地友元函数是普通函数，而类外实现地友元函数是一个模板函数，这明显是不匹配的。</strong></p>
+<p><strong>因此，以下是真正的解决步骤：</strong></p>
+<p><strong>1.	友元函数声明为模板函数</strong></p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;我们需要为类模板内声明的友元函数添加&lt;&gt;</strong>，如下所示：</p>
+<pre><code class="prism language-cpp"><span class="token keyword">friend</span> <span class="token keyword">void</span> printPerson<span class="token operator">&lt;</span><span class="token operator">&gt;</span><span class="token punctuation">(</span> Person<span class="token operator">&lt;</span>T1<span class="token punctuation">,</span>T2<span class="token operator">&gt;</span> <span class="token operator">&amp;</span>p<span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;这样，就告诉了编译器这是模板函数的声明，这样两个函数就匹配了。</p>
+<p><strong>2.提前声明模板函数，类模板</strong></p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;但是，这样还是不行，由于在类模板外实现模板函数，而友元函数声明是在类模板的内部，因此，我们需要在类外提前声明该模板函数，同时，该模板函数声明中的Person类模板也是未知的，也需要提前声明。</strong></p>
+<pre><code class="prism language-cpp"><span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">T1</span><span class="token punctuation">,</span> <span class="token keyword">class</span> <span class="token class-name">T2</span><span class="token operator">&gt;</span> <span class="token keyword">class</span> <span class="token class-name">Person</span><span class="token punctuation">;</span>
+<span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">T1</span><span class="token punctuation">,</span> <span class="token keyword">class</span> <span class="token class-name">T2</span><span class="token operator">&gt;</span> <span class="token keyword">void</span> <span class="token function">printPerson</span><span class="token punctuation">(</span>Person T1<span class="token punctuation">,</span> Person T2<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h2><a id="__297"></a>七. 类模板封装小型数组</h2>
+<p><strong><br>代码如下：</strong></p>
+<pre><code class="prism language-cpp"><span class="token macro property">#<span class="token directive keyword">pragma</span> once</span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+<span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">T</span><span class="token operator">&gt;</span>
+<span class="token keyword">class</span> <span class="token class-name">MyArray</span>
+<span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token comment">//构造</span>
+	<span class="token keyword">explicit</span> <span class="token function">MyArray</span><span class="token punctuation">(</span><span class="token keyword">int</span> capacity<span class="token punctuation">)</span>		<span class="token comment">//防止隐式类型转换</span>
+	<span class="token punctuation">{</span>
+		<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_Capacity <span class="token operator">=</span> capacity<span class="token punctuation">;</span>
+		<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_Size <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+		<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>pAddress <span class="token operator">=</span> <span class="token keyword">new</span> T<span class="token punctuation">[</span><span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_Capacity<span class="token punctuation">]</span><span class="token punctuation">;</span>	<span class="token comment">//开辟堆区空间</span>
+	<span class="token punctuation">}</span>
+	
+	<span class="token comment">//拷贝构造</span>
+	<span class="token function">MyArray</span><span class="token punctuation">(</span><span class="token keyword">const</span> MyArray<span class="token operator">&amp;</span> array<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_Capacity <span class="token operator">=</span> array<span class="token punctuation">.</span>m_Capacity<span class="token punctuation">;</span>
+		<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_Size <span class="token operator">=</span> array<span class="token punctuation">.</span>m_Size<span class="token punctuation">;</span>
+		<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>pAddress <span class="token operator">=</span> <span class="token keyword">new</span> T<span class="token punctuation">[</span><span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_Capacity<span class="token punctuation">]</span><span class="token punctuation">;</span>
+		<span class="token comment">//获取拷贝数据</span>
+		<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_Size<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span>
+		<span class="token punctuation">{</span>
+			<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>pAddress<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">=</span> array<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">;</span>
+		<span class="token punctuation">}</span>
+	<span class="token punctuation">}</span>
+
+	<span class="token comment">//析构</span>
+	<span class="token operator">~</span><span class="token function">MyArray</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		<span class="token comment">//堆空间释放</span>
+		<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>pAddress <span class="token operator">!=</span> <span class="token constant">NULL</span><span class="token punctuation">)</span>
+		<span class="token punctuation">{</span>
+			<span class="token keyword">delete</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>pAddress<span class="token punctuation">;</span>
+			<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>pAddress <span class="token operator">=</span> <span class="token constant">NULL</span><span class="token punctuation">;</span>
+		<span class="token punctuation">}</span>
+	<span class="token punctuation">}</span>
+
+	<span class="token comment">// =重载</span>
+	MyArray<span class="token operator">&amp;</span> <span class="token keyword">operator</span><span class="token operator">=</span><span class="token punctuation">(</span>MyArray<span class="token operator">&amp;</span> array<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		<span class="token comment">//判断原始数据是否存在，如果存在就清空</span>
+		<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>pAddress <span class="token operator">!=</span> <span class="token constant">NULL</span><span class="token punctuation">)</span>
+		<span class="token punctuation">{</span>
+			<span class="token keyword">delete</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>pAddress<span class="token punctuation">;</span>
+			<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>pAddress <span class="token operator">=</span> <span class="token constant">NULL</span><span class="token punctuation">;</span>
+		<span class="token punctuation">}</span>
+
+		<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_Capacity <span class="token operator">=</span> array<span class="token punctuation">.</span>m_Capacity<span class="token punctuation">;</span>
+		<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_Size <span class="token operator">=</span> array<span class="token punctuation">.</span>m_Size<span class="token punctuation">;</span>
+		<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>pAddress <span class="token operator">=</span> <span class="token keyword">new</span> T<span class="token punctuation">[</span><span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_Capacity<span class="token punctuation">]</span><span class="token punctuation">;</span>
+		<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_Size<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span>
+		<span class="token punctuation">{</span>
+			<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>pAddress<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">=</span> array<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">;</span>
+		<span class="token punctuation">}</span>
+	<span class="token punctuation">}</span>
+
+	<span class="token comment">// []重载</span>
+	T<span class="token operator">&amp;</span> <span class="token keyword">operator</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token keyword">int</span> index<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		<span class="token keyword">return</span> <span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>pAddress<span class="token punctuation">[</span>index<span class="token punctuation">]</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+	<span class="token comment">//尾插法</span>
+	<span class="token keyword">void</span> <span class="token function">push_back</span><span class="token punctuation">(</span>T val<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>pAddress<span class="token punctuation">[</span><span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_Size<span class="token punctuation">]</span> <span class="token operator">=</span> val<span class="token punctuation">;</span>
+		<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_Size<span class="token operator">++</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+	<span class="token comment">//获取数组大小</span>
+	<span class="token keyword">int</span> <span class="token function">getSize</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		<span class="token keyword">return</span> <span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_Size<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+	<span class="token comment">//获取数组容量</span>
+	<span class="token keyword">int</span> <span class="token function">getCap</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		<span class="token keyword">return</span> <span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_Capacity<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+<span class="token keyword">private</span><span class="token operator">:</span>
+	T<span class="token operator">*</span> pAddress<span class="token punctuation">;</span>	<span class="token comment">//指向堆区的指针</span>
+	<span class="token keyword">int</span> m_Capacity<span class="token punctuation">;</span>	<span class="token comment">//容量</span>
+	<span class="token keyword">int</span> m_Size<span class="token punctuation">;</span>		<span class="token comment">//大小</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre>
+</div>
+</body>
+
+</html>

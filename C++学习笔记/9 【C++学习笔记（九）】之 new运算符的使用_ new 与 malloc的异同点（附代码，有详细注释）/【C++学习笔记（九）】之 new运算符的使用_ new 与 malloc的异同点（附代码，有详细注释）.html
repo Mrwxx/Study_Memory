@@ -1,0 +1,95 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【C++学习笔记（九）】之 new运算符的使用/ new 与 malloc的异同点（附代码，有详细注释）</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h3><a id="new__7"></a>new 运算符的使用</h3>
+<h4><a id="_new_8"></a>一. new的简单介绍：</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;new运算符用于在<strong>堆区开辟空间</strong>，所有new出来的对象，对<strong>返回该类对象的指针</strong>。</p>
+<h4><a id="_new__malloc__11"></a>二. new 与 malloc 的异同点：</h4>
+<ol>
+<li>malloc作用相同， <strong>malloc 也是在堆区开辟空间</strong>， 但返回的是 <strong>void</strong>* ，需要强制转换。</li>
+<li>malloc 不会调用构造函数， new 会调用构造函数。</li>
+<li><strong>malloc 配合 free</strong> 释放堆区空间  ，<strong>new 配合 delete</strong>释放堆区空间。</li>
+</ol>
+<h4><a id="_new__17"></a>三. new 构造数组</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通过 <strong>new 开辟数组</strong>一定会<strong>调用默认构造函数</strong>，所以一定要提供默认构造函数</p>
+<h4><a id="_delete___20"></a>四. delete [] 释放数组空间</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;单一对象与数组的内存构造是不同的，<strong>数组的内存中还包括“数组大小记录”</strong>，使得<strong>delele时知道应该调用几次析构函数</strong>。当我们使用delete时，必须让delete知道指针所指向的内存空间是否存在一个“数组大小记录”，因此，使用**delete[]**就能让delete知道这是一个数组，从而清楚应该调用几次析构函数。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>注意</strong>：当用 void* 接受 new 出来的指针，会出现内存释放的问题， 无法释放内存</p>
+<h4><a id="_27"></a>代码如下，有详细注释：</h4>
+<pre><code class="prism language-cpp"><span class="token macro property">#<span class="token directive keyword">define</span> _CRT_SECURE_NO_WARNINGS</span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+<span class="token keyword">class</span> <span class="token class-name">Person</span>
+<span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token function">Person</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token string">"默认构造函数调用"</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+	<span class="token function">Person</span><span class="token punctuation">(</span><span class="token keyword">int</span> a<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token string">"有参构造函数调用"</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+	<span class="token operator">~</span><span class="token function">Person</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token string">"析构函数调用"</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">void</span> <span class="token function">test01</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	Person p1<span class="token punctuation">;</span>		<span class="token comment">//在栈区开辟空间</span>
+	Person<span class="token operator">*</span> p2 <span class="token operator">=</span> <span class="token keyword">new</span> Person<span class="token punctuation">;</span>	<span class="token comment">//在堆区开辟空间</span>
+
+	<span class="token comment">//所有new出来的对象，对返回该类型对象的指针</span>
+	<span class="token comment">// malloc 也是在堆区开辟空间， 但返回的是 void* ，需要强制转换</span>
+	<span class="token comment">// malloc 不会调用构造函数， new 会调用构造函数</span>
+	<span class="token comment">// malloc 配合 free 释放堆区空间  new 配合 delete释放堆区空间</span>
+	<span class="token keyword">delete</span> p2<span class="token punctuation">;</span>
+
+<span class="token punctuation">}</span>
+
+<span class="token keyword">void</span> <span class="token function">test02</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	<span class="token keyword">void</span><span class="token operator">*</span> p <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token function">Person</span><span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//当用 void* 接受 new 出来的指针，会出现内存释放的问题， 无法释放内存</span>
+	<span class="token keyword">delete</span> p<span class="token punctuation">;</span>	<span class="token comment">//虽然使用了delete,但是没有调用析构函数，没有释放内存</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">void</span> <span class="token function">test03</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	<span class="token comment">// 通过 new 开辟数组一定会调用默认构造函数，所以一定要提供默认构造函数</span>
+	Person<span class="token operator">*</span> pArray <span class="token operator">=</span> <span class="token keyword">new</span> Person<span class="token punctuation">[</span><span class="token number">10</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+	<span class="token comment">//Person pArray2 ={Person(1), Person(2)};	在栈上开辟数组空间，可以用有参构造</span>
+
+	<span class="token comment">//释放数组 delete[]</span>
+	<span class="token keyword">delete</span><span class="token punctuation">[</span><span class="token punctuation">]</span> pArray<span class="token punctuation">;</span>
+
+<span class="token punctuation">}</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	<span class="token function">test03</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

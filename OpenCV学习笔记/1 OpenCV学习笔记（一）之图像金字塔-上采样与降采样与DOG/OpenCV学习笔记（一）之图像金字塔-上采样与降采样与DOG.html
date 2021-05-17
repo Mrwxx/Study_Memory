@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenCV学习笔记（一）之图像金字塔-上采样与降采样与DOG</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="__7"></a>一. 图像金字塔</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;一个图像金字塔式一系列的图像组成，最底下的图形尺寸最大，最上方的图像尺寸最小。<br>
+高斯金字塔是从底向上，逐层降采样得到的。<br>
+高斯金字塔的生成过程分为两步：</p>
+<ol>
+<li>对当前层进行高斯模糊。</li>
+<li>删除当前层的偶数行与列。</li>
+<li>即可得到上一层的图像，这样上一层跟下一层相比，都只有它的1/4大小。</li>
+</ol>
+<h2><a id="__14"></a>二. 上采样与降采样</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;降采样之后的图像大小是原图像M × N 的 M/2 × N/2，就是对原图像删除偶数行与列，即得到降采样之后的上一层的图片。</p>
+<ol>
+<li>上采样（cv::pyrUp）-zoom in 放大,生成的图像是原图的宽和高各放大两倍</li>
+</ol>
+<pre><code class="prism language-cpp"><span class="token function">pyrUp</span><span class="token punctuation">(</span>Mat src<span class="token punctuation">,</span> Mat dst<span class="token punctuation">,</span> <span class="token function">Size</span><span class="token punctuation">(</span>src<span class="token punctuation">.</span>cols<span class="token operator">*</span><span class="token number">2</span><span class="token punctuation">,</span> src<span class="token punctuation">.</span>rows<span class="token operator">*</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<ol start="2">
+<li>降采样（cv::pyrDown）-zoom out 缩小,生成的图像是原图的宽和高各缩小两倍。</li>
+</ol>
+<pre><code class="prism language-cpp"><span class="token function">pyrDown</span><span class="token punctuation">(</span>Mat src<span class="token punctuation">,</span> Mat dst<span class="token punctuation">,</span> <span class="token function">Size</span><span class="token punctuation">(</span>src<span class="token punctuation">.</span>cols<span class="token operator">/</span><span class="token number">2</span><span class="token punctuation">,</span> src<span class="token operator">/</span>rows<span class="token operator">/</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h2><a id="_Difference_of_GaussianDOG_30"></a>三. 高斯不同（Difference of Gaussian-DOG）</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>定义</strong>  ：就是把同一张图像在不同的参数下做高斯模糊之后的结果<strong>相减</strong>，得到的输出图像。成为高斯不同。高斯不同是图像的内在特征，在灰度图像增强，角点检测中经常用到。</p>
+<p><strong>下面是代码：</strong></p>
+<pre><code class="prism language-cpp"><span class="token comment">/*****图像金字塔*****/</span>
+<span class="token comment">/*上采样，降采样*/</span>
+
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;opencv2/opencv.hpp&gt;</span></span>
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	cv<span class="token operator">::</span>Mat src<span class="token punctuation">,</span> dst<span class="token punctuation">;</span>
+	src <span class="token operator">=</span> cv<span class="token operator">::</span><span class="token function">imread</span><span class="token punctuation">(</span><span class="token string">"1.jpg"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span><span class="token string">"input image"</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span><span class="token string">"input image"</span><span class="token punctuation">,</span> src<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	cv<span class="token operator">::</span><span class="token function">pyrUp</span><span class="token punctuation">(</span>src<span class="token punctuation">,</span> dst<span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Size</span><span class="token punctuation">(</span>src<span class="token punctuation">.</span>cols <span class="token operator">*</span> <span class="token number">2</span><span class="token punctuation">,</span> src<span class="token punctuation">.</span>rows <span class="token operator">*</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span><span class="token string">"up image"</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span><span class="token string">"up image"</span><span class="token punctuation">,</span> dst<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	cv<span class="token operator">::</span>Mat s_down<span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">pyrDown</span><span class="token punctuation">(</span>src<span class="token punctuation">,</span> s_down<span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Size</span><span class="token punctuation">(</span>src<span class="token punctuation">.</span>cols <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">,</span> src<span class="token punctuation">.</span>rows <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span><span class="token string">"down image"</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span><span class="token string">"down image"</span><span class="token punctuation">,</span> s_down<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token comment">//DOG</span>
+	cv<span class="token operator">::</span>Mat gray_src<span class="token punctuation">,</span> g1<span class="token punctuation">,</span> g2<span class="token punctuation">,</span> dogImg<span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">cvtColor</span><span class="token punctuation">(</span>src<span class="token punctuation">,</span> gray_src<span class="token punctuation">,</span> cv<span class="token operator">::</span>COLOR_BayerBG2GRAY<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//两次 高斯模糊</span>
+	cv<span class="token operator">::</span><span class="token function">GaussianBlur</span><span class="token punctuation">(</span>gray_src<span class="token punctuation">,</span> g1<span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Size</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">GaussianBlur</span><span class="token punctuation">(</span>g1<span class="token punctuation">,</span> g2<span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Size</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//高斯模糊的结果相减</span>
+	cv<span class="token operator">::</span><span class="token function">subtract</span><span class="token punctuation">(</span>g1<span class="token punctuation">,</span> g2<span class="token punctuation">,</span> dogImg<span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Mat</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//将DOG的显示效果归一化到0-255范围内，更加明显</span>
+	cv<span class="token operator">::</span><span class="token function">normalize</span><span class="token punctuation">(</span>dogImg<span class="token punctuation">,</span> dogImg<span class="token punctuation">,</span> <span class="token number">255</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>NORM_MINMAX<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span><span class="token string">"DOG Image"</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span><span class="token string">"DOG Image"</span><span class="token punctuation">,</span> dogImg<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">waitKey</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【中等】【LeetCode刷题笔记（十七）】之22.括号生成</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	题目</h2>
+<h3><a id="%09_8"></a>（一）	题干</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 数字 n 代表生成括号的对数，请你设计一个函数，用于能够生成所有可能的并且 有效的 括号组合。<br>
+<br></p>
+<h3><a id="%09_14"></a>（二）	示例</h3>
+<pre><code class="prism language-cpp">输入：n <span class="token operator">=</span> <span class="token number">3</span>
+输出：<span class="token punctuation">[</span>
+       <span class="token string">"((()))"</span><span class="token punctuation">,</span>
+       <span class="token string">"(()())"</span><span class="token punctuation">,</span>
+       <span class="token string">"(())()"</span><span class="token punctuation">,</span>
+       <span class="token string">"()(())"</span><span class="token punctuation">,</span>
+       <span class="token string">"()()()"</span>
+     <span class="token punctuation">]</span>
+</code></pre>
+<br>
+<h2><a id="%09_31"></a>二．	题解</h2>
+<h3><a id="%09_32"></a>（一）	思路</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 输入数字n，生成2n长度的字符串，字符串中有n个左括号和n个右括号，生成所有括号的排列即可，再通过判断序列的有效性来生成最终的结果序列。对于这种生成所有序列的问题，从空字符串开始，一个一个地往字符串中添加左括号或者右括号，可以使用递归来解决。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 如，先往字符串中添加左括号，再不断进入新的递归中，直到生成了2n长度的左括号，继而判断字符串是否合法；然后回退到上一个递归中，删除最后一个左括号，添加右括号，进入新的递归中，继而判断字符串是否合法。这样，就能够生成所有2n长度的字符串了，通过判断字符串的合法性，生成最终的结果字符串。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 总而言之，递归就是不断地添加左括号，删除左括号，添加右括号，删除右括号。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 判断字符串有效性是通过比较左右括号的个数来实现的，若两者个数不相同，那么说明该字符串不合法。<br>
+<br></p>
+<h3><a id="%09_44"></a>（二）	代码实现</h3>
+<h4><a id="1%09C_46"></a>1.	C++</h4>
+<pre><code class="prism language-cpp"><span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
+	<span class="token comment">//判断字符串有效性</span>
+	<span class="token keyword">bool</span> <span class="token function">valid</span><span class="token punctuation">(</span><span class="token keyword">const</span> string<span class="token operator">&amp;</span> str<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		<span class="token keyword">int</span> balance <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+		<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">char</span> c <span class="token operator">:</span> str<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+			<span class="token keyword">if</span> <span class="token punctuation">(</span>c <span class="token operator">==</span> <span class="token string">'('</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+				<span class="token operator">++</span>balance<span class="token punctuation">;</span>
+			<span class="token punctuation">}</span>
+			<span class="token keyword">else</span> <span class="token punctuation">{</span>
+				<span class="token operator">--</span>balance<span class="token punctuation">;</span>
+			<span class="token punctuation">}</span>
+			<span class="token keyword">if</span> <span class="token punctuation">(</span>balance <span class="token operator">&lt;</span> <span class="token number">0</span><span class="token punctuation">)</span>
+				<span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+		<span class="token punctuation">}</span>
+		<span class="token keyword">return</span> balance <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+	<span class="token comment">//生成所有的字符串</span>
+	<span class="token keyword">void</span> <span class="token function">generate_all</span><span class="token punctuation">(</span>string<span class="token operator">&amp;</span> current<span class="token punctuation">,</span> <span class="token keyword">int</span> n<span class="token punctuation">,</span> vector<span class="token operator">&lt;</span>string<span class="token operator">&gt;</span><span class="token operator">&amp;</span> result<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		<span class="token keyword">if</span> <span class="token punctuation">(</span>n <span class="token operator">==</span> current<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+			<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">valid</span><span class="token punctuation">(</span>current<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+				result<span class="token punctuation">.</span><span class="token function">push_back</span><span class="token punctuation">(</span>current<span class="token punctuation">)</span><span class="token punctuation">;</span>
+			<span class="token punctuation">}</span>
+			<span class="token keyword">return</span><span class="token punctuation">;</span>
+		<span class="token punctuation">}</span>
+
+		current <span class="token operator">+</span><span class="token operator">=</span> <span class="token string">'('</span><span class="token punctuation">;</span>
+		<span class="token function">generate_all</span><span class="token punctuation">(</span>current<span class="token punctuation">,</span> n<span class="token punctuation">,</span> result<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		current<span class="token punctuation">.</span><span class="token function">pop_back</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		current <span class="token operator">+</span><span class="token operator">=</span> <span class="token string">')'</span><span class="token punctuation">;</span>
+		<span class="token function">generate_all</span><span class="token punctuation">(</span>current<span class="token punctuation">,</span> n<span class="token punctuation">,</span> result<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		current<span class="token punctuation">.</span><span class="token function">pop_back</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+<span class="token keyword">public</span><span class="token operator">:</span>
+	vector<span class="token operator">&lt;</span>string<span class="token operator">&gt;</span> <span class="token function">generateParenthesis</span><span class="token punctuation">(</span><span class="token keyword">int</span> n<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		vector<span class="token operator">&lt;</span>string<span class="token operator">&gt;</span> result<span class="token punctuation">;</span>
+		string current<span class="token punctuation">;</span>
+		<span class="token function">generate_all</span><span class="token punctuation">(</span>current<span class="token punctuation">,</span> n <span class="token operator">*</span> <span class="token number">2</span><span class="token punctuation">,</span> result<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token keyword">return</span> result<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h4><a id="2%09Java_97"></a>2.	Java</h4>
+<pre><code class="prism language-java"><span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>ArrayList<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>List<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">All22</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> List<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">&gt;</span></span> <span class="token function">generateParenthesis</span><span class="token punctuation">(</span><span class="token keyword">int</span> n<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        List<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">&gt;</span></span> combinations <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ArrayList</span><span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">&gt;</span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">generateAll</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">char</span><span class="token punctuation">[</span><span class="token number">2</span><span class="token operator">*</span>n<span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> combinations<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> combinations<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">generateAll</span><span class="token punctuation">(</span><span class="token keyword">char</span><span class="token punctuation">[</span><span class="token punctuation">]</span> current<span class="token punctuation">,</span> <span class="token keyword">int</span> pos<span class="token punctuation">,</span> List<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">&gt;</span></span> result<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>pos <span class="token operator">==</span> current<span class="token punctuation">.</span>length<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token function">valid</span><span class="token punctuation">(</span>current<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                result<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">String</span><span class="token punctuation">(</span>current<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span><span class="token keyword">else</span><span class="token punctuation">{</span>
+            current<span class="token punctuation">[</span>pos<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">'('</span><span class="token punctuation">;</span>
+            <span class="token function">generateAll</span><span class="token punctuation">(</span>current<span class="token punctuation">,</span> pos<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">,</span> result<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            current<span class="token punctuation">[</span>pos<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">')'</span><span class="token punctuation">;</span>
+            <span class="token function">generateAll</span><span class="token punctuation">(</span>current<span class="token punctuation">,</span> pos <span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">,</span> result<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">valid</span><span class="token punctuation">(</span><span class="token keyword">char</span><span class="token punctuation">[</span><span class="token punctuation">]</span> current<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">int</span> balance <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">char</span> c <span class="token operator">:</span> current<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span>c <span class="token operator">==</span> <span class="token string">'('</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                <span class="token operator">++</span>balance<span class="token punctuation">;</span>
+            <span class="token punctuation">}</span><span class="token keyword">else</span><span class="token punctuation">{</span>
+                <span class="token operator">--</span>balance<span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span>balance<span class="token operator">&lt;</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                <span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> balance<span class="token operator">==</span><span class="token number">0</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

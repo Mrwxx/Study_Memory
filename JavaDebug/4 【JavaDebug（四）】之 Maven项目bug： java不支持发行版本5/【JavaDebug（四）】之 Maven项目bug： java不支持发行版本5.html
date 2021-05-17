@@ -1,0 +1,31 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【JavaDebug（四）】之 Maven项目bug： java不支持发行版本5</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="_Bug_7"></a>一. Bug描述</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;使用IDEA创建一个Maven项目，在运行的时候报出了Bug: java不支持发行版本5。第一反应是运行环境的问题，可能是项目的编译环境和Maven的版本不匹配什么的。<br>
+<br></p>
+<h2><a id="__12"></a>二. 问题解决</h2>
+<h3><a id="project_structure_13"></a>（一）修改project structure</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;查看项目的 project structure，点击project下的project查看项目的运行环境配置情况，修改SDK和JDK为合适的版本。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;点击project下的module查看模块的运行环境情况，这里显示的SDK果然是5.0版本，原来错误出现在这里，我们只要将它修改为合适的高版本即可。<br>
+<br></p>
+<h3><a id="IDEAsettings_22"></a>（二）修改IDEA的settings</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;点击 Settings , 选择 “Build, Execution, Deployent”，点击其中的Java Compiler，设置 Target bytecode version 为本地的JDK版本，同样把 Project bytecode version设置为本地的JDK版本即可。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;以上的两步都做完后，错误就解决了。</p>
+</div>
+</body>
+
+</html>

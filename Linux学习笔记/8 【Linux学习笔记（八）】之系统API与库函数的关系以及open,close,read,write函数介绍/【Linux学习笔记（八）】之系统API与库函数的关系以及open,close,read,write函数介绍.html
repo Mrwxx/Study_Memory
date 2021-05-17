@@ -1,0 +1,156 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Linux学习笔记（八）】之系统API与库函数的关系以及open,close,read,write函数介绍</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09api_7"></a>一．	系统api与库函数的关系</h2>
+<h3><a id="_8"></a>（一）调用库函数的流程</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;当我们使用一些库函数，如printf(“hello world”)时，调用了文件指针 FILE *stdout, 该文件指针的组成为：</p>
+<pre><code class="prism language-cpp">fd	文件描述符
+f_pos 位置
+buffer <span class="token number">8</span>k的缓冲区
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如，调用printf(“hello\n”)后，系统会调用write(1, “hello\n”, 6)，接着进入内核调用sys_write(“hello\n”)，再通过设备驱动显示在显示器中。<br>
+<br></p>
+<h3><a id="_24"></a>（二）内核中的管理</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;内核中有虚拟文件系统，内存管理，进程管理，设备管理，PCB进程控制块，文件描述符表。<br>
+<br></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;文件描述符表中存的就是文件指针中的文件描述符，如描述符0对应的是FILE * stdin，1对应的是 FILE *stdout，2对应的是 FILE * stderr，因此，上面调用printf(“hello\n”)，系统会自动调用write(1, “hello\n”, 6)中的1指的就是FILE *stdout，写到标准输出上。</p>
+<br>
+<h2><a id="%09IO_36"></a>二．	文件IO</h2>
+<h3><a id="%09open_37"></a>（一）	open函数</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通过查看man文档的第二页来了解open函数：man 2 open。该函数用来打开文件。<br>
+<br></p>
+<h4><a id="1%09_43"></a>1.	函数原型</h4>
+<pre><code class="prism language-cpp"><span class="token keyword">int</span> <span class="token function">open</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span>pathname<span class="token punctuation">,</span> <span class="token keyword">int</span> flags<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">int</span> <span class="token function">open</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span>pathname<span class="token punctuation">,</span> <span class="token keyword">int</span> flags<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h4><a id="2%09_53"></a>2.	函数参数</h4>
+<h5><a id="1pathname_54"></a>（1）pathname</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;文件名<br>
+<br></p>
+<h5><a id="2flags_60"></a>（2）flags:</h5>
+<p>必选项：</p>
+<pre><code class="prism language-cpp">	O_RDONLY<span class="token operator">:</span>只读
+ O_WRONLY<span class="token operator">:</span>只写
+ O_RDWR<span class="token operator">:</span>读写
+</code></pre>
+<br>
+<p>可选项：</p>
+<pre><code class="prism language-cpp">O_APPEND<span class="token operator">:</span>追加
+O_CREATE <span class="token punctuation">;</span> 创建文件
+O_NONBLOCK<span class="token operator">:</span>非阻塞
+</code></pre>
+<br>
+<h4><a id="3%09_83"></a>3.	函数的返回值</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;成功时返回最小的可用文件描述符，失败时返回-1.设置errno。<br>
+<br></p>
+<h3><a id="%09close_89"></a>（二）	close函数</h3>
+<h4><a id="1%09_90"></a>1.	用途</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;关闭一个文件描述符<br>
+<br></p>
+<h4><a id="2%09_96"></a>2.	函数原型</h4>
+<pre><code class="prism language-cpp"><span class="token keyword">int</span> <span class="token function">close</span><span class="token punctuation">(</span><span class="token keyword">int</span> fd<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h4><a id="3%09_105"></a>3.	函数返回值</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;成功时返回0，错误时返回-1、设置errno。<br>
+<br></p>
+<h3><a id="%09read_111"></a>（三）	read</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;读取文件</p>
+<br>
+<h4><a id="1%09_116"></a>1.	函数原型</h4>
+<pre><code class="prism language-cpp">size_t <span class="token function">read</span><span class="token punctuation">(</span><span class="token keyword">int</span> fd<span class="token punctuation">,</span> <span class="token keyword">void</span><span class="token operator">*</span> buf<span class="token punctuation">,</span> size_t count<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h4><a id="2%09_125"></a>2.	函数参数</h4>
+<pre><code class="prism language-cpp">fd <span class="token operator">:</span> 文件描述符
+buf<span class="token operator">:</span> 缓冲区
+count ：缓冲区大小
+</code></pre>
+<br>
+<h4><a id="3%09_136"></a>3.	函数返回值</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;成功时返回读到的大小</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;失败时返回-1，并设置errno</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;返回0表示读到了文件末尾<br>
+<br></p>
+<h3><a id="%09write_146"></a>（四）	write</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;向文件中写入。<br>
+<br></p>
+<h4><a id="1%09_153"></a>1.	函数原型</h4>
+<pre><code class="prism language-cpp">size_t <span class="token function">write</span><span class="token punctuation">(</span><span class="token keyword">int</span> fd<span class="token punctuation">,</span> <span class="token keyword">const</span> <span class="token keyword">void</span><span class="token operator">*</span> buf<span class="token punctuation">,</span> size_t count<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h4><a id="2%09_162"></a>2.	函数参数</h4>
+<pre><code class="prism language-cpp">fd<span class="token operator">:</span> 文件描述符
+buf<span class="token operator">:</span> 缓冲区
+count<span class="token operator">:</span> 缓冲区大小
+</code></pre>
+<br>
+<h4><a id="3%09_173"></a>3.	函数返回值</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;成功时返回写入的字节数</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;失败时返回-1，并设置errno</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;返回0代表未写入<br>
+<br></p>
+<h3><a id="%09lseek_183"></a>（五）	lseek</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;移动文件的读写位置。<br>
+<br></p>
+<h4><a id="1%09_189"></a>1.	函数原型</h4>
+<pre><code class="prism language-cpp">off_t <span class="token function">lseek</span><span class="token punctuation">(</span><span class="token keyword">int</span> fd<span class="token punctuation">,</span> off_t offset<span class="token punctuation">,</span> <span class="token keyword">int</span> whence<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h4><a id="2%09_198"></a>2.	函数参数</h4>
+<pre><code class="prism language-cpp">fd<span class="token operator">:</span> 文件描述符
+offset<span class="token operator">:</span> 偏移量
+whence<span class="token operator">:</span> 
+		<span class="token constant">SEEK_SET</span><span class="token operator">:</span> 文件开始位置
+		<span class="token constant">SEEK_CUR</span><span class="token operator">:</span> 当前位置
+		<span class="token constant">SEEK_END</span><span class="token operator">:</span> 文件的结尾
+</code></pre>
+<br>
+<h4><a id="3%09_212"></a>3.	函数返回值</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;成功时返回当前位置到开始的长度</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;失败时返回-1.并设置errno<br>
+<br></p>
+<h4><a id="4%09_220"></a>4.	函数的作用</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;移动文件读写位置</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;计算文件大小<br>
+<br></p>
+<h4><a id="5%09lseek_228"></a>5.	lseek实现计算文件大小</h4>
+<pre><code class="prism language-cpp"><span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;stdio.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;sys/types.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;unistd.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span>&lt;sys/stat.h</span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;fcntl.h&gt;</span></span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token keyword">int</span> argc<span class="token punctuation">,</span> <span class="token keyword">char</span> <span class="token operator">*</span>argv<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+		<span class="token keyword">if</span><span class="token punctuation">(</span>argc <span class="token operator">!=</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+			<span class="token function">printf</span><span class="token punctuation">(</span>“<span class="token punctuation">.</span><span class="token operator">/</span>a<span class="token punctuation">.</span>out filename\n”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+			<span class="token keyword">return</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">;</span>
+		<span class="token punctuation">}</span>
+
+		<span class="token keyword">int</span> fd <span class="token operator">=</span> <span class="token function">open</span><span class="token punctuation">(</span>argv<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token number">0</span>_RDONLY<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token keyword">int</span> ret <span class="token operator">=</span> <span class="token function">lseek</span><span class="token punctuation">(</span>fd<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token constant">SEEK_END</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token function">printf</span><span class="token punctuation">(</span>“file size is <span class="token operator">%</span>d\n”<span class="token punctuation">,</span> ret<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+		<span class="token function">close</span><span class="token punctuation">(</span>fd<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

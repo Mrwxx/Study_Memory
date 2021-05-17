@@ -1,0 +1,103 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Linux学习笔记（一）】之Vim中的光标移动，删除，撤销，复制粘贴操作</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_8"></a>一．	光标的移动</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 在vim编辑器中，可以使用上下左右键来移动光标，也可以使用离字母键较近的hjkl四个键来移动光标。</p>
+
+<table>
+<thead>
+<tr>
+<th>方向</th>
+<th>键</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>上</td>
+<td>k</td>
+</tr>
+<tr>
+<td>下</td>
+<td>j</td>
+</tr>
+<tr>
+<td>左</td>
+<td>h</td>
+</tr>
+<tr>
+<td>右</td>
+<td>l</td>
+</tr>
+</tbody>
+</table><br>
+<h2><a id="%09Vim_19"></a>二．	Vim中的删除操作</h2>
+<h3><a id="%09x_20"></a>（一）	小写x</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 删除光标所在的字母<br>
+<br></p>
+<h3><a id="%09X_25"></a>（二）	大写X</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 删除光标前的字母<br>
+<br></p>
+<h3><a id="%09dw_30"></a>（三）	dw</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 删除从光标开始的那个单词<br>
+<br></p>
+<h3><a id="%09d0_35"></a>（四）	d0</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 按0能够让光标移动到行首，则d0就是delete光标到行首的字符。<br>
+<br></p>
+<h3><a id="%09dD_40"></a>（五）	d$(D)</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 按 $ 能够让光标移动到行尾，则d$就是delete光标到行尾的字符。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; D也有同样的作用。<br>
+<br></p>
+<h3><a id="%09dd_47"></a>（六）	dd</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 直接删除光标所在行的所有字符。<br>
+<br></p>
+<h3><a id="n_dd_52"></a>（七）n dd</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 删除从光标所在的行开始的n行字符。</p>
+<br>
+<h2><a id="%09Vim_57"></a>三．	Vim中的撤销操作</h2>
+<h3><a id="%09u_58"></a>（一）	u</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 撤销前一个操作<br>
+<br></p>
+<h3><a id="%09ctrl__r_63"></a>（二）	ctrl + r</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 反撤销，即将撤销的操作再恢复。<br>
+<br></p>
+<h2><a id="%09Vim_68"></a>四．	Vim中的复制粘贴操作</h2>
+<h3><a id="%09yy_69"></a>（一）	yy</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 复制光标所在的一行。<br>
+<br></p>
+<h3><a id="%09n_yy_73"></a>（二）	n yy</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 复制光标所在行之后的n行（包括光标所在行）<br>
+<br></p>
+<h3><a id="%09dd_78"></a>（三）	dd</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 既有删除一行的功能，也有剪切一行的功能。<br>
+<br></p>
+<h3><a id="%09n_dd_83"></a>（四）	n dd</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 既有删除n行的功能，也有剪切n行的功能。<br>
+<br></p>
+<h3><a id="%09r_88"></a>（五）	r</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 替换光标所在的字符为输入r之后输入的字符。<br>
+<br></p>
+<h3><a id="%09p_93"></a>（六）	小写p</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 将剪切板中的内容粘贴到光标所在行的上一行。<br>
+<br></p>
+<h3><a id="%09P_98"></a>（七）	大写P</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 将剪切板中的内容粘贴到光标所在行的下一行。<br>
+<br></p>
+<h3><a id="%09_103"></a>（八）	选择复制内容</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 按v进入可视模式，直接移动光标选中内容，按y复制内容，然后按p/P粘贴内容。</p>
+</div>
+</body>
+
+</html>

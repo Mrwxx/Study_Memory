@@ -1,0 +1,397 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Java学习笔记（三十九）】之JQuery，JQuery动画，遍历，事件的绑定，插件</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09JQuery_7"></a>一．	JQuery</h2>
+<h3><a id="%09_8"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;JQuery是一个快速，简洁的JavaScript框架，它封装了JavaScript常用的功能代码，提供一种简便的JavaScript设计模式，优化HTML文档操作，事件处理，动画设计和Ajax交互。<br>
+<br></p>
+<h3><a id="%09JQuery_13"></a>（二）	JQuery的使用</h3>
+<h4><a id="1%09JQuery_14"></a>1，	下载JQuery</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;JQuery一般有两个文件，一个是jquery-xxx.js，一个是jquery-xxx.min.js，两个js文件有什么区别呢？</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;jquery-xxx.js是开发版本，有良好的缩进和注释，利于阅读，文件体积大一些。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;jquery-xxx.min.js是生产版本，程序中使用，没有缩进，体积小一些，程序能够更快地加载。<br>
+<br></p>
+<h4><a id="2_JQueryjs_24"></a>2. 导入JQuery的js文件</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;导入min.js文件，即导入一个js文件：</p>
+<pre><code class="prism language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span> <span class="token attr-name">src</span><span class="token attr-value"><span class="token punctuation">=</span>”js/jquery-3.3.1.min.js”</span><span class="token punctuation">&gt;</span></span><span class="token script language-javascript"></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<h3><a id="%09JQueryJS_34"></a>（三）	JQuery对象和JS对象的区别和转换</h3>
+<ol>
+<li>
+<p>JQuery对象和JS对象的方法是不通用的。</p>
+</li>
+<li>
+<p>JQuery对象要转换为JS对象，则用以下方式：</p>
+</li>
+</ol>
+<p>JQuery对象[索引]或者JQuery对象.get(索引)</p>
+<ol start="3">
+<li>JS对象要转换为JQuery对象，则使用：</li>
+</ol>
+<pre><code class="prism language-javascript"><span class="token function">$</span><span class="token punctuation">(</span><span class="token constant">JS</span>对象<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h3><a id="%09_52"></a>（四）	事件绑定与样式控制</h3>
+<h4><a id="1%09_53"></a>1.	事件绑定</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;将click函数绑定到id为b1的元素上：</p>
+<pre><code class="prism language-javascript"><span class="token function">$</span><span class="token punctuation">(</span><span class="token string">"#b1"</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">click</span><span class="token punctuation">(</span><span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+	                <span class="token function">alert</span><span class="token punctuation">(</span><span class="token string">"abc"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h4><a id="2%09_65"></a>2.	入口函数</h4>
+<pre><code class="prism language-javascript"><span class="token function">$</span><span class="token punctuation">(</span><span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		           
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>window.onload和$(function)的区别：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;window.onload 只能定义一次,如果定义多次，后边的会将前边的覆盖掉。<code>$(function)</code>可以定义多次的。<br>
+<br></p>
+<h4><a id="3%09_80"></a>3.	样式控制</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通过css方法进行样式控制：</p>
+<pre><code class="prism language-javascript"><span class="token function">$</span><span class="token punctuation">(</span>“#div”<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">css</span><span class="token punctuation">(</span>“color”<span class="token punctuation">,</span> “red”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h3><a id="%09_90"></a>（五）	选择器</h3>
+<h4><a id="1%09_91"></a>1.	基本选择器</h4>
+<h5><a id="1%09_92"></a>（1）	标签选择器</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;获取所有匹配标签名称的元素。</p>
+<pre><code class="prism language-javascript"><span class="token function">$</span><span class="token punctuation">(</span>“html标签名”<span class="token punctuation">)</span>
+</code></pre>
+<pre><code>&lt;br&gt;
+</code></pre>
+<h5><a id="2%09id_102"></a>（2）	id选择器</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;获取与指定id属性值匹配的元素</p>
+<pre><code class="prism language-javascript"><span class="token function">$</span><span class="token punctuation">(</span>“#id的属性值”<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h5><a id="3%09class_113"></a>（3）	class选择器</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;获取与指定的class属性值匹配的元素</p>
+<pre><code class="prism language-javascript"><span class="token function">$</span><span class="token punctuation">(</span>“<span class="token punctuation">.</span><span class="token keyword">class</span>的属性值”<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h5><a id="4%09_124"></a>（4）	并集选择器</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;获取多个选择器选中的元素：</p>
+<pre><code class="prism language-javascript"><span class="token function">$</span><span class="token punctuation">(</span>“选择器<span class="token number">1</span>，， 选择器<span class="token number">2</span>…”<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h4><a id="2%09_134"></a>2.	层级选择器</h4>
+<h5><a id="1%09_135"></a>（1）	后代选择器</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;A和B之间用空格隔开，选择A元素的所有后代B元素，后代指的是子辈，孙辈…</p>
+<pre><code class="prism language-javascript"><span class="token function">$</span><span class="token punctuation">(</span>“<span class="token constant">A</span> <span class="token constant">B</span>”<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h5><a id="2%09_145"></a>（2）	子选择器</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;选择A元素内部的所有B子元素，仅仅是儿子辈的。</p>
+<pre><code class="prism language-javascript"><span class="token function">$</span><span class="token punctuation">(</span>“<span class="token constant">A</span><span class="token operator">&gt;</span> <span class="token constant">B</span>”<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h4><a id="3%09_155"></a>3.	属性选择器</h4>
+<h5><a id="1%09_156"></a>（1）	属性名称选择器</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;选择包含指定属性的元素，如查找所有包含了属性B的A元素。</p>
+<pre><code class="prism language-javascript"><span class="token function">$</span><span class="token punctuation">(</span>“<span class="token constant">A</span><span class="token punctuation">[</span>属性名<span class="token constant">B</span><span class="token punctuation">]</span>”<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h5><a id="2%09_166"></a>（2）	属性选择器</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;选择包含指定属性等于指定值的元素，如查找所有属性名B=值C的元素A：</p>
+<pre><code class="prism language-javascript"><span class="token function">$</span><span class="token punctuation">(</span>“<span class="token constant">A</span><span class="token punctuation">[</span>属性名<span class="token constant">B</span><span class="token operator">=</span>”值<span class="token constant">C</span>”<span class="token punctuation">]</span>”<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h5><a id="3%09_176"></a>（3）	复合属性选择器</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;包含多个属性条件的选择器：</p>
+<pre><code class="prism language-javascript"><span class="token function">$</span><span class="token punctuation">(</span>“<span class="token constant">A</span><span class="token punctuation">[</span>属性名<span class="token operator">=</span>”值”<span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token punctuation">]</span>…”<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h5><a id="4%09_186"></a>（4）	正则方式选择</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;选择以指定字符串开始的属性值，如选择title属性以”te”开始的div元素。</p>
+<pre><code class="prism language-javascript"><span class="token function">$</span><span class="token punctuation">(</span>“div<span class="token punctuation">[</span>title<span class="token operator">^=</span>’es’<span class="token punctuation">]</span>”<span class="token punctuation">)</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;选择属性值以指定字符串结尾的元素，如选择title属性以字符串”est”结尾的div元素：</p>
+<pre><code class="prism language-javascript"><span class="token function">$</span><span class="token punctuation">(</span>“div<span class="token punctuation">[</span>title$<span class="token operator">=</span>”est”<span class="token punctuation">]</span>”<span class="token punctuation">)</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;选择属性值包含指定字符串的元素，如选择title属性值包含”es”的div元素：</p>
+<pre><code class="prism language-javascript"><span class="token function">$</span><span class="token punctuation">(</span>“div<span class="token punctuation">[</span>title<span class="token operator">*=</span>”es”<span class="token punctuation">]</span>”<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h4><a id="4%09_209"></a>4.	过滤选择器</h4>
+<h5><a id="1%09_210"></a>（1）	首元素选择器</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;获得选择元素中的第一个元素：</p>
+<pre><code class="prism language-javascript"><span class="token punctuation">:</span>first
+</code></pre>
+<br>
+<h5><a id="2%09_220"></a>（2）	尾元素选择器</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;获得选择的元素中的最后一个元素：</p>
+<pre><code class="prism language-javascript"><span class="token punctuation">:</span>last
+</code></pre>
+<br>
+<h5><a id="3%09_230"></a>（3）	偶数选择器</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;选择偶数，从0开始计数</p>
+<pre><code class="prism language-javascript"><span class="token punctuation">:</span>even
+</code></pre>
+<br>
+<h5><a id="4%09_240"></a>（4）	奇数选择器</h5>
+<pre><code class="prism language-javascript"><span class="token punctuation">:</span>odd
+</code></pre>
+<br>
+<h5><a id="5%09_249"></a>（5）	等于索引选择器</h5>
+<pre><code class="prism language-javascript"><span class="token punctuation">:</span><span class="token function">eq</span><span class="token punctuation">(</span>index<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h5><a id="6%09_258"></a>（6）	大于索引选择器</h5>
+<pre><code class="prism language-javascript"><span class="token punctuation">:</span><span class="token function">gt</span><span class="token punctuation">(</span>index<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h5><a id="7%09_267"></a>（7）	小于索引选择器</h5>
+<pre><code class="prism language-javascript"><span class="token punctuation">:</span><span class="token function">lt</span><span class="token punctuation">(</span>index<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h5><a id="8%09_276"></a>（8）	标题选择器</h5>
+<pre><code class="prism language-javascript"><span class="token punctuation">:</span>header
+</code></pre>
+<br>
+<h4><a id="5%09_285"></a>5.	表单过滤选择器</h4>
+<h5><a id="1%09_286"></a>（1）	可用元素选择器</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;获取可用的元素</p>
+<pre><code class="prism language-javascript"><span class="token punctuation">:</span>enabled
+</code></pre>
+<br>
+<h5><a id="2%09_296"></a>（2）	不可用元素选择器</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;获取不可用元素</p>
+<pre><code class="prism language-javascript"><span class="token punctuation">:</span>disabled
+</code></pre>
+<br>
+<h5><a id="3%09_306"></a>（3）	选中选择器</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;获得单选/复选框中选中的元素：</p>
+<pre><code class="prism language-javascript"><span class="token punctuation">:</span>checked
+</code></pre>
+<br>
+<h5><a id="4%09_316"></a>（4）	选中选择器</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;获得下拉框中选中的元素：</p>
+<pre><code class="prism language-javascript"><span class="token punctuation">:</span>selected
+</code></pre>
+<br>
+<h3><a id="%09DOM_326"></a>（六）	DOM操作</h3>
+<h4><a id="1%09_327"></a>1.	内容操作</h4>
+<h5><a id="1%09html_328"></a>（1）	html()</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;获取或设置元素的标签体的内容，html()获取的是完整的标签体内容，而不是文本内容，如：</p>
+<pre><code class="prism language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>font</span><span class="token punctuation">&gt;</span></span>内容<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>font</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<h5><a id="2%09text_338"></a>（2）	text()</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;获取或设置元素的标签体纯文本内容<br>
+<br></p>
+<h5><a id="3%09val_344"></a>（3）	val()</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;获取或设置元素的value属性值<br>
+<br></p>
+<h4><a id="2%09_350"></a>2.	属性操作</h4>
+<h5><a id="1%09attr_351"></a>（1）	attr()</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;获取或设置元素的属性，多用于元素自定义的属性</p>
+<p>获取属性值：</p>
+<pre><code class="prism language-javascript"><span class="token function">$</span><span class="token punctuation">(</span>“#b”<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span>“name”<span class="token punctuation">)</span>
+</code></pre>
+<p>设置属性值：</p>
+<pre><code class="prism language-javascript"><span class="token function">$</span><span class="token punctuation">(</span>“#b”<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span>“name”<span class="token punctuation">,</span> “exx”<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h5><a id="2%09removeAttr_369"></a>（2）	removeAttr()</h5>
+<p>删除属性</p>
+<pre><code class="prism language-javascript"><span class="token function">$</span><span class="token punctuation">(</span>“#b”<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">removeAttr</span><span class="token punctuation">(</span>“name”<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h5><a id="3%09prop_379"></a>（3）	prop()</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;获取或者设置元素的属性，多用于元素的固有属性。</p>
+<pre><code class="prism language-javascript"><span class="token function">$</span><span class="token punctuation">(</span>“#b”<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">prop</span><span class="token punctuation">(</span>“checked”<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h5><a id="4%09removeProp_389"></a>（4）	removeProp()</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;删除属性<br>
+<br></p>
+<h4><a id="3%09class_395"></a>3.	操作class属性</h4>
+<h5><a id="1%09addClass_396"></a>（1）	addClass()</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;添加class属性值<br>
+<br></p>
+<h5><a id="2%09removeClass_402"></a>（2）	removeClass()</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;删除class属性值<br>
+<br></p>
+<h5><a id="3%09toggleClass_408"></a>（3）	toggleClass()</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;切换class属性，若存在该属性值，则删除，弱不存在，则添加。如：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<code>toggleClass(“one”)</code>，如果该元素对象上存在class=’one”，则删除one属性值，如果不存在class=”one”，则添加该属性值。<br>
+<br></p>
+<h4><a id="4%09CRUD_416"></a>4.	CRUD操作</h4>
+<h5><a id="1%09append_417"></a>（1）	append()</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<code>对象1.append(对象2)</code>，将对象2添加到对象1元素的内部末尾、<br>
+<br></p>
+<h5><a id="2%09prepend_423"></a>（2）	prepend()</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<code>对象1.prepend(对象2)</code>，将对象2添加到对象1的内部开头。<br>
+<br></p>
+<h5><a id="3%09appendTo_429"></a>（3）	appendTo()</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<code>对象1.appendTo()</code>，将对象1添加到对象2的内部末尾。<br>
+<br></p>
+<h5><a id="4%09prependTo_435"></a>（4）	prependTo()</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<code>对象1.perpendTo()</code>，将对象1添加到对象2内部的开头<br>
+<br></p>
+<h5><a id="5%09after_441"></a>（5）	after()</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<code>对象1.after（对象2）</code>，将对象2添加到对象1后面，两者为兄弟关系。</p>
+<br>
+<h5><a id="6%09before_447"></a>（6）	before()</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<code>对象1.before（对象2）</code>，将对象2添加到对象1前面，两者为兄弟关系。<br>
+<br></p>
+<h5><a id="7%09insertAfter_453"></a>（7）	insertAfter()</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<code>对象1.insertAfter(对象2)</code>，将对象2添加到对象1后面，两者兄弟关系。</p>
+<br>
+<h5><a id="8%09insertBefore_459"></a>（8）	insertBefore()</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<code>对象1.insertBefore(对象2)</code>，将对象2添加到对象1的前面，两者兄弟关系。<br>
+<br></p>
+<h5><a id="9%09remove_465"></a>（9）	remove()</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;删除对象<br>
+<br></p>
+<h5><a id="10%09empty_471"></a>（10）	empty()</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;清空对象的所有后代元素，但是保留当前对象以及其属性节点。<br>
+<br></p>
+<h2><a id="%09JQuery_478"></a>二．	JQuery动画</h2>
+<h3><a id="%09_479"></a>（一）	显示和隐藏元素</h3>
+<h4><a id="1%09showspeed_easing_fn_480"></a>1.	show([speed], [easing], [fn])</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;展示该元素。</p>
+<p>参数介绍：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;speed:动画的速度，预定义值为slow, normal ,fast，或者传入动画时长的毫秒数值。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;easing:指定切换效果，默认是swing，可选linear。swing的效果是先慢，后快，再慢；linear的效果是匀速的。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;fn:在动画完成时执行的函数，每个元素执行一次</p>
+<pre><code class="prism language-javascript"><span class="token function">$</span><span class="token punctuation">(</span>“#a”<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">show</span><span class="token punctuation">(</span>“fast”<span class="token punctuation">,</span> “linear”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h4><a id="2%09hidespeed_easing_fn_498"></a>2.	hide([speed], [easing], [fn])</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;隐藏该元素。</p>
+<pre><code class="prism language-javascript"><span class="token function">$</span><span class="token punctuation">(</span>“#a”<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">hide</span><span class="token punctuation">(</span>“fast”<span class="token punctuation">,</span> “linear”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h4><a id="3%09togglespeed_easing_fn_509"></a>3.	toggle([speed], [easing], [fn])</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;切换显示和隐藏元素。<br>
+<br></p>
+<h3><a id="%09_515"></a>（二）	滑动显示和隐藏</h3>
+<h4><a id="1%09slideDownspeed_easingfn_516"></a>1.	slideDown(speed, easing,fn)</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;滑动下拉显示元素。<br>
+<br></p>
+<h4><a id="2%09slidUpspeed_easing_fn_522"></a>2.	slidUp(speed, easing, fn)</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;滑动上升隐藏元素。<br>
+<br></p>
+<h4><a id="3%09slideTogglespeed_easing_fn_528"></a>3.	slideToggle(speed, easing, fn)</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;切换滑动下拉与上升。<br>
+<br></p>
+<h3><a id="%09_534"></a>（三）	淡入淡出显示和隐藏</h3>
+<h4><a id="1%09fadeInspeed_easing_fn_535"></a>1.	fadeIn(speed, easing, fn)</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;淡入效果<br>
+<br></p>
+<h4><a id="2%09fadeoutspeed_easing_fn_541"></a>2.	fadeout(speed, easing ,fn)</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;淡出效果<br>
+<br></p>
+<h4><a id="3%09fadeTogglespeed_easing_fn_547"></a>3.	fadeToggle(speed, easing ,fn)</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;切换效果</p>
+<br>
+<h2><a id="%09JQuery_554"></a>三．	JQuery的遍历</h2>
+<h3><a id="%09JS_555"></a>（一）	JS的遍历</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;JQuery中可以使用JS的遍历方式，，即通过for循环的方式。<br>
+<br></p>
+<h3><a id="%09eachcallback_561"></a>（二）	each(callback)方法</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;JQuery对象的each方法需要传入一个callback函数。<br>
+<br></p>
+<h4><a id="1%09this_567"></a>1.	直接用this获取对象</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;this代表着遍历循环中的一个对象，该对象为一个JS对象，可以调用JS方法或者转换为JQuery对象调用JQuery方法。</p>
+<pre><code class="prism language-javascript">citys<span class="token punctuation">.</span><span class="token function">each</span><span class="token punctuation">(</span><span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+		<span class="token function">alert</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>innerHTML<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h4><a id="2%09callback_580"></a>2.	callback函数中传入参数</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;回调函数中可以传入参数index, element，代表着遍历循环中的索引值和该索引对应的对象。</p>
+<pre><code class="prism language-javascript">citys<span class="token punctuation">.</span><span class="token function">each</span><span class="token punctuation">(</span><span class="token keyword">function</span><span class="token punctuation">(</span>index<span class="token punctuation">,</span> element<span class="token punctuation">)</span><span class="token punctuation">{</span>
+<span class="token function">alert</span><span class="token punctuation">(</span>index <span class="token operator">+</span> “<span class="token punctuation">:</span>” <span class="token operator">+</span> element<span class="token punctuation">.</span>innerHTML<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h4><a id="3%09_593"></a>3.	循环的结束</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如果function函数返回的是false，则结束循环（break）；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如果function函数返回的是true，则结束本次循环，继续下次循环（continue）<br>
+<br></p>
+<h3><a id="eachobj_callback_601"></a>（三）$.each(obj, callback)</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;obj为要遍历的数组，callback与之前一样是回调函数。</p>
+<pre><code class="prism language-javascript">$<span class="token punctuation">.</span><span class="token function">each</span><span class="token punctuation">(</span>citys<span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+	<span class="token function">alert</span><span class="token punctuation">(</span><span class="token function">$</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">html</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h3><a id="xx_of_xx_613"></a>（四）xx of xx</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;与增强for循环的用法一样。</p>
+<pre><code class="prism language-javascript"><span class="token keyword">for</span><span class="token punctuation">(</span>li <span class="token keyword">of</span> citys<span class="token punctuation">)</span><span class="token punctuation">{</span>
+	<span class="token function">alert</span><span class="token punctuation">(</span><span class="token function">$</span><span class="token punctuation">(</span>li<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">html</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h2><a id="%09_625"></a>四．	事件的绑定</h2>
+<h3><a id="%09JQuery_626"></a>（一）	JQuery标准的绑定方式</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;JQuery对象.事件方法（回调函数）;</p>
+<pre><code class="prism language-javascript"><span class="token function">$</span><span class="token punctuation">(</span>“#name”<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">click</span><span class="token punctuation">(</span><span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+	<span class="token function">alert</span><span class="token punctuation">(</span>“click”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h3><a id="%09onoff_638"></a>（二）	on绑定事件/off解绑</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;JQuery对象.on(“事件名称”, 回调函数);</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;JQuery对象.off(“事件名称”, 回调函数);</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如果off方法不传递任何参数，则将组建上的所有事件全部解绑</p>
+<pre><code class="prism language-javascript"><span class="token function">$</span><span class="token punctuation">(</span>“#tag”<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">on</span><span class="token punctuation">(</span>“click”<span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+	<span class="token function">alert</span><span class="token punctuation">(</span>“click”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h3><a id="%09toggle_654"></a>（三）	toggle事件切换</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;JQuery对象.toggle(fn1, fn2…)</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;当当前的JQuery对象对应的组件后，会执行fn1，第二次点击会执行fn2</p>
+<pre><code class="prism language-javascript"><span class="token function">$</span><span class="token punctuation">(</span>“#btn”<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">toggle</span><span class="token punctuation">(</span><span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+		<span class="token function">$</span><span class="token punctuation">(</span>“#div”<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">css</span><span class="token punctuation">(</span>“color”<span class="token punctuation">,</span> “red”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+		<span class="token function">alert</span><span class="token punctuation">(</span>“color”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h2><a id="%09JQuery_671"></a>五．	JQuery的插件</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;JQuery允许我们自定义插件来增强JQuery的功能，即增加JQuery的方法。</p>
+<h3><a id="1%09fnextendobject_674"></a>1.	$.fn.extend(object)</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;增强JQuery获取的对象的功能，即为JQuery选中的元素添加方法。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如：为所有的JQuery对象添加check()方法：</p>
+<pre><code class="prism language-javascript">$<span class="token punctuation">.</span>fn<span class="token punctuation">.</span><span class="token function">extend</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+	check<span class="token punctuation">:</span><span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+		<span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">prop</span><span class="token punctuation">(</span>“checked”<span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h4><a id="2%09extendobject_690"></a>2.	$.extend(object)</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;增强JQuery对象自身的功能,可以不用通过获取JQuery对象来调用，可以直接通过$调用。即添加全局方法。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如，添加全局方法max，求最大值：</p>
+<pre><code class="prism language-javascript">$<span class="token punctuation">.</span><span class="token function">extend</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+		max<span class="token punctuation">:</span><span class="token keyword">function</span><span class="token punctuation">(</span>a<span class="token punctuation">,</span> b<span class="token punctuation">)</span><span class="token punctuation">{</span>
+			<span class="token keyword">return</span> a <span class="token operator">&gt;=</span> b <span class="token operator">?</span> a <span class="token punctuation">:</span> b<span class="token punctuation">;</span>
+		<span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;调用max方法的话直接通过$.max（）调用即可。</p>
+</div>
+</body>
+
+</html>

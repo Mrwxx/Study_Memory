@@ -1,0 +1,68 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【C++学习笔记（五十二）】之Lambda表达式详解</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="Lambda_7"></a>一．Lambda表达式的构成</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; C++11中的Lambda表达式用于定义并<strong>创建匿名的函数对象</strong>，以简化编程工作。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; Lambda<strong>表达式的构成</strong>：</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>函数对象参数<span class="token punctuation">]</span><span class="token punctuation">(</span>操作符重载函数参数<span class="token punctuation">)</span><span class="token keyword">mutable</span> <span class="token operator">-</span><span class="token operator">&gt;</span>返回值<span class="token punctuation">{</span>函数体<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h2><a id="_17"></a>二．函数对象参数</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 【】函数对象参数是传递给编译器自动生成的函数对象类的构造函数的。<strong>函数对象参数只能使用那些到定义Lambda为止时Lambda所在作用范围内可见的局部变量（包括Lambda所在类的this）</strong>。有多种形式：</p>
+<h3><a id="%09_20"></a>（一）	无参数</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 没有参数<br>
+<br></p>
+<h3><a id="%09_24"></a>（二）	=</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; <strong>通过值传递的方式使用到定义Lambda为止时Lambda所在作用范围内可见的局部变量（包括Lambda所在类的this）。</strong><br>
+<br></p>
+<h3><a id="%09_28"></a>（三）	&amp;</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 通过<strong>引用传递</strong>的方式使用到定义Lambda为止时Lambda所在作用范围内可见的局部变量（包括Lambda所在类的this）。<br>
+<br></p>
+<h3><a id="%09this_32"></a>（四）	this</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; Lambda函数体可以使用Lambda所在类中的成员变量。<br>
+<br></p>
+<h3><a id="%09a_36"></a>（五）	a</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; <strong>将a按值传递的方式使用</strong>，<strong>不能修改传递进来的a的拷贝</strong>，要修改，需要添加mutable修饰符。<br>
+<br></p>
+<h3><a id="%09a_39"></a>（六）	&amp;a</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; <strong>将a按引用传递的方式使用。</strong><br>
+<br></p>
+<h3><a id="%09a_b_43"></a>（七）	a, &amp;b</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; a按值传递，b按引用传递。<br>
+<br></p>
+<h3><a id="%09a_b_47"></a>（八）	=,&amp;a, &amp;b</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 除了a,b用引用传递，其他都是值传递。<br>
+<br></p>
+<h3><a id="%09ab_51"></a>（九）	&amp;，a,b</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 除了a,b用值传递，其他都是引用传递。<br>
+<br></p>
+<h2><a id="_55"></a>三．操作符重载函数参数</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; <strong>标识重载的()操作符的参数，没有参数时，这部分可以省略</strong>。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;参数可以通过按值（如：(a,b)）和按引用（如：(&amp;a,&amp;b)）两种方式进行传递。<br>
+<br></p>
+<h2><a id="_61"></a>四．可修改标识符</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; <strong>mutable修饰符，加上后可以修改值传递进来的拷贝变量。</strong><br>
+<br></p>
+<h2><a id="_65"></a>五．函数返回值</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 标识出函数返回值的类型，如：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; &nbsp;  &nbsp;  &nbsp;  &nbsp; -&gt;int<br>
+<br></p>
+<h2><a id="_71"></a>六．函数体</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; <strong>即使没有实现也不能省略</strong></p>
+</div>
+</body>
+
+</html>

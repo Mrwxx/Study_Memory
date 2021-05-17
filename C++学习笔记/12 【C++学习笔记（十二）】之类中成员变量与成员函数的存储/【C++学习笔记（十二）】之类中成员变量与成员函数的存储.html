@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【C++学习笔记（十二）】之类中成员变量与成员函数的存储</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="_C_7"></a>一. C++的类中成员变量与成员函数的存储</h2>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp; 在C++的类中，虽然将成员变量与成员函数风筝在了一起，但是他们是分开存储的。</strong></p>
+<ol>
+<li>C++的非静态成员变量是属于类对象的，占类对象的空间，</li>
+<li>成员函数却不属于类对象，不占类对象的存储空间</li>
+</ol>
+<h2><a id="__12"></a>二. 总结</h2>
+<ol>
+<li>非静态成员变量，属于类对象，占用类对象空间</li>
+<li>非静态成员函数  不属于类对象，不占用类对象空间</li>
+<li>静态成员函数，静态成员变量都不属于类对象，都是单独的空间存储，</li>
+</ol>
+<h2><a id="__17"></a>三. 验证</h2>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp; 空类的大小为1个字节，因为每个实例的类对象，都有唯一的地址，每个类对象中有一个char 类型来维护这个地址。</strong><br>
+<strong>&nbsp;  &nbsp;  &nbsp;  &nbsp; 通过查看类的字节大小来验证</strong></p>
+<pre><code class="prism language-cpp"><span class="token macro property">#<span class="token directive keyword">define</span> _CRT_SECURE_NO_WARNINGS</span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+<span class="token keyword">class</span> <span class="token class-name">Person</span>
+<span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token keyword">int</span> a<span class="token punctuation">;</span>			<span class="token comment">//非静态成员变量，属于类对象</span>
+	<span class="token keyword">void</span> <span class="token function">func</span><span class="token punctuation">(</span> <span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>	<span class="token comment">//非静态成员函数 不属于类对象</span>
+	<span class="token keyword">static</span> <span class="token keyword">int</span> b<span class="token punctuation">;</span>		<span class="token comment">//静态成员变量 ，不属于类对象</span>
+	<span class="token keyword">static</span> <span class="token keyword">void</span>  <span class="token function">func2</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span> <span class="token comment">//静态成员函数 ，不属于类对象</span>
+	
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">void</span> <span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	cout  <span class="token operator">&lt;&lt;</span> <span class="token keyword">sizeof</span><span class="token punctuation">(</span>Person<span class="token punctuation">)</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+
+<span class="token punctuation">}</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+
+	<span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

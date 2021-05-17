@@ -1,0 +1,51 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【C++学习笔记（三十二）】之stack栈容器</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="Stack_7"></a>一．Stack栈容器</h2>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;栈容器是单口的数据结构，特点是先进后出。数据只能从栈顶进入，也只能从栈顶取出，除此以外，没有其他方法可以存取栈容器的数据。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>因此，栈容器是没有遍历操作的</strong>，它只能从栈顶存数据，取数据，且只能在取出数据的情况下获取该数据；没有像遍历那样，能够在不取出数据的情况下获取容器中的任意数据。</p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;因此，栈容器没有迭代器。</strong><br>
+<br></p>
+<h2><a id="__16"></a>二. 栈容器的常用操作</h2>
+<br>
+<h3><a id="%09stack_20"></a>（一）	stack构造函数</h3>
+<br>
+<pre><code class="prism language-cpp">stack<span class="token operator">&lt;</span>T<span class="token operator">&gt;</span> stkT<span class="token punctuation">;</span><span class="token comment">//stack采用模板类实现， stack对象的默认构造形式： </span>
+<span class="token function">stack</span><span class="token punctuation">(</span><span class="token keyword">const</span> stack <span class="token operator">&amp;</span>stk<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//拷贝构造函数</span>
+</code></pre>
+<br>
+<h3><a id="%09stack_29"></a>（二）	stack赋值操作</h3>
+<br>
+<pre><code class="prism language-cpp">stack<span class="token operator">&lt;</span>T<span class="token operator">&gt;</span> stkT<span class="token punctuation">;</span><span class="token comment">//stack采用模板类实现， stack对象的默认构造形式： </span>
+<span class="token function">stack</span><span class="token punctuation">(</span><span class="token keyword">const</span> stack <span class="token operator">&amp;</span>stk<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//拷贝构造函数</span>
+</code></pre>
+<br>
+<h3><a id="%09stack_38"></a>（三）	stack数据存取操作</h3>
+<br>
+<pre><code class="prism language-cpp"><span class="token function">push</span><span class="token punctuation">(</span>elem<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//向栈顶添加元素</span>
+<span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//从栈顶移除第一个元素</span>
+<span class="token function">top</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//返回栈顶元素</span>
+</code></pre>
+<br>
+<h3><a id="%09stack_48"></a>（四）	stack大小操作</h3>
+<br>
+<pre><code class="prism language-cpp"><span class="token function">empty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//判断堆栈是否为空</span>
+<span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//返回堆栈的大小</span>
+</code></pre>
+</div>
+</body>
+
+</html>

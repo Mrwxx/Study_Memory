@@ -1,0 +1,114 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Linux学习笔记（十八）】之 压缩，打包 zip,gz, bz2, tar,tar.gz, tar.bz2</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	压缩与解压缩命令</h2>
+<h3><a id="%09zip_8"></a>（一）	.zip</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; .zip是Windows中最常用的压缩格式，Linux可以和Windows通用压缩文件。<br>
+<br></p>
+<h4><a id="1%09zip_13"></a>1.	zip</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 压缩命令是zip，在/usr/bin/zip中，用于压缩文件或目录。命令的格式如下：</p>
+<pre><code class="prism language-cpp">zip <span class="token punctuation">[</span>选项<span class="token punctuation">]</span> 压缩包名 源文件或源目录
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -r 压缩目录</p>
+<pre><code class="prism language-cpp">zip ana<span class="token punctuation">.</span>zip anaconda<span class="token operator">-</span>ks<span class="token punctuation">.</span>cfg
+</code></pre>
+<br>
+<h4><a id="2%09unzip_29"></a>2.	unzip</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 解压缩命令，在/usr/bin/unzip中，命令格式如下：</p>
+<pre><code class="prism language-cpp">unzip <span class="token punctuation">[</span>选项<span class="token punctuation">]</span> 压缩包名
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -d 指定解压缩位置，不指定位置的话就是在当前目录下</p>
+<pre><code class="prism language-cpp">unzip <span class="token operator">-</span>d <span class="token operator">/</span>tmp ana<span class="token punctuation">.</span>zip
+</code></pre>
+<br>
+<h3><a id="%09gz_45"></a>（二）	.gz</h3>
+<h4><a id="1%09gz_47"></a>1.	gz</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; Linux中最常用的压缩格式，在/bin/gzip中，能够压缩文件或目录，但是它不会打包，不能将多个文件或者目录压缩成一个。命令格式如下：</p>
+<pre><code class="prism language-cpp">gzip <span class="token punctuation">[</span>选项<span class="token punctuation">]</span> 源文件
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -c: 将压缩数据输出到标准输出中，可以用于保留源文件</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -d: 解压缩</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -r: 压缩目录</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 由于gz压缩文件后，源文件就会消失，因此使用-c选项，将压缩数据重定向到压缩文件中，这样源文件就不会被删除了：</p>
+<pre><code class="prism language-cpp">gzip <span class="token operator">-</span>c anaconda<span class="token punctuation">.</span>cfg <span class="token operator">&gt;</span> anaconda<span class="token punctuation">.</span>cfg<span class="token punctuation">.</span>gz
+</code></pre>
+<br>
+<h4><a id="2%09gunzip_69"></a>2.	gunzip</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 解压缩命令，在/bin/gunzip中，只能解压缩到当前目录：</p>
+<pre><code class="prism language-cpp">gunzip anaconda<span class="token punctuation">.</span>cfg<span class="token punctuation">.</span>gz
+</code></pre>
+<br>
+<h3><a id="%09bz2_79"></a>（三）	.bz2</h3>
+<h4><a id="1%09bzip2_80"></a>1.	bzip2</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; bz2压缩比更好，gz压缩时间更快，但是bz2不能压缩目录。bzip2压缩命令再/usr/bin/bzip2中，命令格式如下：</p>
+<pre><code class="prism language-cpp">bzip2 <span class="token punctuation">[</span>选项<span class="token punctuation">]</span> 源文件
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -d : 解压缩</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -k:  压缩时保留源文件</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -v:  显示压缩的详细信息</p>
+<pre><code class="prism language-cpp">bzip2 anaconda<span class="token punctuation">.</span>cfg
+bzip2 <span class="token operator">-</span>k anaconda<span class="token punctuation">.</span>cfg
+</code></pre>
+<br>
+<h4><a id="2%09bunzip2_101"></a>2.	bunzip2</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 解压缩命令，在/usr/bin/bunzip2中，也是直接解压到当前目录：</p>
+<pre><code class="prism language-cpp">bunzip2 anaconda<span class="token punctuation">.</span>cfg<span class="token punctuation">.</span>bz2
+</code></pre>
+<br>
+<h2><a id="%09tar_112"></a>二．	tar命令</h2>
+<h3><a id="%09_114"></a>（一）	.打包</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; tar命令只会打包不会压缩，即将多个文件打包为一个文件。在/bin/tar中，命令如下所示：</p>
+<pre><code class="prism language-cpp">tar <span class="token punctuation">[</span>选项<span class="token punctuation">]</span> <span class="token punctuation">[</span><span class="token operator">-</span>f 压缩包名<span class="token punctuation">]</span> 源文件或目录
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -c: 打包</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -f: 指定压缩包的文件名</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -v: 显示打包文件过程</p>
+<pre><code class="prism language-cpp">tar <span class="token operator">-</span>cvf anaconda<span class="token punctuation">.</span>cfg<span class="token punctuation">.</span>tar anaconda<span class="token punctuation">.</span>cfg
+</code></pre>
+<br>
+<h3><a id="%09_134"></a>（二）	解打包</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 同样使用tar命令，只是改变了选项：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -x: 解打包</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -f: 指定包的文件名</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -v: 显示解打包文件过程</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -t: 测试，只是查看包中的文件有哪些，并不会解打包</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -C: 指定解打包位置</p>
+<pre><code class="prism language-cpp">tar <span class="token operator">-</span>xvf anaconda<span class="token punctuation">.</span>cfg<span class="token punctuation">.</span>tar
+tar <span class="token operator">-</span>xvf anaconda<span class="token punctuation">.</span>cfg<span class="token punctuation">.</span>tar <span class="token operator">-</span>C <span class="token operator">/</span>tmp
+</code></pre>
+<br>
+<h2><a id="%09targz__tarbz2_155"></a>三．	tar.gz 和 tar.bz2</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 通常情况下，我们会先打包，再压缩。即先调用tar命令，再调用gz或者bzip2命令，这样非常繁琐。于是，还是使用tar命令，但是有了直接打包压缩的命令选项：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -z: 打包压缩为 tar.gz格式</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -j: 打包压缩为 tar.bz2格式</p>
+<p>打包压缩与解压缩</p>
+<pre><code class="prism language-cpp">tar <span class="token operator">-</span>zcvf tmp<span class="token punctuation">.</span>tar<span class="token punctuation">.</span>gz <span class="token operator">/</span>tmp
+tar <span class="token operator">-</span>zxvf tmp<span class="token punctuation">.</span>tar<span class="token punctuation">.</span>gz 
+</code></pre>
+<p>只查看，不解压</p>
+<pre><code class="prism language-cpp">tar <span class="token operator">-</span>ztvf test<span class="token punctuation">.</span>tar<span class="token punctuation">.</span>gz 
+</code></pre>
+<p>解压缩到指定位置</p>
+<pre><code class="prism language-cpp">tart <span class="token operator">-</span>zxvf test<span class="token punctuation">.</span>tar<span class="token punctuation">.</span>gz <span class="token operator">-</span>C <span class="token operator">/</span>tmp
+</code></pre>
+<p>查看压缩文件中的内容后，指定解压缩特定文件到指定位置</p>
+<pre><code class="prism language-cpp">tar <span class="token operator">-</span>zxvf test<span class="token punctuation">.</span>tar<span class="token punctuation">.</span>gz <span class="token operator">-</span>C <span class="token operator">/</span>tmp test<span class="token operator">/</span>code
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 注意，这个指定目录的选项只能放在其他选项之后！！！</p>
+</div>
+</body>
+
+</html>

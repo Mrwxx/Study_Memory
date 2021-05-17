@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【LeetCode刷题笔记（六十八）】之 48. 最长不重复子串长度</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	题目</h2>
+<h3><a id="%09_8"></a>（一）	题干</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 请从字符串中找出一个最长的不包含重复字符的子字符串，计算该最长子字符串的长度。<br>
+<br></p>
+<h3><a id="%09_14"></a>（二）	示例</h3>
+<p>示例 1:</p>
+<pre><code class="prism language-java">输入<span class="token operator">:</span> <span class="token string">"abcabcbb"</span>
+输出<span class="token operator">:</span> <span class="token number">3</span> 
+解释<span class="token operator">:</span> 因为无重复字符的最长子串是 <span class="token string">"abc"</span>，所以其长度为 <span class="token number">3</span>。
+</code></pre>
+<p>示例 2:</p>
+<pre><code class="prism language-java">输入<span class="token operator">:</span> <span class="token string">"bbbbb"</span>
+输出<span class="token operator">:</span> <span class="token number">1</span>
+解释<span class="token operator">:</span> 因为无重复字符的最长子串是 <span class="token string">"b"</span>，所以其长度为 <span class="token number">1</span>。
+</code></pre>
+<p>示例 3:</p>
+<pre><code class="prism language-java">输入<span class="token operator">:</span> <span class="token string">"pwwkew"</span>
+输出<span class="token operator">:</span> <span class="token number">3</span>
+解释<span class="token operator">:</span> 因为无重复字符的最长子串是 <span class="token string">"wke"</span>，所以其长度为 <span class="token number">3</span>。
+     请注意，你的答案必须是 子串 的长度，<span class="token string">"pwke"</span> 是一个子序列，不是子串。
+</code></pre>
+<br>
+<h2><a id="%09_45"></a>二．	题解</h2>
+<h3><a id="%09_46"></a>（一）	思路</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 首先，从题干来看，题目要找的是最长的无重复子串长度。这种找子串的题目第一反应就是动态规划，遍历字符串，根据前面的结果递推出后面的结果。因此，我们可以设置一个dp数组，dp[j]代表着以s[j]为结尾最长不重复子串的长度。接下来，就需要来设置动态规划的转移方程了，对于dp[j]而言，已知dp[j-1]，我们要求以s[j]为结尾的最长无重复子串的长度，因此如果在dp[j-1]长度的子串中没有与s[j]相同的字符，那么dp[j] = dp[j-1]+1；如果在dp[j-1]中出现了与s[j]相同的字符，位置为w，则dp[j] = j-w; 通过这个动态转移方法，可以遍历字符串，求出最长的无重复子串长度。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 出现的字符位置用一个map来存储，因为每个字符只需要找到离它最近的那个相同字符即可，因此map中每个字符仅保存一个位置是合理的，及时更新最新的位置。同时，为了优化空间，由于仅仅使用了dp[j-1],dp[j],以及最大值变量，因此我们只需要不断地更新这三个变量即可，不需要创建整个dp数组。<br>
+<br></p>
+<h3><a id="%09_54"></a>（二）	代码实现</h3>
+<p>Java :</p>
+<pre><code class="prism language-java"><span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">int</span> <span class="token function">lengthOfLongestSubstring</span><span class="token punctuation">(</span>String s<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>s <span class="token operator">==</span> null <span class="token operator">||</span> s<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        HashMap<span class="token generics function"><span class="token punctuation">&lt;</span>Character<span class="token punctuation">,</span> Integer<span class="token punctuation">&gt;</span></span> map <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">HashMap</span><span class="token operator">&lt;</span><span class="token operator">&gt;</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">int</span> n <span class="token operator">=</span> s<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">int</span> tmp <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">,</span> ans <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> n<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token comment">// 取当前字符相同的最近位置</span>
+            <span class="token keyword">int</span> left <span class="token operator">=</span> map<span class="token punctuation">.</span><span class="token function">getOrDefault</span><span class="token punctuation">(</span>s<span class="token punctuation">.</span><span class="token function">charAt</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token comment">//更新当前字符位置</span>
+            map<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span>s<span class="token punctuation">.</span><span class="token function">charAt</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">,</span> i<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token comment">// 动态方程更新， tmp 代表着dp[i-1]</span>
+            tmp <span class="token operator">=</span> tmp <span class="token operator">&lt;</span> i <span class="token operator">-</span> left <span class="token operator">?</span> tmp <span class="token operator">+</span><span class="token number">1</span> <span class="token operator">:</span> i <span class="token operator">-</span> left<span class="token punctuation">;</span>
+            <span class="token comment">// ans 代表着 最大的长度</span>
+            ans <span class="token operator">=</span> Math<span class="token punctuation">.</span><span class="token function">max</span><span class="token punctuation">(</span>ans<span class="token punctuation">,</span> tmp<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> ans<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

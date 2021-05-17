@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Java学习笔记（八十二）】之 多线程 join方法和ThreadLocal类</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09join_7"></a>一．	join()方法</h2>
+<h3><a id="%09_9"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 当主线程创建并启动子线程时，如果子线程耗时比较长，导致主线程在子线程之前结束了。如果我们想让主线程在子线程之后结束，就需要使用join()方法了，它的作用是等待线程对象销毁。如在主线程a中调用子线程b的start()方法，同时调用了b的join()方法，那么线程a就会进入无限期的阻塞中，等待线程b执行完毕并销毁后才能继续执行线程a。<br>
+<br></p>
+<h3><a id="%09joininterrupt_14"></a>（二）	join()与interrupt()</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 在当前线程中调用join()方法的过程中，如果当前线程对象被中断，则当前线程会出现异常，注意，是当前线程哦，不是调用join()方法的那个线程。即join()与interrupt()方法碰到，会出现异常。</p>
+<br>
+<h3><a id="%09joinlongThreadsleeplong_20"></a>（三）	join(long)与Thread.sleep(long)</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 设定等待时间的join()方法，内部使用wait(long)方法实现的，所以使用join(long)方法具有释放锁的特点，只要执行了join(long)方法，就会释放当前线程的锁，那么其他线程就可以调用此线程的同步方法了。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 而Thread.sleep(long)方法是不释放锁的，它会一直持有该线程的锁，直到该线程代码执行结束才会释放该线程锁。<br>
+<br></p>
+<h3><a id="%09joinlong_28"></a>（四）	join(long)的执行时机</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; join(long)方法在线程中通常是先运行的，也就是先抢到该线程的锁，但是会快速地释放掉，来阻塞join(long)方法后该线程的代码执行。之后，join(long)会和其他线程来争抢该线程锁，谁抢到，谁就先执行。</p>
+<br>
+<h2><a id="%09ThreadLocal_35"></a>二．	ThreadLocal类</h2>
+<h3><a id="%09_36"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; ThreadLocal类用于每个线程私有变量值的共享，它可以让每个线程绑定自己的数据，隔离不同线程的数据。<br>
+<br></p>
+<h3><a id="%09setget_42"></a>（二）	set()和get()</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 从函数的语义就可以知道，一个是往ThreadLocal类中写入值，一个是取出值。在不同的线程中调用这些方法，存入和取出的都是该线程的私有数据。<br>
+<br></p>
+<h3><a id="%09get_48"></a>（三）	get()的默认值</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 初次调用get()方法时，如果没有值会返回null，我们可以为ThreadLocal类设置默认值，解决这个问题。通过继承ThreadLocal类，重写initialValue()方法，返回默认值。</p>
+<pre><code class="prism language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ThreadLocalText</span> <span class="token keyword">extends</span> <span class="token class-name">ThreadLocal</span><span class="token punctuation">{</span>
+	<span class="token annotation punctuation">@Override</span>
+	<span class="token keyword">protected</span> Object <span class="token function">initialValue</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+		<span class="token keyword">return</span> “默认值”<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>	
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h3><a id="%09InheritableThreadLocal_63"></a>（四）	InheritableThreadLocal类</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 通过类InheritableThreadLocal可以在子线程中取得父线程继承下来的值。如创建一个类local来继承InheritableThreadLocal类，在Main主线程中创建local类实例，然后存入一个值，创建一个新的线程，并从该线程中取出local类实例中的值，发现这两个值是一致的，说明了父子的继承关系。<br>
+<br></p>
+<h3><a id="%09_69"></a>（五）	子线程修改父线程的值</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 通过继承InheritableThreadLocal类，还可以修改父线程存入的值，重写childValue()方法即可，传入父线程的值，返回修改后的值。</p>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@Override</span>
+<span class="token keyword">protected</span> Object <span class="token function">childValue</span><span class="token punctuation">(</span>Object parentValue<span class="token punctuation">)</span><span class="token punctuation">{</span>
+	<span class="token keyword">return</span> parentValue <span class="token operator">+</span>”<span class="token number">123</span>”<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 注意，如果子线程在取得值并进行修改的同时，父线程将该实例中的值进行了修改，那么子线程获取到的依然是旧值。</p>
+</div>
+</body>
+
+</html>

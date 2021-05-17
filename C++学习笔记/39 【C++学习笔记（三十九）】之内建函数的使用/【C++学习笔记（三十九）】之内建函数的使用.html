@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【C++学习笔记（三十九）】之内建函数的使用</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="_7"></a>一．内建函数</h2>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;在STL中内建了一些函数对象（仿函数），这些函数对象可以直接创建并使用。</strong></p>
+<p>分为：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;算术类函数对象</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;关系运算类函数对象</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;逻辑运算类函数对象。<br>
+<br></p>
+<h2><a id="_20"></a>二．调用方法：</h2>
+<p>引入头文件</p>
+<pre><code class="prism language-cpp"><span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;functional&gt;</span></span>
+</code></pre>
+<br>
+<ol>
+<li>像函数一样调用</li>
+</ol>
+<pre><code class="prism language-cpp">plus<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token operator">&gt;</span> p<span class="token punctuation">;</span>	<span class="token comment">//创建内建函数</span>
+<span class="token function">p</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<ol start="2">
+<li>生成匿名对象</li>
+</ol>
+<pre><code class="prism language-cpp">vector<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token operator">&gt;</span> v<span class="token punctuation">;</span>
+<span class="token function">sort</span><span class="token punctuation">(</span>v<span class="token punctuation">.</span><span class="token function">begin</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> v<span class="token punctuation">.</span><span class="token function">end</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> greater<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token operator">&gt;</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h2><a id="_44"></a>三．内建函数模板</h2>
+<br>
+<h3><a id="_47"></a>（一）算术类函数对象</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;除了negate，其他都是二元运算<br>
+<br></p>
+<pre><code class="prism language-cpp"><span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">T</span><span class="token operator">&gt;</span> T plus<span class="token operator">&lt;</span>T<span class="token operator">&gt;</span><span class="token comment">//加法仿函数</span>
+<span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">T</span><span class="token operator">&gt;</span> T minus<span class="token operator">&lt;</span>T<span class="token operator">&gt;</span><span class="token comment">//减法仿函数</span>
+<span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">T</span><span class="token operator">&gt;</span> T multiplies<span class="token operator">&lt;</span>T<span class="token operator">&gt;</span><span class="token comment">//乘法仿函数</span>
+<span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">T</span><span class="token operator">&gt;</span> T divides<span class="token operator">&lt;</span>T<span class="token operator">&gt;</span><span class="token comment">//除法仿函数</span>
+<span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">T</span><span class="token operator">&gt;</span> T modulus<span class="token operator">&lt;</span>T<span class="token operator">&gt;</span><span class="token comment">//取模仿函数</span>
+<span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">T</span><span class="token operator">&gt;</span> T negate<span class="token operator">&lt;</span>T<span class="token operator">&gt;</span><span class="token comment">//取反仿函数</span>
+</code></pre>
+<br>
+<h3><a id="_61"></a>（二）关系运算类函数对象</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;都是二元运算<br>
+<br></p>
+<pre><code class="prism language-cpp"><span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">T</span><span class="token operator">&gt;</span> <span class="token keyword">bool</span> equal_to<span class="token operator">&lt;</span>T<span class="token operator">&gt;</span><span class="token comment">//等于</span>
+<span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">T</span><span class="token operator">&gt;</span> <span class="token keyword">bool</span> not_equal_to<span class="token operator">&lt;</span>T<span class="token operator">&gt;</span><span class="token comment">//不等于</span>
+<span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">T</span><span class="token operator">&gt;</span> <span class="token keyword">bool</span> greater<span class="token operator">&lt;</span>T<span class="token operator">&gt;</span><span class="token comment">//大于</span>
+<span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">T</span><span class="token operator">&gt;</span> <span class="token keyword">bool</span> greater_equal<span class="token operator">&lt;</span>T<span class="token operator">&gt;</span><span class="token comment">//大于等于</span>
+<span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">T</span><span class="token operator">&gt;</span> <span class="token keyword">bool</span> less<span class="token operator">&lt;</span>T<span class="token operator">&gt;</span><span class="token comment">//小于</span>
+<span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">T</span><span class="token operator">&gt;</span> <span class="token keyword">bool</span> less_equal<span class="token operator">&lt;</span>T<span class="token operator">&gt;</span><span class="token comment">//小于等于</span>
+</code></pre>
+<br>
+<h3><a id="_75"></a>（三）逻辑运算类函数对象</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;not是一元，其余为二元<br>
+<br></p>
+<pre><code class="prism language-cpp"><span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">T</span><span class="token operator">&gt;</span> <span class="token keyword">bool</span> logical_and<span class="token operator">&lt;</span>T<span class="token operator">&gt;</span><span class="token comment">//逻辑与</span>
+<span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">T</span><span class="token operator">&gt;</span> <span class="token keyword">bool</span> logical_or<span class="token operator">&lt;</span>T<span class="token operator">&gt;</span><span class="token comment">//逻辑或</span>
+<span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">class</span> <span class="token class-name">T</span><span class="token operator">&gt;</span> <span class="token keyword">bool</span> logical_not<span class="token operator">&lt;</span>T<span class="token operator">&gt;</span><span class="token comment">//逻辑非</span>
+</code></pre>
+</div>
+</body>
+
+</html>

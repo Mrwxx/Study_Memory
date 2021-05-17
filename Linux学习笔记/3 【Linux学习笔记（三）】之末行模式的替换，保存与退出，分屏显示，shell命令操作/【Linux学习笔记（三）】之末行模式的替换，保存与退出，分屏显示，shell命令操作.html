@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Linux学习笔记（三）】之末行模式的替换，保存与退出，分屏显示，shell命令操作</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_8"></a>一．	末行模式的替换操作</h2>
+<h3><a id="_ssrcdes_9"></a>（一）: s/src/des</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 将光标所在行的第一个src替换为des<br>
+<br></p>
+<h3><a id="_ssrcdesg_13"></a>（二）: s/src/des/g</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 将光标所在行的所有src替换为des<br>
+<br></p>
+<h3><a id="ssrcdes_17"></a>（三）:%s/src/des</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 替换所有行的第一个匹配的src为des<br>
+<br></p>
+<h3><a id="ssrcdesg_21"></a>（四）:%s/src/des/g</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 替换文件中的所有src为des</p>
+<br>
+<h2><a id="%09_26"></a>二．	末行模式中的保存与退出</h2>
+<h3><a id="wq_27"></a>（一）:wq</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 保存并退出<br>
+<br></p>
+<h3><a id="%09w_31"></a>（二）	:w</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 仅仅保存，没有退出操作<br>
+<br></p>
+<h3><a id="q_35"></a>（三）:q</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 仅退出，没有保存修改的文件</p>
+<br>
+<h3><a id="q_40"></a>（四）:q!</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 强制退出<br>
+<br></p>
+<h3><a id="x_44"></a>（五）:x</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 保存并退出</p>
+<br>
+<h2><a id="%09_49"></a>三．	末行模式中的分屏显示</h2>
+<h3><a id="sp_filename_50"></a>（一）:sp filename</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 横屏显示多个文件<br>
+<br></p>
+<h3><a id="vsp_filename_54"></a>（二）:vsp filename</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 竖屏显示多个文件<br>
+<br></p>
+<h3><a id="CTRL__w_58"></a>（三）CTRL + w</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 在多个文件间切换<br>
+<br></p>
+<h3><a id="q_62"></a>（四）:q</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 退出一个文件<br>
+<br></p>
+<h3><a id="qall_66"></a>（五）:qall</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 退出所有文件<br>
+<br></p>
+<h3><a id="wqall_70"></a>（六）:wqall</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 保存所有文件并退出<br>
+<br></p>
+<h2><a id="%09shell_75"></a>四．	末行模式下执行shell命令</h2>
+<br>
+<p><strong>:! Command</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 在文件中可以直接执行shell命令。</p>
+</div>
+</body>
+
+</html>

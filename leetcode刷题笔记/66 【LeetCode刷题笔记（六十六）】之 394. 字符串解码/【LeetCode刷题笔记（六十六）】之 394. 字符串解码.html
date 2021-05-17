@@ -1,0 +1,116 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【LeetCode刷题笔记（六十六）】之 394. 字符串解码</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	题目</h2>
+<h3><a id="%09_8"></a>（一）	题干</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;给定一个经过编码的字符串，返回它解码后的字符串。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;编码规则为: k[encoded_string]，表示其中方括号内部的 encoded_string 正好重复 k 次。注意 k 保证为正整数。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;你可以认为输入字符串总是有效的；输入字符串中没有额外的空格，且输入的方括号总是符合格式要求的。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;此外，你可以认为原始数据不包含数字，所有的数字只表示重复的次数 k ，例如不会出现像 3a 或 2[4] 的输入。<br>
+<br></p>
+<h3><a id="%09_20"></a>（二）	示例</h3>
+<p>示例 1：</p>
+<pre><code class="prism language-cpp">输入：s <span class="token operator">=</span> <span class="token string">"3[a]2[bc]"</span>
+输出：<span class="token string">"aaabcbc"</span>
+</code></pre>
+<p>示例 2：</p>
+<pre><code class="prism language-c">输入：s <span class="token operator">=</span> <span class="token string">"3[a2[c]]"</span>
+输出：<span class="token string">"accaccacc"</span>
+</code></pre>
+<p>示例 3：</p>
+<pre><code class="prism language-cpp">输入：s <span class="token operator">=</span> <span class="token string">"2[abc]3[cd]ef"</span>
+输出：<span class="token string">"abcabccdcdcdef"</span>
+</code></pre>
+<br>
+<h2><a id="%09_46"></a>二．	题解</h2>
+<h3><a id="%09_47"></a>（一）	思路</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;对于这种字符串中包含左右括号的题目，第一反应是用栈来解决。当出现括号嵌套的情况，就可以一层一层地展开括号内的内容，复制多份后重新入栈。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如果当前的字符是数字，则解析出一个数字入栈；<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;如果当前的字符是字母或者左括号，直接入栈；<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;如果当前的字符是右括号，则说明一个括号内的字符串已经全部入栈了，可以将这些字符出栈，直到碰见左括号。由于栈的特性，出栈后的字符串需要反转，然后取出栈顶的数字，该数字表示这个字符串应该复制的次数，然后将复制后的字符串构造到一个新的字符串中，重新入栈。<br>
+<br></p>
+<h3><a id="%09_58"></a>（二）	代码</h3>
+<p>Java：</p>
+<pre><code class="prism language-java"><span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
+    <span class="token keyword">int</span> ptr <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+    <span class="token keyword">public</span> String <span class="token function">decodeString</span><span class="token punctuation">(</span>String s<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment">//用栈的思路来解决</span>
+        <span class="token comment">//新建一个链表</span>
+        LinkedList<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">&gt;</span></span> stk <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">LinkedList</span><span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">&gt;</span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">//遍历一遍s即可解决</span>
+        <span class="token keyword">while</span><span class="token punctuation">(</span>ptr <span class="token operator">&lt;</span> s<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">char</span> cur <span class="token operator">=</span> s<span class="token punctuation">.</span><span class="token function">charAt</span><span class="token punctuation">(</span>ptr<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token comment">//当前字符是数时，判断数字字符的个数，组成数字入栈</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span>Character<span class="token punctuation">.</span><span class="token function">isDigit</span><span class="token punctuation">(</span>cur<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                <span class="token comment">//获取一个数字入栈</span>
+                String digits <span class="token operator">=</span> <span class="token function">getDigits</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                stk<span class="token punctuation">.</span><span class="token function">addLast</span><span class="token punctuation">(</span>digits<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token comment">//当前字符是字母或者左括号，直接入栈</span>
+            <span class="token keyword">else</span> <span class="token keyword">if</span><span class="token punctuation">(</span>Character<span class="token punctuation">.</span><span class="token function">isLetter</span><span class="token punctuation">(</span>cur<span class="token punctuation">)</span> <span class="token operator">||</span> cur <span class="token operator">==</span><span class="token string">'['</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                stk<span class="token punctuation">.</span><span class="token function">addLast</span><span class="token punctuation">(</span>Character<span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span>cur<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                ptr<span class="token operator">++</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token comment">//当前字符是右括号</span>
+            <span class="token keyword">else</span><span class="token punctuation">{</span>
+                ptr<span class="token operator">++</span><span class="token punctuation">;</span>
+                <span class="token comment">//用新的LinkedList保存出栈的字符串</span>
+                LinkedList<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">&gt;</span></span> sub <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">LinkedList</span><span class="token operator">&lt;</span><span class="token operator">&gt;</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token comment">//出栈，直到遇到左括号</span>
+                <span class="token keyword">while</span><span class="token punctuation">(</span><span class="token operator">!</span><span class="token string">"["</span><span class="token punctuation">.</span><span class="token function">equals</span><span class="token punctuation">(</span>stk<span class="token punctuation">.</span><span class="token function">peekLast</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                    sub<span class="token punctuation">.</span><span class="token function">addLast</span><span class="token punctuation">(</span>stk<span class="token punctuation">.</span><span class="token function">removeLast</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+                <span class="token comment">//反转sub</span>
+                Collections<span class="token punctuation">.</span><span class="token function">reverse</span><span class="token punctuation">(</span>sub<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token comment">//将左括号出栈</span>
+                stk<span class="token punctuation">.</span><span class="token function">removeLast</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token comment">//此时的栈顶为数字,出栈</span>
+                <span class="token keyword">int</span> repTime <span class="token operator">=</span> Integer<span class="token punctuation">.</span><span class="token function">parseInt</span><span class="token punctuation">(</span>stk<span class="token punctuation">.</span><span class="token function">removeLast</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token comment">//复制repTime次字符串</span>
+                StringBuilder t <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">StringBuilder</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                String o <span class="token operator">=</span> <span class="token function">getString</span><span class="token punctuation">(</span>sub<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token keyword">while</span><span class="token punctuation">(</span>repTime<span class="token operator">--</span> <span class="token operator">&gt;</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                    t<span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span>o<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+                <span class="token comment">//再次入栈</span>
+                stk<span class="token punctuation">.</span><span class="token function">addLast</span><span class="token punctuation">(</span>t<span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> <span class="token function">getString</span><span class="token punctuation">(</span>stk<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> String <span class="token function">getDigits</span><span class="token punctuation">(</span>String s<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token comment">//多位数字直接用StringBuilder返回toString即可</span>
+        StringBuilder ret <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">StringBuilder</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">while</span><span class="token punctuation">(</span>Character<span class="token punctuation">.</span><span class="token function">isDigit</span><span class="token punctuation">(</span>s<span class="token punctuation">.</span><span class="token function">charAt</span><span class="token punctuation">(</span>ptr<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            ret<span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span>s<span class="token punctuation">.</span><span class="token function">charAt</span><span class="token punctuation">(</span>ptr<span class="token operator">++</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> ret<span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> String <span class="token function">getString</span><span class="token punctuation">(</span>LinkedList<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">&gt;</span></span> v<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        StringBuilder ret <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">StringBuilder</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span>String s <span class="token operator">:</span> v<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            ret<span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> ret<span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

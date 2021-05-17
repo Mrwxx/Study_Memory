@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenCV学习笔记（八）之霍夫直线变换</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="__7"></a>一. 霍夫直线变换介绍</h2>
+<ol>
+<li>Hough Line Transform用来做直线检测</li>
+<li>前提条件–边缘检测已经完成</li>
+<li>平面空间到极坐标空间转换</li>
+</ol>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在图像平面空间上的多个点映射到(r-θ)坐标空间中，形成多条曲线。多条曲线有共同的交点，即表明这几个点在图像平面空间中是共线的。<br>
+<img src="https://img-blog.csdnimg.cn/20200530224641183.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01yd3h4eHg=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>标准的霍夫变换</strong>cv::HoughLines从平面坐标转换到霍夫空间，最终输出是(θ, r)表示极坐标空间。<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>霍夫变换直线概率</strong>cv::HoughLinesP最终输出是直线的两个点(x0, y0, x1, y1)。</p>
+<h2><a id="_API_17"></a>二. 霍夫变换API介绍</h2>
+<h3><a id="1_cvHoughLines_18"></a>1. <strong>cv::HoughLines</strong></h3>
+<pre><code class="prism language-cpp">cv<span class="token operator">::</span><span class="token function">HoughLines</span><span class="token punctuation">(</span>
+	InputArray src<span class="token punctuation">,</span>		<span class="token comment">//输入图像，必须是8-bit的灰度图像</span>
+	OutputArray lines<span class="token punctuation">,</span>	<span class="token comment">//输出的极坐标表示直线</span>
+	<span class="token keyword">double</span> rho<span class="token punctuation">,</span>				<span class="token comment">//生成极坐标的像素扫描步长</span>
+	<span class="token keyword">double</span> theta<span class="token punctuation">,</span>			<span class="token comment">//生成极坐标的角度步长</span>
+	<span class="token keyword">int</span> threshold<span class="token punctuation">,</span>			<span class="token comment">//阈值，只有获得足够交点的极坐标点才能看成是直线</span>
+	<span class="token keyword">double</span> srn <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">,</span>		<span class="token comment">//是否应用多迟钝霍夫变换，如果不是设置0表示经典霍夫变换</span>
+	<span class="token keyword">double</span> stn <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">,</span>		<span class="token comment">//是否应用多迟钝霍夫变换，如果不是设置0表示经典霍夫变换</span>
+	<span class="token keyword">double</span> min_theta <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">,</span>	<span class="token comment">//表示角度扫描范围0-180之间</span>
+	<span class="token keyword">double</span> max_theta <span class="token operator">=</span> CV_PI
+<span class="token punctuation">)</span>
+</code></pre>
+<h3><a id="2_cvHoughLineP_32"></a>2. <strong>cv::HoughLineP</strong></h3>
+<pre><code class="prism language-cpp">cv<span class="token operator">::</span><span class="token function">HoughLinesP</span><span class="token punctuation">(</span>
+	InputArray src<span class="token punctuation">,</span>		<span class="token comment">//输入图像，必须是8-bit的灰度图像</span>
+	OutputArray lines<span class="token punctuation">,</span>	<span class="token comment">//输出的极坐标表示直线</span>
+	<span class="token keyword">double</span> rho<span class="token punctuation">,</span>				<span class="token comment">//生成极坐标的像素扫描步长</span>
+	<span class="token keyword">double</span> theta<span class="token punctuation">,</span>			<span class="token comment">//生成极坐标的角度步长</span>
+	<span class="token keyword">int</span> threshold<span class="token punctuation">,</span>			<span class="token comment">//阈值，只有获得足够交点的极坐标点才能看成是直线</span>
+	<span class="token keyword">double</span> minLineLength<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">,</span>	<span class="token comment">//最小直线长度</span>
+	<span class="token keyword">double</span> maxLineGap<span class="token operator">=</span><span class="token number">0</span>	<span class="token comment">//最大间隔</span>
+<span class="token punctuation">)</span>
+</code></pre>
+<h2><a id="__45"></a>三. 霍夫变换应用代码：</h2>
+<pre><code class="prism language-cpp"><span class="token comment">/*****霍夫变换*****/</span>
+
+
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;opencv2/opencv.hpp&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;string&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;vector&gt;</span></span>
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+string in_title <span class="token operator">=</span> <span class="token string">"input image"</span><span class="token punctuation">;</span>
+string ou_title <span class="token operator">=</span> <span class="token string">"output image"</span><span class="token punctuation">;</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	cv<span class="token operator">::</span>Mat src<span class="token punctuation">,</span> dst<span class="token punctuation">,</span>gray_src<span class="token punctuation">;</span>
+	src <span class="token operator">=</span> cv<span class="token operator">::</span><span class="token function">imread</span><span class="token punctuation">(</span><span class="token string">"1.jpg"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span>in_title<span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span>in_title<span class="token punctuation">,</span> src<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token comment">//先提取边缘</span>
+	cv<span class="token operator">::</span><span class="token function">Canny</span><span class="token punctuation">(</span>src<span class="token punctuation">,</span> gray_src<span class="token punctuation">,</span> <span class="token number">150</span><span class="token punctuation">,</span> <span class="token number">200</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span><span class="token string">"edge image"</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span><span class="token string">"edge image"</span><span class="token punctuation">,</span> gray_src<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token comment">//储存霍夫变换后的直线点坐标，两对</span>
+	vector<span class="token operator">&lt;</span>cv<span class="token operator">::</span>Vec4f<span class="token operator">&gt;</span> plines<span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">HoughLinesP</span><span class="token punctuation">(</span>gray_src<span class="token punctuation">,</span> plines<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> CV_PI <span class="token operator">/</span> <span class="token number">180.0</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//定义颜色</span>
+	cv<span class="token operator">::</span>Scalar color <span class="token operator">=</span> cv<span class="token operator">::</span><span class="token function">Scalar</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">255</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//画出直线</span>
+	cv<span class="token operator">::</span><span class="token function">cvtColor</span><span class="token punctuation">(</span>gray_src<span class="token punctuation">,</span> dst<span class="token punctuation">,</span> cv<span class="token operator">::</span>COLOR_GRAY2BGR<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">for</span> <span class="token punctuation">(</span>size_t i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> plines<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		cv<span class="token operator">::</span>Vec4f hline <span class="token operator">=</span> plines<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">;</span>
+		cv<span class="token operator">::</span><span class="token function">line</span><span class="token punctuation">(</span>dst<span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Point</span><span class="token punctuation">(</span>hline<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> hline<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Point</span><span class="token punctuation">(</span>hline<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">,</span> hline<span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+			color<span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>LINE_AA<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span>ou_title<span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span>ou_title<span class="token punctuation">,</span> dst<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	cv<span class="token operator">::</span><span class="token function">waitKey</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+</code></pre>
+</div>
+</body>
+
+</html>

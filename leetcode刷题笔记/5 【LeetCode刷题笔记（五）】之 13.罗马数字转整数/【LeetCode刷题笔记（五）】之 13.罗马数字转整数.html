@@ -1,0 +1,106 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【LeetCode刷题笔记（五）】之 13.罗马数字转整数</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="__7"></a>一. 题目</h2>
+<h3><a id="_8"></a>（一）概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;罗马数字包含以下七种字符: I， V， X， L，C，D 和 M。</p>
+<pre><code class="prism language-cpp">字符          数值
+I             <span class="token number">1</span>
+V             <span class="token number">5</span>
+X             <span class="token number">10</span>
+L             <span class="token number">50</span>
+C             <span class="token number">100</span>
+D             <span class="token number">500</span>
+M             <span class="token number">1000</span>
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;例如， 罗马数字 2 写做 II ，即为两个并列的 1。12 写做 XII ，即为 X + II 。 27 写做  XXVII, 即为 XX + V + II 。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通常情况下，罗马数字中小的数字在大的数字的右边。但也存在特例，例如 4 不写做 IIII，而是 IV。数字 1 在数字 5 的左边，所表示的数等于大数 5 减小数 1 得到的数值 4 。同样地，数字 9 表示为 IX。这个特殊的规则只适用于以下六种情况：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;I 可以放在 V (5) 和 X (10) 的左边，来表示 4 和 9。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;X 可以放在 L (50) 和 C (100) 的左边，来表示 40 和 90。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;C 可以放在 D (500) 和 M (1000) 的左边，来表示 400 和 900。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;给定一个罗马数字，将其转换成整数。输入确保在 1 到 3999 的范围内。</p>
+<br>
+<h3><a id="_40"></a>（二）示例</h3>
+<br>
+<pre><code class="prism language-cpp">示例 <span class="token number">1</span><span class="token operator">:</span>
+
+	输入<span class="token operator">:</span> <span class="token string">"III"</span>
+	输出<span class="token operator">:</span> <span class="token number">3</span>
+
+示例 <span class="token number">2</span><span class="token operator">:</span>
+
+	输入<span class="token operator">:</span> <span class="token string">"IV"</span>
+	输出<span class="token operator">:</span> <span class="token number">4</span>
+
+示例 <span class="token number">3</span><span class="token operator">:</span>
+
+	输入<span class="token operator">:</span> <span class="token string">"IX"</span>
+	输出<span class="token operator">:</span> <span class="token number">9</span>
+
+示例 <span class="token number">4</span><span class="token operator">:</span>
+
+	输入<span class="token operator">:</span> <span class="token string">"LVIII"</span>
+	输出<span class="token operator">:</span> <span class="token number">58</span>
+	解释<span class="token operator">:</span> L <span class="token operator">=</span> <span class="token number">50</span><span class="token punctuation">,</span> V<span class="token operator">=</span> <span class="token number">5</span><span class="token punctuation">,</span> III <span class="token operator">=</span> <span class="token number">3.</span>
+
+示例 <span class="token number">5</span><span class="token operator">:</span>
+
+	输入<span class="token operator">:</span> <span class="token string">"MCMXCIV"</span>	
+	输出<span class="token operator">:</span> <span class="token number">1994</span>
+	解释<span class="token operator">:</span> M <span class="token operator">=</span> <span class="token number">1000</span><span class="token punctuation">,</span> CM <span class="token operator">=</span> <span class="token number">900</span><span class="token punctuation">,</span> XC <span class="token operator">=</span> <span class="token number">90</span><span class="token punctuation">,</span> IV <span class="token operator">=</span> <span class="token number">4.</span>
+</code></pre>
+<br>
+<h2><a id="__76"></a>二. 题解</h2>
+<h3><a id="_77"></a>（一）思路</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;题目说明一般情况下大的字母在小的字母的左边，只有三种特殊情况下大的字母才会出现在小的字母的右边，因此考虑分为两种情况，一种是大的字母在小的字母的左边，一种情况是大的字母在小的字母的右边，则先减去小的，再加上大的。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;因此，将所有字母与对应的数字存入map表中，从输入字符串左边开始，当该字符不是最后一个字符时，判断该字符与后一个字符的大小，如果该字符大于后面字符，则直接加该字符；若该字符小于后面字符，则减去该字符。<br>
+<br></p>
+<h3><a id="_85"></a>（二）代码实现</h3>
+<br>
+<p>C++实现：</p>
+<pre><code class="prism language-cpp"><span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+
+	<span class="token keyword">int</span> <span class="token function">romanToInt</span><span class="token punctuation">(</span>string s<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		map<span class="token operator">&lt;</span><span class="token keyword">char</span><span class="token punctuation">,</span> <span class="token keyword">int</span><span class="token operator">&gt;</span> m <span class="token operator">=</span> <span class="token punctuation">{</span> <span class="token punctuation">{</span><span class="token string">'I'</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">{</span><span class="token string">'V'</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">{</span><span class="token string">'X'</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">{</span><span class="token string">'L'</span><span class="token punctuation">,</span> <span class="token number">50</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">{</span><span class="token string">'C'</span><span class="token punctuation">,</span> <span class="token number">100</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">{</span><span class="token string">'D'</span><span class="token punctuation">,</span> <span class="token number">500</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">{</span><span class="token string">'M'</span><span class="token punctuation">,</span> <span class="token number">1000</span><span class="token punctuation">}</span> <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+		<span class="token keyword">int</span> value <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+		<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> s<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+			<span class="token comment">//如果不是最后一个字符</span>
+			<span class="token keyword">if</span> <span class="token punctuation">(</span>i <span class="token operator">!=</span> s<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+				<span class="token comment">//如果大于后面的字符，则直接加</span>
+				<span class="token keyword">if</span> <span class="token punctuation">(</span>m<span class="token punctuation">[</span>s<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">]</span> <span class="token operator">&gt;=</span> m<span class="token punctuation">[</span>s<span class="token punctuation">[</span>i <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+					value <span class="token operator">+</span><span class="token operator">=</span> m<span class="token punctuation">[</span>s<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+				<span class="token punctuation">}</span>
+				<span class="token keyword">else</span> <span class="token punctuation">{</span>
+					value <span class="token operator">-</span><span class="token operator">=</span> m<span class="token punctuation">[</span>s<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+				<span class="token punctuation">}</span>
+
+			<span class="token punctuation">}</span>
+			<span class="token comment">//如果是最后一个字符</span>
+			<span class="token keyword">else</span> <span class="token punctuation">{</span>
+				value <span class="token operator">+</span><span class="token operator">=</span> m<span class="token punctuation">[</span>s<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+			<span class="token punctuation">}</span>
+		<span class="token punctuation">}</span>
+		<span class="token keyword">return</span> value<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre>
+</div>
+</body>
+
+</html>

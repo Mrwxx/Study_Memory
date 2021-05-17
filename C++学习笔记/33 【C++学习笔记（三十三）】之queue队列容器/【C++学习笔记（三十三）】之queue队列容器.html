@@ -1,0 +1,53 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【C++学习笔记（三十三）】之queue队列容器</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="_queue_7"></a>一. queue容器</h2>
+<br>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp; queue队列容器是双口的数据结构，特点是先进先出，即先存进去的数据先取出。存数据的一端叫做队尾，取数据的一端叫做队头。就像排队一样，先来排队的人一定是先出去的。</strong></p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;与stack栈容器一样，queue队列容器也是没有迭代器的，没有遍历功能</strong>。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;原因也是差不多的，因为queue队列容器只允许从队头取元素，且只有在队头取出元素的情况下才能获取该元素，不像遍历能够在不取出元素的情况下获取元素。</p>
+<p><strong>如下图所示：</strong><br>
+<img src="https://img-blog.csdnimg.cn/20200722101621656.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01yd3h4eHg=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>
+<br></p>
+<h2><a id="Queue_21"></a>二．Queue队列容器的常用操作</h2>
+<br>
+<h3><a id="queue_24"></a>（一）queue构造函数</h3>
+<pre><code class="prism language-cpp">queue<span class="token operator">&lt;</span>T<span class="token operator">&gt;</span> queT<span class="token punctuation">;</span><span class="token comment">//queue采用模板类实现，queue对象的默认构造形式：</span>
+<span class="token function">queue</span><span class="token punctuation">(</span><span class="token keyword">const</span> queue <span class="token operator">&amp;</span>que<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//拷贝构造函数</span>
+</code></pre>
+<br>
+<h3><a id="queue_32"></a>（二）queue存取，插入和删除操作</h3>
+<br>
+<pre><code class="prism language-cpp"><span class="token function">push</span><span class="token punctuation">(</span>elem<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//往队尾添加元素</span>
+<span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//从队头移除第一个元素</span>
+<span class="token function">back</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//返回最后一个元素</span>
+<span class="token function">front</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//返回第一个元素</span>
+</code></pre>
+<br>
+<h3><a id="queue_43"></a>（三）queue赋值操作</h3>
+<br>
+<pre><code class="prism language-cpp">queue<span class="token operator">&amp;</span> <span class="token keyword">operator</span><span class="token operator">=</span><span class="token punctuation">(</span><span class="token keyword">const</span> queue <span class="token operator">&amp;</span>que<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//重载等号操作符</span>
+</code></pre>
+<br>
+<h3><a id="queue_51"></a>（四）queue大小操作</h3>
+<br>
+<pre><code class="prism language-cpp"><span class="token function">empty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//判断队列是否为空</span>
+<span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//返回队列的大小</span>
+</code></pre>
+</div>
+</body>
+
+</html>

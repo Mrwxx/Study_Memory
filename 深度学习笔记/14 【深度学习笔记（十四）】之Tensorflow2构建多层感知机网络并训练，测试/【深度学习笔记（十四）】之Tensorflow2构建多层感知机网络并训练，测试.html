@@ -1,0 +1,176 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【深度学习笔记（十四）】之Tensorflow2构建多层感知机网络并训练，测试</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09Tensorflow2_9"></a>一．	Tensorflow2构建网络以及训练，测试流程</h2>
+<br>
+<ol>
+<li>
+<p>使用 tf,keras,datasets 获取数据集并预处理</p>
+</li>
+<li>
+<p>使用 tf.keras,Model 和 tf.keras.layers 搭建模型</p>
+</li>
+<li>
+<p>训练模型，使用tf.keras.losses计算损失函数，使用tf.keras.optimizer优化模型</p>
+</li>
+<li>
+<p>测试模型，使用tf.keras.metrics 计算评估指标</p>
+</li>
+</ol>
+<br>
+<h2><a id="%09_25"></a>二．	获取数据集以及预处理数据</h2>
+<h3><a id="%09_26"></a>（一）	获取数据集</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;可以直接在代码中下载，也可以提前下载好数据集mnist.npz文件，放入用户目录下的 .keras/dataset目录下。（Windows目录为 C:\Users\用户名），Linux目录为 /home/用户名</p>
+<pre><code class="prism language-python">mnist <span class="token operator">=</span> tf<span class="token punctuation">.</span>keras<span class="token punctuation">.</span>datasets<span class="token punctuation">.</span>mnist
+</code></pre>
+<br>
+<h3><a id="%09_36"></a>（二）	查看训练数据和测试数据</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;获取到数据集后，我们可以查看一下数据集的训练数据和测试数据，通过load_data()方法返回两个元组，每个元组包括训练集合测试集的数据和标签。</p>
+<pre><code class="prism language-python"><span class="token punctuation">(</span>train_data<span class="token punctuation">,</span> train_label<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span>test_data<span class="token punctuation">,</span> test_label<span class="token punctuation">)</span> <span class="token operator">=</span> mnist<span class="token punctuation">.</span>load_data<span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h3><a id="%09_46"></a>（三）	数据预处理</h3>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;根据项目的实际情况进行预处理。此处的mnist数据集中读出的数据缺少一个颜色通道数维度，因此需要扩大一个维度，并且将灰度值归一化到0-1之间。</p>
+<pre><code class="prism language-python">train_data <span class="token operator">=</span> np<span class="token punctuation">.</span>expand_dims<span class="token punctuation">(</span>train_data<span class="token punctuation">.</span>astype<span class="token punctuation">(</span>np<span class="token punctuation">.</span>float32<span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token number">255</span><span class="token punctuation">.</span><span class="token punctuation">,</span> axis<span class="token operator">=</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;这里我们将数据集的获取与数据预处理封装到一个类中，方便代码的复用。<br>
+<br></p>
+<pre><code class="prism language-python"><span class="token comment">#数据获取与预处理类</span>
+<span class="token keyword">class</span> <span class="token class-name">MNISTLoader</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        mnist <span class="token operator">=</span> tf<span class="token punctuation">.</span>keras<span class="token punctuation">.</span>datasets<span class="token punctuation">.</span>mnist     <span class="token comment">#获取已经下载好的数据集</span>
+        <span class="token comment">#获取训练数据，标签以及测试数据，标签</span>
+        <span class="token punctuation">(</span>self<span class="token punctuation">.</span>train_data<span class="token punctuation">,</span> self<span class="token punctuation">.</span>train_label<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span>self<span class="token punctuation">.</span>test_data<span class="token punctuation">,</span> self<span class="token punctuation">.</span>test_label<span class="token punctuation">)</span> <span class="token operator">=</span> mnist<span class="token punctuation">.</span>load_data<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token comment">#数据是三维的，少一位通道数，我们需手动添加一维</span>
+        <span class="token comment">#图像数据为0-255，需要归一化到0-1之间</span>
+        self<span class="token punctuation">.</span>train_data <span class="token operator">=</span> np<span class="token punctuation">.</span>expand_dims<span class="token punctuation">(</span>self<span class="token punctuation">.</span>train_data<span class="token punctuation">.</span>astype<span class="token punctuation">(</span>np<span class="token punctuation">.</span>float32<span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token number">255</span><span class="token punctuation">.</span><span class="token punctuation">,</span> axis<span class="token operator">=</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>test_data <span class="token operator">=</span> np<span class="token punctuation">.</span>expand_dims<span class="token punctuation">(</span>self<span class="token punctuation">.</span>test_data<span class="token punctuation">.</span>astype<span class="token punctuation">(</span>np<span class="token punctuation">.</span>float32<span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token number">255</span><span class="token punctuation">.</span><span class="token punctuation">,</span> axis<span class="token operator">=</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>train_label <span class="token operator">=</span> self<span class="token punctuation">.</span>train_label<span class="token punctuation">.</span>astype<span class="token punctuation">(</span>np<span class="token punctuation">.</span>int32<span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>test_label <span class="token operator">=</span> self<span class="token punctuation">.</span>test_label<span class="token punctuation">.</span>astype<span class="token punctuation">(</span>np<span class="token punctuation">.</span>int32<span class="token punctuation">)</span>
+        <span class="token comment">#训练数据数量，测试数据数量</span>
+        self<span class="token punctuation">.</span>num_train_data<span class="token punctuation">,</span> self<span class="token punctuation">.</span>num_test_data <span class="token operator">=</span> self<span class="token punctuation">.</span>train_data<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> self<span class="token punctuation">.</span>test_data<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span>
+
+    <span class="token keyword">def</span> <span class="token function">get_batch</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> batch_size<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token comment">#随机取batch_size数据以及标签</span>
+        <span class="token comment">#随机取索引</span>
+        index <span class="token operator">=</span> np<span class="token punctuation">.</span>random<span class="token punctuation">.</span>randint<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> self<span class="token punctuation">.</span>num_train_data<span class="token punctuation">,</span> batch_size<span class="token punctuation">)</span>
+        <span class="token keyword">return</span> self<span class="token punctuation">.</span>train_data<span class="token punctuation">[</span>index<span class="token punctuation">,</span> <span class="token punctuation">:</span><span class="token punctuation">]</span><span class="token punctuation">,</span> self<span class="token punctuation">.</span>train_label<span class="token punctuation">[</span>index<span class="token punctuation">]</span>
+</code></pre>
+<br>
+<h2><a id="%09_90"></a>三．	搭建模型</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;同样是将模型的搭建封装在一个类中，继承tf.keras.Model类。重写 <strong>init</strong>()函数，该函数中定义模型的各个层；重写call()函数，该函数定义了各个层间的操作。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;第一个层为Flatten层，将拉平数据的后三个维度称为一体</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;第二个层为全连接层，神经元为100个，激活函数为relu函数</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;第三个层为全连接层，神经元为10个，即分类树，没有激活函数</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;注意，最后的全连接层输出的结果通过softmax函数求出概率。<br>
+<br></p>
+<pre><code class="prism language-python"><span class="token keyword">class</span> <span class="token class-name">MyModel</span><span class="token punctuation">(</span>tf<span class="token punctuation">.</span>keras<span class="token punctuation">.</span>Model<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token builtin">super</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token comment">#Flatten层将除第一维外的维度展平</span>
+        self<span class="token punctuation">.</span>flatten <span class="token operator">=</span> tf<span class="token punctuation">.</span>keras<span class="token punctuation">.</span>layers<span class="token punctuation">.</span>Flatten<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>dense1 <span class="token operator">=</span> tf<span class="token punctuation">.</span>keras<span class="token punctuation">.</span>layers<span class="token punctuation">.</span>Dense<span class="token punctuation">(</span>units<span class="token operator">=</span><span class="token number">100</span><span class="token punctuation">,</span> activation<span class="token operator">=</span>tf<span class="token punctuation">.</span>nn<span class="token punctuation">.</span>relu<span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>dense2 <span class="token operator">=</span> tf<span class="token punctuation">.</span>keras<span class="token punctuation">.</span>layers<span class="token punctuation">.</span>Dense<span class="token punctuation">(</span>units<span class="token operator">=</span><span class="token number">10</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">def</span> <span class="token function">call</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> inputs<span class="token punctuation">)</span><span class="token punctuation">:</span>             <span class="token comment">#[batch_size, 28, 28, 1]</span>
+        x <span class="token operator">=</span> self<span class="token punctuation">.</span>flatten<span class="token punctuation">(</span>inputs<span class="token punctuation">)</span>        <span class="token comment">#[batch_size, 784]</span>
+        x <span class="token operator">=</span> self<span class="token punctuation">.</span>dense1<span class="token punctuation">(</span>x<span class="token punctuation">)</span>              <span class="token comment">#[batch_size, 100]</span>
+        x <span class="token operator">=</span> self<span class="token punctuation">.</span>dense2<span class="token punctuation">(</span>x<span class="token punctuation">)</span>              <span class="token comment">#[batch_size, 10]</span>
+        output <span class="token operator">=</span> tf<span class="token punctuation">.</span>nn<span class="token punctuation">.</span>softmax<span class="token punctuation">(</span>x<span class="token punctuation">)</span>       <span class="token comment">#归一化求概率</span>
+        <span class="token keyword">return</span> output
+</code></pre>
+<br>
+<h2><a id="%09_125"></a>四．	训练模型</h2>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;选好batch，学习率，循环次数。将前面定义好的模型类，数据加载类实例化，同时定义一个模型的优化器tf.keras.optimizers.Adam。</p>
+<p>训练步骤</p>
+<ol>
+<li>
+<p>随机抽取一个batch的训练数据</p>
+</li>
+<li>
+<p>计算模型的预测值</p>
+</li>
+<li>
+<p>计算loss，计算loss对variable的导数</p>
+</li>
+<li>
+<p>将导数和参数传入优化器，更新模型的参数以最小化loss<br>
+<br></p>
+</li>
+</ol>
+<pre><code class="prism language-python"><span class="token comment">#循环次数</span>
+num_epoch <span class="token operator">=</span> <span class="token number">5</span>
+<span class="token comment">#一个batch的数据量</span>
+batch_size <span class="token operator">=</span> <span class="token number">50</span>
+<span class="token comment">#学习率</span>
+learning_rate <span class="token operator">=</span> <span class="token number">1e</span><span class="token operator">-</span><span class="token number">3</span>
+
+<span class="token comment">#模型实例</span>
+model <span class="token operator">=</span> MyModel<span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token comment">#数据加载器实例</span>
+data_loader <span class="token operator">=</span> MNISTLoader<span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token comment">#优化器</span>
+optimizer <span class="token operator">=</span> tf<span class="token punctuation">.</span>keras<span class="token punctuation">.</span>optimizers<span class="token punctuation">.</span>Adam<span class="token punctuation">(</span>learning_rate<span class="token punctuation">)</span>
+
+<span class="token comment">#训练接中batch的数量</span>
+num_batch <span class="token operator">=</span> <span class="token builtin">int</span><span class="token punctuation">(</span>data_loader<span class="token punctuation">.</span>num_train_data <span class="token operator">/</span> batch_size<span class="token punctuation">)</span>
+
+<span class="token comment">#训练过程</span>
+<span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>num_epoch<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">for</span> batch_index <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>num_batch<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token comment">#导入一个batch的训练数据和标签</span>
+        x<span class="token punctuation">,</span> y <span class="token operator">=</span> data_loader<span class="token punctuation">.</span>get_batch<span class="token punctuation">(</span>batch_size<span class="token punctuation">)</span>
+        <span class="token keyword">with</span> tf<span class="token punctuation">.</span>GradientTape<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">as</span> tape<span class="token punctuation">:</span>
+            y_pred <span class="token operator">=</span> model<span class="token punctuation">(</span>x<span class="token punctuation">)</span>       <span class="token comment">#预测值</span>
+            <span class="token comment">#计算损失值</span>
+            loss <span class="token operator">=</span> tf<span class="token punctuation">.</span>keras<span class="token punctuation">.</span>losses<span class="token punctuation">.</span>sparse_categorical_crossentropy<span class="token punctuation">(</span>y_true<span class="token operator">=</span>y<span class="token punctuation">,</span> y_pred<span class="token operator">=</span>y_pred<span class="token punctuation">)</span>
+            loss <span class="token operator">=</span> tf<span class="token punctuation">.</span>reduce_mean<span class="token punctuation">(</span>loss<span class="token punctuation">)</span>
+            <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"batch %d: loss %f"</span> <span class="token operator">%</span><span class="token punctuation">(</span>batch_index<span class="token punctuation">,</span> loss<span class="token punctuation">.</span>numpy<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token comment">#计算梯度</span>
+        grads <span class="token operator">=</span> tape<span class="token punctuation">.</span>gradient<span class="token punctuation">(</span>loss<span class="token punctuation">,</span> model<span class="token punctuation">.</span>variables<span class="token punctuation">)</span>
+        optimizer<span class="token punctuation">.</span>apply_gradients<span class="token punctuation">(</span><span class="token builtin">zip</span><span class="token punctuation">(</span>grads<span class="token punctuation">,</span> model<span class="token punctuation">.</span>variables<span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h2><a id="%09_182"></a>五．	测试模型</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;使用tf.keras.metrics评估模型，使用对应的评估器在测试集上测试性能，将真实结果与预测结果比较，输出预测正确的样本占总样本数的比例。</p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;model.predict()是预测输入值的标签，然后通过传入参数y_pred预测值（预测的标签）, y_true真实值（真实的标签），update_state()更新评估器的状态，迭代结束后，通过result()方法输出准确率。</strong></p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;注意：update_state()传入的两个参数是标签，而不是数据，这是重点！！！</strong><br>
+<br></p>
+<pre><code class="prism language-python"><span class="token comment">#模型的测试</span>
+<span class="token comment">#实例化对应损失函数的评估器</span>
+tester <span class="token operator">=</span> tf<span class="token punctuation">.</span>keras<span class="token punctuation">.</span>metrics<span class="token punctuation">.</span>SparseCategoricalAccuracy<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+<span class="token comment">#测试集的batch数量</span>
+num_batch_test <span class="token operator">=</span> <span class="token builtin">int</span><span class="token punctuation">(</span>data_loader<span class="token punctuation">.</span>num_test_data <span class="token operator">/</span> batch_size<span class="token punctuation">)</span>
+<span class="token keyword">for</span> batch_index <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>num_batch_test<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token comment">#测试数据的标签</span>
+    start_index<span class="token punctuation">,</span> end_index <span class="token operator">=</span> batch_index <span class="token operator">*</span> batch_size<span class="token punctuation">,</span> <span class="token punctuation">(</span>batch_index<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">*</span> batch_size
+    <span class="token comment">#预测值</span>
+    y_pred <span class="token operator">=</span> model<span class="token punctuation">.</span>predict<span class="token punctuation">(</span>data_loader<span class="token punctuation">.</span>test_data<span class="token punctuation">[</span>start_index <span class="token punctuation">:</span> end_index<span class="token punctuation">]</span><span class="token punctuation">)</span>
+    <span class="token comment">#更新评估器的状态</span>
+    tester<span class="token punctuation">.</span>update_state<span class="token punctuation">(</span>y_true<span class="token operator">=</span>data_loader<span class="token punctuation">.</span>test_label<span class="token punctuation">[</span>start_index<span class="token punctuation">:</span>end_index<span class="token punctuation">]</span><span class="token punctuation">,</span> y_pred<span class="token operator">=</span>y_pred<span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"test accuracy : %f"</span> <span class="token operator">%</span> tester<span class="token punctuation">.</span>result<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<br>
+<p><strong>结果：</strong></p>
+<pre><code class="prism language-python">test accuracy <span class="token punctuation">:</span> <span class="token number">0.975900</span>
+</code></pre>
+</div>
+</body>
+
+</html>

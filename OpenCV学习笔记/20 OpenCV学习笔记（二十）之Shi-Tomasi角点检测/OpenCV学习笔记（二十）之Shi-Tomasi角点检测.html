@@ -1,0 +1,91 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenCV学习笔记（二十）之Shi-Tomasi角点检测</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="API_cvgoodFeaturesToTrack_7"></a>一.API cv::goodFeaturesToTrack</h2>
+<pre><code class="prism language-cpp">cv<span class="token operator">::</span><span class="token function">goodFeaturesToTrack</span><span class="token punctuation">(</span>
+	InputArray image<span class="token punctuation">,</span>
+	OutputArray corners<span class="token punctuation">,</span>					<span class="token comment">//角点的坐标值</span>
+	<span class="token keyword">int</span> maxCorners<span class="token punctuation">,</span>							<span class="token comment">//返回角点的最大数目，返回响应值最强的数目</span>
+	<span class="token keyword">double</span> qualityLevel<span class="token punctuation">,</span>					<span class="token comment">//最小可接受的向量值</span>
+	<span class="token keyword">double</span> minDistance<span class="token punctuation">,</span>					<span class="token comment">//两个角点之间的最小距离</span>
+	InputArray mask<span class="token operator">=</span><span class="token function">noArray</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	<span class="token keyword">int</span> blockSize<span class="token operator">=</span><span class="token number">3</span><span class="token punctuation">,</span>							<span class="token comment">//计算微分的窗口大小</span>
+	<span class="token keyword">bool</span> useHarrisDetector<span class="token operator">=</span><span class="token boolean">false</span><span class="token punctuation">,</span>	<span class="token comment">//是否使用Harris角点检测</span>
+	<span class="token keyword">double</span> k <span class="token operator">=</span> <span class="token number">0.04</span>							<span class="token comment">//Harris角点检测的参数</span>
+<span class="token punctuation">)</span>
+</code></pre>
+<h2><a id="__22"></a>二. 下面是代码：</h2>
+<pre><code class="prism language-cpp"><span class="token comment">/*****Shi-Tomas角点检测*****/</span>
+
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;opencv2/opencv.hpp&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+<span class="token keyword">int</span> num_corners <span class="token operator">=</span> <span class="token number">200</span><span class="token punctuation">;</span>
+<span class="token keyword">int</span> max_corners <span class="token operator">=</span> <span class="token number">2000</span><span class="token punctuation">;</span>
+cv<span class="token operator">::</span>Mat src<span class="token punctuation">,</span> gray_src<span class="token punctuation">;</span>
+cv<span class="token operator">::</span>RNG <span class="token function">rng</span><span class="token punctuation">(</span><span class="token number">12345</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">void</span> <span class="token function">ShiTomasi_Demo</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">,</span> <span class="token keyword">void</span><span class="token operator">*</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token keyword">int</span> argc<span class="token punctuation">,</span> <span class="token keyword">char</span><span class="token operator">*</span><span class="token operator">*</span> argv<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	src <span class="token operator">=</span> cv<span class="token operator">::</span><span class="token function">imread</span><span class="token punctuation">(</span><span class="token string">"建筑.jpg"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span><span class="token string">"in"</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span><span class="token string">"in"</span><span class="token punctuation">,</span> src<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token comment">//转灰度图</span>
+	cv<span class="token operator">::</span><span class="token function">cvtColor</span><span class="token punctuation">(</span>src<span class="token punctuation">,</span> gray_src<span class="token punctuation">,</span> cv<span class="token operator">::</span>COLOR_BGR2GRAY<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span><span class="token string">"ou"</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">createTrackbar</span><span class="token punctuation">(</span><span class="token string">"Corner Numbers:"</span><span class="token punctuation">,</span> <span class="token string">"ou"</span><span class="token punctuation">,</span> <span class="token operator">&amp;</span>num_corners<span class="token punctuation">,</span> max_corners<span class="token punctuation">,</span>
+		ShiTomasi_Demo<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token function">ShiTomasi_Demo</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	cv<span class="token operator">::</span><span class="token function">waitKey</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">void</span> <span class="token function">ShiTomasi_Demo</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">,</span> <span class="token keyword">void</span><span class="token operator">*</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	<span class="token keyword">if</span> <span class="token punctuation">(</span>num_corners <span class="token operator">&lt;</span> <span class="token number">5</span><span class="token punctuation">)</span>
+		num_corners <span class="token operator">=</span> <span class="token number">5</span><span class="token punctuation">;</span>
+
+	<span class="token comment">//角点检测参数</span>
+	<span class="token comment">//存储角点位置</span>
+	vector<span class="token operator">&lt;</span>cv<span class="token operator">::</span>Point2f<span class="token operator">&gt;</span> corners<span class="token punctuation">;</span>
+	<span class="token comment">//最小可接受的向量值</span>
+	<span class="token keyword">double</span> qualityLevel <span class="token operator">=</span> <span class="token number">0.03</span><span class="token punctuation">;</span>
+	<span class="token comment">//两个角点之间的最小距离</span>
+	<span class="token keyword">double</span> minDistance <span class="token operator">=</span> <span class="token number">10</span><span class="token punctuation">;</span>
+	<span class="token keyword">int</span> blockSize <span class="token operator">=</span> <span class="token number">3</span><span class="token punctuation">;</span>
+	<span class="token keyword">bool</span> useHarris <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+	<span class="token keyword">double</span> k <span class="token operator">=</span> <span class="token number">0.04</span><span class="token punctuation">;</span>
+
+	cv<span class="token operator">::</span>Mat resultImg <span class="token operator">=</span> gray_src<span class="token punctuation">.</span><span class="token function">clone</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">cvtColor</span><span class="token punctuation">(</span>resultImg<span class="token punctuation">,</span> resultImg<span class="token punctuation">,</span> cv<span class="token operator">::</span>COLOR_GRAY2BGR<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//角点检测Shi-Tomasi</span>
+	cv<span class="token operator">::</span><span class="token function">goodFeaturesToTrack</span><span class="token punctuation">(</span>gray_src<span class="token punctuation">,</span> corners<span class="token punctuation">,</span> num_corners<span class="token punctuation">,</span> qualityLevel<span class="token punctuation">,</span> minDistance<span class="token punctuation">,</span>
+		cv<span class="token operator">::</span><span class="token function">Mat</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> blockSize<span class="token punctuation">,</span> useHarris<span class="token punctuation">,</span> k<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"Number of Detected Corners: %d\n"</span><span class="token punctuation">,</span> corners<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token comment">//画出角点</span>
+	<span class="token keyword">for</span> <span class="token punctuation">(</span>size_t t <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> t <span class="token operator">&lt;</span> corners<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token operator">++</span>t<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		cv<span class="token operator">::</span><span class="token function">circle</span><span class="token punctuation">(</span>resultImg<span class="token punctuation">,</span> corners<span class="token punctuation">[</span>t<span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Scalar</span><span class="token punctuation">(</span>rng<span class="token punctuation">.</span><span class="token function">uniform</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">255</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+			rng<span class="token punctuation">.</span><span class="token function">uniform</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">255</span><span class="token punctuation">)</span><span class="token punctuation">,</span> rng<span class="token punctuation">.</span><span class="token function">uniform</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">255</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span><span class="token string">"ou"</span><span class="token punctuation">,</span> resultImg<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

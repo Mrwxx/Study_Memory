@@ -1,0 +1,68 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【C++学习笔记（二十）】之虚析构函数与纯虚析构函数</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="__7"></a>一. 虚析构函数</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;子类继承了父类，但是普通析构函数是不会调用子类的析构的，所以可能会导致内存释放地不干净。我们需要使用虚析构函数来解决。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;写法：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;Virtual ~Animal(){}</p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;虚析构函数是为了解决基类的指针指向派生类对象，并用基类的指针删除派生类对象。</strong></p>
+<h2><a id="__18"></a>二. 纯虚析构函数</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;写法：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;声明：Virtual ~Animal() = 0</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;实现：Animal::~Animal(){…}</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;纯虚析构，需要声明，也需要实现。类内声明，类外实现。<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;若类中有纯虚函数，则类也是抽象类，不可实例化。</p>
+<h2><a id="__30"></a>三. 代码：</h2>
+<pre><code class="prism language-cpp"><span class="token keyword">class</span> <span class="token class-name">People</span><span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token function">People</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token string">"构造函数 People!"</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token keyword">virtual</span> <span class="token keyword">void</span> <span class="token function">showName</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+	<span class="token keyword">virtual</span> <span class="token operator">~</span><span class="token function">People</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token string">"析构函数 People!"</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">class</span> <span class="token class-name">Worker</span> <span class="token operator">:</span> <span class="token keyword">public</span> People<span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token function">Worker</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token string">"构造函数 Worker!"</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+		pName <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token keyword">char</span><span class="token punctuation">[</span><span class="token number">10</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token keyword">virtual</span> <span class="token keyword">void</span> <span class="token function">showName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token string">"打印子类的名字!"</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token operator">~</span><span class="token function">Worker</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token string">"析构函数 Worker!"</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+		<span class="token keyword">if</span> <span class="token punctuation">(</span>pName <span class="token operator">!=</span> <span class="token constant">NULL</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+			<span class="token keyword">delete</span> pName<span class="token punctuation">;</span>
+		<span class="token punctuation">}</span>
+	<span class="token punctuation">}</span>
+<span class="token keyword">private</span><span class="token operator">:</span>
+	<span class="token keyword">char</span><span class="token operator">*</span> pName<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">void</span> <span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+
+	People<span class="token operator">*</span> people <span class="token operator">=</span> <span class="token keyword">new</span> Worker<span class="token punctuation">;</span>
+	people<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token operator">~</span><span class="token function">People</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

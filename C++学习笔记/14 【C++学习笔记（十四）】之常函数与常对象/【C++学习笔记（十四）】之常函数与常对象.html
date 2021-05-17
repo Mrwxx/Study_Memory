@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【C++学习笔记（十四）】之常函数与常对象</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="__7"></a>一. 常函数</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>我们都知道this指针是指向类对象的, 且这个地址是一直不变的，即const性质的。设置一个类Person，可以将它记为 Person * const this;</strong> 字面意思就是this这个指针的值是不变的，即所指向的类对象是不变的。<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;那么如果要让指针指向的类对象中的值无法修改时，即	Const Person* const this;要怎么做呢？<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;这就要用到<strong>常函数</strong>了，如</p>
+<pre><code class="prism language-cpp"><span class="token keyword">void</span> <span class="token function">c1</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">const</span><span class="token punctuation">{</span><span class="token punctuation">}</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>可以看到，我们在普通的函数后面增加了const ，代表着这个函数是常函数。在这个函数中，this指针指向的类对象的值是无法修改的 。</strong><br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;但同时，C++也给我们放宽了一点，提供了<strong>mutable关键字来突破const的限制</strong>，若类中有些值我们需要修改，便可以声明为mutable，即使是在常函数中，也是可以修改的。</p>
+<pre><code class="prism language-cpp"><span class="token keyword">mutable</span> <span class="token keyword">int</span> a<span class="token punctuation">;</span>
+</code></pre>
+<h2><a id="__23"></a>二. 常对象</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;常函数只能在函数的范围内控制类对象不能被修改，如果我想把这个控制范围扩大呢？扩大到整个类对象的范围，就变成了<strong>常对象</strong>了。<strong>即定义一个整个类对象中的值都是无法被修改的。</strong></p>
+<pre><code class="prism language-cpp"><span class="token keyword">const</span> Person p2<span class="token punctuation">;</span>
+</code></pre>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;常对象不可以调用普通的成员函数，因为普通的成员函数有修改成员变量的风险，而常变量已经声明了不允许修改对象的属性。因此，常对象只能调用常函数。</strong><br>
+<strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;常对象调用常函数：</strong></p>
+<pre><code class="prism language-cpp">Void <span class="token function">c2</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">const</span><span class="token punctuation">{</span><span class="token punctuation">}</span>
+Const Person p2<span class="token punctuation">;</span>
+P2<span class="token punctuation">.</span><span class="token function">c2</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<h2><a id="__40"></a>三. 代码：</h2>
+<pre><code class="prism language-cpp"><span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+<span class="token keyword">class</span> <span class="token class-name">Person</span> <span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token function">Person</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		a <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+		b <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+	<span class="token keyword">void</span> <span class="token function">text</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">const</span>	<span class="token comment">//常函数</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token string">"a = "</span> <span class="token operator">&lt;&lt;</span> a <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token string">"b = "</span> <span class="token operator">&lt;&lt;</span> b <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+	<span class="token keyword">int</span> a<span class="token punctuation">;</span>
+	<span class="token keyword">int</span> b<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">void</span> <span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	Person p1<span class="token punctuation">;</span>
+	p1<span class="token punctuation">.</span><span class="token function">text</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token keyword">const</span> Person p2<span class="token punctuation">;</span>		<span class="token comment">//常对象</span>
+	p2<span class="token punctuation">.</span><span class="token function">text</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	<span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

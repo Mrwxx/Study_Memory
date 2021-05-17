@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【C++学习笔记（八）】之类对象作为类成员时，构造函数与析构函数的调用顺序（附代码，有详细注释）</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h3><a id="_7"></a>类对象作为类成员时，构造函数与析构函数的调用顺序：</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;类对象作为类成员时候，<strong>构造顺序先将类对象一一构造</strong>，然后构造自己， <strong>析构的顺序是相反的</strong></p>
+<h3><a id="_10"></a>举例：</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;下面代码，Person类中包含了Phone类对象，Game类对象，<strong>构造函数首先构造Phone类对象，再构造Game类对象，最后构造Person类对象。析构函数的调用顺序为先Person类对象，然后Game类对象，最后Phone类对象</strong>，与构造函数的调用顺序是相反的。</p>
+<h3><a id="_13"></a>代码如下，有详细注释：</h3>
+<pre><code class="prism language-cpp"><span class="token macro property">#<span class="token directive keyword">define</span> _CRT_SECURE_NO_WARNINGS</span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;string&gt;</span></span>
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+<span class="token keyword">class</span> <span class="token class-name">Phone</span>
+<span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token function">Phone</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token string">"手机的默认构造函数调用"</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token function">Phone</span><span class="token punctuation">(</span>string name<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token string">"手机的有参构造调用"</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+		m_PhoneName <span class="token operator">=</span> name<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	
+	<span class="token operator">~</span><span class="token function">Phone</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token string">"手机的析构函数调用"</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+	string m_PhoneName<span class="token punctuation">;</span>
+
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">class</span> <span class="token class-name">Game</span>
+<span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token function">Game</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token string">"Game的默认构造函数调用"</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token function">Game</span><span class="token punctuation">(</span>string name<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token string">"Game的有参构造调用"</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+		m_GameName <span class="token operator">=</span> name<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token operator">~</span><span class="token function">Game</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token string">"Game的析构函数调用"</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+	string m_GameName<span class="token punctuation">;</span>
+
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">class</span> <span class="token class-name">Person</span>
+<span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token function">Person</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token string">"Person的默认构造函数调用"</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+	<span class="token function">Person</span><span class="token punctuation">(</span>string name<span class="token punctuation">,</span> string phoneName<span class="token punctuation">,</span> string gameName<span class="token punctuation">)</span> <span class="token operator">:</span> <span class="token function">m_Name</span><span class="token punctuation">(</span>name<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token function">m_Phone</span><span class="token punctuation">(</span>phoneName<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token function">m_Game</span><span class="token punctuation">(</span>gameName<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token string">"Person的有参构造调用"</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+		<span class="token comment">//m_Name = name;</span>
+	<span class="token punctuation">}</span>
+
+	<span class="token keyword">void</span> <span class="token function">playGame</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> m_Name <span class="token operator">&lt;&lt;</span> <span class="token string">" 拿着《"</span> <span class="token operator">&lt;&lt;</span> m_Phone<span class="token punctuation">.</span>m_PhoneName <span class="token operator">&lt;&lt;</span> <span class="token string">"》牌手机 ，玩着《"</span> <span class="token operator">&lt;&lt;</span> m_Game<span class="token punctuation">.</span>m_GameName <span class="token operator">&lt;&lt;</span> <span class="token string">"》游戏"</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+	<span class="token operator">~</span><span class="token function">Person</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token string">"Person的析构函数调用"</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+	string m_Name<span class="token punctuation">;</span> <span class="token comment">//姓名</span>
+	Phone m_Phone<span class="token punctuation">;</span> <span class="token comment">//手机</span>
+	Game m_Game<span class="token punctuation">;</span> <span class="token comment">//游戏</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token comment">//类对象作为类成员时候，构造顺序先将类对象一一构造，然后构造自己， 析构的顺序是相反的</span>
+<span class="token keyword">void</span> <span class="token function">test01</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	Person <span class="token function">p</span><span class="token punctuation">(</span><span class="token string">"狗蛋"</span><span class="token punctuation">,</span><span class="token string">"苹果"</span><span class="token punctuation">,</span><span class="token string">"切水果"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	p<span class="token punctuation">.</span><span class="token function">playGame</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+
+	<span class="token function">test01</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token function">system</span><span class="token punctuation">(</span><span class="token string">"pause"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">return</span> EXIT_SUCCESS<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

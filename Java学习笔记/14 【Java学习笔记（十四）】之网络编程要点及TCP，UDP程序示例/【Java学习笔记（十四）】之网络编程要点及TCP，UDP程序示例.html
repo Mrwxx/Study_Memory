@@ -1,0 +1,372 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Java学习笔记（十四）】之网络编程要点及TCP，UDP程序示例</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	网络编程三要素</h2>
+<h3><a id="%09IP_8"></a>（一）	IP地址</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;网络中设备的唯一标识。<br>
+<br></p>
+<h3><a id="%09_12"></a>（二）	端口</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;网络通信中应用程序的标识<br>
+<br></p>
+<h3><a id="%09_16"></a>（三）	协议</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;网络通信的协议 ，对数据的传输格式，传输速率等都有统一规定。<br>
+<br></p>
+<h2><a id="_IP_20"></a>二． IP地址</h2>
+<h3><a id="_IPv4_21"></a>（一） IPv4</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;给每个连接在网络上的主机分配一个<strong>32bit的地址，也就是4个字节</strong>， 为了方便使用，常常表示为十进制，称为点分十进制表示法。<br>
+<br></p>
+<h3><a id="_IPv6_25"></a>（二） IPv6</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;为了扩大地址空间，采用新的地址IPv6，<strong>用128bit表示，每16个字节一组，分成8个十六进制数。</strong><br>
+<br></p>
+<h3><a id="InetAddress_29"></a>（三）InetAddress类</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;此类表示IP地址。<br>
+<br></p>
+
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>static InetAddress getByName(String host)</td>
+<td>确定主机名称的IP地址。主机名称可以是机器名称，也可以是IP地址</td>
+</tr>
+<tr>
+<td>String getHostName()</td>
+<td>获取此IP地址的主机名</td>
+</tr>
+<tr>
+<td>String getHostAddress()</td>
+<td>返回文本显示中的IP地址字符串</td>
+</tr>
+</tbody>
+</table><br>
+<h2><a id="__42"></a>三． 端口</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;用两个字节表示的整数，取值范围是0-65535.0-1023之间的端口号用于知名的应用程序，<strong>若端口号被另一个服务或者应用占用，则当前程序会启动失败。</strong><br>
+<br></p>
+<h2><a id="_46"></a>四．协议</h2>
+<h3><a id="UDP_47"></a>（一）UDP协议</h3>
+<h4><a id="1__48"></a>1. 概述</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>用户数据报协议 (User Datagram Protocol)。UDP是无连接通信协议</strong>，在数据传输时，数据的发送端和接收端不建立逻辑连接。发送端不会确认接收端的状态就直接发送，接收端收到数据也不会向发送端发送反馈。<br>
+<br></p>
+<h4><a id="2_53"></a>2.应用</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;由于使用 UDP协议消耗资源小，通信效率高，所以通常都会用于音频、视频和普通数据的传输<br>
+<br></p>
+<h3><a id="TCP_57"></a>（二）TCP协议</h3>
+<h4><a id="1__58"></a>1. 概述</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>传输控制协议 (Transmission Control Protocol)。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>TCP 协议是面向连接的通信协议，即传输数据之前，在发送端和接收端建立逻辑连接，然后再传输数据，它提供了两台计算机之间可靠无差错的数据传输。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在TCP连接中必须要明确客户端与服务器端，由客户端向服务端发出连接请求，每次连接的创建都需要经过“三次握手”<br>
+<br></p>
+<h4><a id="2_66"></a>2.三次握手</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;发送数据的准备阶段，客户端与服务器之间的三次交互，以保证连接的可靠性。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（1）	第一次握手，客户端向服务器端发出连接请求，等待服务器确认</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（2）	第二次握手，服务器端向客户端回送一个响应，通知客户端收到了连接请求</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（3）	第三次握手，客户端再次向服务器端发送确认信息，确认连接</p>
+<br>
+<h2><a id="UDP_77"></a>五．UDP通信实例</h2>
+<h3><a id="UDP_78"></a>（一）UDP发送数据</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在通信的两端各建立一个Socket对象，用于发送和接受数据。DatagramSocket类是基于UDP协议的Socket。<br>
+<br></p>
+<h4><a id="1%09_82"></a>1.	构造方法</h4>
+<br>
+
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DatagramSocket()</td>
+<td>创建数据报套接字并将其绑定到本机地址上的任何可用端口</td>
+</tr>
+<tr>
+<td>DatagramPacket(byte[] buf,int len,InetAddress add,int port)</td>
+<td>创建数据包,发送长度为len的数据包到指定主机的指定端口</td>
+</tr>
+</tbody>
+</table><br>
+<h4><a id="2%09_92"></a>2.	常用方法</h4>
+<br>
+
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>void send(DatagramPacket p)</td>
+<td>发送数据报包</td>
+</tr>
+<tr>
+<td>void close()</td>
+<td>关闭数据报套接字</td>
+</tr>
+</tbody>
+</table><br>
+<h4><a id="3%09_101"></a>3.	步骤</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（1）	创建发送端的Socket对象。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（2）	创建数据并打包</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（3）	发送数据</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（4）	关闭发送端<br>
+<br></p>
+<h4><a id="4%09_111"></a>4.	示例</h4>
+<br>
+<pre><code class="prism language-java"><span class="token keyword">package</span> 网络编程<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>io<span class="token punctuation">.</span>IOException<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>net<span class="token punctuation">.</span>*<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UDP</span>发送数据 <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> IOException <span class="token punctuation">{</span>
+        DatagramSocket ds <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">DatagramSocket</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">byte</span><span class="token punctuation">[</span><span class="token punctuation">]</span> bys <span class="token operator">=</span> <span class="token string">"hello world"</span><span class="token punctuation">.</span><span class="token function">getBytes</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        DatagramPacket dp <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">DatagramPacket</span><span class="token punctuation">(</span>bys<span class="token punctuation">,</span> bys<span class="token punctuation">.</span>length<span class="token punctuation">,</span> InetAddress<span class="token punctuation">.</span><span class="token function">getByName</span><span class="token punctuation">(</span><span class="token string">"LAPTOP-R2809UF4"</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">10086</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        ds<span class="token punctuation">.</span><span class="token function">send</span><span class="token punctuation">(</span>dp<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        ds<span class="token punctuation">.</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h3><a id="UDP_133"></a>（二）UDP接受数据</h3>
+<h4><a id="1__134"></a>1. 常用方法</h4>
+<br>
+
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>byte[] getData()</td>
+<td>返回数据缓冲区</td>
+</tr>
+<tr>
+<td>int getLength()</td>
+<td>返回要发送的数据的长度或接收的数据的长度</td>
+</tr>
+<tr>
+<td>void receive(DatagramPacket p)</td>
+<td>从此套接字接受数据报包</td>
+</tr>
+</tbody>
+</table><br>
+<h4><a id="2__144"></a>2. 示例</h4>
+<br>
+<pre><code class="prism language-java"><span class="token keyword">package</span> 网络编程<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>io<span class="token punctuation">.</span>IOException<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>net<span class="token punctuation">.</span>DatagramPacket<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>net<span class="token punctuation">.</span>DatagramSocket<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>net<span class="token punctuation">.</span>SocketException<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UDP</span>接受数据 <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> IOException <span class="token punctuation">{</span>
+        DatagramSocket ds <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">DatagramSocket</span><span class="token punctuation">(</span><span class="token number">10086</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">byte</span><span class="token punctuation">[</span><span class="token punctuation">]</span> bys <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">byte</span><span class="token punctuation">[</span><span class="token number">1024</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        DatagramPacket dp <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">DatagramPacket</span><span class="token punctuation">(</span>bys<span class="token punctuation">,</span> bys<span class="token punctuation">.</span>length<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        ds<span class="token punctuation">.</span><span class="token function">receive</span><span class="token punctuation">(</span>dp<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">byte</span><span class="token punctuation">[</span><span class="token punctuation">]</span> data <span class="token operator">=</span> dp<span class="token punctuation">.</span><span class="token function">getData</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">int</span> len <span class="token operator">=</span>  dp<span class="token punctuation">.</span><span class="token function">getLength</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        String dataString <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">String</span><span class="token punctuation">(</span>data<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> len<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"数据时："</span><span class="token operator">+</span> dataString<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        ds<span class="token punctuation">.</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h2><a id="TCP_174"></a>六．TCP通信实例</h2>
+<h3><a id="TCP_175"></a>（一）TCP发送数据</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;TCP为客户端提供了Socket类，为服务端提供了ServerSocket类。<br>
+<br></p>
+<h4><a id="1%09_179"></a>1.	构造方法</h4>
+<br>
+
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Socket(InetAddress address,int port)</td>
+<td>创建流套接字并将其连接到指定IP指定端口号</td>
+</tr>
+<tr>
+<td>Socket(String host, int port)</td>
+<td>创建流套接字并将其连接到指定主机上的指定端口号</td>
+</tr>
+</tbody>
+</table><br>
+<h4><a id="2%09_188"></a>2.	常用方法</h4>
+<br>
+
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>InputStream getInputStream()</td>
+<td>返回此套接字的输入流</td>
+</tr>
+<tr>
+<td>OutputStream getOutputStream()</td>
+<td>返回此套接字的输出流</td>
+</tr>
+</tbody>
+</table><br>
+<h4><a id="3%09_197"></a>3.	步骤</h4>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（1）	创建客户端的Socket对象。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（2）	获取输出流，写数据</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（3）	客户端使用输入流接受服务器端的反馈数据</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（4）	关闭客户端<br>
+<br></p>
+<h4><a id="4%09_209"></a>4.	示例</h4>
+<br>
+<pre><code class="prism language-java"><span class="token keyword">package</span> 网络编程<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>io<span class="token punctuation">.</span>IOException<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>io<span class="token punctuation">.</span>OutputStream<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>net<span class="token punctuation">.</span>Socket<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">TCP</span>发送数据 <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> IOException <span class="token punctuation">{</span>
+        <span class="token comment">//创建客户端的Socket对象</span>
+        Socket s <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Socket</span><span class="token punctuation">(</span><span class="token string">"192.168.0.106"</span><span class="token punctuation">,</span> <span class="token number">6000</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment">//获取输出流，写数据</span>
+        OutputStream os <span class="token operator">=</span> s<span class="token punctuation">.</span><span class="token function">getOutputStream</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        os<span class="token punctuation">.</span><span class="token function">write</span><span class="token punctuation">(</span><span class="token string">"hello world"</span><span class="token punctuation">.</span><span class="token function">getBytes</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">//接收服务器反馈</span>
+    InputStream is <span class="token operator">=</span> s<span class="token punctuation">.</span><span class="token function">getInputStream</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">byte</span><span class="token punctuation">[</span><span class="token punctuation">]</span> bys <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">byte</span><span class="token punctuation">[</span><span class="token number">1024</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token keyword">int</span> len <span class="token operator">=</span> is<span class="token punctuation">.</span><span class="token function">read</span><span class="token punctuation">(</span>bys<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    String data <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">String</span><span class="token punctuation">(</span>bys<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> len<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"客户端："</span> <span class="token operator">+</span> data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment">//释放资源</span>
+        s<span class="token punctuation">.</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h3><a id="TCP_243"></a>（二）TCP接受数据</h3>
+<h4><a id="1__244"></a>1. 构造方法</h4>
+<br>
+
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ServletSocket(int port)</td>
+<td>创建绑定到指定端口的服务器套接字</td>
+</tr>
+</tbody>
+</table><br>
+<h4><a id="2__252"></a>2. 常用方法</h4>
+<br>
+
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Socket accept()</td>
+<td>监听要连接到此的套接字并接受它</td>
+</tr>
+</tbody>
+</table><br>
+<h4><a id="3__260"></a>3. 步骤</h4>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（1）创建服务器端的ServerSocket对象。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（2）监听客户端的连接</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（3）获取输入流，读数据</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（4）服务器端通过输出流向客户端反馈。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（5）关闭服务器端<br>
+<br></p>
+<h4><a id="4_274"></a>4.示例</h4>
+<br>
+<pre><code class="prism language-java"><span class="token keyword">package</span> 网络编程<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>io<span class="token punctuation">.</span>IOException<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>io<span class="token punctuation">.</span>InputStream<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>net<span class="token punctuation">.</span>ServerSocket<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>net<span class="token punctuation">.</span>Socket<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">TCP</span>接受数据 <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> IOException <span class="token punctuation">{</span>
+        <span class="token comment">//创建服务器端的socket</span>
+        ServerSocket ss <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ServerSocket</span><span class="token punctuation">(</span><span class="token number">6000</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        
+        <span class="token comment">//监听客户端的链接</span>
+        Socket s <span class="token operator">=</span> ss<span class="token punctuation">.</span><span class="token function">accept</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment">//获取输入流，读数据</span>
+        InputStream is <span class="token operator">=</span> s<span class="token punctuation">.</span><span class="token function">getInputStream</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">byte</span><span class="token punctuation">[</span><span class="token punctuation">]</span> bys <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">byte</span><span class="token punctuation">[</span><span class="token number">1024</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token keyword">int</span> len <span class="token operator">=</span>  is<span class="token punctuation">.</span><span class="token function">read</span><span class="token punctuation">(</span>bys<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        String data <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">String</span><span class="token punctuation">(</span>bys<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> len<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"数据是："</span> <span class="token operator">+</span> data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">//给出反馈</span>
+    OutputStream os <span class="token operator">=</span> s<span class="token punctuation">.</span><span class="token function">getOutputStream</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    os<span class="token punctuation">.</span><span class="token function">write</span><span class="token punctuation">(</span><span class="token string">"数据已经收到"</span><span class="token punctuation">.</span><span class="token function">getBytes</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        s<span class="token punctuation">.</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        ss<span class="token punctuation">.</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h3><a id="_312"></a>（三）注意事项</h3>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;如何记忆TCP发送数据与接受数据的输入流，输出流的顺序?</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>客户端发送数据时，使用的是输出流，因为是向外发送；发送到服务器端，服务器端用输入流接受，因为数据是从外向里的</strong>。反馈是从服务器端开始发送，同样向外发送都是使用输出流，客户端接受这个反馈时使用的是输入流。</p>
+</div>
+</body>
+
+</html>

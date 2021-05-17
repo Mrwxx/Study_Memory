@@ -1,0 +1,145 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【LeetCode刷题笔记（二）】之两个链表相加</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_8"></a>一．	题目</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>给出两个非空的链表用来表示两个非负的整数。其中，它们各自的位数是按照逆序的方式存储的，并且它们的每个节点只能存储一位数字。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如果，我们将这两个数相加起来，则会返回一个新的链表来表示它们的和。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;您可以假设除了数字 0 之外，这两个数都不会以 0 开头。</p>
+<p>示例：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;输入：(2 -&gt; 4 -&gt; 3) + (5 -&gt; 6 -&gt; 4)<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;输出：7 -&gt; 0 -&gt; 8<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;原因：342 + 465 = 807<br>
+<br></p>
+<h2><a id="%09_23"></a>二．	思路</h2>
+<br>
+<ol>
+<li>
+<p>实质是将两个链表相加，生成一个新的链表。</p>
+</li>
+<li>
+<p>链表中的每一个节点存储一位数字，两个链表对应节点相加，<strong>则两个链表的长度需要对齐，将短的链表缺失部分补为0</strong></p>
+</li>
+<li>
+<p><strong>数字相加有进位需要考虑</strong>，有进位，则向后面的节点相加结果进位1</p>
+</li>
+<li>
+<p>当两个链表都遍历完毕后，注意最后还可能有一个进位。</p>
+</li>
+</ol>
+<br>
+<h2><a id="%09C_36"></a>三．	C++代码实现</h2>
+<br>
+<pre><code class="prism language-cpp"><span class="token comment">/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */</span>
+<span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+    ListNode<span class="token operator">*</span> <span class="token function">addTwoNumbers</span><span class="token punctuation">(</span>ListNode<span class="token operator">*</span> l1<span class="token punctuation">,</span> ListNode<span class="token operator">*</span> l2<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment">//新建节点表示新的链表,用0初始化</span>
+        ListNode<span class="token operator">*</span> l3 <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token function">ListNode</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">//参数准备,两个链表相加</span>
+        ListNode<span class="token operator">*</span> p <span class="token operator">=</span> l1<span class="token punctuation">,</span> <span class="token operator">*</span>q <span class="token operator">=</span> l2<span class="token punctuation">,</span> <span class="token operator">*</span>curr <span class="token operator">=</span> l3<span class="token punctuation">;</span>
+        <span class="token comment">//进位的标志</span>
+        <span class="token keyword">int</span> mov <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+        <span class="token comment">//当链表都没有到达末尾时</span>
+        <span class="token keyword">while</span><span class="token punctuation">(</span>p <span class="token operator">!=</span> <span class="token constant">NULL</span> <span class="token operator">||</span> q <span class="token operator">!=</span> <span class="token constant">NULL</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token comment">//当一个链表到达末尾后，之后的值都为0</span>
+            <span class="token keyword">int</span> x <span class="token operator">=</span> p <span class="token operator">!=</span> <span class="token constant">NULL</span> <span class="token operator">?</span> p<span class="token operator">-</span><span class="token operator">&gt;</span>val <span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">;</span>
+            <span class="token keyword">int</span> y <span class="token operator">=</span> q <span class="token operator">!=</span> <span class="token constant">NULL</span> <span class="token operator">?</span> q<span class="token operator">-</span><span class="token operator">&gt;</span>val <span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">;</span>
+            <span class="token comment">//每次计算综合需要考虑上一次的mov,第一次为0</span>
+            <span class="token keyword">int</span> sum <span class="token operator">=</span> x <span class="token operator">+</span> y <span class="token operator">+</span> mov<span class="token punctuation">;</span>
+            <span class="token comment">//进位用商来求</span>
+            mov <span class="token operator">=</span> sum <span class="token operator">/</span> <span class="token number">10</span><span class="token punctuation">;</span>
+            <span class="token comment">//新节点的值用mod来求</span>
+            curr<span class="token operator">-</span><span class="token operator">&gt;</span>next <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token function">ListNode</span><span class="token punctuation">(</span>sum <span class="token operator">%</span> <span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token comment">//链接</span>
+            curr <span class="token operator">=</span> curr<span class="token operator">-</span><span class="token operator">&gt;</span>next<span class="token punctuation">;</span>
+            <span class="token comment">//两个链表节点后移</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span>p<span class="token operator">!=</span> <span class="token constant">NULL</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                p <span class="token operator">=</span> p<span class="token operator">-</span><span class="token operator">&gt;</span>next<span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span>q<span class="token operator">!=</span> <span class="token constant">NULL</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                q <span class="token operator">=</span> q<span class="token operator">-</span><span class="token operator">&gt;</span>next<span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+
+        <span class="token punctuation">}</span>
+        <span class="token comment">//两个链表都遍历完毕后,注意最后的相加可能还会进位</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>mov <span class="token operator">&gt;</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            curr<span class="token operator">-</span><span class="token operator">&gt;</span>next <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token function">ListNode</span><span class="token punctuation">(</span>mov<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> l3<span class="token operator">-</span><span class="token operator">&gt;</span>next<span class="token punctuation">;</span>
+
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h2><a id="%09Java_90"></a>四．	Java代码实现</h2>
+<br>
+<pre><code class="prism language-java"><span class="token comment">/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) { val = x; }
+ * }
+ */</span>
+<span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> ListNode <span class="token function">addTwoNumbers</span><span class="token punctuation">(</span>ListNode l1<span class="token punctuation">,</span> ListNode l2<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment">//新建节点表示新的链表,用0初始化</span>
+        ListNode l3 <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ListNode</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">//参数准备,两个链表相加</span>
+        ListNode p <span class="token operator">=</span> l1<span class="token punctuation">,</span> q <span class="token operator">=</span> l2<span class="token punctuation">,</span> curr <span class="token operator">=</span> l3<span class="token punctuation">;</span>
+        <span class="token comment">//进位的标志</span>
+        <span class="token keyword">int</span> mov <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+        <span class="token comment">//当链表都没有到达末尾时</span>
+        <span class="token keyword">while</span><span class="token punctuation">(</span>p <span class="token operator">!=</span> null <span class="token operator">||</span> q <span class="token operator">!=</span> null<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token comment">//当一个链表到达末尾后，之后的值都为0</span>
+            <span class="token keyword">int</span> x <span class="token operator">=</span> p <span class="token operator">!=</span> null <span class="token operator">?</span> p<span class="token punctuation">.</span>val <span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">;</span>
+            <span class="token keyword">int</span> y <span class="token operator">=</span> q <span class="token operator">!=</span> null <span class="token operator">?</span> q<span class="token punctuation">.</span>val <span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">;</span>
+            <span class="token comment">//每次计算综合需要考虑上一次的mov,第一次为0</span>
+            <span class="token keyword">int</span> sum <span class="token operator">=</span> x <span class="token operator">+</span> y <span class="token operator">+</span> mov<span class="token punctuation">;</span>
+            <span class="token comment">//进位用商来求</span>
+            mov <span class="token operator">=</span> sum <span class="token operator">/</span> <span class="token number">10</span><span class="token punctuation">;</span>
+            <span class="token comment">//新节点的值用mod来求</span>
+            curr<span class="token punctuation">.</span>next <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ListNode</span><span class="token punctuation">(</span>sum <span class="token operator">%</span> <span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token comment">//链接</span>
+            curr <span class="token operator">=</span> curr<span class="token punctuation">.</span>next<span class="token punctuation">;</span>
+            <span class="token comment">//两个链表节点后移</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span>p<span class="token operator">!=</span> null<span class="token punctuation">)</span><span class="token punctuation">{</span>
+                p <span class="token operator">=</span> p<span class="token punctuation">.</span>next<span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span>q<span class="token operator">!=</span> null<span class="token punctuation">)</span><span class="token punctuation">{</span>
+                q <span class="token operator">=</span> q<span class="token punctuation">.</span>next<span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+
+        <span class="token punctuation">}</span>
+        <span class="token comment">//两个链表都遍历完毕后,注意最后的相加可能还会进位</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>mov <span class="token operator">&gt;</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            curr<span class="token punctuation">.</span>next <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ListNode</span><span class="token punctuation">(</span>mov<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> l3<span class="token punctuation">.</span>next<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

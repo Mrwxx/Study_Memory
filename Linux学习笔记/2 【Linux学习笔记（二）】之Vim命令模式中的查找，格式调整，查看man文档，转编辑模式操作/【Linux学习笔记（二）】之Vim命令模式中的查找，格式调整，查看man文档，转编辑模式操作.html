@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Linux学习笔记（二）】之Vim命令模式中的查找，格式调整，查看man文档，转编辑模式操作</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09Vim_8"></a>一．	Vim中的查找操作</h2>
+<h3><a id="_string_9"></a>（一）/ string</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;从光标处开始查找string字符串，用n向下遍历，用N向上遍历<br>
+<br></p>
+<h3><a id="_String_13"></a>（二）? String</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;从光标处开始查找string字符串，用n向上遍历，用N向下遍历，与/相反。<br>
+<br></p>
+<h3><a id="_17"></a>（三）#</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;当光标在某个单词处时，我们直接用#键就可以查找该单词，遍历依然用n/N</p>
+<br>
+<h2><a id="%09Vim_22"></a>二．	Vim中的格式调整操作</h2>
+<h3><a id="%09_23"></a>（一）	&gt;&gt;</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;当前光标所在行右移一个tab<br>
+<br></p>
+<h3><a id="%09n__27"></a>（二）	n &gt;&gt;</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;移动光标所在行开始的n行右移一个tab<br>
+<br></p>
+<h3><a id="__31"></a>（三） &lt;&lt;</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;当前光标所在行左移一个tab<br>
+<br></p>
+<h3><a id="n__35"></a>（四）n &gt;&gt;</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;移动光标所在行开始的n行左移一个tab<br>
+<br></p>
+<h3><a id="_ggG_39"></a>（五） gg=G</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;将整个文件一次性调整格式</p>
+<br>
+<h2><a id="%09Vimman_44"></a>三．	Vim中查看man帮助文档</h2>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在Vim中，光标位于想要查询的函数处，按Shift + 小写k查看该函数文档；按住n + 大写K转到第n页文档。<br>
+<br></p>
+<h2><a id="%09_50"></a>四．	命令模式转编辑模式</h2>
+<h3><a id="%09i_51"></a>（一）	小写i</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在光标之前插入字符<br>
+<br></p>
+<h3><a id="%09I_55"></a>（二）	大写I</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在光标所在的行首插入字符<br>
+<br></p>
+<h3><a id="%09a_59"></a>（三）	小写a</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在光标之后插入字符<br>
+<br></p>
+<h3><a id="%09A_63"></a>（四）	大写A</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在光标所在的行尾插入字符<br>
+<br></p>
+<h3><a id="%09o_67"></a>（五）	小写o</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在光标所在的行的下一行插入字符<br>
+<br></p>
+<h3><a id="%09O_71"></a>（六）	大写O</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在光标所在行的上一行插入字符<br>
+<br></p>
+<h3><a id="%09s_75"></a>（七）	小写s</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;删除光标所在的字符，变为插入模式<br>
+<br></p>
+<h3><a id="%09S_79"></a>（八）	大写S</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;删除光标所在的字符，变为插入模式<br>
+<br></p>
+<h3><a id="%09ESC_83"></a>（九）	ESC</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;退出插入模式到命令模式</p>
+</div>
+</body>
+
+</html>

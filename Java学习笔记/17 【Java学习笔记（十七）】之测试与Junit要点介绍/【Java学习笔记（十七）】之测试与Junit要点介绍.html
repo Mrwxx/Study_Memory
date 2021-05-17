@@ -1,0 +1,98 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Java学习笔记（十七）】之测试与Junit要点介绍</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_8"></a>一．	测试</h2>
+<h3><a id="%09_9"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;我们写完程序后都会对程序的逻辑功能进行测试，看看程序是否有缺陷。通过测试，我们可以找出缺陷，完善程序的逻辑。<br>
+<br></p>
+<h3><a id="%09_13"></a>（二）	测试分类</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;测试分为黑盒测试和白盒测试，黑盒测试只需要输入数据，得出输出值，而不关注具体的执行过程；白盒测试需要关注具体的执行过程，通过写代码来测试。<br>
+<br></p>
+<h2><a id="%09Junit_17"></a>二．	Junit</h2>
+<h3><a id="%09_18"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;测试单元，当我们自己对程序进行测试时，都要重写一个测试类，且需通过main函数来测试。Junit单元允许我们只测试一个单元，如测试一个方法，测试一个类，这样测试就非常地轻便，简洁。<br>
+<br></p>
+<h3><a id="%09Junit_22"></a>（二）	Junit使用方法</h3>
+<h4><a id="1%09_23"></a>1.	定义测试类</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;建议将测试类都放在一个test包中，每个测试类的类名按照：被测试类+Test 的格式创建。<br>
+<br></p>
+<h4><a id="2%09_27"></a>2.	定义测试方法</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;测试类中的方法，测试方法名按照 test+方法名 的格式创建，一般不需返回值，也不需要参数，因为只是用于测试方法的正确性。<br>
+<br></p>
+<h4><a id="3%09TestJunit_31"></a>3.	为测试方法添加注解@Test，并导入Junit依赖环境。</h4>
+<br>
+<h4><a id="4%09_35"></a>4.	在测试方法中添加测试代码</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;一般使用<strong>断言操作来判断结果</strong>，断言即判断正确结果与真实结果是否匹配：</p>
+<pre><code class="prism language-java">Assert<span class="token punctuation">.</span><span class="token function">assertEquals</span><span class="token punctuation">(</span>期望，真实<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h3><a id="Junit_43"></a>（三）Junit使用代码示例：</h3>
+<br>
+<pre><code class="prism language-java"><span class="token keyword">package</span> test<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>Assert<span class="token punctuation">;</span>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>Test<span class="token punctuation">;</span>
+<span class="token keyword">import</span> 测试<span class="token punctuation">.</span>Calculator<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">CalculatorTest</span> <span class="token punctuation">{</span>
+
+    <span class="token annotation punctuation">@Test</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">testAdd</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        Calculator c <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Calculator</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">int</span> res <span class="token operator">=</span> c<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+       <span class="token comment">// System.out.println(res);</span>
+
+        <span class="token comment">//断言</span>
+        Assert<span class="token punctuation">.</span><span class="token function">assertEquals</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> res<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h3><a id="_68"></a>（四）注解</h3>
+<h4><a id="1_Before_69"></a>1. @Before</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;测试类中一般在测试方法执行之前都要申请资源，即在测试方法之前执行，可以用注解@Before来表示。<br>
+<br></p>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@Before</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">init</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"init"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h4><a id="2After_81"></a>2、@After</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在测试之后，需要释放资源，用注解@After来表示在测试代码后执行的代码。<br>
+<br></p>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@After</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"close"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h4><a id="3_BeforeClass_93"></a>3. @BeforeClass</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;针对所有的测试，只执行一次，且必须为static void,优先级最高。<br>
+<br></p>
+<h4><a id="4AfterClass_97"></a>4.@AfterClass</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;针对所有的测试，只执行一次，且必须为static void,在最后执行。<br>
+<br></p>
+<h4><a id="5%09Ignore_101"></a>5.	@Ignore</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;忽略的测试方法<br>
+<br></p>
+<h3><a id="_105"></a>（五）单元测试用例的执行顺序</h3>
+<br>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;@BeforeClass –&gt; @Before –&gt; @Test –&gt; @After –&gt; @AfterClass</strong></p>
+</div>
+</body>
+
+</html>

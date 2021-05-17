@@ -1,0 +1,102 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【深度学习笔记（十五）】之tensorflow2简化构建网络模型，训练以及测试过程</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09Keras_Sequential_7"></a>一．	Keras Sequential</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;简化tensorflow2的网络搭建与训练过程，用Sequential API将网络的各个层按照顺序叠加起来，只需要提供包含各个层的列表，Keras就可将它们自动首尾相连，并返回模型。<br>
+<br></p>
+<pre><code class="prism language-python">model <span class="token operator">=</span> tf<span class="token punctuation">.</span>keras<span class="token punctuation">.</span>models<span class="token punctuation">.</span>Sequential<span class="token punctuation">(</span><span class="token punctuation">[</span>
+	tf<span class="token punctuation">.</span>keras<span class="token punctuation">.</span>layers<span class="token punctuation">.</span>Flatten<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	tf<span class="token punctuation">.</span>keras<span class="token punctuation">.</span>layers<span class="token punctuation">.</span>Dense<span class="token punctuation">(</span><span class="token number">100</span><span class="token punctuation">,</span> activation<span class="token operator">=</span>tf<span class="token punctuation">.</span>nn<span class="token punctuation">.</span>relu<span class="token punctuation">)</span><span class="token punctuation">,</span>
+	tf<span class="token punctuation">.</span>keras<span class="token punctuation">.</span>layers<span class="token punctuation">.</span>Dense<span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	tf<span class="token punctuation">.</span>keras<span class="token punctuation">.</span>layers<span class="token punctuation">.</span>Softmax<span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">]</span><span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h2><a id="%09Keras__Functional_API_25"></a>二．	Keras 的 Functional API</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;为了构建更复杂的模型，使用Functional API，将层作为可调用的对象返回张量，并将输入向量和输出向量提供给 tf.keras.Model 的 inputs 和 outputs 参数。即按照网络的顺序调用各个层，最后将输入和输出放到tf.keras.Model参数中。</p>
+<br>
+<pre><code class="prism language-python">inputs <span class="token operator">=</span> tf<span class="token punctuation">.</span>keras<span class="token punctuation">.</span>Input<span class="token punctuation">(</span>shape<span class="token operator">=</span><span class="token punctuation">(</span><span class="token number">28</span><span class="token punctuation">,</span> <span class="token number">28</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+x <span class="token operator">=</span> tf<span class="token punctuation">.</span>keras<span class="token punctuation">.</span>layers<span class="token punctuation">.</span>Flatten<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">(</span>inputs<span class="token punctuation">)</span>
+x <span class="token operator">=</span> tf<span class="token punctuation">.</span>keras<span class="token punctuation">.</span>layers<span class="token punctuation">.</span>Dense<span class="token punctuation">(</span>units<span class="token operator">=</span><span class="token number">100</span><span class="token punctuation">,</span> activation<span class="token operator">=</span>tf<span class="token punctuation">.</span>nn<span class="token punctuation">.</span>relu<span class="token punctuation">)</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span>
+x <span class="token operator">=</span> tf<span class="token punctuation">.</span>keras<span class="token punctuation">.</span>layers<span class="token punctuation">.</span>Dense<span class="token punctuation">(</span>units<span class="token operator">=</span><span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span>
+outputs <span class="token operator">=</span> tf<span class="token punctuation">.</span>keras<span class="token punctuation">.</span>layers<span class="token punctuation">.</span>Softmax<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span>
+model <span class="token operator">=</span> tf<span class="token punctuation">.</span>keras<span class="token punctuation">.</span>Model<span class="token punctuation">(</span>inputs<span class="token operator">=</span>inputs<span class="token punctuation">,</span> outputs<span class="token operator">=</span>outputs<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h2><a id="%09compile__44"></a>三．	compile 配置训练过程</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;按照上面将网络模型配置好以后，可以通过tf.keras.Model 的 compile方法配置训练过程，即设置训练优化器，计算损失函数以及评估指标。</p>
+<p>tf.keras.Model.compile  接受 3 个重要的参数:</p>
+<ol>
+<li>
+<p>optimizer : 优化器， 从 tf.keras.optimizers中选择</p>
+</li>
+<li>
+<p>loss : 损失函数， 从 tf.keras.losses中选择</p>
+</li>
+<li>
+<p>metrics: 评估指标，从 tf.keras,metrics中选择<br>
+<br></p>
+</li>
+</ol>
+<pre><code class="prism language-python">model<span class="token punctuation">.</span><span class="token builtin">compile</span><span class="token punctuation">(</span>
+	optimizer<span class="token operator">=</span>tf<span class="token punctuation">.</span>keras<span class="token punctuation">.</span>optimizers<span class="token punctuation">.</span>Adam<span class="token punctuation">(</span>learning_rate<span class="token operator">=</span><span class="token number">0.001</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+	loss<span class="token operator">=</span>tf<span class="token punctuation">.</span>keras<span class="token punctuation">.</span>losses<span class="token punctuation">.</span>sparse_categorical_crossentropy<span class="token punctuation">,</span>
+	metrics<span class="token operator">=</span><span class="token punctuation">[</span>tf<span class="token punctuation">.</span>keras<span class="token punctuation">.</span>metrics<span class="token punctuation">.</span>sparse_categorical_accuracy<span class="token punctuation">]</span>
+<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h2><a id="%09fit_70"></a>四．	fit方法开始训练</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;tf.keras.Model.fit 方法开始训练模型，该方法接受5个参数：</p>
+<ol>
+<li>
+<p>x： 训练数据</p>
+</li>
+<li>
+<p>y： 训练数据标签</p>
+</li>
+<li>
+<p>epochs: 迭代次数</p>
+</li>
+<li>
+<p>batch_size : 每一批的数据量</p>
+</li>
+<li>
+<p>validation_data:  验证数据，在训练过程中监控模型的性能<br>
+<br></p>
+</li>
+</ol>
+<pre><code class="prism language-python">model<span class="token punctuation">.</span>fit<span class="token punctuation">(</span>data_loader<span class="token punctuation">.</span>train_data<span class="token punctuation">,</span> data_loader<span class="token punctuation">.</span>train_label<span class="token punctuation">,</span>
+epochs<span class="token operator">=</span>num_epochs<span class="token punctuation">,</span> batch_size<span class="token operator">=</span>batch_size<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h2><a id="%09evaluate__95"></a>五．	evaluate 评估训练效果</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;训练完后，用测试数据和测试标签对模型的性能进行测试，只需两个参数：</p>
+<ol>
+<li>
+<p>测试数据</p>
+</li>
+<li>
+<p>测试数据标签<br>
+<br></p>
+</li>
+</ol>
+<pre><code class="prism language-python">model<span class="token punctuation">.</span>evaluate<span class="token punctuation">(</span>data_loader<span class="token punctuation">.</span>test_data<span class="token punctuation">,</span> data_loader<span class="token punctuation">.</span>test_label<span class="token punctuation">)</span>
+</code></pre>
+</div>
+</body>
+
+</html>

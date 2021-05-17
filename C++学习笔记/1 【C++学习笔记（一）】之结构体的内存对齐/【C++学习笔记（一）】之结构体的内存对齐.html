@@ -1,0 +1,51 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【C++学习笔记（一）】之结构体的内存对齐</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h4><a id="__7"></a>一. 结构体的内存对齐：</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 结构体可以存储不同类型的数据，每种数据所占的字节数都不同。而结构体是按照最大字节数来存储的，若结构体中最大的数据类型占8个字节，则结构体存储的内存中按8个字节为一格存储，将其他较少字节数的数据往里填，若有空余，则看下一个数据能否填入；若不能，则按照内存对齐原则，从下一格重新开始填入数据，空余的内存则被跳过。</p>
+<h4><a id="__9"></a>二. 设置结构体如下：</h4>
+<pre><code class="prism language-cpp"><span class="token keyword">struct</span> stus<span class="token punctuation">{</span>
+	<span class="token keyword">char</span> <span class="token operator">*</span>p<span class="token punctuation">;</span>			<span class="token comment">//4</span>
+	<span class="token keyword">char</span> arr<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">;</span>		<span class="token comment">//1*2</span>
+	<span class="token keyword">int</span> c<span class="token punctuation">;</span>				<span class="token comment">//4</span>
+	<span class="token keyword">short</span> d<span class="token punctuation">;</span>			<span class="token comment">//2</span>
+	<span class="token keyword">double</span> f<span class="token punctuation">;</span>			<span class="token comment">//8</span>
+	<span class="token keyword">long</span> g<span class="token punctuation">;</span>				<span class="token comment">//4</span>
+	<span class="token keyword">float</span> h<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">;</span>			<span class="token comment">//4*2</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; <strong>若不调整结构体中数据存储顺序，则按最大数据类型8个字节为一格，依次填入，如下图</strong><br>
+<img src="https://img-blog.csdnimg.cn/20200607102452874.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01yd3h4eHg=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp; <strong>红色圈为空余的内存</strong><br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp; <strong>计算得到结构体整体内存占40个字节</strong></p>
+<p><strong>若将结构体中数据类型从大到小排列:</strong></p>
+<pre><code class="prism language-cpp"><span class="token keyword">struct</span> stus<span class="token punctuation">{</span>
+	<span class="token keyword">double</span> f<span class="token punctuation">;</span>			<span class="token comment">//8</span>
+	<span class="token keyword">float</span> h<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">;</span>			<span class="token comment">//4*2</span>
+	<span class="token keyword">long</span> g<span class="token punctuation">;</span>				<span class="token comment">//4</span>
+	<span class="token keyword">int</span> c<span class="token punctuation">;</span>				<span class="token comment">//4</span>
+	<span class="token keyword">char</span> <span class="token operator">*</span>p<span class="token punctuation">;</span>			<span class="token comment">//4</span>
+	<span class="token keyword">short</span> d<span class="token punctuation">;</span>			<span class="token comment">//2</span>
+	<span class="token keyword">char</span> arr<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">;</span>		<span class="token comment">//1*2</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; <strong>调整后结构体整体内存占32个字节</strong></p>
+<h4><a id="_42"></a>结论：</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 内存空余的情况得到了优化。但是打乱结构体的排列顺序也可能导致阅读结构体的思维混乱，所以需要平衡这两者。</p>
+</div>
+</body>
+
+</html>

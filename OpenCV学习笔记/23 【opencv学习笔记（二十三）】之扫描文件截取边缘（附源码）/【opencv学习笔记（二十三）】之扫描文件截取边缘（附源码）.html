@@ -1,0 +1,54 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【opencv学习笔记（二十三）】之扫描文件截取边缘（附源码）</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_1"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="__8"></a>一. 问题描述：</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;扫描仪扫描出来的文件图片，有多余的白边，需要将白边去掉 ,只留下有用的信息。且图片也可能放歪，扫描进来旋转的图片。</p>
+<h2><a id="__11"></a>二. 竖直放置图像的解决思路：</h2>
+<h3><a id="_13"></a>（一）思路</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通过边缘检测找到边缘，然后通过边缘找到轮廓，再通过轮廓找最大的外接矩形，</p>
+<h3><a id="_16"></a>（二）具体流程</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;1. 首先用Canny边缘检测，并设置一个窗口的滑动阀，可以通过改变阈值改变Canny检测的结果，这一步其实是手动寻找最佳阈值，能够很完美地检测出红色边框的边缘。</p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200712093716359.jpg" width="60%">
+</center><p>&nbsp;  &nbsp;  &nbsp;  &nbsp;2. 得到红框的边缘后，就要用findContours寻找红框的轮廓，这时候，很多人就要问了轮廓与边缘的区别是什么呢？来看看两者的定义。<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>边缘</strong>：不同区域的分界线，即图像局部灰度显著变化的部分。<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>轮廓</strong>：物体在场景中的完整的边界，他表示的是一个完整的物体形状，轮廓可能是边缘的一部分，即可能有一部分的边缘组成了物体的轮廓，而另一部分的边缘无法组成完整的轮廓。所以就要先求边缘，再通过边缘来求轮廓。<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;3. 由于findContours会产生很多轮廓，我们就要通过限制条件来寻找合适的轮廓。通过for循环，对轮廓vector进行查找，对每一个轮廓，计算出它的最小外接矩形，同时基于需求，我们要找的轮廓最起码是与图像的边框是相接近的，因此要通过限制条件排除过小的轮廓，可以限制长和相对于输入图像的长和宽要大于0.75。并把找到的轮廓用不同的颜色画出来。</p>
+ <center>
+<img src="https://img-blog.csdnimg.cn/20200712093847533.jpg" width="60%">
+</center><p>&nbsp;  &nbsp;  &nbsp;  &nbsp;4. 获得轮廓的图像后，就要在原图上用轮廓把相应的文本框给取出来，即取出ROI区域，并展示。取得效果还是不错的，因为输入图片比较工整，轮廓也只有那一条，所以比较容易找出来。</p>
+  <center>
+<img src="https://img-blog.csdnimg.cn/20200712093909726.jpg" width="60%">
+</center><h2><a id="__41"></a>三. 旋转的图片操作流程</h2>
+<h3><a id="_42"></a>（一）思路：</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;首先我们要将旋转的图片，旋转到垂直的角度，再通过之前的正常方法将ROI区域取出来。</p>
+<h3><a id="_45"></a>（二）具体流程：</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;1.	同样的，旋转的图像首先也是要检测边缘，通过Canny边缘检测，检测出边缘，在通过findContours找出图像的轮廓。</p>
+ <center>
+<img src="https://img-blog.csdnimg.cn/20200712094113615.jpg" width="70%">
+</center><p>&nbsp;  &nbsp;  &nbsp;  &nbsp;2.	找出轮廓后，对每一个轮廓求最小面积外包矩形，并比较这些矩形的尺寸，即宽和高，求出这些轮廓的最小外包矩形中最大的宽和高，即找出这些轮廓中最大的一个。因为当我们要将旋转的图像旋转到竖直方向时，是通过找出轮廓的最大值，以保证图像中所有的有用信息都不会被遗漏。然后将这个最大的轮廓画出。</p>
+ <center>
+<img src="https://img-blog.csdnimg.cn/20200712094126854.png" width="70%">
+</center><p>&nbsp;  &nbsp;  &nbsp;  &nbsp;3.	找到最大的轮廓后，就要将这个轮廓进行旋转。旋转是基于图像的中心，并通过旋转矩阵来旋转图像。</p>
+ <center>
+<img src="https://img-blog.csdnimg.cn/20200712094137482.jpg" width="70%">
+</center><p>&nbsp;  &nbsp;  &nbsp;  &nbsp;4.	图像被旋转为竖直方向后。就可以通过之前正常的切割方法进行求取了。</p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;这样图像的内框部分就被取出来了，需求已经达成。</strong><br>
+<strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;想要获取源码的小伙伴们，公号回复“ opencv源码一   ”即可获取了！！！</strong></p>
+</div>
+</body>
+
+</html>

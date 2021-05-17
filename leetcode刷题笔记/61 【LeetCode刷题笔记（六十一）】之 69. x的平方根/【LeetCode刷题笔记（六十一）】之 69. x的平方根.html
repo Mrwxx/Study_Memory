@@ -1,0 +1,67 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【LeetCode刷题笔记（六十一）】之 69. x的平方根</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_8"></a>一．	题目</h2>
+<h3><a id="%09_9"></a>（一）	题干</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 实现 int sqrt(int x) 函数。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 计算并返回 x 的平方根，其中 x 是非负整数。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 由于返回类型是整数，结果只保留整数的部分，小数部分将被舍去。</p>
+<br>
+<h3><a id="%09_20"></a>（二）	示例</h3>
+<p>示例 1:</p>
+<pre><code class="prism language-cpp">输入<span class="token operator">:</span> <span class="token number">4</span>
+输出<span class="token operator">:</span> <span class="token number">2</span>
+</code></pre>
+<p>示例 2:</p>
+<pre><code class="prism language-cpp">输入<span class="token operator">:</span> <span class="token number">8</span>
+输出<span class="token operator">:</span> <span class="token number">2</span>
+说明<span class="token operator">:</span> <span class="token number">8</span> 的平方根是 <span class="token number">2.82842</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">,</span> 
+     由于返回类型是整数，小数部分将被舍去。
+</code></pre>
+<br>
+<h2><a id="%09_42"></a>二．	题解</h2>
+<h3><a id="%09_43"></a>（一）	思路</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 实现平方根函数，返回平方根的整数部分。这种题目使用二分法来解决，不断地寻找中间数来比较它的平方与x的关系，如果它的平方大于x，说明要寻找的数比该数还要小，因此缩小右边界，继续寻找；如果它的平方小于x，说明要寻找的数可能比该数要大，注意我这里说的是可能，因为该数有可能就是x的平方根的整数部分，因此，只要是该数的平方&lt;=x的，都要当做最后的输出记录下来；如果它的平方等于x，则直接找出了最终结果。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 按照这种思路进行迭代，最终得到输出的结果。<br>
+<br></p>
+<h3><a id="%09_51"></a>（二）	代码实现</h3>
+<p>Java：</p>
+<pre><code class="prism language-java"><span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">int</span> <span class="token function">mySqrt</span><span class="token punctuation">(</span><span class="token keyword">int</span> x<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment">// x &gt;= 0</span>
+        <span class="token comment">//使用二分法来解决, 在 0 - x的范围内</span>
+        <span class="token keyword">int</span> left <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">,</span> right <span class="token operator">=</span> x<span class="token punctuation">,</span> ans <span class="token operator">=</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">;</span>
+        <span class="token keyword">while</span><span class="token punctuation">(</span>left <span class="token operator">&lt;=</span> right<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">int</span> mid <span class="token operator">=</span> left <span class="token operator">+</span> <span class="token punctuation">(</span>right<span class="token operator">-</span>left<span class="token punctuation">)</span><span class="token operator">/</span><span class="token number">2</span><span class="token punctuation">;</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token keyword">long</span><span class="token punctuation">)</span>mid<span class="token operator">*</span>mid <span class="token operator">&lt;</span> x<span class="token punctuation">)</span><span class="token punctuation">{</span>
+                ans <span class="token operator">=</span> mid<span class="token punctuation">;</span>
+                left <span class="token operator">=</span> mid<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span><span class="token keyword">else</span> <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token keyword">long</span><span class="token punctuation">)</span>mid <span class="token operator">*</span> mid <span class="token operator">==</span> x<span class="token punctuation">)</span><span class="token punctuation">{</span>
+                ans <span class="token operator">=</span> mid<span class="token punctuation">;</span>
+                <span class="token keyword">return</span> ans<span class="token punctuation">;</span>
+            <span class="token punctuation">}</span><span class="token keyword">else</span><span class="token punctuation">{</span>
+                right <span class="token operator">=</span> mid<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> ans<span class="token punctuation">;</span>
+
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

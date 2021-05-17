@@ -1,0 +1,51 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【JavaDebug（一）】Exception in thread &quot;main&quot; java.sql.SQLException: The server time zone value</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="__7"></a>一. 错误概况</h2>
+<br>
+<pre><code class="prism language-sql">package JDBC<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>io<span class="token punctuation">.</span>IOException<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span><span class="token keyword">sql</span><span class="token punctuation">.</span>Connection<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span><span class="token keyword">sql</span><span class="token punctuation">.</span>DriverManager<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span><span class="token keyword">sql</span><span class="token punctuation">.</span>SQLException<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> class test {
+    <span class="token keyword">public</span> static void main<span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> throws IOException<span class="token punctuation">,</span> SQLException {
+
+        String url <span class="token operator">=</span> <span class="token string">"jdbc:mysql://localhost:3306/h"</span><span class="token punctuation">;</span>
+        Connection con <span class="token operator">=</span> DriverManager<span class="token punctuation">.</span>getConnection<span class="token punctuation">(</span>url<span class="token punctuation">,</span> <span class="token string">"root"</span><span class="token punctuation">,</span> <span class="token string">" "</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        System<span class="token punctuation">.</span><span class="token keyword">out</span><span class="token punctuation">.</span>println<span class="token punctuation">(</span>con<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    }
+}
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;JDBC链接数据库时，出现以上错误，可以由错误提示大概了解，服务器的server time值有问题，也就是时间设置的问题。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;因此，我们到mysql中查看数据库的时间设置。<br>
+<br></p>
+<h2><a id="__36"></a>二. 解决问题</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在Mysql中，我们查找time相关的参数：</p>
+<pre><code class="prism language-sql"><span class="token keyword">show</span> variables <span class="token operator">like</span> <span class="token string">'%time_zone%'</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;找出了time_zone参数对应的值为SYSTEM，该值对应的是美国时间，我们的时区为东八区，应该改为’+8:00’。</p>
+<pre><code class="prism language-sql"><span class="token keyword">set</span> <span class="token keyword">global</span> time_zone<span class="token operator">=</span><span class="token string">'+8:00'</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;修改完成后，需要重新登陆mysql，改变才会生效。</p>
+</div>
+</body>
+
+</html>

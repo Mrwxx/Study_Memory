@@ -1,0 +1,103 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【算法笔记（一）】之计算两个日期之差</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	题目</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;输入两个日期，求两个日期之间的天数，如果两个日期是连续的，则规定他们之间的天数为两天。</p>
+<p><strong>输入格式：</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;YYYYMMDD<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;20130101<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;20130505</p>
+<p><strong>输出个数：</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;5<br>
+<br></p>
+<h2><a id="%09_21"></a>二．	思路</h2>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;要计算日期之间的天数，我们可以想到从小的日期开始不断加1天，直到小的日期等于大的日期为止。</strong></p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;其中，当天数d等于当前的月份m的天数+1时，月份m就要+1，且天数d置为1；当月份m变为13时，则年份y就要+1，同时月份m置为1。</strong></p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;注意，闰年的2月份天数为29天，平年的2月份天数为28天。</strong></p>
+<p><strong>闰年的定义：</strong><br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;闰年是公历中的名词。<strong>闰年分为普通闰年和世纪闰年。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>普通闰年</strong>:公历年份是4的倍数的，且不是100的倍数，为普通闰年。（如2004、2020年就是闰年）；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>世纪闰年</strong>:公历年份是整百数的，必须是400的倍数才是世纪闰年（如1900年不是世纪闰年，2000年是世纪闰年）；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;闰年(Leap Year)是为了弥补因人为历法规定造成的年度天数与地球实际公转周期的时间差而设立的。补上时间差的年份为闰年。<strong>闰年共有366天，比平年多出的一天在2月份，为29天，平年为28天。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;设置二维数组 int month[13][2]存储闰年和平年的月份天数<br>
+<br></p>
+<h2><a id="%09_40"></a>三．	代码</h2>
+<br>
+<pre><code class="prism language-cpp"><span class="token macro property">#<span class="token directive keyword">define</span> _CRT_SECURE_NO_WARNINGS</span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;cstdio&gt;</span></span>
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+<span class="token keyword">int</span> month<span class="token punctuation">[</span><span class="token number">13</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+	<span class="token punctuation">{</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">}</span><span class="token punctuation">,</span><span class="token punctuation">{</span><span class="token number">31</span><span class="token punctuation">,</span><span class="token number">31</span><span class="token punctuation">}</span><span class="token punctuation">,</span><span class="token punctuation">{</span><span class="token number">28</span><span class="token punctuation">,</span><span class="token number">29</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">{</span><span class="token number">31</span><span class="token punctuation">,</span><span class="token number">31</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">{</span><span class="token number">30</span><span class="token punctuation">,</span><span class="token number">30</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">{</span><span class="token number">31</span><span class="token punctuation">,</span><span class="token number">31</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">{</span><span class="token number">30</span><span class="token punctuation">,</span><span class="token number">30</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+	<span class="token punctuation">{</span><span class="token number">31</span><span class="token punctuation">,</span><span class="token number">31</span><span class="token punctuation">}</span><span class="token punctuation">,</span><span class="token punctuation">{</span><span class="token number">31</span><span class="token punctuation">,</span><span class="token number">31</span><span class="token punctuation">}</span><span class="token punctuation">,</span><span class="token punctuation">{</span><span class="token number">30</span><span class="token punctuation">,</span><span class="token number">30</span><span class="token punctuation">}</span><span class="token punctuation">,</span><span class="token punctuation">{</span><span class="token number">31</span><span class="token punctuation">,</span><span class="token number">31</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">{</span><span class="token number">30</span><span class="token punctuation">,</span><span class="token number">30</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">{</span><span class="token number">31</span><span class="token punctuation">,</span><span class="token number">31</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token comment">//判断是否是闰年</span>
+<span class="token keyword">bool</span> <span class="token function">isLeap</span><span class="token punctuation">(</span><span class="token keyword">int</span> year<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	<span class="token keyword">return</span> <span class="token punctuation">(</span>year <span class="token operator">%</span> <span class="token number">4</span> <span class="token operator">==</span> <span class="token number">0</span> <span class="token operator">&amp;&amp;</span> year <span class="token operator">%</span> <span class="token number">100</span> <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token operator">||</span> <span class="token punctuation">(</span>year <span class="token operator">%</span> <span class="token number">400</span> <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	<span class="token keyword">int</span> time1<span class="token punctuation">,</span> y1<span class="token punctuation">,</span> m1<span class="token punctuation">,</span> d1<span class="token punctuation">;</span>
+	<span class="token keyword">int</span> time2<span class="token punctuation">,</span> y2<span class="token punctuation">,</span> m2<span class="token punctuation">,</span> d2<span class="token punctuation">;</span>
+	<span class="token keyword">while</span> <span class="token punctuation">(</span> <span class="token function">scanf</span><span class="token punctuation">(</span><span class="token string">"%d%d"</span><span class="token punctuation">,</span><span class="token operator">&amp;</span>time1<span class="token punctuation">,</span> <span class="token operator">&amp;</span>time2<span class="token punctuation">)</span><span class="token operator">!=</span> <span class="token constant">EOF</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		<span class="token comment">//如果第一个日期比第二个日期大，则交换</span>
+		<span class="token keyword">if</span> <span class="token punctuation">(</span>time1 <span class="token operator">&gt;</span> time2<span class="token punctuation">)</span>
+		<span class="token punctuation">{</span>
+			<span class="token keyword">int</span> temp <span class="token operator">=</span> time1<span class="token punctuation">;</span>
+			time1 <span class="token operator">=</span> time2<span class="token punctuation">;</span>
+			time2 <span class="token operator">=</span> temp<span class="token punctuation">;</span>
+		<span class="token punctuation">}</span>
+		y1 <span class="token operator">=</span> time1 <span class="token operator">/</span> <span class="token number">10000</span><span class="token punctuation">;</span>
+		m1 <span class="token operator">=</span> time1 <span class="token operator">%</span> <span class="token number">10000</span> <span class="token operator">/</span> <span class="token number">100</span><span class="token punctuation">;</span>
+		d1 <span class="token operator">=</span> time1 <span class="token operator">%</span> <span class="token number">100</span><span class="token punctuation">;</span>
+
+		y2 <span class="token operator">=</span> time2 <span class="token operator">/</span> <span class="token number">10000</span><span class="token punctuation">;</span>
+		m2 <span class="token operator">=</span> time2 <span class="token operator">%</span> <span class="token number">10000</span> <span class="token operator">/</span> <span class="token number">100</span><span class="token punctuation">;</span>
+		d2 <span class="token operator">=</span> time2 <span class="token operator">%</span> <span class="token number">100</span><span class="token punctuation">;</span>
+
+		<span class="token keyword">int</span> ans <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>	<span class="token comment">//记录天数</span>
+		<span class="token comment">// 不断加1，直到两个日期相等</span>
+		<span class="token keyword">while</span> <span class="token punctuation">(</span>y1 <span class="token operator">&lt;</span> y2 <span class="token operator">||</span> m1 <span class="token operator">&lt;</span> m2 <span class="token operator">||</span> d1 <span class="token operator">&lt;</span> d2<span class="token punctuation">)</span>
+		<span class="token punctuation">{</span>
+			d1<span class="token operator">++</span><span class="token punctuation">;</span>
+			<span class="token comment">//天数满了当前月份的天数+1</span>
+			<span class="token keyword">if</span> <span class="token punctuation">(</span>d1 <span class="token operator">==</span> month<span class="token punctuation">[</span>m1<span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token function">isLeap</span><span class="token punctuation">(</span>y1<span class="token punctuation">)</span><span class="token punctuation">]</span> <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span>
+			<span class="token punctuation">{</span>
+				m1<span class="token operator">++</span><span class="token punctuation">;</span>
+				d1 <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+			<span class="token punctuation">}</span>
+			<span class="token comment">//月份满了当前年份的月份数</span>
+			<span class="token keyword">if</span> <span class="token punctuation">(</span>m1 <span class="token operator">==</span> <span class="token number">13</span><span class="token punctuation">)</span>
+			<span class="token punctuation">{</span>
+				y1<span class="token operator">++</span><span class="token punctuation">;</span>
+				m1 <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+			<span class="token punctuation">}</span>
+			ans<span class="token operator">++</span><span class="token punctuation">;</span>		<span class="token comment">//记录天数+1</span>
+		<span class="token punctuation">}</span>
+		cout <span class="token operator">&lt;&lt;</span> ans <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【算法笔记（八）】之最大公约数和最小公倍数</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	最大公约数</h2>
+<h3><a id="_8"></a>（一）概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;最大公约数即数a和数b之间的所有公约数中最大的那个公约数。<strong>求解最大公约数要用欧几里得算法（辗转相除法）：</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;设a, b 均为正整数，则gcd(a, b) = gcd(b, a % b)</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;gcd(a, b)为a和b的最大公约数<br>
+<br></p>
+<h3><a id="_16"></a>（二）思路</h3>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;欧几里得算法的思路就是不断地减小数据的规模，不断地通过比较a和b的大小，交换a和b，使得数据总体不断减小。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;当a &lt; b时，则交换了a和b；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;当a &gt; b时，使得数据减小到b以下，规模减小<br>
+<br></p>
+<p><strong>当规模减小到什么程度时，得出结果?</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;0和任意整数a的最大公约数都是a，这个就是最后的递归边界。<br>
+<br></p>
+<h3><a id="_29"></a>（三）代码实现</h3>
+<h4><a id="1__30"></a>1. 递归式</h4>
+<pre><code class="prism language-cpp"><span class="token function">gcd</span><span class="token punctuation">(</span>a<span class="token punctuation">,</span> b<span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token function">gcd</span><span class="token punctuation">(</span>b<span class="token punctuation">,</span> a<span class="token operator">%</span>b<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h4><a id="2__37"></a>2. 递归边界</h4>
+<pre><code class="prism language-cpp"><span class="token function">gcd</span><span class="token punctuation">(</span>a<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token operator">=</span> a
+</code></pre>
+<br>
+<p>代码如下：</p>
+<pre><code class="prism language-cpp"><span class="token keyword">int</span> <span class="token function">gcd</span><span class="token punctuation">(</span><span class="token keyword">int</span> a<span class="token punctuation">,</span> <span class="token keyword">int</span> b<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	<span class="token keyword">if</span> <span class="token punctuation">(</span>b <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span>
+		<span class="token keyword">return</span> a<span class="token punctuation">;</span>
+	<span class="token keyword">else</span>
+		<span class="token keyword">return</span> <span class="token function">gcd</span><span class="token punctuation">(</span>b<span class="token punctuation">,</span> a <span class="token operator">%</span> b<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h2><a id="%09_56"></a>二．	最小公倍数</h2>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;最小公倍数是a和b之间的所有公倍数中最小的那个公倍数。<strong>当我们求出a和b的最大公约数后，最小公倍数即为ab/d、</strong></p>
+</div>
+</body>
+
+</html>

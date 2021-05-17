@@ -1,0 +1,177 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Java学习笔记（一百二十一）】之 脚本语言使用，注解的详细介绍</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_9"></a>一．	脚本</h2>
+<h3><a id="%09_11"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;脚本语言是一种通过在运行时解释程序文本，从而避免使用通常的编辑/编译/链接/运行循环的语言，脚本语言的优势是快速变更，可以修改运行着的程序，但是，脚本语言缺乏可以使编写复杂应用受益的特性，因此人们通常将脚本语言与传统语言的优势结合起来。脚本API使你可以在Java平台上实现这个目的，直接在Java程序中调用脚本。<br>
+<br></p>
+<h3><a id="%09_17"></a>（二）	脚本引擎</h3>
+<h4><a id="1%09_19"></a>1.	概述</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;脚本引擎是一个可以执行用某种特定语言编写的脚本的类库，当虚拟机启动时，它会发现可用的脚本引擎，为了枚举这些引擎，需要构造一个ScriptEngineManager，并调用getEngineFactories方法，可以向每个引擎工厂询问他们所支持的引擎名，MIME类型和文件扩展名，通过这三个参数来获取引擎。</p>
+<pre><code class="prism language-java">ScriptEngine engine <span class="token operator">=</span> manager<span class="token punctuation">.</span><span class="token function">getEngineByName</span><span class="token punctuation">(</span>“nashorn”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h4><a id="2%09_28"></a>2.	脚本计算与绑定</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;拥有了引擎，可以直接调用脚本：</p>
+<pre><code class="prism language-java">Object result <span class="token operator">=</span> engine<span class="token punctuation">.</span><span class="token function">eval</span><span class="token punctuation">(</span>scriptString<span class="token punctuation">)</span><span class="token punctuation">;</span>
+engine <span class="token function">eval</span><span class="token punctuation">(</span>“n <span class="token operator">=</span> <span class="token number">1</span>”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;可以在一个引擎上调用多个脚本，如果一个脚本定义了变量，函数或者类，那么大多数引擎都会保留这些定义。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;可以直接向引擎中添加新的变量绑定，绑定由名字及其关联的java对象构成：</p>
+<pre><code class="prism language-java">engine<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span>“k”<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;脚本代码从“引擎作用域”中的绑定里读取k的定义，还可以添加到全局作用域中，任何添加到ScriptEngineManager中的绑定对于所有引擎都是可视的。<br>
+<br></p>
+<h4><a id="3%09__49"></a>3.	 重定向输入和输出</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;可以通过调用脚本上下文的setReader和setWriter方法来重定向脚本的标准输入和输出。</p>
+<pre><code class="prism language-java">var writer <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">StringWriter</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+engine<span class="token punctuation">.</span><span class="token function">getContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">setWriter</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">PrintWriter</span><span class="token punctuation">(</span>writer<span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;那么脚本产生的输出都会被发送到writer上。<br>
+<br></p>
+<h4><a id="4%09_62"></a>4.	调用脚本的函数</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;对于许多脚本引擎而言，都可以调用脚本语言的函数，而不用对实际的脚本代码进行计算，提供这种功能的脚本引擎实现了Invocable接口。要调用一个函数，需要使用函数名来调用invokeFunction方法，函数名后面是函数的参数。</p>
+<pre><code class="prism language-java">engine<span class="token punctuation">.</span><span class="token function">eval</span><span class="token punctuation">(</span>“function <span class="token function">greet</span><span class="token punctuation">(</span>how<span class="token punctuation">,</span> whom<span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token keyword">return</span> how <span class="token operator">+</span> “<span class="token punctuation">,</span>” <span class="token operator">+</span> whom <span class="token punctuation">}</span>”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+result <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>Invocable<span class="token punctuation">)</span> engine<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">invokeFunction</span><span class="token punctuation">(</span>“greet”<span class="token punctuation">,</span> “hello”<span class="token punctuation">,</span> “world”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;进一步，可以让脚本引擎实现一个Java接口，然后就可以用Java方法调用的语法来调用脚本函数，需要为该Java接口中的每个方法都提供一个函数。如下面的接口：</p>
+<pre><code class="prism language-java"><span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">Greeter</span><span class="token punctuation">{</span>
+	String <span class="token function">welcome</span><span class="token punctuation">(</span>String whom<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;那么调用时，首先获取给定接口的实现类，该实现用脚本引擎中的函数实现了接口中的方法。</p>
+<pre><code class="prism language-java">engine<span class="token punctuation">.</span><span class="token function">eval</span><span class="token punctuation">(</span>“function <span class="token function">welcome</span><span class="token punctuation">(</span>whom<span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token keyword">return</span> “hello” <span class="token operator">+</span> whom<span class="token punctuation">}</span>”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+Greeter g <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>Invocable <span class="token punctuation">)</span> engine<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getInterface</span><span class="token punctuation">(</span>Greeter<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+result <span class="token operator">=</span> g<span class="token punctuation">.</span><span class="token function">welcome</span><span class="token punctuation">(</span>“world”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h4><a id="5%09_89"></a>5.	编译脚本</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;某些脚本引擎出于执行效率的考虑，将脚本代码编译为某种中间格式，这些引擎实现了Compilable接口，一旦脚本被编译，可以直接执行它，当然只有在需要重复执行某个脚本时，才会编译脚本。</p>
+<br>
+<h2><a id="%09_96"></a>二．	注解</h2>
+<h3><a id="%09_98"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;注解是那些插入到源代码中使用其他工具可以对其进行处理的标签，这些工具可以在源码层次上操作，或者可以处理编译器在其中放置了注解的类文件。注解并不会改变程序的编译方式，Java编译器对于包含注解和不包含注解的代码会生成相同的虚拟机指令。<br>
+<br></p>
+<h3><a id="%09_104"></a>（二）	注解的用途</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;附属文件的自动生成，例如部署描述符或者bean信息类；<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;测试，日志，事务语义等代码的自动生成；</p>
+<br>
+<h3><a id="%09_111"></a>（三）	注解的使用</h3>
+<p>Java中，注解被当做一个修饰符俩使用的，它被置于注解项之前，中间没有分号，每个注解的名称之前都加上了@符号，如下所示：</p>
+<pre><code class="prism language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MyClass</span><span class="token punctuation">{</span>
+	<span class="token annotation punctuation">@Test</span>
+	<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">checkRandom</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;@Test注解自身不会做任何事，它需要工具的支持，如测试一个类时，Junit4测试工具可能会调用所有标识为@Test的方法。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;注解也可以定义成包含元素的形式，如：</p>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@Test</span><span class="token punctuation">(</span>timeout<span class="token operator">=</span>”<span class="token number">10000</span>”<span class="token punctuation">)</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;这些元素可以被读取这些注解的工具去处理，除了方法以外，还可以注解类，成员以及局部变量，这些注解可以存在于任何可以放置像public这样的修饰符的地方。每个注解需要通过一个注解接口来定义，这些接口中的方法与注解中的元素相对应，如下所示：</p>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@Target</span><span class="token punctuation">(</span>ElementType<span class="token punctuation">.</span>METHOD<span class="token punctuation">)</span>
+<span class="token annotation punctuation">@Retention</span><span class="token punctuation">(</span>RetentionPolicy<span class="token punctuation">.</span>RUNTIME<span class="token punctuation">)</span>
+<span class="token keyword">public</span> @<span class="token keyword">interface</span> <span class="token class-name">Test</span>
+<span class="token punctuation">{</span>
+	<span class="token keyword">long</span> <span class="token function">timeout</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">default</span> <span class="token number">0</span>L<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;@interface声明创建一个真正的Java接口，处理注解的工具将接受那些实现了注解接口的对象，这类工具可以调用timeout方法来获取某个特定Test注解的timeout元素。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;@Target注解和@Retention是元注解，它们注解了Test注解，将Test注解标识为一个只能运用到方法上的注解，并且当类文件载入到虚拟机上时，它仍然可以保留下来，具体的在后面讨论。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;定义了注解对象，这些注解只会存在于源文件中，编译器会将它们置于类文件中，并且虚拟机会载入这些文件。我们需要使用一个能够分析注解的工具来接受这些注解对象，这个工具类将会调用一个处理方法，该方法将会枚举出所有方法的注解对象，如果存在对应的注解对象，就对这个对象进行处理，注解也就真正起了作用。</p>
+<br>
+<h3><a id="%09_150"></a>（四）	注解的语法</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;所有的注解接口都隐式地扩展自java.lang.annotation.Annotaion接口，无需为注解接口提供实现类。如果注解中某个元素的值并未指定，就是用声明的默认值，默认值并不是和注解存储在一起的，它们是动态计算得来的。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;有两个特殊的注解可以简化注解，一个是标记注解，注解中没有任何元素或者所有元素都使用默认值，如下所示：</p>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@BugReport</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;另一个是单值注解，如果一个元素具有特殊的名字value，且没有指定其他元素，则可以忽略这个value的元素名，直接在写值：</p>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@ActionLiener</span><span class="token punctuation">(</span>“yellow”<span class="token punctuation">)</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;一个项可以有多个注解，且如果注解的作者声明注解为可重复的，那么可以重复使用同一个注解。一个注解元素可以是另一个注解，因此可以将注解嵌套使用。<br>
+<br></p>
+<h3><a id="%09_170"></a>（五）	注解的位置</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;注解可以出现在很多地方，这些地方分为两类，一类是声明注解，一类是类型用法声明注解。声明注解放置到其他修饰符的前面，类型用法注解放置到其他修饰符的后面。</p>
+<br>
+<h2><a id="%09_177"></a>三．	标准注解</h2>
+<h3><a id="%09_179"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Java SE定义了大量的注解接口，其中四个是元注解，用于描述注解接口的行为属性，其他三个是规则接口，用来注解代码中的项。<br>
+<br></p>
+<h3><a id="%09_185"></a>（二）	用于编译的注解</h3>
+<h4><a id="1%09Deprecated_187"></a>1.	@Deprecated</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;将项标记为过时的，该注解会一直持久化到运行时。</p>
+<br>
+<h4><a id="2%09SuppressWarnings_193"></a>2.	@SuppressWarnings</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;告知编译器阻止特定类型的警告信息。<br>
+<br></p>
+<h4><a id="3%09Override_199"></a>3.	@Override</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;应用到方法上，检查这种注解的方法是否真正覆盖了一个来自超类的方法。<br>
+<br></p>
+<h4><a id="4%09Generated_205"></a>4.	@Generated</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;目的是供代码生成工具使用，任何生成的源代码都可以被注解，从而与开发者提供的代码区分开来。每个注解都必须包含一个表示代码生成器的唯一标识符。<br>
+<br></p>
+<h3><a id="%09_210"></a>（三）	用于管理资源的注解</h3>
+<h4><a id="1%09PostConstructPreDestroy_212"></a>1.	@PostConstruct和@PreDestroy</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;用于控制对象声明周期的环境中，例如Web容器，标记了这些注解的方法应该在对象被构建之后，或者对象被移除之前，紧接着调用。<br>
+<br></p>
+<h4><a id="2%09Resource_217"></a>2.	@Resource</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;用于资源的注入，如配置文件的注入<br>
+<br></p>
+<h3><a id="%09_223"></a>（四）	元注解</h3>
+<h4><a id="1%09Target_225"></a>1.	@Target</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;应用于注解，以限制该注解可以应用到哪些项上面，如方法，类…</p>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@Target</span><span class="token punctuation">(</span><span class="token punctuation">{</span>ElementType<span class="token punctuation">.</span>TYPE<span class="token punctuation">,</span> ElementType<span class="token punctuation">.</span>METHOD<span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;一条没有@Target限制的注解可以应用于任何项上。</p>
+<br>
+<h4><a id="2%09Retention_237"></a>2.	@Retention</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;用于指定一条注解应该保留多长时间，默认是RetentionPolicy.CLSS：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;SOURCE：不包含在类文件中的注解，既不会进入类文件</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;CLASS： 包含在类文件中的注解，但是虚拟机不需要载入它们</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;RUNTIME：包含在类文件中的注解，并且由虚拟机载入，通过反射API可以获得它们<br>
+<br></p>
+<h4><a id="3%09Documented_249"></a>3.	@Documented</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;为像Javadoc这样的归档工具提供了提示，用于文件的归档。<br>
+<br></p>
+<h4><a id="4%09Inherited_255"></a>4.	@Inherited</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;只能用于对类的注解，如果一个类具有继承注解，那么它的所有子类都自动具有相同的注解，这个注解特别适用于Serializable这样的标记接口。</p>
+<br>
+<h2><a id="%09_262"></a>四．	源码级注解处理</h2>
+<h3><a id="%09_264"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;注解的另一种用途是自动处理源代码以产生更多的源代码，配置文件，脚本或其他任何我们想要生成的东西。<br>
+<br></p>
+<h3><a id="%09_269"></a>（二）	注解处理器</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;注解处理已经被集成到Java编译器中，编译器会定位源文件中的注解，每个注解处理器都会依次执行，并得到它表示感兴趣的注解，如果某个注解处理器创建了一个新的源文件，那么上述过程将会重复执行，如果某次处理循环没有再产生任何新的源文件，那么就编译所有的源文件。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;注解处理器通常通过扩展AbstractProcessor类而实现Processor接口，处理器可以声明具体的注解类型，如下所示：</p>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@SupportedAnnotationTypes</span><span class="token punctuation">(</span>“com<span class="token punctuation">.</span>horstmann<span class="token punctuation">.</span>annotations<span class="token punctuation">.</span>ToString”<span class="token punctuation">)</span>
+<span class="token annotation punctuation">@SupportedSourceVersion</span><span class="token punctuation">(</span>SourceVersion<span class="token punctuation">.</span>RELEASE_8<span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ToStringAnnotationProcessor</span> <span class="token keyword">extends</span> <span class="token class-name">AbstractProcessor</span><span class="token punctuation">{</span><span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h2><a id="%09_284"></a>五．	字节码工程</h2>
+<h3><a id="%09_286"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;处理在运行期或者源码级别上处理注解，还可以在字节码级别上处理，除非将注解在源码级别上删除，否则它们会一直存在于类文件中。<br>
+<br></p>
+<h3><a id="%09_292"></a>（二）	流程</h3>
+<ol>
+<li>加载类文件中的字节码</li>
+<li>定位所有的方法</li>
+<li>对于每个方法，检查它是不是都有某个注解</li>
+<li>如果有，则在方法中添加某些指令的字节码</li>
+</ol>
+</div>
+</body>
+
+</html>

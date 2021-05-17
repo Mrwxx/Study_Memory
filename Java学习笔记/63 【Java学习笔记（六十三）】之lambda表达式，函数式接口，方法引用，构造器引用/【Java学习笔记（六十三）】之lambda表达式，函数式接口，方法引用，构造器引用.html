@@ -1,0 +1,94 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Java学习笔记（六十三）】之lambda表达式，函数式接口，方法引用，构造器引用</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09lambda_7"></a>一．	lambda表达式</h2>
+<h3><a id="%09lambda_8"></a>（一）	为什么需要lambda表达式</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;lambda表达式是一个可传递的代码块，可以在以后执行一次或者多次。这种传递代码的方式比较简洁，可读性强。<br>
+<br></p>
+<h3><a id="%09lambda_13"></a>（二）	lambda表达式的语法规范</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Java中Lambda表达式的形式是：参数，箭头（-&gt;）以及一个表达式。Java是一种强类型语言，变量的类型是一定要指定的，因此参数的类型需要指定。但是，如果参数的类型可以通过上下文推导出，也可以省略类型。如：<br>
+<br></p>
+<pre><code class="prism language-java"><span class="token punctuation">(</span>String first<span class="token punctuation">,</span> String second<span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">&gt;</span> <span class="token punctuation">{</span>
+	<span class="token keyword">if</span><span class="token punctuation">(</span>first<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">&lt;</span> second<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token keyword">return</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">;</span>
+	<span class="token keyword">else</span> <span class="token keyword">if</span><span class="token punctuation">(</span>first<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">&gt;</span> second<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token keyword">return</span> <span class="token number">1</span><span class="token punctuation">;</span>
+	<span class="token keyword">else</span> <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;即是lambda表达式中没有参数，也要提供空括号。但是，若只有一个参数，且参数类型可以推导出，那么可以省略参数的括号。<br>
+<br></p>
+<h3><a id="%09lambda_31"></a>（三）	lambda表达式的变量作用域</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;我们可以在lambda表达式中使用外围方法或类中的变量，这种变量称为自由变量，并非lambda表达式的参数也不是定义的变量。它能够被lambda表达式捕获到并且使用，但是注意，这种变量一定是值不会改变的变量，因为若是可以改变的变量，那么并发执行多个动作时就会造成危险。这种自由变量称为闭包。<br>
+<br></p>
+<h3><a id="%09lambdathis_37"></a>（四）	lambda表达式的this关键字</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在lambda表达式中，使用this关键字时代表的并不是当前的lambda表达式，而是指创建这个lambda表达式的方法的this参数。如：</p>
+<pre><code class="prism language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Application</span><span class="token punctuation">{</span>
+	<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">init</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+		ActionListener listener <span class="token operator">=</span> event<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token punctuation">{</span>
+			System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token punctuation">}</span>
+	<span class="token punctuation">}</span>
+<span class="token punctuation">}</span> 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;这里的this指的是Application对象，调用的是它的toString方法。<br>
+<br></p>
+<h3><a id="%09lambda_55"></a>（五）	lambda表达式的使用场景</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;lambda表达式在什么情况下使用呢？</p>
+<ol>
+<li>
+<p>在算法的适当位置运行代码（如，排序中的比较器）</p>
+</li>
+<li>
+<p>发生某种情况时运行代码（如，点击按钮）<br>
+<br></p>
+</li>
+</ol>
+<h3><a id="%09Comparator_65"></a>（六）	Comparator的优化</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;我们可以继续优化Comparator，除了使用lambda表达式重写外，还可以使用Comparator接口中的静态方法来创建比较器，如静态的comparing方法取一个“键提取器”函数，它将类型T映射为一个可比较的类型。对要比较的对象应用这个函数，然后对返回的键进行比较。如，假设有一个Person对象数组，可以按照名字对这些对象进行排序：</p>
+<pre><code class="prism language-java">Arrays<span class="token punctuation">.</span><span class="token function">sort</span><span class="token punctuation">(</span>people<span class="token punctuation">,</span> Comparator<span class="token punctuation">.</span><span class="token function">comparing</span><span class="token punctuation">(</span>Person<span class="token operator">:</span><span class="token operator">:</span>getName<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如果有多次比较，就将比较器和thenComparing方法连接起来，处理比较结果相同的情况：</p>
+<pre><code class="prism language-java">Arrays<span class="token punctuation">.</span><span class="token function">sort</span><span class="token punctuation">(</span>people<span class="token punctuation">,</span> Comparator<span class="token punctuation">.</span><span class="token function">comparing</span><span class="token punctuation">(</span>Person<span class="token operator">:</span><span class="token operator">:</span>getLastName<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">thenComparing</span><span class="token punctuation">(</span>Person<span class="token operator">:</span><span class="token operator">:</span>getFirstName<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h2><a id="%09_84"></a>二．	函数式接口</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;只有一个抽象方法的接口，称为函数式接口。当需要这种接口的对象时，我们可以提供一个lambda表达式。当我们在需要传递一个函数式接口Comparator的地方传递一个lambda表达式，如下所示：</p>
+<pre><code class="prism language-java">Arrays<span class="token punctuation">.</span><span class="token function">sort</span><span class="token punctuation">(</span>words<span class="token punctuation">,</span> <span class="token punctuation">(</span>first<span class="token punctuation">,</span>second<span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span>first<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-</span>second<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在底层实现中，Arrays.sort方法会接收实现了<code>Comparator&lt;String&gt;</code>的某个类的对象，在这个对象上调用compare方法会执行这个lambda表达式的体。</p>
+<br>
+<h2><a id="%09_96"></a>三．	方法引用</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;当lambda表达式只涉及一个方法时，我们可以通过一个方法引用来传递方法到该lambda表达式的位置，替代表达式。如：<br>
+本应该调用<code>new Timer(1000, event-&gt;System.out.println(event));</code>，这里使用方法引用，<code>new Timer(1000, System.out::println);</code><br>
+<br></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;方法引用指示编译器生成一个函数式接口的实例，覆盖这个接口的抽象方法来调用给定的方法。方法引用有三种情况:</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;第一种是等价与向方法传递参数的lambda表达式，如<code>x-&gt;System.out.println(x)；</code></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;第二种是第一个参数会成为方法的隐式参数，如<code>(x,y)-&gt;x.compareToIgnoreCase(y)；</code></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;第三种是所有参数都传递到静态方法中，如<code>(x,y)-&gt;Math.pow(x,y);</code><br>
+<br></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;注意，只有当lambda表达式的体只调用一个方法时，没有其他操作，才能够将lambda表达式重写为方法引用。如：</p>
+<pre><code class="prism language-java">s<span class="token operator">-</span><span class="token operator">&gt;</span>s<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">;</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;是不行的，因为不仅有方法调用，还有一个比较操作，所以不能使用方法引用。<br>
+<br></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;包含对象的方法引用与等价的lambda表达式有一个细微的差别，构造方法引用时如果有异常会在构造时抛出，而lambda表达式要在调用时才会抛出异常。</p>
+<br>
+<h2><a id="%09_131"></a>四．	构造器引用</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;构造器引用与方法引用很类似，只不过方法名为new，如Person::new是Person构造器的一个引用，若有多个构造器，引用哪个是根据上下文来决定的。</p>
+</div>
+</body>
+
+</html>

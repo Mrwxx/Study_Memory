@@ -1,0 +1,196 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Linux学习笔记（十四）】之命令格式，目录命令，文件命令</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09Linux_7"></a>一．	Linux命令基本格式</h2>
+<h3><a id="%09_8"></a>（一）	命令提示符</h3>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@localhost <span class="token operator">~</span><span class="token punctuation">]</span>#
+</code></pre>
+<h4><a id="1%09root_14"></a>1.	root</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 显示当前登录的用户。<br>
+<br></p>
+<h4><a id="2%09_19"></a>2.	@</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 分隔符号，无特殊含义。<br>
+<br></p>
+<h4><a id="3%09localhost_25"></a>3.	localhost</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 当前系统的简写主机名。<br>
+<br></p>
+<h4><a id="4%09_31"></a>4.	~</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 用户当前所在的目录，~表示在用户的家目录中。<br>
+<br></p>
+<h4><a id="5_37"></a>5.</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 超级用户是#，普通用户时$。<br>
+<br></p>
+<h3><a id="%09_43"></a>（二）	命令基本格式</h3>
+<pre><code class="prism language-cpp">命令 <span class="token punctuation">[</span>选项<span class="token punctuation">]</span> <span class="token punctuation">[</span>参数<span class="token punctuation">]</span>
+</code></pre>
+<h4><a id="1%09_49"></a>1.	选项</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 选项用于更改命令的功能，以ls命令举例：</p>
+<h5><a id="1%09a__51"></a>（1）	-a :</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 显示所有的文件。<br>
+<br></p>
+<h5><a id="2%09d_57"></a>（2）	-d</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 显示目录信息，而不是目录下的文件。<br>
+<br></p>
+<h5><a id="3%09h_63"></a>（3）	-h</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 人性化显示，用KB，MB单位显示文件的大小。</p>
+<br>
+<h5><a id="4%09i_69"></a>（4）	-i</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 显示文件的i节点号，在分区时，每个文件都被分配了i节点号作为索引。<br>
+<br></p>
+<h5><a id="5%09l_75"></a>（5）	-l</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 长格式显示所有的文件和文件夹。如下所示：</p>
+<pre><code class="prism language-cpp"><span class="token operator">-</span>rw<span class="token operator">--</span><span class="token operator">--</span><span class="token operator">--</span><span class="token operator">-</span><span class="token punctuation">.</span> <span class="token number">1</span> root root <span class="token number">1207</span> <span class="token number">1</span>月 <span class="token number">14</span> <span class="token number">18</span><span class="token operator">:</span><span class="token number">18</span> aa<span class="token punctuation">.</span>txt
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 第一列为文件或文件夹的权限；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 第二列为引用计数，对于文件来说是文件的硬链接个数，对于文件夹来说是该目录下有多少个一级子目录；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 第三列为该文件的建立用户；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 第四列为该文件所属用户的所属组；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 第五列为文件的大小，默认单位为字节，可以通过-h选项修改为人性化的单位；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 第六列为文件修改时间；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 第七列为文件名；</p>
+<br>
+<h2><a id="%09_100"></a>二．	目录操作命令</h2>
+<h3><a id="%09cd__101"></a>（一）	cd 命令</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 切换所在目录的命令（change directory），是Shell内置的命令，所有用户都可以执行。有简化的用法如下所示：</p>
+<h4><a id="1%09__104"></a>1.	 ~</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 代表用户的家目录。</p>
+<br>
+<h4><a id="2%09_110"></a>2.	–</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 代表上次所在的目录。</p>
+<br>
+<h4><a id="3%09_116"></a>3.	.</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 代表当前的目录。</p>
+<br>
+<h4><a id="4%09_122"></a>4.	…</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 代表上级目录。</p>
+<br>
+<h3><a id="%09pwd_128"></a>（二）	pwd命令</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 查询所在目录的命令（print name of current/working directory），命令路径在/bin/pwd中，所有用户都能够查询。</p>
+<br>
+<h3><a id="%09mkdir_134"></a>（三）	mkdir命令</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 创建目录的命令（make directories），命令路径在/bin/mkdir中，所有用户都能够创建空目录。注意，不能在同一个目录下创建同名的文件和目录！！！</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -p 选项能够递归创建目录，如下所示：</p>
+<pre><code class="prism language-cpp">mkdir <span class="token operator">-</span>p <span class="token number">123</span><span class="token operator">/</span><span class="token number">124</span><span class="token operator">/</span><span class="token number">125</span>
+</code></pre>
+<br>
+<h3><a id="%09rm_146"></a>（四）	rm命令</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 删除文件或者删除文件夹，如下所示：<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp; -r选项递归删除文件夹(recursive)</p>
+<pre><code class="prism language-cpp">rm <span class="token operator">-</span>r <span class="token number">123</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -f 选项强制删除，不会询问(force)</p>
+<pre><code class="prism language-cpp">rm <span class="token operator">-</span>rf <span class="token number">123</span>
+</code></pre>
+<br>
+<h2><a id="%09_163"></a>三．	文件操作命令</h2>
+<h3><a id="%09touch__164"></a>（一）	touch 命令</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 创建空文件或者修改文件时间（change file timestamps），在/bin/touch中，所有用户都可以修改文件的时间戳。touch命令对于不存在的文件是创建，对于存在的文件就是修改该文件的状态时间了。<br>
+<br></p>
+<h3><a id="%09stat_170"></a>（二）	stat命令</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 查看文件详细信息（display file or file system status），在/usr/bin/stat中，所有用户都可以查询。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该命令可以看到文件的大小，占了几块block，每块block多大，是什么类型的文件，硬件设备号是什么，索引I节点号是什么，有几个硬链接，权限是什么，所属用户是哪位，所属组是哪个，最近一次访问该文件的时间是什么时候，最近一个修改该文件的内容是什么时候，最近一次改动文件的状态是什么时候。所谓的状态是指修改文件的权限等非内容参数。如下所示：</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@localhost <span class="token operator">~</span><span class="token punctuation">]</span># stat a
+  File<span class="token operator">:</span> <span class="token string">"a"</span>
+  Size<span class="token operator">:</span> <span class="token number">0</span>         	Blocks<span class="token operator">:</span> <span class="token number">0</span>          IO Block<span class="token operator">:</span> <span class="token number">4096</span>   普通空文件
+Device<span class="token operator">:</span> <span class="token number">802</span>h<span class="token operator">/</span><span class="token number">2050</span>d	Inode<span class="token operator">:</span> <span class="token number">5744</span>        Links<span class="token operator">:</span> <span class="token number">1</span>
+Access<span class="token operator">:</span> <span class="token punctuation">(</span><span class="token number">0644</span><span class="token operator">/</span><span class="token operator">-</span>rw<span class="token operator">-</span>r<span class="token operator">--</span>r<span class="token operator">--</span><span class="token punctuation">)</span>  Uid<span class="token operator">:</span> <span class="token punctuation">(</span>    <span class="token number">0</span><span class="token operator">/</span>    root<span class="token punctuation">)</span>   Gid<span class="token operator">:</span> <span class="token punctuation">(</span>    <span class="token number">0</span><span class="token operator">/</span>    root<span class="token punctuation">)</span>
+Access<span class="token operator">:</span> <span class="token number">2020</span><span class="token operator">-</span><span class="token number">12</span><span class="token operator">-</span><span class="token number">06</span> <span class="token number">04</span><span class="token operator">:</span><span class="token number">32</span><span class="token operator">:</span><span class="token number">07.925998031</span> <span class="token operator">+</span><span class="token number">0800</span>
+Modify<span class="token operator">:</span> <span class="token number">2020</span><span class="token operator">-</span><span class="token number">12</span><span class="token operator">-</span><span class="token number">06</span> <span class="token number">04</span><span class="token operator">:</span><span class="token number">32</span><span class="token operator">:</span><span class="token number">07.925998031</span> <span class="token operator">+</span><span class="token number">0800</span>
+Change<span class="token operator">:</span> <span class="token number">2020</span><span class="token operator">-</span><span class="token number">12</span><span class="token operator">-</span><span class="token number">06</span> <span class="token number">04</span><span class="token operator">:</span><span class="token number">32</span><span class="token operator">:</span><span class="token number">07.925998031</span> <span class="token operator">+</span><span class="token number">0800</span>
+</code></pre>
+<br>
+<h3><a id="%09cat_189"></a>（三）	cat命令</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 查看文件内容（concatenate files and print on the standard output），在/bin/cat中，所有用户都可查看。有如下常用的选项：</p>
+<h4><a id="1%09A_192"></a>1.	-A</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 相当于-vET选项的整合，用于列出所有的隐藏符号。<br>
+<br></p>
+<h4><a id="2%09E_198"></a>2.	-E</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 列出每行结尾的回车符$<br>
+<br></p>
+<h4><a id="3%09n_204"></a>3.	-n</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 显示行号。</p>
+<br>
+<h4><a id="4%09T_210"></a>4.	-T</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 把Tab键用^I显示出来。<br>
+<br></p>
+<h4><a id="5%09v_216"></a>5.	-v</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 列出特殊字符。</p>
+<br>
+<h3><a id="%09more_222"></a>（四）	more命令</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; cat命令对于内容较少的文件比较好用，但是当文件过大时，显示的行数也是有限制的，这里需要more命令分屏显示文件。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 分屏显示文件（file perusal filter for crt viewin），在/bin/more中，所有用户都可使用。可以使用如下的命令进行交互：</p>
+<h4><a id="1%09_227"></a>1.	空格</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 向下翻页。<br>
+<br></p>
+<h4><a id="2%09b_233"></a>2.	b</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 向上翻页。</p>
+<br>
+<h4><a id="3%09_239"></a>3.	回车键</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 向下滚动一行。</p>
+<br>
+<h4><a id="4%09_245"></a>4.	/字符串</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 搜索字符串。<br>
+<br></p>
+<h4><a id="5%09q_251"></a>5.	q</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 退出。<br>
+<br></p>
+<h3><a id="%09less_257"></a>（五）	less命令</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 分行显示命令，在/usr/bin/less中。<br>
+<br></p>
+<h3><a id="%09head_263"></a>（六）	head命令</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 显示文件开头的命令（output the first part of files），在/usr/bin/head中，所有用户可用。有如下的选项：</p>
+<h4><a id="1%09n__266"></a>1.	-n 行数</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 从文件头开始，显示指定的行数。<br>
+<br></p>
+<h4><a id="2%09v_272"></a>2.	-v</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 显示文件名</p>
+<br>
+<h3><a id="%09tail_278"></a>（七）	tail命令</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 显示文件结尾（output the last part of files），在/usr/bin/tail中，所有用户可用。</p>
+<br>
+<h3><a id="%09ln_284"></a>（八）	ln命令</h3>
+<h4><a id="1%09_285"></a>1.	分区原理</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 对于系统的分区，分为两块，一块是I节点，一块是block块。每个新建的文件都会有块和对应的I节点，I节点中保存着I节点号，时间，权限和block块的保存位置，而block块中保存着文件中的信息。可以看出，该文件的I节点和block块中并没有保存文件名，文件名保存在该文件所在目录的block块中。例如该文件保存在/root目录下，则/root目录的block块中保存的就是该目录下的所有文件以及子目录的所有文件的文件名和对应的I节点号。那么，我们要找到该文件的信息，就要首先找到该目录的文件名，这样就会一直走到根节点/中，那么最终就要先找到根节点/的I节点号，才能找到其他文件的信息。/节点的I节点号是2, 1在内核加载的过程中被占用了，所有I节点号都是从1开始的。<br>
+<br></p>
+<h4><a id="2%09_291"></a>2.	硬链接</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 一个文件的信息保存在block块中，由对应的I节点提供索引，因此当我们创建一个文件时，仅仅是创建了一个硬链接保存了该文件block块所对应的I节点号而已，我们通过ln命令创建硬链接，将源文件和目标文件链接起来，所能达到的效果也就是在目标文件中存储物理文件所在block块的I节点号，用于索引而已。</p>
+<p>因此，硬链接的各种特征就很好解释了：<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp; （1）	源文件和硬链接文件拥有相同的I节点和block块。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; （2）	修改任意一个文件，就是修改源文件的block块，所有硬链接的文件都会改变。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; （3）	删除任意一个文件，仅仅是删除了一个硬链接而已，源文件的block块不会被删除，因此其他的硬链接能够照常使用。<br>
+<br></p>
+<p>硬链接的缺陷：<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp; （1）	很难确定硬链接的文件位置。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; （2）	硬链接不能链接目录，因为目录的层级过多，链接的话过于复杂。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; （3）	硬链接不能够跨分区，因为硬链接是通过指向同一个分区的I节点号来链接的，不同分区的无法链接。<br>
+<br></p>
+<h4><a id="3%09_314"></a>3.	软链接</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 软链接就相当于Windows中的快捷方式，该软链接的block块中仅仅保存源文件的I节点号，并没有实际保存数据。因此，软链接的特征如下：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; （1）	软链接和源文件用于不同的I节点和block块。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; （2）	修改软链接或者源文件，另一个都会被改变。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; （3）	删除源文件，软链接就无法找到源文件了，无法继续使用。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; （4）	软链接没有实际数据，仅保存源文件的I节点号，大小不会变化。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; （5）	软链接的权限是最大的，但是实际访问源文件还是要根据源文件权限决定。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; （6）	软链接可以链接目录，因为只需要记录目录的I节点号即可。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; （7）	软链接可以跨分区，但是注意使用软链接时要使用绝对路径，否则可能会找不到源文件。</p>
+<p>使用方式：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 使用ln 命令， 添加-s选项（soft）</p>
+<pre><code class="prism language-cpp">ln <span class="token operator">-</span>s <span class="token operator">/</span>root<span class="token operator">/</span>a <span class="token operator">/</span>tmp<span class="token operator">/</span>b
+</code></pre>
+</div>
+</body>
+
+</html>

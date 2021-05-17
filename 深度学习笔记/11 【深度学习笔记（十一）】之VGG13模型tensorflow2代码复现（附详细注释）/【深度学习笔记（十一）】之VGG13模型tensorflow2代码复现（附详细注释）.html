@@ -1,0 +1,187 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【深度学习笔记（十一）】之VGG13模型tensorflow2代码复现（附详细注释）</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09VGG_7"></a>一．	VGG模型</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;前面已经介绍过了VGG网络模型，一共13层，这里说的13层指的是10层卷积层和3层全连接层，并没有包括池化层。下面代码详细地将VGG的13层网络模型复现，并用CIFAR100数据集进行训练，测试。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;代码中附有详细的注释，从数据的预处理，到训练，再到测试。<br>
+<br></p>
+<h2><a id="%09_13"></a>二．	代码实现</h2>
+<br>
+<pre><code class="prism language-python"><span class="token keyword">import</span> tensorflow <span class="token keyword">as</span> tf
+<span class="token keyword">from</span> tensorflow<span class="token punctuation">.</span>keras <span class="token keyword">import</span> layers<span class="token punctuation">,</span> optimizers<span class="token punctuation">,</span> datasets<span class="token punctuation">,</span> Sequential
+<span class="token keyword">import</span> os
+
+os<span class="token punctuation">.</span>environ<span class="token punctuation">[</span><span class="token string">'TF_CPP_MIN_LOG_LEVEL'</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">'2'</span>
+tf<span class="token punctuation">.</span>random<span class="token punctuation">.</span>set_seed<span class="token punctuation">(</span><span class="token number">2345</span><span class="token punctuation">)</span>
+
+<span class="token comment">#VGG13总共13层，指的是10层卷积层和3层全连接层</span>
+
+<span class="token triple-quoted-string string">"""
+一共5个单元的卷积层和池化层，每个单元2个卷积层和一个池化层
+"""</span>
+
+<span class="token comment">#卷积层和池化层</span>
+conv_layers <span class="token operator">=</span> <span class="token punctuation">[</span>
+
+    <span class="token comment">#第一个单元 2个卷积和一个池化</span>
+
+    layers<span class="token punctuation">.</span>Conv2D<span class="token punctuation">(</span><span class="token number">64</span><span class="token punctuation">,</span> kernel_size<span class="token operator">=</span><span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">,</span> padding<span class="token operator">=</span><span class="token string">"same"</span><span class="token punctuation">,</span> activation<span class="token operator">=</span>tf<span class="token punctuation">.</span>nn<span class="token punctuation">.</span>relu<span class="token punctuation">)</span><span class="token punctuation">,</span>
+    layers<span class="token punctuation">.</span>Conv2D<span class="token punctuation">(</span><span class="token number">64</span><span class="token punctuation">,</span> kernel_size<span class="token operator">=</span><span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">,</span> padding<span class="token operator">=</span><span class="token string">"same"</span><span class="token punctuation">,</span> activation<span class="token operator">=</span>tf<span class="token punctuation">.</span>nn<span class="token punctuation">.</span>relu<span class="token punctuation">)</span><span class="token punctuation">,</span>
+    layers<span class="token punctuation">.</span>MaxPool2D<span class="token punctuation">(</span>pool_size<span class="token operator">=</span><span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">,</span> strides<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">,</span> padding<span class="token operator">=</span><span class="token string">"same"</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+    <span class="token comment">#第二个单元</span>
+    layers<span class="token punctuation">.</span>Conv2D<span class="token punctuation">(</span><span class="token number">128</span><span class="token punctuation">,</span> kernel_size<span class="token operator">=</span><span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">,</span> padding<span class="token operator">=</span><span class="token string">"same"</span><span class="token punctuation">,</span> activation<span class="token operator">=</span>tf<span class="token punctuation">.</span>nn<span class="token punctuation">.</span>relu<span class="token punctuation">)</span><span class="token punctuation">,</span>
+    layers<span class="token punctuation">.</span>Conv2D<span class="token punctuation">(</span><span class="token number">128</span><span class="token punctuation">,</span> kernel_size<span class="token operator">=</span><span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">,</span> padding<span class="token operator">=</span><span class="token string">"same"</span><span class="token punctuation">,</span> activation<span class="token operator">=</span>tf<span class="token punctuation">.</span>nn<span class="token punctuation">.</span>relu<span class="token punctuation">)</span><span class="token punctuation">,</span>
+    layers<span class="token punctuation">.</span>MaxPool2D<span class="token punctuation">(</span>pool_size<span class="token operator">=</span><span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">,</span> strides<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">,</span> padding<span class="token operator">=</span><span class="token string">"same"</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+    <span class="token comment">#第三个单元</span>
+    layers<span class="token punctuation">.</span>Conv2D<span class="token punctuation">(</span><span class="token number">256</span><span class="token punctuation">,</span> kernel_size<span class="token operator">=</span><span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">,</span> padding<span class="token operator">=</span><span class="token string">"same"</span><span class="token punctuation">,</span> activation<span class="token operator">=</span>tf<span class="token punctuation">.</span>nn<span class="token punctuation">.</span>relu<span class="token punctuation">)</span><span class="token punctuation">,</span>
+    layers<span class="token punctuation">.</span>Conv2D<span class="token punctuation">(</span><span class="token number">256</span><span class="token punctuation">,</span> kernel_size<span class="token operator">=</span><span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">,</span> padding<span class="token operator">=</span><span class="token string">"same"</span><span class="token punctuation">,</span> activation<span class="token operator">=</span>tf<span class="token punctuation">.</span>nn<span class="token punctuation">.</span>relu<span class="token punctuation">)</span><span class="token punctuation">,</span>
+    layers<span class="token punctuation">.</span>MaxPool2D<span class="token punctuation">(</span>pool_size<span class="token operator">=</span><span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">,</span> strides<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">,</span> padding<span class="token operator">=</span><span class="token string">"same"</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+    <span class="token comment">#第四个单元</span>
+    layers<span class="token punctuation">.</span>Conv2D<span class="token punctuation">(</span><span class="token number">512</span><span class="token punctuation">,</span> kernel_size<span class="token operator">=</span><span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">,</span> padding<span class="token operator">=</span><span class="token string">"same"</span><span class="token punctuation">,</span> activation<span class="token operator">=</span>tf<span class="token punctuation">.</span>nn<span class="token punctuation">.</span>relu<span class="token punctuation">)</span><span class="token punctuation">,</span>
+    layers<span class="token punctuation">.</span>Conv2D<span class="token punctuation">(</span><span class="token number">512</span><span class="token punctuation">,</span> kernel_size<span class="token operator">=</span><span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">,</span> padding<span class="token operator">=</span><span class="token string">"same"</span><span class="token punctuation">,</span> activation<span class="token operator">=</span>tf<span class="token punctuation">.</span>nn<span class="token punctuation">.</span>relu<span class="token punctuation">)</span><span class="token punctuation">,</span>
+    layers<span class="token punctuation">.</span>MaxPool2D<span class="token punctuation">(</span>pool_size<span class="token operator">=</span><span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">,</span> strides<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">,</span> padding<span class="token operator">=</span><span class="token string">"same"</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+    <span class="token comment">#第五个单元</span>
+    layers<span class="token punctuation">.</span>Conv2D<span class="token punctuation">(</span><span class="token number">512</span><span class="token punctuation">,</span> kernel_size<span class="token operator">=</span><span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">,</span> padding<span class="token operator">=</span><span class="token string">"same"</span><span class="token punctuation">,</span> activation<span class="token operator">=</span>tf<span class="token punctuation">.</span>nn<span class="token punctuation">.</span>relu<span class="token punctuation">)</span><span class="token punctuation">,</span>
+    layers<span class="token punctuation">.</span>Conv2D<span class="token punctuation">(</span><span class="token number">512</span><span class="token punctuation">,</span> kernel_size<span class="token operator">=</span><span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">,</span> padding<span class="token operator">=</span><span class="token string">"same"</span><span class="token punctuation">,</span> activation<span class="token operator">=</span>tf<span class="token punctuation">.</span>nn<span class="token punctuation">.</span>relu<span class="token punctuation">)</span><span class="token punctuation">,</span>
+    layers<span class="token punctuation">.</span>MaxPool2D<span class="token punctuation">(</span>pool_size<span class="token operator">=</span><span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">,</span> strides<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">,</span> padding<span class="token operator">=</span><span class="token string">"same"</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+<span class="token punctuation">]</span>
+
+<span class="token comment">#数据预处理</span>
+<span class="token keyword">def</span> <span class="token function">preprocess</span><span class="token punctuation">(</span>x<span class="token punctuation">,</span> y<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token comment">#数据到0-1之间</span>
+    x <span class="token operator">=</span> tf<span class="token punctuation">.</span>cast<span class="token punctuation">(</span>x<span class="token punctuation">,</span> dtype<span class="token operator">=</span>tf<span class="token punctuation">.</span>float32<span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token number">255</span><span class="token punctuation">.</span>
+    y <span class="token operator">=</span> tf<span class="token punctuation">.</span>cast<span class="token punctuation">(</span>y<span class="token punctuation">,</span> dtype<span class="token operator">=</span>tf<span class="token punctuation">.</span>int32<span class="token punctuation">)</span>
+    <span class="token keyword">return</span> x<span class="token punctuation">,</span>y
+
+<span class="token comment">#数据自动下载加载</span>
+<span class="token punctuation">(</span>x<span class="token punctuation">,</span> y<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span>x_test<span class="token punctuation">,</span> y_test<span class="token punctuation">)</span> <span class="token operator">=</span> datasets<span class="token punctuation">.</span>cifar100<span class="token punctuation">.</span>load_data<span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>x<span class="token punctuation">.</span>shape<span class="token punctuation">,</span> y<span class="token punctuation">.</span>shape<span class="token punctuation">,</span> x_test<span class="token punctuation">.</span>shape<span class="token punctuation">,</span> y_test<span class="token punctuation">.</span>shape<span class="token punctuation">)</span>
+<span class="token comment">#标签 (64, 1)，需要squeeze掉 1</span>
+y <span class="token operator">=</span> tf<span class="token punctuation">.</span>squeeze<span class="token punctuation">(</span>y<span class="token punctuation">,</span> axis<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>
+y_test <span class="token operator">=</span> tf<span class="token punctuation">.</span>squeeze<span class="token punctuation">(</span>y_test<span class="token punctuation">,</span> axis<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>
+
+<span class="token comment">#数据的处理</span>
+<span class="token comment">#训练数据的处理</span>
+train_db <span class="token operator">=</span> tf<span class="token punctuation">.</span>data<span class="token punctuation">.</span>Dataset<span class="token punctuation">.</span>from_tensor_slices<span class="token punctuation">(</span><span class="token punctuation">(</span>x<span class="token punctuation">,</span> y<span class="token punctuation">)</span><span class="token punctuation">)</span>
+train_db <span class="token operator">=</span> train_db<span class="token punctuation">.</span>shuffle<span class="token punctuation">(</span><span class="token number">1000</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token builtin">map</span><span class="token punctuation">(</span>preprocess<span class="token punctuation">)</span><span class="token punctuation">.</span>batch<span class="token punctuation">(</span><span class="token number">64</span><span class="token punctuation">)</span>
+<span class="token comment">#测试数据的处理</span>
+test_db <span class="token operator">=</span> tf<span class="token punctuation">.</span>data<span class="token punctuation">.</span>Dataset<span class="token punctuation">.</span>from_tensor_slices<span class="token punctuation">(</span><span class="token punctuation">(</span>x_test<span class="token punctuation">,</span> y_test<span class="token punctuation">)</span><span class="token punctuation">)</span>
+test_db <span class="token operator">=</span> test_db<span class="token punctuation">.</span><span class="token builtin">map</span><span class="token punctuation">(</span>preprocess<span class="token punctuation">)</span><span class="token punctuation">.</span>batch<span class="token punctuation">(</span><span class="token number">64</span><span class="token punctuation">)</span>
+
+<span class="token comment">#取出一个sample查看 每个样本数据的尺寸，标签的尺寸，最大值最小值</span>
+sample <span class="token operator">=</span> <span class="token builtin">next</span><span class="token punctuation">(</span><span class="token builtin">iter</span><span class="token punctuation">(</span>train_db<span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"sample:"</span><span class="token punctuation">,</span> sample<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">.</span>shape<span class="token punctuation">,</span> sample<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">.</span>shape<span class="token punctuation">,</span>
+      tf<span class="token punctuation">.</span>reduce_min<span class="token punctuation">(</span>sample<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span> tf<span class="token punctuation">.</span>reduce_max<span class="token punctuation">(</span>sample<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+
+
+
+<span class="token keyword">def</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+
+    <span class="token comment">#卷积层</span>
+    conv_net <span class="token operator">=</span> Sequential<span class="token punctuation">(</span>conv_layers<span class="token punctuation">)</span>
+
+    <span class="token comment">#test卷积层和池化层</span>
+    <span class="token comment">#conv_net.build(input_shape=[None, 32, 32, 3])</span>
+    <span class="token comment"># x = tf.random.normal([4, 32, 32, 3])</span>
+    <span class="token comment"># out = conv_net(x)</span>
+    <span class="token comment"># print(out.shape)</span>
+
+    <span class="token comment">#全连接层</span>
+    fc_net <span class="token operator">=</span> Sequential<span class="token punctuation">(</span><span class="token punctuation">[</span>
+        layers<span class="token punctuation">.</span>Dense<span class="token punctuation">(</span><span class="token number">256</span><span class="token punctuation">,</span> activation<span class="token operator">=</span>tf<span class="token punctuation">.</span>nn<span class="token punctuation">.</span>relu<span class="token punctuation">)</span><span class="token punctuation">,</span>
+        layers<span class="token punctuation">.</span>Dense<span class="token punctuation">(</span><span class="token number">128</span><span class="token punctuation">,</span> activation<span class="token operator">=</span>tf<span class="token punctuation">.</span>nn<span class="token punctuation">.</span>relu<span class="token punctuation">)</span><span class="token punctuation">,</span>
+        layers<span class="token punctuation">.</span>Dense<span class="token punctuation">(</span><span class="token number">100</span><span class="token punctuation">,</span> activation<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">)</span>
+
+    conv_net<span class="token punctuation">.</span>build<span class="token punctuation">(</span>input_shape<span class="token operator">=</span><span class="token punctuation">[</span><span class="token boolean">None</span><span class="token punctuation">,</span> <span class="token number">32</span><span class="token punctuation">,</span> <span class="token number">32</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    fc_net<span class="token punctuation">.</span>build<span class="token punctuation">(</span>input_shape<span class="token operator">=</span><span class="token punctuation">[</span><span class="token boolean">None</span><span class="token punctuation">,</span> <span class="token number">512</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+
+    <span class="token comment">#设置优化器，优化学习率</span>
+    optimizer <span class="token operator">=</span> optimizers<span class="token punctuation">.</span>Adam<span class="token punctuation">(</span>lr<span class="token operator">=</span><span class="token number">1e</span><span class="token operator">-</span><span class="token number">4</span><span class="token punctuation">)</span>
+
+    <span class="token comment">#每个层键的参数变量结合起来</span>
+    variables <span class="token operator">=</span> conv_net<span class="token punctuation">.</span>trainable_variables <span class="token operator">+</span> fc_net<span class="token punctuation">.</span>trainable_variables
+
+    <span class="token comment">#处理完数据后，开始训练</span>
+    <span class="token keyword">for</span> epoch <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">50</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">for</span> step<span class="token punctuation">,</span> <span class="token punctuation">(</span>x<span class="token punctuation">,</span> y<span class="token punctuation">)</span> <span class="token keyword">in</span> <span class="token builtin">enumerate</span><span class="token punctuation">(</span>train_db<span class="token punctuation">)</span><span class="token punctuation">:</span>
+            <span class="token comment">#自动求解梯度</span>
+            <span class="token keyword">with</span> tf<span class="token punctuation">.</span>GradientTape<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">as</span> tape<span class="token punctuation">:</span>
+                <span class="token comment">#卷积层和池化层</span>
+                <span class="token comment">#[b, 32, 32, 3] -&gt; [b, 1, 1, 512]</span>
+                out <span class="token operator">=</span> conv_net<span class="token punctuation">(</span>x<span class="token punctuation">)</span>
+                <span class="token comment">#flatten -&gt; [b, 512]</span>
+                out <span class="token operator">=</span> tf<span class="token punctuation">.</span>reshape<span class="token punctuation">(</span>out<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">512</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+                <span class="token comment">#全连接层</span>
+                <span class="token comment">#[b, 512] -&gt; [b, 100]</span>
+                logits <span class="token operator">=</span> fc_net<span class="token punctuation">(</span>out<span class="token punctuation">)</span>
+
+                <span class="token comment">#走完卷积层，池化层，全连接层得到输出值</span>
+                <span class="token comment">#求解Loss值,需要将y的尺寸补齐到logits的尺寸</span>
+                <span class="token comment">#[b] -&gt; [b, 100]</span>
+                y_onehot <span class="token operator">=</span> tf<span class="token punctuation">.</span>one_hot<span class="token punctuation">(</span>y<span class="token punctuation">,</span> depth<span class="token operator">=</span><span class="token number">100</span><span class="token punctuation">)</span>
+                loss <span class="token operator">=</span> tf<span class="token punctuation">.</span>losses<span class="token punctuation">.</span>categorical_crossentropy<span class="token punctuation">(</span>y_onehot<span class="token punctuation">,</span> logits<span class="token punctuation">,</span> from_logits<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+                <span class="token comment">#计算Loss的均值，每个样本有一个loss均值</span>
+                loss <span class="token operator">=</span> tf<span class="token punctuation">.</span>reduce_mean<span class="token punctuation">(</span>loss<span class="token punctuation">)</span>
+
+            <span class="token comment">#反向传播，对所有的层间参数进行求导</span>
+            grads <span class="token operator">=</span> tape<span class="token punctuation">.</span>gradient<span class="token punctuation">(</span>loss<span class="token punctuation">,</span> variables<span class="token punctuation">)</span>
+            <span class="token comment">#更新梯度</span>
+            optimizer<span class="token punctuation">.</span>apply_gradients<span class="token punctuation">(</span><span class="token builtin">zip</span><span class="token punctuation">(</span>grads<span class="token punctuation">,</span> variables<span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+            <span class="token comment">#每100个样本打印一次结果</span>
+            <span class="token keyword">if</span> step<span class="token operator">%</span><span class="token number">100</span> <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">:</span>
+                <span class="token keyword">print</span><span class="token punctuation">(</span>epoch<span class="token punctuation">,</span> step<span class="token punctuation">,</span> <span class="token string">"loss:"</span><span class="token punctuation">,</span> <span class="token builtin">float</span><span class="token punctuation">(</span>loss<span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+        <span class="token comment">#测试模型</span>
+        total_num <span class="token operator">=</span> <span class="token number">0</span>
+        total_correct <span class="token operator">=</span> <span class="token number">0</span>
+        <span class="token keyword">for</span> x<span class="token punctuation">,</span> y <span class="token keyword">in</span> test_db<span class="token punctuation">:</span>
+            out <span class="token operator">=</span> conv_net<span class="token punctuation">(</span>x<span class="token punctuation">)</span>
+            out <span class="token operator">=</span> tf<span class="token punctuation">.</span>reshape<span class="token punctuation">(</span>out<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">512</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+            logits <span class="token operator">=</span> fc_net<span class="token punctuation">(</span>out<span class="token punctuation">)</span>
+            <span class="token comment">#softmax转换成概率</span>
+            prob <span class="token operator">=</span> tf<span class="token punctuation">.</span>nn<span class="token punctuation">.</span>softmax<span class="token punctuation">(</span>logits<span class="token punctuation">,</span> axis<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>
+            <span class="token comment">#选择概率最大的作为预测值</span>
+            pred <span class="token operator">=</span> tf<span class="token punctuation">.</span>argmax<span class="token punctuation">(</span>prob<span class="token punctuation">,</span> axis<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>
+            pred <span class="token operator">=</span> tf<span class="token punctuation">.</span>cast<span class="token punctuation">(</span>pred<span class="token punctuation">,</span> dtype<span class="token operator">=</span>tf<span class="token punctuation">.</span>int32<span class="token punctuation">)</span>
+
+            <span class="token comment">#计算正确预测的数量</span>
+            correct <span class="token operator">=</span> tf<span class="token punctuation">.</span>cast<span class="token punctuation">(</span>tf<span class="token punctuation">.</span>equal<span class="token punctuation">(</span>pred<span class="token punctuation">,</span> y<span class="token punctuation">)</span><span class="token punctuation">,</span> dtype<span class="token operator">=</span>tf<span class="token punctuation">.</span>int32<span class="token punctuation">)</span>
+            correct <span class="token operator">=</span> tf<span class="token punctuation">.</span>reduce_sum<span class="token punctuation">(</span>correct<span class="token punctuation">)</span>
+
+            total_num <span class="token operator">+=</span> x<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span>
+            total_correct <span class="token operator">+=</span> <span class="token builtin">int</span><span class="token punctuation">(</span>correct<span class="token punctuation">)</span>
+
+        <span class="token comment">#计算正确率</span>
+        acc <span class="token operator">=</span> total_correct <span class="token operator">/</span> total_num
+        <span class="token keyword">print</span><span class="token punctuation">(</span>epoch<span class="token punctuation">,</span> <span class="token string">"acc:"</span><span class="token punctuation">,</span> acc<span class="token punctuation">)</span>
+
+
+
+<span class="token keyword">if</span> __name__ <span class="token operator">==</span> <span class="token string">'__main__'</span><span class="token punctuation">:</span>
+    main<span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+</div>
+</body>
+
+</html>

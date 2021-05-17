@@ -1,0 +1,90 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【MySQL学习笔记（六）】之InnoDB和MyISAM中的索引方案详解</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_8"></a>一．	索引</h2>
+<h3><a id="%09_10"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如果没有索引，我们在搜索记录时直接通过遍历所有的页，再遍历所有的记录来命中最终的记录，这样效率非常低。因此，我们需要使用索引提高查找的效率。</p>
+<br>
+<h3><a id="%09InnoDB_17"></a>（二）	InnoDB中的索引方案</h3>
+<h4><a id="1%09_19"></a>1.	索引规则</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;由于各个页中的记录的存储没有规律，因此查找起来没有头绪，不知道从哪里入手。我们要找到某个记录，就必须首先找到该记录在哪个页中，通过什么条件来定位该记录呢？主键是一个很好的选择，仿效页中页目录的做法，设定下一个索引页中用户记录的主键值必须大于上一个页中用户记录的主键值，这样就能够通过主键来确定每个页的范围了。要维持这种状态，需要在页中记录进行增删改的过程中，通过一些记录移动的操作保持不同页的顺序排序。然后，给所有的页也建立一个目录，每个页对应一个目录项，每个目录项中包括两个部分：页的用户记录中最小的主键值key和页号page_no。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;那么，我们在查找记录时直接通过记录的主键值确定该记录所在的页，进而进入该页中通过页目录来查找该记录所在的槽，然后遍历槽中的记录。这样，查找的效率会高很多。<br>
+<br></p>
+<h4><a id="2%09InnoDB_27"></a>2.	InnoDB中的索引方案</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;InnoDB使用页作为管理存储空间的基本单位，但是最多保证16KB的连续存储空间，如果表中页的数量特别多，总会有超出16KB的那一天。且如果删除了一个页，要删除目录项中该页对应的项，或者作为冗余存放在目录项中，浪费存储空间。这些问题都需要解决。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;InnoDB通过复用存储用户记录的索引页来存储目录项，为了区分，这些用来表示目录项的记录称为目录项记录，他们的记录头信息中的record_type属性为1，普通用户记录为0。且目录项记录只有主键值和页的编号两个列。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;那么问题又来了，我们如何定位这些存储目录项纪录的页呢？</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;这些页在存储空间中也可能不是挨着的，可能会产生很多存储目录项记录的页，如何根据主键值快速定位一个存储目录项记录的页呢？答案是，为这些存储目录项记录的页再生成一个更高级的目录，像多级目录一样。这种结构就像一棵树，名为B+树，用户记录都存放在叶子节点中，非叶子节点都是目录项记录。第0层是叶子节点所在的层，一般情况下B+树都不会超过4层。</p>
+<br>
+<h4><a id="3%09_39"></a>3.	聚簇索引</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;聚簇索引是满足以下条件的B+树：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（1）	页内的记录按照主键的大小顺序排成一个单向链表，记录被划分为若干个组，每个组中主键值最大的记录在页内的偏移量会作为槽依次存放在页目录中。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（2）	各个存放用户目录的页根据主键大小顺序排成双向链表</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（3）	存放目录项纪录的页分为不同的层级，在同一层级中的页也是根据页中目录项记录的主键大小顺序排成双向链表</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（4）	B+树的叶子节点存储的是完整的用户记录，即包括隐藏列。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;聚簇索引不需要我们在MySQL语句中显示地使用INDEX语句来创建，InnoDB中，就是这种存储方式。</p>
+<br>
+<h4><a id="4%09_55"></a>4.	二级索引</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;聚簇索引只有在搜索条件是主键时才能够发挥作用，对于其他的列，如何是好呢？</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;我们可以多建几棵B+树，不同的B+中的数据采用不同的排序规则。这种B+树与聚簇索引的区别是什么呢？</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（1）	叶子节点存储的不是完整的用户记录，只是索引列+主键，当我们找到对应的索引记录时，通过主键到聚簇索引中查找完整的用户记录，这个操作称为回表。然后再返回到这棵B+树的叶子节点处，沿着单向链表将继续搜索。这种方案的优点是节省空间，这也是称为二级索引的原因，必须执行进行回表的二次操作。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（2）	目录项记录是索引列+主键+页号，如果不添加主键，那么对于该索引列中有多个相同的值的情况，且目录项中不同的页的索引列都是相同的，在页分裂时就无法判断先插入的记录应该放入哪一个页中的困境，因此需要添加主键来保证查找的唯一性。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;当我们为某个列或列组合声明UNIQUE时，便会为这个列或者列组合建立二级索引。但是即使有UNIQUE属性加持，也可能有多条记录键值相同的情况，如都是NULL值，或者MVCC服务。<br>
+<br></p>
+<h4><a id="5%09_69"></a>5.	联合索引</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;可以同时以多个列的大小作为排序规则，同时为多个列建立索引，如让B+树按照c2和c3列的大小进行排序，则意思是：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（1）	先把各个记录和页按照c2列排序<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;（2）	在记录的c2列相同的情况下，再采用c3列进行排序</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;每条目录项都由c2列, c3列，页号三部分组成，用户记录有c2列，c3列和主键组成。</p>
+<br>
+<h3><a id="%09_80"></a>（三）	注意事项</h3>
+<h4><a id="1%09_82"></a>1.	根页面不会移动</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;为某个表创建一个B+树索引，都会为这个索引创建一个根节点页面，初始时表中没有数据，则对应的根页面中没有用户记录和目录项记录。随后插入用户记录，在根节点中的可用空间用完时，会将根节点中的所有记录复制到一个新分配的页中，对这个新页进行页分裂操作，得到另一个新的页，根节点此时便升级为存储目录项记录的页，也就需要把用户记录的目录项记录插入到根节点中。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;B+ 树索引的根节点始终不会移动，即页号不会改变，会记录到某个地方，凡是InnoDB需要使用这个索引，从固定的地方找出根节点的页号，访问这个索引。</p>
+<br>
+<h4><a id="2%09_90"></a>2.	一个页面至少两条记录</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如果一个大的目录只存放一个子目录，那么目录层级会非常地多，因此，InnoDB规定一个页面最少两条记录。</p>
+<br>
+<h3><a id="%09MyISAM_96"></a>（四）	MyISAM中的索引方案</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;MyISAM将索引和数据分开存储，表中的记录按照记录的插入顺序（非主键排序，因此无法二分）单独存储在一个文件中，称为数据文件，不划分数据页，直接通过行号查询记录。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;索引信息单独存储到索引文件中，为表的主键单独创建一个索引，在索引的叶子节点中存储的不是完整的用户记录，而是主键+行号，也就是先通过索引找到对应的行号，再通过行号来查找用户记录。因此MyISAM中的索引都是二级索引。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;对于MyISAM记录的行格式，有定长记录格式，变长记录格式，压缩记录格式。定长记录格式可以通过行号计算出在某条记录在数据文件中的地址偏移量，但是变长记录格式不行，因此需要在索引叶子节点处存储该条记录在数据文件中的地址偏移量。这一点，MyISAM的效率更高，因为它直接拿到地址偏移量到文件中取记录，而InnoDB是通过主键到聚簇索引中找记录。</p>
+<br>
+<h3><a id="%09MySQL_106"></a>（五）	MySQL中创建和删除索引</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;InnoDB和MyISAM会自动会主键或者UNIQUE的列建立索引，其他的列需要显示指定。<br>
+<br></p>
+<h4><a id="1%09_112"></a>1.	创建索引</h4>
+<pre><code class="prism language-java">CREATE TABLE 表名<span class="token punctuation">(</span>
+	<span class="token punctuation">(</span>KEY <span class="token operator">|</span> INDEX<span class="token punctuation">)</span> 索引名 单个列或多个列
+<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<pre><code class="prism language-java">ALTER TABLE 表名 ADD <span class="token punctuation">(</span>KEY <span class="token operator">|</span> INDEX<span class="token punctuation">)</span> 索引名 单个列或多个列<span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h4><a id="2%09_126"></a>2.	删除索引</h4>
+<pre><code class="prism language-java">ALTER TABLE 表名 DROP <span class="token punctuation">(</span>KEY <span class="token operator">|</span> INDEX<span class="token punctuation">)</span> 索引名<span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h4><a id="3%09_134"></a>3.	联合索引</h4>
+<pre><code class="prism language-java">CREATE TABLE 表名<span class="token punctuation">(</span>
+	<span class="token punctuation">(</span>KEY <span class="token operator">|</span> INDEX<span class="token punctuation">)</span> 索引名 <span class="token punctuation">(</span>多个列<span class="token punctuation">)</span>
+<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;联合索引的索引名尽量以idx_为前缀，后面是多个列的名称。</p>
+</div>
+</body>
+
+</html>

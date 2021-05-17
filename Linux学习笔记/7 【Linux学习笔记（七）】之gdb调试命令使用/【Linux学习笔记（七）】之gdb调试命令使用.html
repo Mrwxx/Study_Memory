@@ -1,0 +1,87 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Linux学习笔记（七）】之gdb调试命令使用</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09gdb_7"></a>一．	gdb调试</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;gdb是UNIX及UNIX-like下的调试工具，优点是能够修复网络断点以及恢复链接等功能。<br>
+<br></p>
+<h2><a id="gdb_11"></a>二．使用gdb</h2>
+<h3><a id="_12"></a>（一）编译</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;要想使用gdb，在编译时需要加上-g参数：</p>
+<pre><code class="prism language-cpp">gcc main<span class="token punctuation">.</span>c <span class="token operator">-</span>o app <span class="token operator">-</span>g
+</code></pre>
+<br>
+<h3><a id="gdb_20"></a>（二）进入gdb</h3>
+<pre><code class="prism language-cpp">gdb 对应的可执行程序名
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;这样就进入了gdb，用gdb开始调试该程序<br>
+<br></p>
+<h3><a id="gdb_29"></a>（三）gdb指令</h3>
+<h4><a id="1run_31"></a>1．r(un)</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;启动程序，既可输入run，也可输入r。<br>
+<br></p>
+<h4><a id="2_start_35"></a>2. start</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;启动程序，分布调试，但只是停留在main函数，不会往下执行<br>
+<br></p>
+<h4><a id="3_next_39"></a>3. n(ext)</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;下一条指令，程序向下执行，不能进入函数内部。<br>
+<br></p>
+<h4><a id="4_step_43"></a>4. s(tep)</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;下一条指令，程序向下执行，可以进入函数内部，库函数不能进。<br>
+<br></p>
+<h4><a id="5_set_args_47"></a>5. set args</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;设置启动参数，args后面接参数<br>
+<br></p>
+<h4><a id="6_quit_51"></a>6. q(uit)</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;退出gdb。<br>
+<br></p>
+<h4><a id="7break_55"></a>7．b(reak)</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;设置断点，后面可以接行数，也可以接函数名，也可以指定文件名的行数。</p>
+<p>如：</p>
+<pre><code class="prism language-cpp">b 行号 –主函数所在文件的行号
+b 函数名
+b 文件名：行号 –指定文件的行号
+</code></pre>
+<br>
+<h4><a id="8_info_b_67"></a>8. i(nfo) b</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;查看断点的信息，得到编号。<br>
+<br></p>
+<h4><a id="9_del__71"></a>9. d(el) 编号</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;删除断点。<br>
+<br></p>
+<h4><a id="10list_75"></a>10．l(ist)</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;查看代码，默认显示10行。<br>
+<br></p>
+<h4><a id="11_continue_79"></a>11. c(ontinue)</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;跳到下一断点。<br>
+<br></p>
+<h4><a id="12_print_83"></a>12. p(rint)</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;打印变量的值<br>
+<br></p>
+<h4><a id="13_ptype_87"></a>13. ptype</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;打印变量的类型<br>
+<br></p>
+<h4><a id="14_display_91"></a>14. display</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;追踪变量的值，查看该变量的变化情况<br>
+<br></p>
+<h4><a id="15_undisplay_95"></a>15. undisplay</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;不追踪该变量<br>
+<br></p>
+<h4><a id="16_b__99"></a>16. b 条件</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;设置条件断点。</p>
+</div>
+</body>
+
+</html>

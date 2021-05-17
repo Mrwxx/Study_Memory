@@ -1,0 +1,78 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【算法笔记（九）】之素数的一般解法和筛选解法</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	素数的判断</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;从素数的定义中可以知道，一个整数要被判断为素数，需要判断n是否能被2,3,n-1中的一个整除。只有2, 3, …, n-1都不能整除n，n才能判定为素数，只要有一个能整除n的数出现，n就可以判定为非素数。<br>
+<br></p>
+<h2><a id="%09_12"></a>二．	常规判断解法</h2>
+<h3><a id="%09_13"></a>（一）	遍历所有值</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;了解了如何判断素数，只要从2开始一直循环到n-1，如果有一个数能整除n-1，则n不是素数。该算法的复杂度为o(n)。<br>
+<br></p>
+<pre><code class="prism language-cpp"><span class="token comment">//全遍历</span>
+<span class="token keyword">bool</span> <span class="token function">isPrime</span><span class="token punctuation">(</span><span class="token keyword">int</span> n<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	<span class="token keyword">if</span> <span class="token punctuation">(</span>n <span class="token operator">&lt;=</span> <span class="token number">1</span><span class="token punctuation">)</span>
+		<span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+	<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">2</span><span class="token punctuation">;</span> i <span class="token operator">&lt;=</span> n <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		<span class="token keyword">if</span> <span class="token punctuation">(</span>n <span class="token operator">%</span> i <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span>
+			<span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h3><a id="%09_35"></a>（二）	遍历一部分</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如果n不是素数，则在2~n-1中存在n的约数，设该约数为k，则n % k ==0,。那么 可以得到k * (n / k) = n，则 n / k也是n的一个约数。因此k 和 n / k这两个n的约数定满足一个小于 sqrt(n)，一个大于sqrt(n)。因此，我们只需要判断n能否被 2, 3, …, sqrt(n)中的一个数整除即可。该算法复杂度为o(sqrt(n))。<br>
+<br></p>
+<pre><code class="prism language-cpp"><span class="token comment">//遍历一部分</span>
+<span class="token keyword">bool</span> <span class="token function">isPrime</span><span class="token punctuation">(</span><span class="token keyword">int</span> n<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	<span class="token keyword">if</span> <span class="token punctuation">(</span>n <span class="token operator">&lt;=</span> <span class="token number">1</span><span class="token punctuation">)</span>
+		<span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+	<span class="token keyword">int</span> sqr <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">)</span><span class="token function">sqrt</span><span class="token punctuation">(</span><span class="token number">1.0</span> <span class="token operator">*</span> n<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">2</span><span class="token punctuation">;</span> i <span class="token operator">&lt;=</span> sqr<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		<span class="token keyword">if</span> <span class="token punctuation">(</span>n <span class="token operator">%</span> i <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span>
+			<span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h2><a id="%09_59"></a>三．	筛选素数解法</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;从2到n-1，枚举所有的数，对每个素数，筛掉它的所有倍数，那么留下来的就都是素数了。这句话听起来有点歧义，一开始并不知道素数是谁，怎么筛？</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;就从2开始,2是素数，筛掉所有2的倍数；然后是3，3没有被前面筛掉，则3也是素数，筛掉所有3的倍数…</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;原理是：当用这种方式筛到数a时，如果a没有被前面步骤筛掉，则说明a没有小于a的素因子，则a定为素数。<br>
+<br></p>
+<pre><code class="prism language-cpp"><span class="token comment">//筛选法</span>
+<span class="token keyword">const</span> <span class="token keyword">int</span> maxn <span class="token operator">=</span> <span class="token number">101</span><span class="token punctuation">;</span>		<span class="token comment">//表长</span>
+<span class="token keyword">int</span> prime<span class="token punctuation">[</span>maxn<span class="token punctuation">]</span><span class="token punctuation">,</span> pNum <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>	<span class="token comment">//素数表，表长</span>
+<span class="token keyword">bool</span> p<span class="token punctuation">[</span>maxn<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">{</span> <span class="token number">0</span> <span class="token punctuation">}</span><span class="token punctuation">;</span>		<span class="token comment">//如果i为素数，则p[i]为false，初始化为false</span>
+<span class="token keyword">void</span> <span class="token function">Find_Prime</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">2</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> maxn<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		<span class="token comment">//从2开始，如果i是素数</span>
+		<span class="token keyword">if</span> <span class="token punctuation">(</span>p<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">==</span> <span class="token boolean">false</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+			<span class="token comment">//添加i到素数表中</span>
+			prime<span class="token punctuation">[</span>pNum<span class="token operator">++</span><span class="token punctuation">]</span> <span class="token operator">=</span> i<span class="token punctuation">;</span>
+			<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> j <span class="token operator">=</span> i <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">;</span> j <span class="token operator">&lt;</span> maxn<span class="token punctuation">;</span> j <span class="token operator">+</span><span class="token operator">=</span> i<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+				<span class="token comment">//筛掉所有i的倍数</span>
+				p<span class="token punctuation">[</span>j<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+			<span class="token punctuation">}</span>
+		<span class="token punctuation">}</span>
+	<span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

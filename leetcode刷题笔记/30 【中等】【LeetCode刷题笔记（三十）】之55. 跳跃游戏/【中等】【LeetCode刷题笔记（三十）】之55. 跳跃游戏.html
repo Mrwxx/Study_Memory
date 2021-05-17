@@ -1,0 +1,96 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【中等】【LeetCode刷题笔记（三十）】之55. 跳跃游戏</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	题目</h2>
+<h3><a id="%09_8"></a>（一）	题干</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;给定一个非负整数数组，你最初位于数组的第一个位置。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;数组中的每个元素代表你在该位置可以跳跃的最大长度。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;判断你是否能够到达最后一个位置。<br>
+<br></p>
+<h3><a id="%09_18"></a>（二）	示例</h3>
+<p>示例 1:</p>
+<pre><code class="prism language-cpp">输入<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">]</span>
+输出<span class="token operator">:</span> <span class="token boolean">true</span>
+解释<span class="token operator">:</span> 我们可以先跳 <span class="token number">1</span> 步，从位置 <span class="token number">0</span> 到达 位置 <span class="token number">1</span><span class="token punctuation">,</span> 然后再从位置 <span class="token number">1</span> 跳 <span class="token number">3</span> 步到达最后一个位置。
+</code></pre>
+<p>示例 2:</p>
+<pre><code class="prism language-cpp">输入<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">]</span>
+输出<span class="token operator">:</span> <span class="token boolean">false</span>
+解释<span class="token operator">:</span> 无论怎样，你总会到达索引为 <span class="token number">3</span> 的位置。但该位置的最大跳跃长度是 <span class="token number">0</span> ， 所以你永远不可能到达最后一个位置。
+</code></pre>
+<br>
+<h2><a id="%09_40"></a>二．	题解</h2>
+<h3><a id="%09_41"></a>（一）	思路</h3>
+<h4><a id="1%09DFS_43"></a>1.	DFS</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;这种问题，拿到手就想到使用DFS递归+回溯的方法解决，首先，思考递归的结束条件是到达数组的最后一个位置，就需要设置flag为true，并且return。其次，思考进入下一个递归的条件，当前索引所在数组位置值不为0时，就可以继续往后走，即进入下一个递归，因此只要当前位置不为0就可以进入下一个递归。最后一个问题是如何回溯，若当前位置的数为0，则不能进入下一个递归，直接return到上一个递归的状态。<br>
+<br></p>
+<h4><a id="2%09_49"></a>2.	贪心算法</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;还有一种非常简单的算法，贪心算法。首先，题目要求的是找到可以到达的最远位置，那么我们只需要维护可以到达的最远位置即可，如何获得可以到达的最远位置呢？每到一个位置，如果该位置不大于当前可以到达的最远位置，说明当前位置是可以到达的，因此可以继续更新最远位置。将当前的索引加上该位置的数就是该索引可以到达的最远位置，将该位置与之前获得的最远位置进行比较，如果更远，就更新最远位置。这样，一直循环下去，就能够找到最远的位置。若最远位置已经到达了数组的末尾，那么返回true。<br>
+<br></p>
+<h3><a id="%09_55"></a>（二）	代码实现</h3>
+<h4><a id="1%09DFS_57"></a>1.	DFS</h4>
+<p>JAVA：</p>
+<pre><code class="prism language-java"><span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">boolean</span> flag<span class="token punctuation">;</span>
+    <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">canJump</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> nums<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        flag <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+        <span class="token keyword">int</span> len <span class="token operator">=</span> nums<span class="token punctuation">.</span>length<span class="token punctuation">;</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>len <span class="token operator">&lt;=</span> <span class="token number">1</span><span class="token punctuation">)</span>        <span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+        <span class="token function">dfs</span><span class="token punctuation">(</span>nums<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> flag<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">private</span> <span class="token keyword">void</span> <span class="token function">dfs</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> nums<span class="token punctuation">,</span> <span class="token keyword">int</span> start<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>start <span class="token operator">&gt;=</span> nums<span class="token punctuation">.</span>length <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span>
+        <span class="token punctuation">{</span>
+            flag <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+            <span class="token keyword">return</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">if</span><span class="token punctuation">(</span>nums<span class="token punctuation">[</span>start<span class="token punctuation">]</span> <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span>        <span class="token keyword">return</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span> i <span class="token operator">&lt;=</span> nums<span class="token punctuation">[</span>start<span class="token punctuation">]</span><span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span>
+        <span class="token punctuation">{</span>
+            <span class="token keyword">int</span> nextStart <span class="token operator">=</span> start <span class="token operator">+</span> i<span class="token punctuation">;</span>
+
+            <span class="token function">dfs</span><span class="token punctuation">(</span>nums<span class="token punctuation">,</span> nextStart<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h4><a id="2%09_94"></a>2.	贪心算法</h4>
+<p>Java：</p>
+<pre><code class="prism language-java"><span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">canJump</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> nums<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">int</span> n <span class="token operator">=</span> nums<span class="token punctuation">.</span>length<span class="token punctuation">;</span>
+        <span class="token keyword">int</span> rightMax <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> n<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span>i <span class="token operator">&lt;=</span> rightMax<span class="token punctuation">)</span><span class="token punctuation">{</span>
+                rightMax <span class="token operator">=</span> Math<span class="token punctuation">.</span><span class="token function">max</span><span class="token punctuation">(</span>rightMax<span class="token punctuation">,</span> i<span class="token operator">+</span>nums<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token keyword">if</span><span class="token punctuation">(</span>rightMax <span class="token operator">&gt;=</span> n<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                    <span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

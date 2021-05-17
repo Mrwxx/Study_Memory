@@ -1,0 +1,125 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Linux学习笔记（十九）】之关机和重启命令，网络配置命令</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	关机和重启</h2>
+<h3><a id="%09sync_8"></a>（一）	sync数据同步</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; sync命令（flush file system buffers），作用是刷新文件系统缓冲区到硬盘中，在/bin/sync中，所有用户都能够调用，通常在关机前调用sync命令保存数据。<br>
+<br></p>
+<h3><a id="%09shutdown_13"></a>（二）	shutdown</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 安全地关机与重启命令，能够完整地关闭和保存系统的服务，在/sbin/shutdown中，只有root用户才能够调用。命令格式如下：</p>
+<pre><code class="prism language-cpp">shutdown <span class="token punctuation">[</span>选项<span class="token punctuation">]</span> 时间 <span class="token punctuation">[</span>警告信息<span class="token punctuation">]</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -c: 取消已经执行的shutdown命令</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -h: 关机</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -r: 重启</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 可以看到，可以指定时间关机或者重启，但是不建议这么做，最好还是手动关机。</p>
+<br>
+<h3><a id="%09reboot_31"></a>（三）	reboot</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 也是安全的重启命令。<br>
+<br></p>
+<h3><a id="%09haltpoweroff_37"></a>（四）	halt和poweroff命令</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 关机命令，但是不会完整地关闭和保存系统的服务，不建议使用。</p>
+<br>
+<h2><a id="%09_44"></a>二．	网络命令</h2>
+<h3><a id="%09IP_45"></a>（一）	配置IP地址</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 计算机要接入互联网，就需要配置唯一的公网IP地址，，配置IP地址有两种方法：<br>
+<br></p>
+<h4><a id="1%09IP_52"></a>1.	配置IP</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 配置IP 有两种方式，一种是setup工具，一种是修改配置文件。<br>
+<br></p>
+<h5><a id="1setup_58"></a>（1）setup工具</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 这是Centos中的命令工具，可以在图形化界面配置IP，<br>
+<br></p>
+<h5><a id="2vi_etcsysconfignetworkscriptsifcfgeth0_64"></a>（2）vi /etc/sysconfig/network-scripts/ifcfg-eth0</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 手动修改配置文件的配置项。<br>
+<br></p>
+<h4><a id="2%09_70"></a>2.	重启网络</h4>
+<pre><code class="prism language-cpp">service network restart
+</code></pre>
+<br>
+<h4><a id="3%09_79"></a>3.	虚拟机桥接到有线网卡，并重启网络服务。</h4>
+<br>
+<h4><a id="4%09UUID_84"></a>4.	复制的镜像需要重置UUID</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; UUID（唯一标识符），这是每个机器的唯一标识符，不可能重复。但是，如果我们是直接复制的镜像或者通过快照恢复的镜像，就会出现UUID冲突的情况，这时就需要修改UUID了。但是，也并不是直接修改UUID，UUID是通过MAC地址HWADDER生成的，因此我们需要在配置文件中删除MAC地址，然后删除MAC地址和UUID绑定文件，重启虚拟机后，它会自动生成MAC地址，然后计算生成新的UUID。</p>
+<pre><code class="prism language-cpp">vi <span class="token operator">/</span>etc<span class="token operator">/</span>sysconfig<span class="token operator">/</span>network<span class="token operator">-</span>scripts<span class="token operator">/</span>ifcfg<span class="token operator">-</span>eth0
+rm <span class="token operator">-</span>rf <span class="token operator">/</span>etc<span class="token operator">/</span>udev<span class="token operator">/</span>rules<span class="token punctuation">.</span>d<span class="token operator">/</span><span class="token number">70</span><span class="token operator">-</span>persistent<span class="token operator">-</span>net<span class="token punctuation">.</span>rules
+reboot
+</code></pre>
+<br>
+<h3><a id="%09ifconfig_97"></a>（二）	ifconfig</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 查看IP地址，MAC地址，子网掩码，广播地址</p>
+<br>
+<h3><a id="%09ping_103"></a>（三）	ping</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 通过ICMP协议进行网络探测，测试网络中主机的通信情况。命令格式如下：</p>
+<pre><code class="prism language-cpp">ping <span class="token punctuation">[</span>选项<span class="token punctuation">]</span> IP
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -b : 后面添加广播地址，查看在该子网段中有多少主机可以通信。如本机处于192.168.112网段中，广播地址是 192.168.112.255,通过该命令就可以看到112网段中有多少主机可以通信。</p>
+<pre><code class="prism language-cpp">ping <span class="token operator">-</span>b <span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.255</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -c 次数 ： 用于指定发送PING的次数</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -s 字节 ： 指定探测包的大小<br>
+<br></p>
+<h3><a id="%09netstat_123"></a>（四）	netstat</h3>
+<h4><a id="1%09_125"></a>1.	概述</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 查看网络状态，既可以看到本机开启的端口，也可以查看有哪些客户端连接着。Centos7中netstat命令不是默认的，需要安装net-snmp和net-tools软件包。<br>
+<br></p>
+<h4><a id="2%09_131"></a>2.	选项</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -a : 列出所有网络状态，包括Socket程序连接</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -c 秒数： 指定每隔几秒刷新一次网络</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -n : 使用IP地址和端口号显示，不适用域名和服务名</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -p : 显示PID和程序名</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -t : 显示使用TCP协议端口的链接</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -u : 显示使用UDP协议端口的链接</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -l : 仅显示监听状态的链接</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -r : 显示路由表<br>
+<br></p>
+<h4><a id="3%09_152"></a>3.	查看本机开启的端口</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -tulnp，既可以看到那些端口开启了，也可以看到是哪个程序开启的，并显示该程序的PID和名称。</p>
+<pre><code class="prism language-cpp">netstat <span class="token operator">-</span>tulnp
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 注意，连接的状态常用的有LISTEN监听和ESTABLISHED已建立连接两种。<br>
+<br></p>
+<h4><a id="4%09_164"></a>4.	查看所有连接</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; -an，包括监听状态，建立连接状态，Socket程序连接等。</p>
+<pre><code class="prism language-cpp">netstat <span class="token operator">-</span>an
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 从“Active UNIX domainsockets” 开始，后面的内容就是Socket程序产生的连接，之前的内容都是网络服务产生的连接。<br>
+<br></p>
+<h3><a id="%09write_177"></a>（五）	write</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 向服务器上的其他用户发送信息，命令格式如下：</p>
+<pre><code class="prism language-cpp">write user1 pts<span class="token operator">/</span><span class="token number">1</span>
+hello
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 向在pts/1服务器上登录的user1用户发送消息，使用 Ctrl + D快捷键保存发送的数据。<br>
+<br></p>
+<h3><a id="%09wall_190"></a>（六）	wall</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 给所有登录用户发送消息，在wall后面添加要发送的消息即可。</p>
+<br>
+<h3><a id="%09mail_196"></a>（七）	mail</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 给其他用户发送邮件，命令格式如下：</p>
+<pre><code class="prism language-cpp">mail user1
+Subject<span class="token operator">:</span>
+hello
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 发送邮件给user1，使用一个点来结束输入，邮件都保存在/var/spool/mail/用户名 目录下，每个用户都有一个自己名称的邮箱。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 发送文件root给用户，以"title"为邮件标题：</p>
+<pre><code class="prism language-cpp">mail <span class="token operator">-</span>s “title” root <span class="token operator">&lt;</span> <span class="token operator">/</span>root<span class="token operator">/</span>anaconda<span class="token punctuation">.</span>cfg
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 查看已经接受的邮件，N代表未读，后面的数字为邮件的编号，想要查看邮件内容的话，输入邮件的编号即可。</p>
+</div>
+</body>
+
+</html>

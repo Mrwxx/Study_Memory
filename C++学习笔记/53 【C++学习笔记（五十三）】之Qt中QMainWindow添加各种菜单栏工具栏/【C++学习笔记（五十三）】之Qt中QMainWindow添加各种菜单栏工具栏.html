@@ -1,0 +1,178 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【C++学习笔记（五十三）】之Qt中QMainWindow添加各种菜单栏工具栏</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="_QMainWindow_7"></a>一. QMainWindow</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;之前有说到，QMainWindow类主要承担的是菜单栏，工具栏，状态栏，铆接部件，核心部件等窗口部件，如下图所示：</p>
+<p><img src="https://img-blog.csdnimg.cn/2020072612453529.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01yd3h4eHg=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>
+<br></p>
+<h2><a id="%09_14"></a>二．	菜单栏</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>一个主窗口最多只有一个菜单栏，位于主窗口的顶部，标题下面。</strong></p>
+<h3><a id="_17"></a>（一）创建菜单栏</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通过QMainWindow类的menubar（）函数获取主窗口菜单栏指针</p>
+<pre><code class="prism language-cpp">QMenuBar <span class="token operator">*</span>	<span class="token function">menuBar</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">const</span>
+</code></pre>
+<br>
+<h3><a id="_26"></a>（二）创建菜单</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;调用QMenu的成员函数addMenu来添加菜单</p>
+<pre><code class="prism language-cpp">QMenu<span class="token operator">*</span> <span class="token function">addMenu</span><span class="token punctuation">(</span><span class="token keyword">const</span> QString <span class="token operator">&amp;</span> title<span class="token punctuation">)</span>
+QMenu<span class="token operator">*</span> <span class="token function">addMenu</span><span class="token punctuation">(</span><span class="token keyword">const</span> QIcon <span class="token operator">&amp;</span> icon<span class="token punctuation">,</span> <span class="token keyword">const</span> QString <span class="token operator">&amp;</span> title<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h3><a id="_36"></a>（三）创建菜单里的选项</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>QAction是抽象类，当我们把QAction对象添加到菜单中，就显示成菜单项，但是，它并不是一个专门的菜单项类。</strong></p>
+<pre><code class="prism language-cpp">QAction<span class="token operator">*</span> <span class="token function">addMenu</span><span class="token punctuation">(</span>QMenu <span class="token operator">*</span> menu<span class="token punctuation">)</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;调用QMenu的成员函数addAction来添加菜单项</p>
+<pre><code class="prism language-cpp">QAction<span class="token operator">*</span> <span class="token function">activeAction</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">const</span>
+QAction<span class="token operator">*</span> <span class="token function">addAction</span><span class="token punctuation">(</span><span class="token keyword">const</span> QString <span class="token operator">&amp;</span> text<span class="token punctuation">)</span>
+QAction<span class="token operator">*</span> <span class="token function">addAction</span><span class="token punctuation">(</span><span class="token keyword">const</span> QIcon <span class="token operator">&amp;</span> icon<span class="token punctuation">,</span> <span class="token keyword">const</span> QString <span class="token operator">&amp;</span> text<span class="token punctuation">)</span>
+QAction<span class="token operator">*</span> <span class="token function">addAction</span><span class="token punctuation">(</span><span class="token keyword">const</span> QString <span class="token operator">&amp;</span> text<span class="token punctuation">,</span> <span class="token keyword">const</span> QObject <span class="token operator">*</span> receiver<span class="token punctuation">,</span>
+ <span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span> member<span class="token punctuation">,</span> <span class="token keyword">const</span> QKeySequence <span class="token operator">&amp;</span> shortcut <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">)</span>
+QAction<span class="token operator">*</span> <span class="token function">addAction</span><span class="token punctuation">(</span><span class="token keyword">const</span> QIcon <span class="token operator">&amp;</span> icon<span class="token punctuation">,</span> <span class="token keyword">const</span> QString <span class="token operator">&amp;</span> text<span class="token punctuation">,</span> 
+<span class="token keyword">const</span> QObject <span class="token operator">*</span> receiver<span class="token punctuation">,</span> <span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span> member<span class="token punctuation">,</span> 
+<span class="token keyword">const</span> QKeySequence <span class="token operator">&amp;</span> shortcut <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h2><a id="%09_59"></a>三．	工具栏</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;主窗口可以有多个工具栏，可以调整工具栏的位置。</p>
+<h3><a id="%09_62"></a>（一）	创建工具栏</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;调用QMainWindow类的addToolBar（）函数获取主窗口的工具条对象，每增加一个工具条都需要调用一次该函数。<br>
+<br></p>
+<h3><a id="%09_66"></a>（二）	插入属于工具栏的选项</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通过QToolBar类的addAction函数添加。<br>
+<br></p>
+<h3><a id="%09_70"></a>（三）	移动工具栏</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;工具栏的停靠区域由QToolBar的allowAreas决定</p>
+<p>停靠区域如下：</p>
+<ol>
+<li>Qt::LeftToolBarArea		停靠在左侧</li>
+<li>Qt::RightToolBarArea		停靠在右侧</li>
+<li>Qt::TopToolBarArea		停靠在顶部</li>
+<li>Qt::BottomToolBarArea   	停靠在底部</li>
+<li>Qt::AllToolBarAreas		以上四个位置都可停靠<br>
+<br></li>
+</ol>
+<h2><a id="%09_82"></a>四．	状态栏</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>主窗口底部的状态栏，最多只有一个。</strong>  <strong>QStatusBar类</strong></p>
+<pre><code class="prism language-cpp"><span class="token comment">//添加小部件</span>
+<span class="token keyword">void</span> <span class="token function">addWidget</span><span class="token punctuation">(</span>QWidget <span class="token operator">*</span> widget<span class="token punctuation">,</span> <span class="token keyword">int</span> stretch <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">)</span>
+<span class="token comment">//插入小部件</span>
+<span class="token keyword">int</span>	<span class="token function">insertWidget</span><span class="token punctuation">(</span><span class="token keyword">int</span> index<span class="token punctuation">,</span> QWidget <span class="token operator">*</span> widget<span class="token punctuation">,</span> <span class="token keyword">int</span> stretch <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">)</span>
+<span class="token comment">//删除小部件</span>
+<span class="token keyword">void</span> <span class="token function">removeWidget</span><span class="token punctuation">(</span>QWidget <span class="token operator">*</span> widget<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h2><a id="%09_96"></a>五．	铆接部件</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;即<strong>浮动窗口</strong>，能够再窗口中浮动并提取出来，可以有多个。</p>
+<pre><code class="prism language-cpp">QDockWidget <span class="token operator">*</span> dock <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token function">QDockWidget</span><span class="token punctuation">(</span><span class="token string">"标题"</span><span class="token punctuation">,</span><span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">addDockWidget</span><span class="token punctuation">(</span>Qt<span class="token operator">::</span>LeftDockWidgetArea<span class="token punctuation">,</span>dock<span class="token punctuation">)</span><span class="token punctuation">;</span>
+dock<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">setAllowedAreas</span><span class="token punctuation">(</span>Qt<span class="token operator">::</span>LeftDockWidgetArea <span class="token operator">|</span> Qt<span class="token operator">::</span>RightDockWidgetArea <span class="token operator">|</span> Qt<span class="token operator">::</span>TopDockWidgetArea<span class="token punctuation">)</span><span class="token punctuation">;</span>  设置区域范围
+</code></pre>
+<br>
+<h2><a id="%09_106"></a>六．	核心部件</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;核心部件是一个应用程序的主体，即主要的操作都在核心部件上面。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如，记事本用的是QTextEdit做核心部件：</p>
+<pre><code class="prism language-cpp">QTextEdit <span class="token operator">*</span> edit <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token function">QTextEdit</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">setCentralWidget</span><span class="token punctuation">(</span>edit<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h2><a id="%09_117"></a>七．	资源文件</h2>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;资源文件用于将程序运行时所需要的资源以二进制的形式存储于可执行文件内部。如果你将资源以资源文件形式存储，它是会编译到可执行文件内部。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;资源文件就是程序中需要使用的图片等资源，如何使用资源文件呢？<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;在新建文件时，添加Qt Resource File，生成qrc文件，然后为每种资源设置前缀，前缀即资源的分类，之后可以将需要的资源导入。</p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;导入资源文件到项目中的格式<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;: + 前缀名/文件名</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如下所示：</p>
+<pre><code class="prism language-cpp">ui<span class="token operator">-</span><span class="token operator">&gt;</span>actionNew<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">setIcon</span><span class="token punctuation">(</span><span class="token function">QIcon</span><span class="token punctuation">(</span>“<span class="token operator">:</span><span class="token operator">/</span>Image<span class="token operator">/</span>Luffy<span class="token punctuation">.</span>png”<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h2><a id="%09_134"></a>八．	代码</h2>
+<br>
+<pre><code class="prism language-cpp"><span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">"mainwindow.h"</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;QMenuBar&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;QToolBar&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;QStatusBar&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;QLabel&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;QDockWidget&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;QTextEdit&gt;</span></span>
+
+MainWindow<span class="token operator">::</span><span class="token function">MainWindow</span><span class="token punctuation">(</span>QWidget <span class="token operator">*</span>parent<span class="token punctuation">)</span>
+    <span class="token operator">:</span> <span class="token function">QMainWindow</span><span class="token punctuation">(</span>parent<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token function">resize</span><span class="token punctuation">(</span><span class="token number">600</span><span class="token punctuation">,</span> <span class="token number">400</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">//创建菜单栏，只能有一个</span>
+    QMenuBar <span class="token operator">*</span>bar <span class="token operator">=</span> <span class="token function">menuBar</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">//将菜单栏放入窗口中</span>
+    <span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">setMenuBar</span><span class="token punctuation">(</span>bar<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">//创建文件菜单</span>
+    QMenu <span class="token operator">*</span>fileMenu <span class="token operator">=</span> bar<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">addMenu</span><span class="token punctuation">(</span><span class="token string">"文件"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    QMenu <span class="token operator">*</span>editMenu <span class="token operator">=</span> bar<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">addMenu</span><span class="token punctuation">(</span><span class="token string">"编辑"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">//添加菜单里的选项</span>
+    QAction <span class="token operator">*</span>newAction <span class="token operator">=</span> fileMenu<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">addAction</span><span class="token punctuation">(</span><span class="token string">"新建"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">//添加分割线</span>
+    fileMenu<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">addSeparator</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    QAction <span class="token operator">*</span>openAction <span class="token operator">=</span> fileMenu<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">addAction</span><span class="token punctuation">(</span><span class="token string">"打开"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">//工具栏， 可以有多个</span>
+    QToolBar <span class="token operator">*</span>toolBar <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token function">QToolBar</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">addToolBar</span><span class="token punctuation">(</span>Qt<span class="token operator">::</span>LeftToolBarArea<span class="token punctuation">,</span>toolBar<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">//只允许左右停靠工具栏</span>
+    toolBar<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">setAllowedAreas</span><span class="token punctuation">(</span>Qt<span class="token operator">::</span>LeftToolBarArea <span class="token operator">|</span> Qt<span class="token operator">::</span>RightToolBarArea<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">//设置工具栏浮动</span>
+    toolBar<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">setFloatable</span><span class="token punctuation">(</span><span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">//工具栏添加菜单项</span>
+    toolBar<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">addAction</span><span class="token punctuation">(</span>newAction<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    toolBar<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">addAction</span><span class="token punctuation">(</span>openAction<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">//状态栏,只能有一个</span>
+    QStatusBar <span class="token operator">*</span> stBar <span class="token operator">=</span> <span class="token function">statusBar</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">setStatusBar</span><span class="token punctuation">(</span>stBar<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">//状态栏中显示信息</span>
+    QLabel <span class="token operator">*</span>label <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token function">QLabel</span><span class="token punctuation">(</span><span class="token string">"提示信息"</span><span class="token punctuation">,</span><span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">//添加提示信息到左侧</span>
+    stBar<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">addWidget</span><span class="token punctuation">(</span>label<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">//添加提示信息到右侧</span>
+    QLabel <span class="token operator">*</span>label2 <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token function">QLabel</span><span class="token punctuation">(</span><span class="token string">"右侧提示信息"</span><span class="token punctuation">,</span><span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    stBar<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">addPermanentWidget</span><span class="token punctuation">(</span>label2<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">//铆接部件，浮动窗口,可以有多个</span>
+    QDockWidget <span class="token operator">*</span>dock <span class="token operator">=</span> <span class="token keyword">new</span> QDockWidget<span class="token punctuation">;</span>
+    <span class="token comment">//添加到窗口中</span>
+    <span class="token function">addDockWidget</span><span class="token punctuation">(</span>Qt<span class="token operator">::</span>BottomDockWidgetArea<span class="token punctuation">,</span>dock<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">//核心部件,只能一个</span>
+    <span class="token comment">//文本编辑框</span>
+    QTextEdit <span class="token operator">*</span>edit <span class="token operator">=</span> <span class="token keyword">new</span> QTextEdit<span class="token punctuation">;</span>
+    <span class="token function">setCentralWidget</span><span class="token punctuation">(</span>edit<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+MainWindow<span class="token operator">::</span><span class="token operator">~</span><span class="token function">MainWindow</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,93 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【简单】【LeetCode刷题笔记（二十）】之28.实现strStr()</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	题目</h2>
+<h3><a id="_8"></a>（一）题干</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 实现 strStr() 函数。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 给定一个 haystack 字符串和一个 needle 字符串，在 haystack 字符串中找出 needle 字符串出现的第一个位置 (从0开始)。如果不存在，则返回  -1。<br>
+<br></p>
+<h3><a id="_15"></a>（二）示例</h3>
+<p>示例 1:</p>
+<pre><code class="prism language-cpp">输入<span class="token operator">:</span> haystack <span class="token operator">=</span> <span class="token string">"hello"</span><span class="token punctuation">,</span> needle <span class="token operator">=</span> <span class="token string">"ll"</span>
+输出<span class="token operator">:</span> <span class="token number">2</span>
+</code></pre>
+<p>示例 2:</p>
+<pre><code class="prism language-cpp">输入<span class="token operator">:</span> haystack <span class="token operator">=</span> <span class="token string">"aaaaa"</span><span class="token punctuation">,</span> needle <span class="token operator">=</span> <span class="token string">"bba"</span>
+输出<span class="token operator">:</span> <span class="token operator">-</span><span class="token number">1</span>
+</code></pre>
+<br>
+<h2><a id="%09_35"></a>二．	题解</h2>
+<h3><a id="%09_36"></a>（一）	思路</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 这是一个字符串匹配的问题，首先想到的当然是直接将needle字符串在haystack字符串上滑动，若在滑动窗口内的字符串是相同的，那么查找成功。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 这种方法列举出了所有的可能性，是可以改进的，先在haystack字符串中查找出等于needle的第一个字符的字符位置，再对后面的字符进行循环，每次循环结束，若能够找到完全匹配的字符串，则返回该字符串初始位置；若不能，则回溯到本次循环的下一个位置处进行下一次循环。<br>
+<br></p>
+<h3><a id="%09_44"></a>（二）	代码实现</h3>
+<p>Java:</p>
+<p>初级思路：</p>
+<pre><code class="prism language-java"><span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
+  <span class="token keyword">public</span> <span class="token keyword">int</span> <span class="token function">strStr</span><span class="token punctuation">(</span>String haystack<span class="token punctuation">,</span> String needle<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">int</span> L <span class="token operator">=</span> needle<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> n <span class="token operator">=</span> haystack<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> start <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> start <span class="token operator">&lt;</span> n <span class="token operator">-</span> L <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">;</span> <span class="token operator">++</span>start<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>haystack<span class="token punctuation">.</span><span class="token function">substring</span><span class="token punctuation">(</span>start<span class="token punctuation">,</span> start <span class="token operator">+</span> L<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">equals</span><span class="token punctuation">(</span>needle<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> start<span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">return</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<p>改进思路：</p>
+<pre><code class="prism language-java"><span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">int</span> <span class="token function">strStr</span><span class="token punctuation">(</span>String haystack<span class="token punctuation">,</span> String needle<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">int</span> hl <span class="token operator">=</span> haystack<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">int</span> nl <span class="token operator">=</span> needle<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>nl <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">int</span> start <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+        <span class="token keyword">while</span><span class="token punctuation">(</span>start <span class="token operator">&lt;</span> hl <span class="token operator">-</span> nl <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token comment">//从每个位置开始一次循环</span>
+            <span class="token comment">//找到第一个字符相同的位置</span>
+            <span class="token keyword">while</span><span class="token punctuation">(</span>start<span class="token operator">&lt;</span>hl<span class="token operator">-</span>nl<span class="token operator">+</span><span class="token number">1</span> <span class="token operator">&amp;&amp;</span> haystack<span class="token punctuation">.</span><span class="token function">charAt</span><span class="token punctuation">(</span>start<span class="token punctuation">)</span><span class="token operator">!=</span>needle<span class="token punctuation">.</span><span class="token function">charAt</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                start<span class="token operator">++</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token keyword">int</span> curLength<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">,</span> nCur<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">;</span>
+            <span class="token comment">//找匹配的字符串最大值</span>
+            <span class="token keyword">while</span><span class="token punctuation">(</span>start <span class="token operator">&lt;</span> hl <span class="token operator">&amp;&amp;</span> nCur <span class="token operator">&lt;</span> nl <span class="token operator">&amp;&amp;</span> haystack<span class="token punctuation">.</span><span class="token function">charAt</span><span class="token punctuation">(</span>start<span class="token punctuation">)</span> <span class="token operator">==</span> needle<span class="token punctuation">.</span><span class="token function">charAt</span><span class="token punctuation">(</span>nCur<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                start<span class="token operator">++</span><span class="token punctuation">;</span>
+                nCur<span class="token operator">++</span><span class="token punctuation">;</span>
+                curLength<span class="token operator">++</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token comment">//判断curLength是否为nl</span>
+            <span class="token comment">//是，说明找到了，返回第一个字符位置</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span>curLength<span class="token operator">==</span>nl<span class="token punctuation">)</span><span class="token punctuation">{</span>
+                <span class="token keyword">return</span> start<span class="token operator">-</span>nl<span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token comment">//否则，回溯start</span>
+            start <span class="token operator">=</span> start <span class="token operator">-</span> curLength <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

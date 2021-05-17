@@ -1,0 +1,96 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【简单】【LeetCode刷题笔记（二十四）】之38.外观数列</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	题目</h2>
+<h3><a id="%09_8"></a>（一）	题干</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;给定一个正整数 n（1 ≤ n ≤ 30），输出外观数列的第 n 项。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;注意：整数序列中的每一项将表示为一个字符串。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;「外观数列」是一个整数序列，从数字 1 开始，序列中的每一项都是对前一项的描述。前五项如下：</p>
+<pre><code class="prism language-cpp"><span class="token number">1.</span>     <span class="token number">1</span>
+<span class="token number">2.</span>     <span class="token number">11</span>
+<span class="token number">3.</span>     <span class="token number">21</span>
+<span class="token number">4.</span>     <span class="token number">1211</span>
+<span class="token number">5.</span>     <span class="token number">111221</span>
+</code></pre>
+<p>第一项是数字 1</p>
+<p>描述前一项，这个数是 1 即 “一个 1 ”，记作 11</p>
+<p>描述前一项，这个数是 11 即 “两个 1 ” ，记作 21</p>
+<p>描述前一项，这个数是 21 即 “一个 2 一个 1 ” ，记作 1211</p>
+<p>描述前一项，这个数是 1211 即 “一个 1 一个 2 两个 1 ” ，记作 111221</p>
+<br>
+<h3><a id="%09_36"></a>（二）	示例</h3>
+<p>示例 1:</p>
+<pre><code class="prism language-cpp">输入<span class="token operator">:</span> <span class="token number">1</span>
+输出<span class="token operator">:</span> <span class="token string">"1"</span>
+解释：这是一个基本样例。
+</code></pre>
+<p>示例 2:</p>
+<pre><code class="prism language-cpp">输入<span class="token operator">:</span> <span class="token number">4</span>
+输出<span class="token operator">:</span> <span class="token string">"1211"</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;解释：当 n = 3 时，序列是 “21”，其中我们有 “2” 和 “1” 两组，“2” 可以读作 “12”，也就是出现频次 = 1 而 值 = 2；类似 “1” 可以读作 “11”。所以答案是 “12” 和 “11” 组合在一起，也就是 “1211”。<br>
+<br></p>
+<h2><a id="%09_60"></a>二．	题解</h2>
+<h3><a id="%09_61"></a>（一）	思路</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;不要被题目给出的多个数列而吓到，从现象看本质，这就是一个求字符串中每个数字重复次数的问题，不过要通过重复调用而得到最终的结果。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;首先，考虑n=1和n&gt;1的区别，n=1时直接返回1，n&gt;1时需要继续递归。在计算数字个数的函数中，主要思路就是从第一个字符开始，判断后面的字符是否等于前面的字符，如果等于，则计数count++，并且指针后移；如果不等于，则将count和上一个数存入输出字符串中。注意，最后循环出来后，最后一个字符也需要进行计数！！！<br>
+<br></p>
+<h3><a id="%09_69"></a>（二）	代码实现</h3>
+<p>C++；</p>
+<pre><code class="prism language-cpp"><span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+    string <span class="token function">countAndSay</span><span class="token punctuation">(</span><span class="token keyword">int</span> n<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        string s <span class="token operator">=</span> <span class="token string">"1"</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span> n <span class="token operator">==</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">return</span> s<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token keyword">else</span><span class="token punctuation">{</span>
+            <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">2</span><span class="token punctuation">;</span> i <span class="token operator">&lt;=</span> n<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span><span class="token punctuation">{</span>
+                s <span class="token operator">=</span> <span class="token function">toConvert</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token keyword">return</span> s<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+    <span class="token punctuation">}</span>
+    <span class="token comment">//计算字符个数</span>
+    string <span class="token function">toConvert</span><span class="token punctuation">(</span>string s<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">int</span> len <span class="token operator">=</span> s<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">char</span> c <span class="token operator">=</span> s<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+        string out <span class="token operator">=</span> <span class="token string">""</span><span class="token punctuation">;</span><span class="token comment">//输出字符串</span>
+        <span class="token keyword">int</span> count <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>  <span class="token comment">//相同字符的计数</span>
+        <span class="token keyword">while</span><span class="token punctuation">(</span> i <span class="token operator">&lt;</span> len<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            
+            <span class="token keyword">if</span><span class="token punctuation">(</span>s<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">==</span> c<span class="token punctuation">)</span><span class="token punctuation">{</span>
+                count<span class="token operator">++</span><span class="token punctuation">;</span>
+                i<span class="token operator">++</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token keyword">else</span><span class="token punctuation">{</span>
+                out <span class="token operator">=</span> out <span class="token operator">+</span> <span class="token function">to_string</span><span class="token punctuation">(</span>count<span class="token punctuation">)</span> <span class="token operator">+</span> c<span class="token punctuation">;</span>
+                c <span class="token operator">=</span> s<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">;</span>
+                count <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+                i<span class="token operator">++</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+        <span class="token comment">//最后一个字符也要计数</span>
+        out <span class="token operator">=</span>  out <span class="token operator">+</span> <span class="token function">to_string</span><span class="token punctuation">(</span>count<span class="token punctuation">)</span> <span class="token operator">+</span> s<span class="token punctuation">[</span>i<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> out<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre>
+</div>
+</body>
+
+</html>

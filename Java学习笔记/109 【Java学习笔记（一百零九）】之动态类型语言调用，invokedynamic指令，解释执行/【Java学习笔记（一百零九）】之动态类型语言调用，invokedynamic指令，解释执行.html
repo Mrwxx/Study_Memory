@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Java学习笔记（一百零九）】之动态类型语言调用，invokedynamic指令，解释执行</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	动态类型语言支持</h2>
+<h3><a id="%09_9"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;动态类型语言的关键特征是它的类型检查的主体过程是在运行期而不是编译期进行的。Java语言在JDK7之前通过编译将方法的符号引用作为方法调用指令的参数存储到Class文件中，这个符号引用包含了该方法定义在哪个具体类型中，方法的名字以及参数顺序，参数类型和方法返回值等信息，通过这个符号引用，Java虚拟机可以翻译出该方法的直接引用。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;对于动态类型语言而言，在编译期是无法确定方法所在的具体类型（即方法接受者不固定），变量无类型而变量值有类型，这个特点是动态类型语言的核心特征。<br>
+<br></p>
+<h3><a id="%09_18"></a>（二）	动态与静态语言的优缺点</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;静态类型语言能够在编译器确定变量类型，编译器可以进行全面的类型检查，利于稳定性；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;动态类型语言在运行期才确定类型，可以为开发者提供极大的灵活性，提升开发效率；<br>
+<br></p>
+<h3><a id="%09_27"></a>（三）	原有方法调用指令</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;JDK7以前的方法调用指令中，如invokevirtual, invokespecial, invokestatic, invokeinterface的第一个参数都是被调用的方法的符号引用，要实现Java的动态类型语言，就要找到具体的类型，可以在编译时留个占位符类型，运行时动态生成字节码实现具体类型到占位符类型的适配。但是，这样的内存消耗是很大的。<br>
+<br></p>
+<h3><a id="%09_34"></a>（四）	方法句柄</h3>
+<h4><a id="1%09_36"></a>1.	概述</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通过方法句柄可以获取到调用的目标方法，lookup方法在指定类中查找符合给定的方法名称，方法类型并且符合调用权限的方法句柄，返回这个方法句柄，即最终调用方法的一个引用。<br>
+<br></p>
+<h4><a id="2%09_42"></a>2.	方法句柄与反射的区别</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（1）	方法句柄和反射都是在模拟方法调用，但是反射是在模拟Java代码层次的方法调用，而方法句柄是在模拟字节码层次的方法调用；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（2）	反射中所包含的信息比方法句柄中要多多了；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（3）	方法句柄是对字节码的方法指令调用的模拟，那么虚拟机在这方面做的各种优化在方法句柄上也可以使用，反射就没有这些优化；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（4）	反射仅仅是为Java语言服务的，而方法句柄可服务与所有Java虚拟机之上的语言；<br>
+<br></p>
+<h3><a id="%09invokedynamic_55"></a>（五）	invokedynamic指令</h3>
+<h4><a id="1%09_57"></a>1.	概述</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;该指令的作用是为了解决原有的指令方法分派规则完全固化在虚拟机之中的问题，将如何查找目标方法的决定权从虚拟机转移到具体用户代码中，让用户有更大的自由度。<br>
+<br></p>
+<h4><a id="2%09_64"></a>2.	动态调用点</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;每一处含有invokedynamic指令的位置都称为动态调用点，这条指令的第一个参数不再是代表方法符号引用的常量，而是JDK7新加入的CONSTANT_InvokeDynamic_info常量，该常量中有三种信息：引导方法（该方法存放在新增的BootStrapMethods属性中），方法类型和名称。引导方法有固定的参数，返回值是java.lang.invoke.CallSite对象，这个对象代表了真正要执行的目标方法调用，通过它来执行真正的方法。<br>
+<br></p>
+<h4><a id="3%09_71"></a>3.	字节码解析</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;从动态调用代码的编译后的字节码看出，原有的方法调用指令已经被替换为了invokedynamic了，它的第一个参数为常量池中的常量，表示方法名称和描述符，第二个参数0是占位符，目的是给常量池缓存留出空间。</p>
+<br>
+<h2><a id="%09_79"></a>二．	字节码指令的执行</h2>
+<h3><a id="%09_81"></a>（一）	解释执行</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Java语言在一开始时可以理解为解释型语言，但是随着主流的虚拟机都包含了即时编译器后，Class文件中的代码到底会被解释执行还是编译执行，就只有虚拟机能够决定了。经典的编译思路是执行前先对程序源码进行词法分析和语法分析，将源码转换为抽象语法树，再遍历语法树生成线性的字节码指令流，最后经过解释器的解释执行。<br>
+<br></p>
+<h3><a id="%09_87"></a>（二）	基于栈的指令集</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Javac编译器输出的字节码指令流，基本上是一种基于栈的指令集架构，字节码指令流里面的指令大部分都是零地址指令，依赖操作数栈工作，不需要参数，直接使用操作数栈中的数据作为指令的运算输入，指令的运算结果也存储在操作数栈中。如下所示：</p>
+<pre><code class="prism language-java">iconst_1
+iconst_1
+iadd
+istore_0
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;优点是可移植，代码相对更加紧凑，字节码中每个字节对应一条指令，而多地址指令集中还需要存放参数，编译器实现更加简单，不需要考虑空间分配，直接在栈上操作。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;缺点是在解释执行前提下执行速度更慢，因为指令数量更多，出栈入栈操作产生大量指令，且栈实现在内存中，会产生频繁的内存访问。可以通过采取栈顶缓存的方式，将最常用的操作映射到寄存器中避免内存直接访问。</p>
+<br>
+<h3><a id="%09_106"></a>（三）	基于寄存器的指令集</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;典型的应用时x86的二地址指令集，即主流PC机中物理硬件直接支持的指令集架构，依赖寄存器工作，这种指令都包含两个单独的输入参数，依赖寄存器访问和存储数据。如下所示：</p>
+<pre><code class="prism language-java">mov eax<span class="token punctuation">,</span> <span class="token number">1</span>
+add eax<span class="token punctuation">,</span> <span class="token number">1</span>
+</code></pre>
+</div>
+</body>
+
+</html>

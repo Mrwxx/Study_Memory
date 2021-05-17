@@ -1,0 +1,87 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【C++学习笔记（十一）】之初学单例模式的理解</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="_7"></a>一.单例模式定义</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;单例模式是一种常用的软件设计模式。<strong>在它的核心结构中只包含一个被称为单例的特殊类</strong>。通过单例模式可以保证系统中一个类只有一个实例而且该实例易于外界访问，从而方便对实例个数的控制并节约系统资源。如果希望在系统中某个类的对象只能存在一个，单例模式是最好的解决方案。</p>
+<h2><a id="_10"></a>二.如何设计一个单例模式的类</h2>
+<h3><a id="_11"></a>（一）联想</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>由单例模式的定义我们很容易联想到静态变量</strong>，因为静态变量也是只有一个，因此，我们就需要用静态成员变量与静态成员函数来设计一个单例模式的类。</p>
+<h3><a id="_13"></a>（二）设计</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;单例模式要做的就是仅仅创建一个类对象，且只能有这一个类对象。如何做到？<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>1. 将默认构造函数和拷贝构造函数设置为private,因为不能随意调用构造函数创建类对象。</strong><br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>2. 再设置private里的static成员变量为类指针指向类对象，在类外进行定义这个static成员变量，即定义一个独立存在的类对象。因为单例模式只能有一个类对象，因此用static成员变量来访问，由于这个类对象是由static成员变量定义的，因此它在编译阶段就已经形成了。</strong><br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>3,. 同时，也要为这个类对象设置访问私有数据的接口，注意，通过static成员函数getInstance来获取static成员变量，因为如果用普通成员函数，则必须用类对象来调用，而类对象又是由static成员变量指针指向的，无法分清普通成员函数的地址，因此还是得用static声明成员函数</strong>。</p>
+<h2><a id="__19"></a>三. 总结</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;其实总的来看就是，要创建单例模式的类，就要将它的构造函数都设成private，不能用普通创建类对象的方式创建多余的类对象，同时设置static成员变量指向唯一的类对象，设置static成员函数接口getInstance，只对类开放，这样就没有创建多余类对象的风险，private成员变量也不会被修改。</p>
+<h2><a id="__22"></a>四. 实例代码</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;创建一个打印机单例模式代码如下：</p>
+<pre><code class="prism language-cpp"><span class="token macro property">#<span class="token directive keyword">define</span> _CRT_SECURE_NO_WARNINGS</span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;string&gt;</span></span>
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+<span class="token comment">//打印机类</span>
+<span class="token keyword">class</span> <span class="token class-name">Printer</span>
+<span class="token punctuation">{</span>
+<span class="token comment">//私有化构造函数</span>
+<span class="token keyword">private</span><span class="token operator">:</span>
+	<span class="token function">Printer</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		m_count <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token function">Printer</span><span class="token punctuation">(</span><span class="token keyword">const</span> Printer<span class="token operator">&amp;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">//函数调用接口</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token comment">//获取类指针</span>
+	<span class="token keyword">static</span> Printer<span class="token operator">*</span> <span class="token function">getInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		<span class="token keyword">return</span> singlePrinter<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+	<span class="token keyword">void</span> <span class="token function">printText</span><span class="token punctuation">(</span>string text<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> text <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+		m_count<span class="token operator">++</span><span class="token punctuation">;</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token string">"打印机使用了"</span> <span class="token operator">&lt;&lt;</span> m_count <span class="token operator">&lt;&lt;</span> <span class="token string">"次"</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+<span class="token keyword">private</span><span class="token operator">:</span>
+	<span class="token keyword">static</span> Printer<span class="token operator">*</span> singlePrinter<span class="token punctuation">;</span>	<span class="token comment">// static成员变量声明</span>
+	<span class="token keyword">int</span> m_count<span class="token punctuation">;</span>		<span class="token comment">//打印次数</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+Printer<span class="token operator">*</span> Printer<span class="token operator">::</span>singlePrinter <span class="token operator">=</span> <span class="token keyword">new</span> Printer<span class="token punctuation">;</span>	<span class="token comment">//定义static成员变量</span>
+
+<span class="token keyword">void</span> <span class="token function">test01</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	<span class="token comment">//通过函数接口获取打印机对象指针</span>
+	Printer<span class="token operator">*</span> printer <span class="token operator">=</span> Printer<span class="token operator">::</span><span class="token function">getInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	printer<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">printText</span><span class="token punctuation">(</span><span class="token string">"报告1"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	printer<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">printText</span><span class="token punctuation">(</span><span class="token string">"报告2"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	<span class="token function">test01</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp; 以上就是初学单例模式对于单例模式的理解，记录下来，有错误的地方大家轻喷！</strong></p>
+</div>
+</body>
+
+</html>

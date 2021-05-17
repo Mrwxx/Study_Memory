@@ -1,0 +1,253 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Java学习笔记（九十九）】之JUC阻塞和非阻塞队列详细介绍</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09JUC_7"></a>一．	JUC队列</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 单线程编程时我们会使用到一些集合类，如ArrayList等。ArrayList不是线程安全的，Vector通过加snychronized锁的方式实现线程安全，但是效率很低，同时Collections.synchronizedList(List list)方法也能够将ArrayList转换为线程安全的。这些方法都很低效，都是串行执行的。下面介绍阻塞队列与非阻塞队列。<br>
+<br></p>
+<h3><a id="%09ConcurrentLinkedQueue_12"></a>（一）	非阻塞队列ConcurrentLinkedQueue</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 一个基于链接节点的无边界的线程安全队列，遵循队列的FIFO原则，采用CAS算法实现的，理论上的无边界队列，不过还是要受限与硬件。要尽量避免使用该队列的size()方法，因为它是由链表实现的，会遍历一遍队列，非常慢。当我们要检查队列中是否还有元素时，用poll()弹出队首元素或者用isEmpty()检查。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 这个队列只能保证我们在对这个队列进行单个操作时是线程安全的，如果要同时进行多个操作就需要自己来加锁保证线程的安全。<br>
+<br></p>
+<h3><a id="%09BlockingQueue_21"></a>（二）	阻塞队列BlockingQueue</h3>
+<h4><a id="1%09BlockingQueue_23"></a>1.	BlockingQueue</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 阻塞队列接口，在某些情况下对阻塞队列的访问可能会造成阻塞，被阻塞的情况有以下两种：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 队列满了的情况下进行入队操作；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 队列空的情况下进行出队操作；<br>
+<br></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 阻塞队列接口对插入，删除，获取元素操作提供了不同的方法，如下所示：</p>
+
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>抛出异常</th>
+<th>特殊值</th>
+<th>阻塞</th>
+<th>超时</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>插入</td>
+<td>add(e)</td>
+<td>offer(e)</td>
+<td>put(e)</td>
+<td>offer(e, time, unit)</td>
+</tr>
+<tr>
+<td>移除</td>
+<td>remove()</td>
+<td>poll()</td>
+<td>take()</td>
+<td>poll(time, unit)</td>
+</tr>
+<tr>
+<td>检查</td>
+<td>element()</td>
+<td>peek()</td>
+<td>不可用</td>
+<td>不可用</td>
+</tr>
+</tbody>
+</table><br>
+<h4><a id="2%09ArrayBlockingQueue_46"></a>2.	ArrayBlockingQueue</h4>
+<h5><a id="1%09_48"></a>（1）	概述</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 这是阻塞队列接口的实现类，具体是由数组实现的有界阻塞队列，遵循FIFO原则。该队列是有界且固定的，因为是数组实现的，在构造时大小已经决定了。该队列对于等待的生产者和消费者线程的排序可以选择公平策略和非公平策略。<br>
+<br></p>
+<h5><a id="2%09_54"></a>（2）	实现</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; ArrayBlockingQueue继承AbstractQueue，实现BlockingQueue接口，内部使用可重入锁ReentrantLock+Condition实现多线程环境的并发操作，在该类中有以下参数：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; items: 一个定长数组，维护ArrayBlockingQueue中的元素；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; takeIndex: 队首的位置；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; putIndex: 队尾的位置；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; count: 元素个数</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; lock: 锁，出队和入队都需要锁，两个步骤公用一个锁；<br>
+<br></p>
+<pre><code class="prism language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ArrayBlockingQueue</span><span class="token generics function"><span class="token punctuation">&lt;</span>E<span class="token punctuation">&gt;</span></span> <span class="token keyword">extends</span> <span class="token class-name">AbstractQueue</span><span class="token generics function"><span class="token punctuation">&lt;</span>E<span class="token punctuation">&gt;</span></span> <span class="token keyword">implements</span> <span class="token class-name">BlockingQueue</span><span class="token generics function"><span class="token punctuation">&lt;</span>E<span class="token punctuation">&gt;</span></span><span class="token punctuation">,</span> Serializable <span class="token punctuation">{</span>
+    <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">final</span> <span class="token keyword">long</span> serialVersionUID <span class="token operator">=</span> <span class="token operator">-</span><span class="token number">817911632652898426</span>L<span class="token punctuation">;</span>
+    <span class="token keyword">final</span> Object<span class="token punctuation">[</span><span class="token punctuation">]</span> items<span class="token punctuation">;</span>
+    <span class="token keyword">int</span> takeIndex<span class="token punctuation">;</span>
+    <span class="token keyword">int</span> putIndex<span class="token punctuation">;</span>
+    <span class="token keyword">int</span> count<span class="token punctuation">;</span>
+    <span class="token comment">// 重入锁</span>
+    <span class="token keyword">final</span> ReentrantLock lock<span class="token punctuation">;</span>
+    <span class="token comment">// notEmpty condition</span>
+    <span class="token keyword">private</span> <span class="token keyword">final</span> Condition notEmpty<span class="token punctuation">;</span>
+    <span class="token comment">// notFull condition</span>
+    <span class="token keyword">private</span> <span class="token keyword">final</span> Condition notFull<span class="token punctuation">;</span>
+    <span class="token keyword">transient</span> ArrayBlockingQueue<span class="token punctuation">.</span>Itrs itrs<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h5><a id="3%09_91"></a>（3）	实例</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 通过经典的生产者和消费者实例来测试数组阻塞队列。</p>
+<pre><code class="prism language-java"><span class="token keyword">package</span> thread10<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>Random<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>concurrent<span class="token punctuation">.</span>ArrayBlockingQueue<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>concurrent<span class="token punctuation">.</span>TimeUnit<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ArrayBlockingQueueDemo</span> <span class="token punctuation">{</span>
+    <span class="token keyword">private</span> <span class="token keyword">static</span> ArrayBlockingQueue<span class="token generics function"><span class="token punctuation">&lt;</span>Integer<span class="token punctuation">&gt;</span></span> queue <span class="token operator">=</span>  <span class="token keyword">new</span> <span class="token class-name">ArrayBlockingQueue</span><span class="token operator">&lt;</span><span class="token operator">&gt;</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        Thread t1 <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Thread</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">ProducerTask</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        Thread t2 <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Thread</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">ConsumerTask</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        t1<span class="token punctuation">.</span><span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        t2<span class="token punctuation">.</span><span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">//生产者线程</span>
+    <span class="token keyword">static</span> <span class="token keyword">class</span> <span class="token class-name">ProducerTask</span> <span class="token keyword">implements</span> <span class="token class-name">Runnable</span><span class="token punctuation">{</span>
+
+        <span class="token keyword">private</span> Random rnd <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Random</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token annotation punctuation">@Override</span>
+        <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">try</span> <span class="token punctuation">{</span>
+                <span class="token keyword">while</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                    <span class="token keyword">int</span> value <span class="token operator">=</span> rnd<span class="token punctuation">.</span><span class="token function">nextInt</span><span class="token punctuation">(</span><span class="token number">100</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    queue<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span>value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"生产者"</span> <span class="token operator">+</span>value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    TimeUnit<span class="token punctuation">.</span>MILLISECONDS<span class="token punctuation">.</span><span class="token function">sleep</span><span class="token punctuation">(</span><span class="token number">100</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">InterruptedException</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                e<span class="token punctuation">.</span><span class="token function">printStackTrace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">//消费者</span>
+    <span class="token keyword">static</span> <span class="token keyword">class</span> <span class="token class-name">ConsumerTask</span> <span class="token keyword">implements</span> <span class="token class-name">Runnable</span><span class="token punctuation">{</span>
+        <span class="token annotation punctuation">@Override</span>
+        <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">try</span> <span class="token punctuation">{</span>
+                <span class="token keyword">while</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                    Integer value <span class="token operator">=</span> queue<span class="token punctuation">.</span><span class="token function">take</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"消费者"</span><span class="token operator">+</span> value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    TimeUnit<span class="token punctuation">.</span>MILLISECONDS<span class="token punctuation">.</span><span class="token function">sleep</span><span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">InterruptedException</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                e<span class="token punctuation">.</span><span class="token function">printStackTrace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h4><a id="3%09LinkedBlockingQueue_153"></a>3.	LinkedBlockingQueue</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 基于链表的有界阻塞队列，队列中的锁是分离的，入队的锁是putLock，出队的锁是takeLock。数组阻塞队列直接将枚举对象插入或者移除，而链表阻塞队列需要将枚举对象转换为Node后再进行插入或移除操作，这样会影响性能。<br>
+<br></p>
+<h4><a id="4%09PriorityBlockingQueue_160"></a>4.	PriorityBlockingQueue</h4>
+<h5><a id="1%09_162"></a>（1）	概述</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 优先级队列，始终保证出队的元素时优先级最高的元素，并且可以定制优先级的规则。内部使用二叉堆，通过二叉树最小堆算法来维护内部的数组，这个数组是可扩容的，若当前的元素个数大于最大容量时会通过算法扩容，扩容时其他的线程是不能进行出队操作的，实际上使用了先释放锁，然后通过CAS保证同时只有一个线程扩容。<br>
+<br></p>
+<h5><a id="2%09_168"></a>（2）	特点</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 既然优先队列中需要排序，那么存储的对象就必须是可比较的对象，必须实现Comparable接口，不允许空值。优先队列的头是排序最小的元素，如果多个对象有同样的排序，则随机选取其中一个，返回队列的头对象。优先队列的大小是不受限制的，但在创建时可以指定初始大小，当向队列中增加元素时，队列大小会自动增加。</p>
+<br>
+<h5><a id="3%09_174"></a>（3）	实例</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 创建一个自定义的对象类实现Comparable接口，传入PriorityBlockingQueue中。</p>
+<pre><code class="prism language-java"><span class="token keyword">package</span> thread11<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>Random<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>concurrent<span class="token punctuation">.</span>PriorityBlockingQueue<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">PriorityBlockingQueueDemo</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> InterruptedException <span class="token punctuation">{</span>
+        PriorityBlockingQueue<span class="token generics function"><span class="token punctuation">&lt;</span>User<span class="token punctuation">&gt;</span></span> queue <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">PriorityBlockingQueue</span><span class="token operator">&lt;</span><span class="token operator">&gt;</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        PriorityDemo demo <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">PriorityDemo</span><span class="token punctuation">(</span>queue<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token number">3</span><span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">new</span> <span class="token class-name">Thread</span><span class="token punctuation">(</span>demo<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        Thread<span class="token punctuation">.</span><span class="token function">sleep</span><span class="token punctuation">(</span><span class="token number">100</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        User u <span class="token operator">=</span> queue<span class="token punctuation">.</span><span class="token function">poll</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">while</span><span class="token punctuation">(</span>u <span class="token operator">!=</span> null<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"优先级是"</span> <span class="token operator">+</span> u<span class="token punctuation">.</span><span class="token function">getPriority</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">","</span> <span class="token operator">+</span> u<span class="token punctuation">.</span><span class="token function">getUsername</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            u <span class="token operator">=</span> queue<span class="token punctuation">.</span><span class="token function">poll</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">static</span> <span class="token keyword">class</span> <span class="token class-name">PriorityDemo</span> <span class="token keyword">implements</span> <span class="token class-name">Runnable</span><span class="token punctuation">{</span>
+
+        PriorityBlockingQueue queue<span class="token punctuation">;</span>
+        Random r <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Random</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">public</span> <span class="token function">PriorityDemo</span><span class="token punctuation">(</span>PriorityBlockingQueue queue<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">this</span><span class="token punctuation">.</span>queue <span class="token operator">=</span> queue<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token annotation punctuation">@Override</span>
+        <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token number">3</span><span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span><span class="token punctuation">{</span>
+                User user <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">User</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                user<span class="token punctuation">.</span><span class="token function">setPriority</span><span class="token punctuation">(</span>r<span class="token punctuation">.</span><span class="token function">nextInt</span><span class="token punctuation">(</span><span class="token number">100</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                user<span class="token punctuation">.</span><span class="token function">setUsername</span><span class="token punctuation">(</span><span class="token string">"张三"</span> <span class="token operator">+</span> i<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                queue<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span>user<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">static</span> <span class="token keyword">class</span> <span class="token class-name">User</span> <span class="token keyword">implements</span> <span class="token class-name">Comparable</span><span class="token generics function"><span class="token punctuation">&lt;</span>User<span class="token punctuation">&gt;</span></span><span class="token punctuation">{</span>
+
+        <span class="token keyword">private</span> Integer priority<span class="token punctuation">;</span>
+        <span class="token keyword">private</span> String username<span class="token punctuation">;</span>
+
+        <span class="token annotation punctuation">@Override</span>
+        <span class="token keyword">public</span> <span class="token keyword">int</span> <span class="token function">compareTo</span><span class="token punctuation">(</span>User user<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">return</span> <span class="token keyword">this</span><span class="token punctuation">.</span>priority<span class="token punctuation">.</span><span class="token function">compareTo</span><span class="token punctuation">(</span>user<span class="token punctuation">.</span><span class="token function">getPriority</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">public</span> Integer <span class="token function">getPriority</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">return</span> priority<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">setPriority</span><span class="token punctuation">(</span>Integer priority<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">this</span><span class="token punctuation">.</span>priority <span class="token operator">=</span> priority<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">public</span> String <span class="token function">getUsername</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">return</span> username<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">setUsername</span><span class="token punctuation">(</span>String username<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">this</span><span class="token punctuation">.</span>username <span class="token operator">=</span> username<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h4><a id="5%09synchronousQueue_252"></a>5.	synchronousQueue</h4>
+<h5><a id="1%09_254"></a>（1）	概述</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 同步队列，实际上不是一个真正的队列，因为它不会为队列中的元素维护存储空间，它维护的是一组线程，这些线程等待着将元素加入或移除队列。由于该队列没有存储功能，队列中至多有一个元素，因此put入队操作会一直阻塞，直到有take出队操作执行。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 同步队列是用于直接交付操作的，所谓的直接交付指的是直接将任务交到消费者的手上，而不是放到队列中等待消费者来消费。因为同步队列中没有存储能力，所以消费者能够直接得到生产者生产的任务，降低了将数据从生产者移动到消费者的延迟。也正是因为没有存储能力，同步队列只适合于存在多个消费者且总是有一个消费者处于准备状态的情况，这样生产者的任务才能够被消费者消费。<br>
+<br></p>
+<h5><a id="2%09_263"></a>（2）	特点</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 阻塞队列，每个put必须等待一个take。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 线程安全的，阻塞的。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 不允许使用null元素<br>
+<br></p>
+<h5><a id="3%09putoffer_274"></a>（3）	put和offer</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; put()方法将元素放入队列后，会一直等待直到有其他线程将这个元素取走；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; offer()方法将元素放入队列后，直接返回，如果有其他线程取走了元素则返回true，否则返回false;<br>
+<br></p>
+<h5><a id="4%09takepoll_282"></a>（4）	take和poll</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; take()取出并且remove掉queue中的element，取不到会一直等待；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; poll()取出并且remove掉queue中的element，取到了就返回element，否则返回null。<br>
+<br></p>
+</div>
+</body>
+
+</html>

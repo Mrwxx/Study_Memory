@@ -1,0 +1,150 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【RabbitMQ笔记（六）】之消费端限流，TTL，死信队列，延迟队列</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="%09_0"></a>一．	消费端限流</h2>
+<h3><a id="_1"></a>（一）概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; RabbitMQ能够削峰平谷，保障系统流量的稳定，但是若在消费端没有限制，那么消费端会有崩掉的风险，因此，我们要给消费端限流，限制每次消费端能够从Rabbitmq获取的消息数量。<br>
+<br></p>
+<h3><a id="_7"></a>（二）消费端限流机制</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 1. 设置Ack机制为手动确认，因为只有手动确认，我们才能够通过限制是否返回确认来限制消费端的流量。在监听类容器中设置属性acknowledge=”manual”<br>
+<br></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 2.设置限流数量，在监听类容器中设置属性prefetch，值为想要限制的流量。</p>
+<pre><code class="prism language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">rabbit:</span>listener-container</span> <span class="token attr-name">connection-factory</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>connectionFactory<span class="token punctuation">"</span></span> <span class="token attr-name">acknowledge</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>manual<span class="token punctuation">"</span></span> <span class="token attr-name">prefetch</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>2<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">rabbit:</span>listener</span> <span class="token attr-name">ref</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>ackListener<span class="token punctuation">"</span></span> <span class="token attr-name">queue-names</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>test_queue_confirm<span class="token punctuation">"</span></span> <span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token namespace">rabbit:</span>listener</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token namespace">rabbit:</span>listener-container</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<h2><a id="%09TTL_25"></a>二．	TTL</h2>
+<h3><a id="%09_26"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; TTL全称为Time To Live（存活时间），通俗意义上就是还有多长时间存活着，若到达存活时间后，该消息还没有被消费掉，那么会被自动地清除。RabbitMQ可以对消息设置TTL，也可以对整个队列设置TTL。<br>
+<br></p>
+<h3><a id="%09TTL_32"></a>（二）	队列TTL设置</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 队列的TTL需要在创建队列的时候就设置好，因此我们需要在生产者的Spring配置文件中为队列添加<code>&lt;rabbit:queue-argumeents&gt;</code>子标签，该子标签内还有<code>&lt;entry&gt;</code>子标签，为该子标签添加属性key=”x-message-ttl”，代表TTL，value=”10000”，代表TTL值为10000毫秒，value-type=”java.lang.Integer”代表TTL为整数。并且为该队列绑定相应的交换机。</p>
+<pre><code class="prism language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">rabbit:</span>queue</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>test_queue_ttl<span class="token punctuation">"</span></span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>test_queue_ttl<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">rabbit:</span>queue-arguments</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>entry</span> <span class="token attr-name">key</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>x-message-ttl<span class="token punctuation">"</span></span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>10000<span class="token punctuation">"</span></span> <span class="token attr-name">value-type</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>java.lang.Integer<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>entry</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token namespace">rabbit:</span>queue-arguments</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token namespace">rabbit:</span>queue</span><span class="token punctuation">&gt;</span></span>
+
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">rabbit:</span>topic-exchange</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>test_exchange_ttl<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">rabbit:</span>bindings</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">rabbit:</span>binding</span> <span class="token attr-name">pattern</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>ttl.#<span class="token punctuation">"</span></span> <span class="token attr-name">queue</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>test_queue_ttl<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token namespace">rabbit:</span>binding</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token namespace">rabbit:</span>bindings</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token namespace">rabbit:</span>topic-exchange</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<h3><a id="%09TTL_53"></a>（三）	消息的TTL设置</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 消息的TTL设置与队列的TTL设置不同，这是在使用RabbitTemplate发送消息时设置的，它需要一个MessagePosProcessor对象，该对象为消息后处理对象，可以设置一些消息的参数信息。通常，我们要新建一个MessagePostProcessor对象，该对象有一个重写方法postProcessMessage，在方法体中我们可以设置消息的TTL。最终，将MessagePostProcessor对象传到RabbitTemplate的convertAndSend方法中。</p>
+<pre><code class="prism language-java">MessagePostProcessor messagePostProcessor <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">MessagePostProcessor</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+        <span class="token annotation punctuation">@Override</span>
+        <span class="token keyword">public</span> Message <span class="token function">postProcessMessage</span><span class="token punctuation">(</span>Message message<span class="token punctuation">)</span> <span class="token keyword">throws</span> AmqpException <span class="token punctuation">{</span>
+            message<span class="token punctuation">.</span><span class="token function">getMessageProperties</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">setExpiration</span><span class="token punctuation">(</span><span class="token string">"5000"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">return</span> message<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+    rabbitTemplate<span class="token punctuation">.</span><span class="token function">convertAndSend</span><span class="token punctuation">(</span><span class="token string">"test_exchange_ttl"</span><span class="token punctuation">,</span> <span class="token string">"ttl.hehe"</span><span class="token punctuation">,</span> <span class="token string">"hello_world"</span><span class="token punctuation">,</span> messagePostProcessor<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h3><a id="%09_74"></a>（四）	注意事项</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 1.	如果同时设置了队列的TTL和消息的TTL，则以时间短的为准。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 2.	队列过期后，会将队列上所有的消息全部移除。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 3.	消息过期后，只有当消息在队列顶端时，才会被判断是否过期，然后被移除。如果该消息并不在队列顶端，即使过期也不会被移除。</p>
+<br>
+<h2><a id="%09_87"></a>三．	死信队列</h2>
+<h3><a id="%09_88"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 死信队列（DLX），全称为Dead Letter Exchange，当消息成为死信（Dead Message）后，可以被重新发送到另一个交换机中，这个交换机就是DLX，死信交换机可以将死信发送到死信队列中，被其他的消费者进行消费。<br>
+<br></p>
+<h3><a id="%09_94"></a>（二）	称为死信的情况</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 1.	队列消息长度到达限制，多出来的消息成为死信。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 2.	消费者拒绝消费消息，即消息处理失败，通道调用basicNack/basicReject函数，并且不把消息重新放回到原目标队列中，requeue=false，该消息成为死信。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 3.	原队列存在消息过期设置，消息到达存活时间未被消费掉，成为死信。</p>
+<br>
+<h3><a id="%09_104"></a>（三）	队列绑定死信交换机</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 当正常的队列中存在死信时，若要将死信发送到死信交换机中，需要为该队列绑定死信交换机，为该队列设置参数 x-dead-letter-exchange，值为死信交换机的名称，设置参数x-dead-letter-routing-key，该参数为正常队列发送到死信交换机的routing-key。<br>
+<br></p>
+<h3><a id="%09_110"></a>（四）	代码实现</h3>
+<h4><a id="1%09_111"></a>1.	声明正常队列和正常交换机</h4>
+<pre><code class="prism language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">rabbit:</span>queue</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>test_queue_dlx<span class="token punctuation">"</span></span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>test_queue_dlx<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token namespace">rabbit:</span>queue</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">rabbit:</span>topic-exchange</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>test_exchange_dlx<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">rabbit:</span>bindings</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">rabbit:</span>binding</span> <span class="token attr-name">pattern</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>test.dlx.#<span class="token punctuation">"</span></span> <span class="token attr-name">queue</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>test_queue_dlx<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token namespace">rabbit:</span>binding</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token namespace">rabbit:</span>bindings</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token namespace">rabbit:</span>topic-exchange</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<h4><a id="2%09_126"></a>2.	声明死信队列和死信交换机</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;  死信队列和死信交换机和正常的没有区别。</p>
+<pre><code class="prism language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">rabbit:</span>queue</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>queue_dlx<span class="token punctuation">"</span></span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>queue_dlx<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token namespace">rabbit:</span>queue</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">rabbit:</span>topic-exchange</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>exchange_dlx<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">rabbit:</span>bindings</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">rabbit:</span>binding</span> <span class="token attr-name">pattern</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>dlx.#<span class="token punctuation">"</span></span> <span class="token attr-name">queue</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>queue_dlx<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token namespace">rabbit:</span>binding</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token namespace">rabbit:</span>bindings</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token namespace">rabbit:</span>topic-exchange</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<h4><a id="3%09_142"></a>3.	正常队列绑定死信交换机</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 为正常队列设置参数来绑定死信交换机。这些参数的名称可以在rabbitmq的管理控制台的queue页面中通过arguments参数获取到。</p>
+<pre><code class="prism language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">rabbit:</span>queue</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>test_queue_dlx<span class="token punctuation">"</span></span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>test_queue_dlx<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">rabbit:</span>queue-arguments</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>entry</span> <span class="token attr-name">key</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>x-dead-letter-exchange<span class="token punctuation">"</span></span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>exchange_dlx<span class="token punctuation">"</span></span><span class="token punctuation">/&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>entry</span> <span class="token attr-name">key</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>x-dead-letter-routing-key<span class="token punctuation">"</span></span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>dlx.h<span class="token punctuation">"</span></span><span class="token punctuation">/&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token namespace">rabbit:</span>queue-arguments</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token namespace">rabbit:</span>queue</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<h4><a id="4%09_157"></a>4.	设置死信队列的产生条件</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 产生死信队列是有产生条件的，要么是队列过期，要么是队列长度限制。我们可以在正常queue的定义中设置这些条件，来产生死信队列。</p>
+<pre><code class="prism language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>entry</span> <span class="token attr-name">key</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>x-message-ttl<span class="token punctuation">"</span></span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>10000<span class="token punctuation">"</span></span> <span class="token attr-name">value-type</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>java.lang.Integer<span class="token punctuation">"</span></span><span class="token punctuation">/&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>entry</span> <span class="token attr-name">key</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>x-max-length<span class="token punctuation">"</span></span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>10<span class="token punctuation">"</span></span> <span class="token attr-name">value-type</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>java.lang.Integer<span class="token punctuation">"</span></span><span class="token punctuation">/&gt;</span></span>
+</code></pre>
+<br>
+<h4><a id="5%09_168"></a>5.	测试</h4>
+<h5><a id="1%09_169"></a>（1）	测试队列过期消息称为死信</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 发送一条正常的消息给正常的交换机和队列，过了TTL后它就会称为死信并且发送给死信交换机和队列。</p>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@RunWith</span><span class="token punctuation">(</span>SpringJUnit4ClassRunner<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span>
+<span class="token annotation punctuation">@ContextConfiguration</span><span class="token punctuation">(</span>locations <span class="token operator">=</span> <span class="token string">"classpath:spring-rabbitmq-producer.xml"</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">DeadTest</span> <span class="token punctuation">{</span>
+    <span class="token annotation punctuation">@Autowired</span>
+    <span class="token keyword">private</span> RabbitTemplate rabbitTemplate<span class="token punctuation">;</span>
+
+    <span class="token annotation punctuation">@Test</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token comment">//测试TTL</span>
+        rabbitTemplate<span class="token punctuation">.</span><span class="token function">convertAndSend</span><span class="token punctuation">(</span><span class="token string">"test_exchange_dlx"</span><span class="token punctuation">,</span> <span class="token string">"test.dlx.ddd"</span><span class="token punctuation">,</span> <span class="token string">"Dead Msg"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h5><a id="2%09_190"></a>（2）	测试队列长度限制，多余的消息称为死信</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 只要发送大于队列长度的消息，多出来的消息就会成为死信发送到死信队列中。</p>
+<pre><code class="prism language-java"><span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token number">20</span><span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    rabbitTemplate<span class="token punctuation">.</span><span class="token function">convertAndSend</span><span class="token punctuation">(</span><span class="token string">"test_exchange_dlx"</span><span class="token punctuation">,</span> <span class="token string">"test.dlx.e"</span><span class="token punctuation">,</span> <span class="token string">"ddd"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h5><a id="3%09_202"></a>（3）	测试消费者拒绝接受消息，消息称为死信</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 当消费者处理消息失败时，会拒绝接受这条消息，且没有设置重新发回到原有的队列中，该消息就会成为死信，发送到死信队列中。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 在消费者处理消息的异常代码段，将通道的basicNack函数的requeue参数设置为false；同时在Spring配置文件中配置监听器时持续监听正常队列即可，拒收的消息会被该正常队列发送到死信交换机和队列中。<br>
+<br></p>
+<h2><a id="%09_211"></a>四．	延迟队列</h2>
+<h3><a id="%09_212"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 延迟队列，即消息进入队列后不会被立即消费，而是在到达指定的时间后，才会被消费掉。这种队列在许多场景中可以应用，如下单未支付的倒计时，只要是与计时有关的场景，都可以使用延迟队列实现。<br>
+<br></p>
+<h3><a id="%09Rabbitmq_218"></a>（二）	Rabbitmq中的延迟队列</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; Rabbitmq中没有延迟队列，但是我们可以通过TTL + 死信队列的方式来实现延迟队列。即首先设置队列的TTL为指定的时间，过了该时间后，死信被发送给死信交换机，继而发送给死信队列，最终到达消费者，这就实现了延迟队列的功能。</p>
+<br>
+</div>
+</body>
+
+</html>

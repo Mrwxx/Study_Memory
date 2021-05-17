@@ -1,0 +1,90 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【深度学习笔记（十六）】之tensorflow2中模型的保存与恢复</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09tensorflow2_8"></a>一．	tensorflow2中模型的保存</h2>
+<h3><a id="_9"></a>（一）概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Tensorflow2中提供了 tf.train,Checkpoint这个变量保存与恢复类，可以使用save()和restore()方法将 Tensorflow中所有包含CheckPointable State的对象进行保存和恢复。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如，优化器tf.keras.optimizer，变量tf.Variable，层tf.keras.Layer和模型tf.keras.Model实例都可以被保存。<br>
+<br></p>
+<h3><a id="Checkpoint_16"></a>（二）Checkpoint对象的保存</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;要保存CheckPoint对象，首先需要声明一个Checkpoint，tf.train.Checkpoint()接受的初始化参数是一系列的键值对，键名任意取，值为需要保存的对象。这里的键名非常重要，在恢复模型时，需要使用同样的键名。</p>
+<pre><code class="prism language-python">checkpoint <span class="token operator">=</span> tf<span class="token punctuation">.</span>train<span class="token punctuation">.</span>Checkpoint<span class="token punctuation">(</span>model<span class="token operator">=</span>model<span class="token punctuation">)</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在模型训练完成后，对模型进行保存，使用save函数保存，参数为保存的目录名。</p>
+<pre><code class="prism language-python">checkpoint<span class="token punctuation">.</span>save<span class="token punctuation">(</span>path<span class="token punctuation">)</span>
+</code></pre>
+<p>如：</p>
+<pre><code class="prism language-python">checkpoint<span class="token punctuation">.</span>save<span class="token punctuation">(</span>‘<span class="token punctuation">.</span><span class="token operator">/</span>save<span class="token operator">/</span>model<span class="token punctuation">.</span>ckpt’<span class="token punctuation">)</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;save目录下就会生成三个文件：</p>
+<pre><code class="prism language-python">checkpoint
+model<span class="token punctuation">.</span>ckpt<span class="token operator">-</span><span class="token number">1.</span>index
+model<span class="token punctuation">.</span>ckpt<span class="token operator">-</span><span class="token number">1.</span>data<span class="token operator">-</span><span class="token number">00000</span><span class="token operator">-</span>of<span class="token operator">-</span><span class="token number">00001</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;save()方法能够运行多次，每次运行后都能得到一个.index文件和一个.data文件，文件名的序号依次增加。</p>
+<br>
+<h2><a id="%09Checkpoint_50"></a>二．	Checkpoint对象的恢复</h2>
+<h3><a id="_51"></a>（一）恢复模型</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;当我们需要为某个模型加载之前已经训练好的参数时，需要再次实例化一个checkpoint，键名需要和保存的键名一致，再调用restore()方法恢复模型参数，restore()方法的参数为之前保存的文件的目录+编号。<br></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如”./save/model.ckpt-1”，跟之前保存的目录名相比添加了编号1，即第一个保存的文件。</p>
+<p>如：</p>
+<pre><code class="prism language-python"><span class="token comment">#待恢复参数的同一模型</span>
+model_to_be_restored <span class="token operator">=</span> MyModel<span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token comment">#新建checkpoint</span>
+checkpoint <span class="token operator">=</span> tf<span class="token punctuation">.</span>train<span class="token punctuation">.</span>Checkpoint<span class="token punctuation">(</span>model<span class="token operator">=</span>model_to_be_restored<span class="token punctuation">)</span>
+checkpoint<span class="token punctuation">.</span>restore<span class="token punctuation">(</span>path_index<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h3><a id="Checkpoint_69"></a>（二）恢复最近的一个Checkpoint</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;使用tf.train.latest_checkpoint(path)返回目录下最近一次checkpoint的文件名。</p>
+<p>如：</p>
+<pre><code class="prism language-python">checkpoint<span class="token punctuation">.</span>restore<span class="token punctuation">(</span>tf<span class="token punctuation">.</span>train<span class="token punctuation">.</span>latest_checkpoint<span class="token punctuation">(</span>“<span class="token punctuation">.</span><span class="token operator">/</span>save”<span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h2><a id="_83"></a>三．保存与恢复变量代码模板</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;先实例化checkpoint，继而训练，保存模型，再在其他模型中恢复保存的参数。</p>
+<p>train.py</p>
+<pre><code class="prism language-python">model <span class="token operator">=</span> MyModel<span class="token punctuation">(</span><span class="token punctuation">)</span>
+checkpoint <span class="token operator">=</span> tf<span class="token punctuation">.</span>train<span class="token punctuation">.</span>CheckPoint<span class="token punctuation">(</span><span class="token punctuation">(</span>myModel<span class="token operator">=</span>model<span class="token punctuation">)</span>
+<span class="token comment">#训练模型</span>
+checkpoint<span class="token punctuation">.</span>save<span class="token punctuation">(</span>“<span class="token punctuation">.</span><span class="token operator">/</span>save<span class="token operator">/</span>model<span class="token punctuation">.</span>ckpt”<span class="token punctuation">)</span>
+</code></pre>
+<p>test.py</p>
+<pre><code class="prism language-python">model <span class="token operator">=</span> MyModel<span class="token punctuation">(</span><span class="token punctuation">)</span>
+checkpoint <span class="token operator">=</span> tf<span class="token punctuation">.</span>train<span class="token punctuation">.</span>CheckPoint<span class="token punctuation">(</span>myModel<span class="token operator">=</span>model<span class="token punctuation">)</span>
+checkpoint<span class="token punctuation">.</span>restore<span class="token punctuation">(</span>tf<span class="token punctuation">.</span>train<span class="token punctuation">.</span>latest_checkpoint<span class="token punctuation">(</span>“<span class="token punctuation">.</span><span class="token operator">/</span>save”<span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token comment">#模型使用</span>
+</code></pre>
+<br>
+<h2><a id="%09checkpoint_109"></a>四．	管理checkpoint</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;当checkpoint保存的数量过多时，我们可能只想保存最后几个checkpoint，或者希望使用其他的编号方式，这些都要通过checkpointManager来实现。<br>
+<br></p>
+<pre><code class="prism language-python">checkpoint <span class="token operator">=</span> tf<span class="token punctuation">.</span>train<span class="token punctuation">.</span>Checkpoint<span class="token punctuation">(</span>model<span class="token operator">=</span>model<span class="token punctuation">)</span>
+manager <span class="token operator">=</span> tf<span class="token punctuation">.</span>train<span class="token punctuation">.</span>CheckpointManager<span class="token punctuation">(</span>checkpoint<span class="token punctuation">,</span> directory<span class="token operator">=</span>”<span class="token punctuation">.</span><span class="token operator">/</span>save”<span class="token punctuation">,</span> checkpoint_name<span class="token operator">=</span>’model<span class="token punctuation">.</span>ckpt’<span class="token punctuation">,</span> max_to_keep<span class="token operator">=</span>k<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>directory</strong>  ：文件保存的路径<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>checkpoint_name</strong> ：文件名前缀（不提供则默认为<br>
+ckpt  ）<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>max_to_keep</strong> ：保留的Checkpoint数目。<br>
+<br></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;然后使用manager,save()保存即可，如需要修改编号的形式，则在保存时添加checkpoint_number参数，如：将编号设置为100</p>
+<pre><code class="prism language-python">manager<span class="token punctuation">.</span>save<span class="token punctuation">(</span>checkpoint_number<span class="token operator">=</span><span class="token number">100</span><span class="token punctuation">)</span>
+</code></pre>
+</div>
+</body>
+
+</html>

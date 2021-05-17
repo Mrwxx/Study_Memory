@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【算法笔记（四）】之逆序输出一句话</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="_PAT_B1009_8"></a>一. PAT B1009</h2>
+<h3><a id="_10"></a>（一）题目：</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 输入一句英文，将所有的单词按照<strong>逆序输出</strong>，但是<strong>单词本身的顺序时不变的</strong>。<br>
+<br></p>
+<h3><a id="_14"></a>（二）输入格式：</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 单词之间由空格隔开，输入句子末尾没有空格。<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp; Hello World<br>
+<br></p>
+<h3><a id="_19"></a>（三）输出格式：</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; <strong>输出末尾同样没有空格</strong><br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp; World Hello<br>
+<br></p>
+<h3><a id="_24"></a>（四）思路：</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 建立vector存储string字符串，然后依次逆序输出。<strong>用cin的优点，会自动忽略空格和换行。因此可以不用管空格，但是判断换行需要从输入缓冲区中判断。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; <strong>注意：用cin判断输入是否结束时，我们需要从输入缓冲区中get()判断是否出现了换行符’\n’，即代表着输入结束。</strong><br>
+<br></p>
+<h3><a id="_30"></a>（五）代码</h3>
+<br>
+<pre><code class="prism language-cpp"><span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;vector&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;string&gt;</span></span>
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	string s<span class="token punctuation">;</span>
+	vector<span class="token operator">&lt;</span>string<span class="token operator">&gt;</span> v<span class="token punctuation">;</span>
+	<span class="token keyword">while</span> <span class="token punctuation">(</span>cin <span class="token operator">&gt;&gt;</span> s<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		v<span class="token punctuation">.</span><span class="token function">push_back</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token comment">//判断输入缓冲区中是否输入了换行，代表着输入结束</span>
+		<span class="token keyword">if</span> <span class="token punctuation">(</span>cin<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token string">'\n'</span><span class="token punctuation">)</span>
+			<span class="token keyword">break</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token comment">//倒序输出</span>
+	<span class="token keyword">for</span> <span class="token punctuation">(</span>vector<span class="token operator">&lt;</span>string<span class="token operator">&gt;</span><span class="token operator">::</span>iterator it <span class="token operator">=</span> <span class="token punctuation">(</span>v<span class="token punctuation">.</span><span class="token function">end</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span> it <span class="token operator">!=</span> v<span class="token punctuation">.</span><span class="token function">begin</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token operator">--</span>it<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token operator">*</span>it <span class="token operator">&lt;&lt;</span> <span class="token string">" "</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token comment">//注意，最后一个字符串后不能有空格</span>
+	cout <span class="token operator">&lt;&lt;</span> <span class="token operator">*</span>v<span class="token punctuation">.</span><span class="token function">begin</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

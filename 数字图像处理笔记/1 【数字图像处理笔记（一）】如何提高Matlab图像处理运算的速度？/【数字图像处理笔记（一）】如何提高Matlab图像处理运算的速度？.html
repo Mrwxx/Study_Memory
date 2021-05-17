@@ -1,0 +1,69 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【数字图像处理笔记（一）】如何提高Matlab图像处理运算的速度？</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="__7"></a>一. 预先分配内存</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;即预先分配要存储数据的空间，比如说提前创建0元素数组<br>
+<img src="https://img-blog.csdnimg.cn/20200710210517525.gif#pic_center" alt="在这里插入图片描述"><br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;预分配还可以减少存储器碎片，因为动态存储器的分配与释放会使碎片不断出现，因此可能有些空间明明是存在的，但因为过于碎片化导致没有足够的连续空间来存储大的值。</p>
+<h2><a id="_12"></a>二.计算向量化</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;向量化运算意味着简单地将for循环和while循环转换为同样作用的向量或矩阵运算，即增强了代码的可读性，同时极大地加速了计算的速度。</p>
+<h2><a id="_Matlab_15"></a>三. Matlab的向量化</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Matlab中使用函数meshgrid实现二维函数的向量化。可以将一维向量转换为二维向量。如<br>
+<img src="https://img-blog.csdnimg.cn/20200710210537531.gif#pic_center" alt="在这里插入图片描述"><br>
+<strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;注意， meshgrid的输入和输出总是将列放在前面。</strong><br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;c是n 维的行向量，r是m维的行向量。meshgrid将行向量c和r都转换为 m x n 大小的矩阵，比如说 c = [0, 1], r = [0, 1, 2], 则输出就是<br>
+<img src="https://img-blog.csdnimg.cn/20200710210831972.gif#pic_center" alt="在这里插入图片描述"><br>
+<img src="https://img-blog.csdnimg.cn/20200710210844919.gif#pic_center" alt="在这里插入图片描述"><br>
+<strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;如何理解呢？可以看到c是 2维的行向量，要构成 3  x 2的矩阵，只能用扩充3行的方式构成；而r是3维的行向量，要构成 3 x 2的矩阵，只能用转为列向量并扩充两列的方式，此方法仅供记忆参考。</strong></p>
+<h2><a id="__24"></a>三. 举例：</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;因此，如果我们想设计一个二维的函数，它的功能是求两个坐标变量x= 0，1,2和y=0,1的平方和，怎么做呢？<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;当然，可以直接用for循环，或者while循环都可以做，但是速度会很慢，之后的代码会看到。我们想到用向量化的方式解决，将x和y都转换为矩阵的形式来计算，速度会大大提升。代码如下：</p>
+<pre><code class="prism language-python">function <span class="token punctuation">[</span>rt<span class="token punctuation">,</span>f<span class="token punctuation">,</span>g<span class="token punctuation">]</span> <span class="token operator">=</span> twodsin<span class="token punctuation">(</span>A<span class="token punctuation">,</span> u0<span class="token punctuation">,</span> v0<span class="token punctuation">,</span> M<span class="token punctuation">,</span>N<span class="token punctuation">)</span>
+<span class="token operator">%</span>   The comparison <span class="token keyword">is</span> based on implementing the function
+<span class="token operator">%</span>   f<span class="token punctuation">(</span>x<span class="token punctuation">,</span>y<span class="token punctuation">)</span> <span class="token operator">=</span> Asin<span class="token punctuation">(</span>u0x<span class="token operator">+</span>v0y<span class="token punctuation">)</span> <span class="token keyword">for</span> x <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token punctuation">.</span><span class="token punctuation">.</span>M<span class="token operator">-</span><span class="token number">1</span> <span class="token operator">and</span>
+<span class="token operator">%</span>   y  <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>N<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">.</span> The inputs to the funcion are
+<span class="token operator">%</span>   M <span class="token operator">and</span> N <span class="token operator">and</span> the constants <span class="token keyword">in</span> the function<span class="token punctuation">.</span>
+ 
+<span class="token operator">%</span>   First implement using <span class="token keyword">for</span> loops
+tic    <span class="token operator">%</span>start timing
+<span class="token keyword">for</span> r <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">:</span>M
+    u0x <span class="token operator">=</span> u0<span class="token operator">*</span><span class="token punctuation">(</span>r<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">for</span> c <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">:</span>N
+        v0y <span class="token operator">=</span> v0<span class="token operator">*</span><span class="token punctuation">(</span>c<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        f<span class="token punctuation">(</span>r<span class="token punctuation">,</span>c<span class="token punctuation">)</span> <span class="token operator">=</span> A<span class="token operator">*</span>sin<span class="token punctuation">(</span>u0x <span class="token operator">+</span> v0y<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    end
+end
+t1 <span class="token operator">=</span> toc<span class="token punctuation">;</span>   <span class="token operator">%</span>End timing
+ 
+<span class="token operator">%</span>   Now implement using vectorization
+tic     <span class="token operator">%</span>start timing
+r <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">:</span>M<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">;</span>
+c <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">:</span>N<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">;</span>
+<span class="token punctuation">[</span>C<span class="token punctuation">,</span>R<span class="token punctuation">]</span> <span class="token operator">=</span> meshgrid<span class="token punctuation">(</span>c<span class="token punctuation">,</span>r<span class="token punctuation">)</span><span class="token punctuation">;</span>
+g <span class="token operator">=</span> A<span class="token operator">*</span>sin<span class="token punctuation">(</span>u0<span class="token operator">*</span>R <span class="token operator">+</span> v0<span class="token operator">*</span>C<span class="token punctuation">)</span><span class="token punctuation">;</span>
+t2 <span class="token operator">=</span> toc<span class="token punctuation">;</span>   <span class="token operator">%</span>End timing
+ 
+<span class="token operator">%</span>Compute the ration of the two times
+rt <span class="token operator">=</span> t1<span class="token operator">/</span><span class="token punctuation">(</span>t2<span class="token operator">+</span>eps<span class="token punctuation">)</span><span class="token punctuation">;</span>   <span class="token operator">%</span> use eps <span class="token keyword">in</span> case t2 <span class="token keyword">is</span> close to zero
+f <span class="token operator">=</span> mat2gray<span class="token punctuation">(</span>f<span class="token punctuation">)</span><span class="token punctuation">;</span>
+imshow<span class="token punctuation">(</span>f<span class="token punctuation">)</span><span class="token punctuation">;</span>
+g <span class="token operator">=</span> mat2gray<span class="token punctuation">(</span>g<span class="token punctuation">)</span><span class="token punctuation">;</span>
+imshow<span class="token punctuation">(</span>g<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+</div>
+</body>
+
+</html>

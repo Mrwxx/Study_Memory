@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【C++学习笔记（二十七）】之STL的介绍</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="STL_7"></a>一．创建STL的意图：</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>为了提升复用性，减少重复的劳动</strong>。建立数据结构和算法的一套标准，并且降低他们之间的耦合关系，以提升各自的独立性、弹性、交互操作性。<br>
+<br></p>
+<h2><a id="STL_11"></a>二．STL基本概念</h2>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;STL(Standard Template Library,标准模板库)</strong>，是惠普实验室开发的一系列软件的统称。现在主要出现在c++中，但是在引入 c++之前该技术已经存在很长时间了。</p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;STL从广义上分为：容器(container) 算法(algorithm) 迭代器(iterator),容器和算法之间通过迭代器进行无缝连接。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;STL 几乎所有的代码都采用了<strong>模板类或者模板函数</strong>，这相比传统的由函数和类组成的库来说提供了更好的代码重用机会。<br>
+<br></p>
+<h2><a id="STL_20"></a>三．STL的六大组件</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;STL提供了六大组件，这些组件之间可以组合套用。<strong>这六大组件分别是:容器、算法、迭代器、仿函数、适配器（配接器）、空间配置器。</strong></p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;它们之间的关系： 容器通过空间配置器获得存储的空间，算法通过迭代器存储容器中的内容，仿函数帮助算法完成不同的策略，适配器可以修饰仿函数。</strong><br>
+<br></p>
+<h3><a id="%09_25"></a>（一）	容器</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;顾名思义，<strong>用来存放数据的各种数据结构</strong>。如vector，list，deque，set，map。从实现的角度来看，容器是class template。<br>
+<br></p>
+<h3><a id="%09_28"></a>（二）	算法</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;常用的算法，如sort，find，copy，for_each。从实现的角度看，STL算法是function template。<br>
+<br></p>
+<h3><a id="%09_31"></a>（三）	迭代器</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>迭代器是容器与算法之间的桥梁，算法通过迭代器来存储容器中的内容</strong>。从实现的角度看，迭代器是重载了多种指针操作的class template。<strong>所有容器都有自己专属的迭代器。同时，原生指针也是一种迭代器。</strong><br>
+<br></p>
+<h3><a id="%09_34"></a>（四）	仿函数</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;行为类似函数，是算法的某种策略。从实现来看，仿函数是一种重载了operator()的class 或者class template。<br>
+<br></p>
+<h3><a id="%09_37"></a>（五）	适配器</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;一种用来修饰容器或者仿函数或迭代器接口的东西。<br>
+<br></p>
+<h3><a id="%09_40"></a>（六）	空间配置器</h3>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;负责空间的配置与管理</strong>。从实现角度看，配置器是一个实现了动态空间配置、空间管理、空间释放的class tempalte。</p>
+<br>
+<h2><a id="STL_45"></a>四．STL的优点</h2>
+<h3><a id="_47"></a>（一）数据与操作分离</h3>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;数据是由容器来管理的，而操作是由算法进行管理的。两者之间是独立但又是有联系的，迭代器是两者之间的桥梁。</strong><br>
+<br></p>
+<h3><a id="_50"></a>（二）可重用性</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;STL中几乎所有代码都是用了模板类和模板函数的形式实现，这样，代码重用性大大提高了。<br>
+<br></p>
+<h3><a id="_53"></a>（三）高性能</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;速度快，如map是采用红黑树的变体实现的。<br>
+<br></p>
+<h3><a id="_56"></a>（四）高移植性</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;可以直接移植用STL编写的模块。</p>
+</div>
+</body>
+
+</html>

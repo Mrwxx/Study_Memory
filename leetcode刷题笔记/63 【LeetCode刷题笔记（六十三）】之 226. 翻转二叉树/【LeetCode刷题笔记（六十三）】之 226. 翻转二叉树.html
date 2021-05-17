@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【LeetCode刷题笔记（六十三）】之 226. 翻转二叉树</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	题目</h2>
+<h3><a id="%09_8"></a>（一）	题干</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;翻转一颗二叉树。<br>
+<br></p>
+<h3><a id="%09_13"></a>（二）	示例</h3>
+<p>示例：</p>
+<pre><code class="prism language-cpp">输入：
+
+     <span class="token number">4</span>
+   <span class="token operator">/</span>   \
+  <span class="token number">2</span>     <span class="token number">7</span>
+ <span class="token operator">/</span> \   <span class="token operator">/</span> \
+<span class="token number">1</span>   <span class="token number">3</span> <span class="token number">6</span>   <span class="token number">9</span>
+输出：
+
+     <span class="token number">4</span>
+   <span class="token operator">/</span>   \
+  <span class="token number">7</span>     <span class="token number">2</span>
+ <span class="token operator">/</span> \   <span class="token operator">/</span> \
+<span class="token number">9</span>   <span class="token number">6</span> <span class="token number">3</span>   <span class="token number">1</span>
+</code></pre>
+<br>
+<h2><a id="%09_37"></a>二．	题解</h2>
+<h3><a id="%09_38"></a>（一）	思路</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;关于二叉树的问题，第一种思路当然是递归，即深度优先搜索。递归的终止条件是当前的节点为null则返回null，非空的话当前节点的左节点就是之前右节点的递归结果，当前节点的右节点就是之前左节点的递归结果。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;第二种思路是广度优先搜索，将每一层中的数都取出来，再一个一个地迭代，交换左右节点。由于广度优先搜索是按照顺序处理的，是先进先出的顺序，这就需要队列了，首先将根节点放入队列中，然后将队列中的每个节点的子节点都放入队列中，一个一个地交换左右子树。队列会按照每一层节点的顺序一个个地处理，这种方法用的是迭代的思想。<br>
+<br></p>
+<h3><a id="%09_46"></a>（二）	代码实现</h3>
+<p>Java：</p>
+<h4><a id="1%09_49"></a>1.	递归</h4>
+<pre><code class="prism language-java"><span class="token comment">/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */</span>
+<span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> TreeNode <span class="token function">invertTree</span><span class="token punctuation">(</span>TreeNode root<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token function">dfs</span><span class="token punctuation">(</span>root<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> TreeNode <span class="token function">dfs</span><span class="token punctuation">(</span>TreeNode root<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>root <span class="token operator">==</span> null<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">return</span> null<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        TreeNode temp <span class="token operator">=</span> root<span class="token punctuation">.</span>left<span class="token punctuation">;</span>
+        root<span class="token punctuation">.</span>left <span class="token operator">=</span> <span class="token function">dfs</span><span class="token punctuation">(</span>root<span class="token punctuation">.</span>right<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        root<span class="token punctuation">.</span>right <span class="token operator">=</span> <span class="token function">dfs</span><span class="token punctuation">(</span>temp<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> root<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h4><a id="2%09_82"></a>2.	迭代</h4>
+<pre><code class="prism language-java"><span class="token keyword">public</span> TreeNode <span class="token function">inverTree</span><span class="token punctuation">(</span>TreeNode root<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>root <span class="token operator">==</span> null<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">return</span> null<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    LinkedList<span class="token generics function"><span class="token punctuation">&lt;</span>TreeNode<span class="token punctuation">&gt;</span></span> queue <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">LinkedList</span><span class="token generics function"><span class="token punctuation">&lt;</span>TreeNode<span class="token punctuation">&gt;</span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    queue<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span>root<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">while</span><span class="token punctuation">(</span><span class="token operator">!</span>queue<span class="token punctuation">.</span><span class="token function">isEmpty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        TreeNode tmp <span class="token operator">=</span> queue<span class="token punctuation">.</span><span class="token function">poll</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        TreeNode left <span class="token operator">=</span> tmp<span class="token punctuation">.</span>left<span class="token punctuation">;</span>
+        tmp<span class="token punctuation">.</span>left <span class="token operator">=</span> tmp<span class="token punctuation">.</span>right<span class="token punctuation">;</span>
+        tmp<span class="token punctuation">.</span>right <span class="token operator">=</span> left<span class="token punctuation">;</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>tmp<span class="token punctuation">.</span>left <span class="token operator">!=</span> null<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            queue<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span>tmp<span class="token punctuation">.</span>left<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>tmp<span class="token punctuation">.</span>right <span class="token operator">!=</span> null<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            queue<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span>tmp<span class="token punctuation">.</span>right<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">return</span> root<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,87 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【C++学习笔记（七）】之用代码解析浅拷贝与深拷贝</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="_7"></a>浅拷贝与深拷贝</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;我们通过<strong>代码</strong>来解释什么是浅拷贝，什么是深拷贝。</p>
+<ol>
+<li>首先，写一个<strong>类Person</strong>，设置无参构造函数，有参构造函数，析构函数，姓名char*m_Name，年龄int m_age ，编译器自动提供拷贝构造函数。</li>
+<li>有参构造函数中传入参数(const char* name，int age)，有参构造函数在设置const char* 时需要<strong>开辟堆空间</strong>来存储。因此，<strong>析构函数</strong>中需要将开辟的堆空间给<strong>free掉</strong>。</li>
+<li>当主调函数中设置了拷贝构造函数时，生成的p2与p1是相同的，两个类对象中所存储的内容是一样的，第一个属性是char *，指针类型，指向某个地址，第二个属性是int,存储的是个数。两个类对象都指向相同的地址。</li>
+<li><strong>当析构函数free掉p1所指向的地址开辟的堆空间后，p2就找不到对应的地址了，p2的析构函数就会因此崩掉。这就是浅拷贝，仅仅是简单地复制。</strong></li>
+<li>要解决这个问题，就是<strong>深拷贝</strong>的方法。自己提供拷贝构造函数，设置拷贝构造函数不仅仅是简单地拷贝值，而是为新的<strong>拷贝开辟新的堆空间</strong>，这样两个类对象在析构函数free时就不会有错误了。</li>
+</ol>
+<p>代码如下：</p>
+<pre><code class="prism language-cpp"><span class="token macro property">#<span class="token directive keyword">define</span> _CRT_SECURE_NO_WARNINGS</span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span>	</span>
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+<span class="token keyword">class</span> <span class="token class-name">Person</span>
+<span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token comment">//构造函数</span>
+	<span class="token function">Person</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+	<span class="token comment">//有参构造函数</span>
+	<span class="token function">Person</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span><span class="token operator">*</span> name<span class="token punctuation">,</span> <span class="token keyword">int</span> age<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		<span class="token comment">//姓名需要开辟堆空间</span>
+		m_Name <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">char</span><span class="token operator">*</span><span class="token punctuation">)</span><span class="token function">malloc</span><span class="token punctuation">(</span><span class="token function">strlen</span><span class="token punctuation">(</span>name<span class="token punctuation">)</span><span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token function">strcpy</span><span class="token punctuation">(</span>m_Name<span class="token punctuation">,</span> name<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		m_age <span class="token operator">=</span> age<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token comment">//拷贝构造函数  系统提供默认拷贝构造，值拷贝</span>
+	<span class="token comment">//深拷贝，自己提供拷贝构造函数。因为浅拷贝导致析构函数两次free</span>
+	<span class="token function">Person</span><span class="token punctuation">(</span><span class="token keyword">const</span> Person<span class="token operator">&amp;</span> p<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		m_age <span class="token operator">=</span> p<span class="token punctuation">.</span>m_age<span class="token punctuation">;</span>
+		<span class="token comment">//开辟新的堆空间,</span>
+		m_Name <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">char</span><span class="token operator">*</span><span class="token punctuation">)</span><span class="token function">malloc</span><span class="token punctuation">(</span><span class="token function">strlen</span><span class="token punctuation">(</span>p<span class="token punctuation">.</span>m_Name<span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token function">strcpy</span><span class="token punctuation">(</span>m_Name<span class="token punctuation">,</span> p<span class="token punctuation">.</span>m_Name<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token comment">//析构函数</span>
+	<span class="token operator">~</span><span class="token function">Person</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token string">"析构函数调用"</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+		<span class="token comment">//有参构造函数开辟了堆空间，需要free</span>
+		<span class="token keyword">if</span> <span class="token punctuation">(</span>m_Name <span class="token operator">!=</span> <span class="token constant">NULL</span><span class="token punctuation">)</span>
+		<span class="token punctuation">{</span>
+			<span class="token function">free</span><span class="token punctuation">(</span>m_Name<span class="token punctuation">)</span><span class="token punctuation">;</span>
+			m_Name <span class="token operator">=</span> <span class="token constant">NULL</span><span class="token punctuation">;</span>
+		<span class="token punctuation">}</span>
+	<span class="token punctuation">}</span>
+	<span class="token comment">//姓名</span>
+	<span class="token keyword">char</span><span class="token operator">*</span> m_Name<span class="token punctuation">;</span>
+	<span class="token comment">//年龄</span>
+	<span class="token keyword">int</span> m_age<span class="token punctuation">;</span>
+
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">void</span> <span class="token function">test01</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	Person <span class="token function">p1</span><span class="token punctuation">(</span><span class="token string">"lol"</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	Person <span class="token function">p2</span><span class="token punctuation">(</span>p1<span class="token punctuation">)</span><span class="token punctuation">;</span>		<span class="token comment">//调用了拷贝构造</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	<span class="token function">test01</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

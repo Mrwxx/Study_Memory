@@ -1,0 +1,187 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【计算机网络学习笔记（十二）】之Web服务器和HTTP首部字段概述</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><p></p><div class="toc"><h3>文章目录</h3><ul><ul><li><a href="#_1">本文章由公号【开发小鸽】发布！欢迎关注！！！</a></li><li><a href="#%09Web_9">一．	Web服务器</a></li><ul><li><a href="#%09_10">（一）	单机托管多个域名</a></li><li><a href="#%09_15">（二）	通信数据转发程序</a></li><ul><li><a href="#1%09_20">1.	代理</a></li><ul><li><a href="#1%09_21">（1）	概述</a></li><li><a href="#2%09_26">（2）	使用代理的原因</a></li><li><a href="#3%09_31">（3）	代理分类</a></li><li><a href="#4%09_36">（4）	缓存代理</a></li><li><a href="#5%09_41">（5）	透明代理</a></li></ul><li><a href="#2%09_46">2.	网关</a></li><li><a href="#3%09_51">3.	隧道</a></li></ul></ul><li><a href="#%09HTTP_57">二．	HTTP首部</a></li><ul><li><a href="#%09HHTP_58">（一）	HHTP报文首部</a></li><li><a href="#%09HTTP_63">（二）	HTTP首部字段</a></li><ul><li><a href="#1%09_64">1.	首部字段作用</a></li><li><a href="#2%09_69">2.	首部字段结构</a></li><li><a href="#3%09_74">3.	首部字段类型</a></li></ul><li><a href="#%09_87">（三）	通用首部字段</a></li><ul><li><a href="#1%09CacheControl_88">1.	Cache-Control</a></li><li><a href="#2%09Connection_93">2.	Connection</a></li><li><a href="#3%09Date_98">3.	Date</a></li><li><a href="#4%09TransfrerEncoding_103">4.	Transfrer-Encoding</a></li><li><a href="#5%09Upgrade_108">5.	Upgrade</a></li><li><a href="#6%09Via_113">6.	Via</a></li></ul><li><a href="#%09_118">（四）	请求首部字段</a></li><ul><li><a href="#1%09Accept_119">1.	Accept</a></li><li><a href="#2%09AcceptCharset_124">2.	Accept-Charset</a></li><li><a href="#3%09AcceptEncoding_129">3.	Accept-Encoding</a></li><li><a href="#4%09AcceptLanguage_134">4.	Accept-Language</a></li><li><a href="#5%09Authorization_139">5.	Authorization</a></li><li><a href="#6%09Expect_144">6.	Expect</a></li><li><a href="#7%09From_149">7.	From</a></li><li><a href="#8%09Host_154">8.	Host</a></li><li><a href="#9%09IfMatch_159">9.	If-Match</a></li><li><a href="#10%09MaxForwards_164">10.	Max-Forwards</a></li><li><a href="#11%09Range_169">11.	Range</a></li><li><a href="#12%09Referer_174">12.	Referer</a></li><li><a href="#13%09UserAgent_179">13.	User-Agent</a></li></ul><li><a href="#%09_185">（五）	响应首部字段</a></li><ul><li><a href="#1%09AcceptRanges_186">1.	Accept-Ranges</a></li><li><a href="#2%09Age_191">2.	Age</a></li><li><a href="#3%09ETag_196">3.	ETag</a></li><li><a href="#4%09Location_201">4.	Location</a></li><li><a href="#5%09RetryAfter_206">5.	Retry-After</a></li><li><a href="#6%09Server_211">6.	Server</a></li></ul><li><a href="#%09_216">（六）	实体首部字段</a></li><ul><li><a href="#1%09Allow_217">1.	Allow</a></li><li><a href="#2%09ContentEncoding_222">2.	Content-Encoding</a></li><li><a href="#3%09ContentLanguage_227">3.	Content-Language</a></li><li><a href="#4%09ContentLength_232">4.	Content-Length</a></li><li><a href="#5%09ContentLocation_237">5.	Content-Location</a></li><li><a href="#6%09ContentMD5_242">6.	Content-MD5</a></li><li><a href="#7%09ContentRange_249">7.	Content-Range</a></li><li><a href="#8%09ContentType_254">8.	Content-Type</a></li><li><a href="#9%09Expires_259">9.	Expires</a></li><li><a href="#10%09LastModified_264">10.	Last-Modified</a></li></ul><li><a href="#%09Cookie_269">（七）	Cookie对应的首部字段</a></li><ul><li><a href="#1%09_270">1.	概述</a></li><li><a href="#2%09SetCookie_275">2.	Set-Cookie</a></li><li><a href="#3%09Cookie_280">3.	Cookie</a></li></ul></ul></ul></ul></div><p></p>
+<h2><a id="_1"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09Web_9"></a>一．	Web服务器</h2>
+<h3><a id="%09_10"></a>（一）	单机托管多个域名</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; HTTP/1.1规范允许一台HTTP服务器搭建多个Web站点，如提供Web托管服务的供应商，利用虚拟主机功能，在一台服务器上为多个客户服务。<br>
+<br></p>
+<h3><a id="%09_15"></a>（二）	通信数据转发程序</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; HTTP通信时，除了客户端和服务器外，还有一些用于通信数据转发的程序，如代理，网关，对到，将请求转发给通信线路上的下一个服务器，并且能够接受响应转发给客户端。<br>
+<br></p>
+<h4><a id="1%09_20"></a>1.	代理</h4>
+<h5><a id="1%09_21"></a>（1）	概述</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 代理是一种具有转发功能的程序，接受请求给服务器，也可以接受响应给客户端。代理不会改变请求的URI，会直接发送给目标服务器，如果通信链路中有多级代理服务器，每次转发会附加Via首部标记经过的主机信息。<br>
+<br></p>
+<h5><a id="2%09_26"></a>（2）	使用代理的原因</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 利用缓存技术减少通信流量，针对特定网站的访问控制。<br>
+<br></p>
+<h5><a id="3%09_31"></a>（3）	代理分类</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 代理分类的基准有两个，一个是是否使用缓存，另一个是是否修改报文。<br>
+<br></p>
+<h5><a id="4%09_36"></a>（4）	缓存代理</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 代理转发响应时，缓存代理会将资源的副本保存在代理服务器上。当相同的请求再次发送到代理时，就可以直接返回缓存资源了。<br>
+<br></p>
+<h5><a id="5%09_41"></a>（5）	透明代理</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 转发请求或响应时，不会报文做任何加工的代理称为透明代理。<br>
+<br></p>
+<h4><a id="2%09_46"></a>2.	网关</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 网关能够转发通信数据，同时也可以处理数据。网关可以转换通信的协议，即它可以和非HTTP服务器通信，然后转换为HTTP协议。同时网关也可以提高通信的安全性，可以在客户端和网关之间的通信线路上加密确保连接的安全。<br>
+<br></p>
+<h4><a id="3%09_51"></a>3.	隧道</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 隧道使用SSL等加密手段建立与其他服务器的通信线路，作用是保证安全通信，隧道本身不会解析HTTP请求，即原样转发。</p>
+<br>
+<h2><a id="%09HTTP_57"></a>二．	HTTP首部</h2>
+<h3><a id="%09HHTP_58"></a>（一）	HHTP报文首部</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; HTTP报文首部是必定包含在HTTP报文中的，如HTTP请求报文包含着请求行（方法，URI，HTTP版本），HTTP首部字段；HTTP响应报文包含着状态行（HTTP版本，状态码），HTTP首部字段。<br>
+<br></p>
+<h3><a id="%09HTTP_63"></a>（二）	HTTP首部字段</h3>
+<h4><a id="1%09_64"></a>1.	首部字段作用</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; HTTP首部字段的作用是传递额外信息，给客户端和服务器提供相关的信息，如报文的大小，使用的语言，认证信息等。<br>
+<br></p>
+<h4><a id="2%09_69"></a>2.	首部字段结构</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; HTTP首部字段是由首部字段名和字段值构成的，中间用冒号：分割，单个字段名可以对应多个值。<br>
+<br></p>
+<h4><a id="3%09_74"></a>3.	首部字段类型</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 通用首部字段：请求和响应都会使用的字段；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 请求首部字段：请求报文使用，补充了请求的附加内容，客户端信息等；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 响应首部字段：响应报文使用，补充了响应的附加内容；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 实体首部字段：请求和响应报文的实体部分使用的首部；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 非HTTP/1.1首部字段：其他首部字段以及自定义首部字段。<br>
+<br></p>
+<h3><a id="%09_87"></a>（三）	通用首部字段</h3>
+<h4><a id="1%09CacheControl_88"></a>1.	Cache-Control</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 通过指定该字段，就可以操作缓存，如no-cache表示客户端不会不缓存过期的资源，每次缓存前会向源服务器确认；no-store表示不能缓存请求或响应。<br>
+<br></p>
+<h4><a id="2%09Connection_93"></a>2.	Connection</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该字段的作用有两个，一个是控制不再转发给代理的首部字段，在Connection字段中填入一个字段的名称，则不会转发该字段给下一个代理；另一个是管理持久连接，HTTP/1.1版本的默认连接都是持久连接，即Keep-alive，如果想要断开连接，则设置为close。<br>
+<br></p>
+<h4><a id="3%09Date_98"></a>3.	Date</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该字段表名创建HTTP报文的日期和时间。<br>
+<br></p>
+<h4><a id="4%09TransfrerEncoding_103"></a>4.	Transfrer-Encoding</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该字段规定了传输报文主体时采用的编码方式，HTTP/1.1的传输编码方式仅对分块传输编码有效，即大文件分块传输，值为chunked。<br>
+<br></p>
+<h4><a id="5%09Upgrade_108"></a>5.	Upgrade</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该字段用于检测HTTP协议及其他协议是否可以使用更高的版本进行通信。<br>
+<br></p>
+<h4><a id="6%09Via_113"></a>6.	Via</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该字段用于追踪请求和响应报文的传输路径，还可以避免请求回环的发生。在报文经过代理或网关时，会在Via中附加该服务器的信息然后再转发，这样下一个代理就可以得知是谁发送的报文。<br>
+<br></p>
+<h3><a id="%09_118"></a>（四）	请求首部字段</h3>
+<h4><a id="1%09Accept_119"></a>1.	Accept</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该字段可以通知服务器，用户代理可以处理的媒体类型以及媒体类型的优先级。使用q=来额外表示权重，1为最大值，默认是1.0。<br>
+<br></p>
+<h4><a id="2%09AcceptCharset_124"></a>2.	Accept-Charset</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该字段用于通知服务器用户代理支持的字符集以及字符集的优先级。<br>
+<br></p>
+<h4><a id="3%09AcceptEncoding_129"></a>3.	Accept-Encoding</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该字段用来告知服务器用户代理支持的内容编码以及优先级。<br>
+<br></p>
+<h4><a id="4%09AcceptLanguage_134"></a>4.	Accept-Language</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该字段用来告知服务器用户代理能够处理的自然语言集以及优先级。<br>
+<br></p>
+<h4><a id="5%09Authorization_139"></a>5.	Authorization</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该资源用来告知服务器，用户代理的认证信息，想要通过服务器认证的用户代理会在接收到返回的401后，将Authorization字段加入请求中。<br>
+<br></p>
+<h4><a id="6%09Expect_144"></a>6.	Expect</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该字段告知服务器，期望出现的某种特定行为。<br>
+<br></p>
+<h4><a id="7%09From_149"></a>7.	From</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该字段告知服务器使用用户代理的用户的电子邮件地址。<br>
+<br></p>
+<h4><a id="8%09Host_154"></a>8.	Host</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该字段告知服务器请求的资源所处的主机名和端口号，Host首部是HTTP/1.1规范内唯一一个必须被包含在请求内的首部字段，这是因为一台服务器可能有多个虚拟主机，分配多个域名，因此需要准确地指定域名。<br>
+<br></p>
+<h4><a id="9%09IfMatch_159"></a>9.	If-Match</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 形如If-XXX这样的字段，都是条件请求，服务器接受到请求后，只有判断条件为真，才会执行请求。<br>
+<br></p>
+<h4><a id="10%09MaxForwards_164"></a>10.	Max-Forwards</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该字段表示可经过服务器的最大数目。<br>
+<br></p>
+<h4><a id="11%09Range_169"></a>11.	Range</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该字段用于范围请求，指定资源的范围。<br>
+<br></p>
+<h4><a id="12%09Referer_174"></a>12.	Referer</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该字段会告知服务器请求的原始资源的URI，客户端一般都会发送Referer字段给服务器，但是如果URI是在浏览器地址栏中输入的，处于安全性的考虑，可能包含账号密码等信息，也不会发送该首部字段。<br>
+<br></p>
+<h4><a id="13%09UserAgent_179"></a>13.	User-Agent</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该字段会将创建请求的浏览器和用户代理名称等信息传递给服务器。</p>
+<br>
+<h3><a id="%09_185"></a>（五）	响应首部字段</h3>
+<h4><a id="1%09AcceptRanges_186"></a>1.	Accept-Ranges</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该字段用于告知客户端服务器能否处理范围请求，可处理时值为bytes,否则为none。<br>
+<br></p>
+<h4><a id="2%09Age_191"></a>2.	Age</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该字段告知客户端，源服务器在多久前创建了相应的，单位为秒。<br>
+<br></p>
+<h4><a id="3%09ETag_196"></a>3.	ETag</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该字段告知客户端实体的标识，将资源以字符串形式做唯一性标识，为每一个资源分配一个ETag值，值是由服务器分配的，没有统一的算法规则。ETag值分为强ETag值和弱ETag值，一个即使是细微差别ETag也会变化，另一个只用于提示资源是否相同，只有资源发生了根本改变才会改变ETag值。<br>
+<br></p>
+<h4><a id="4%09Location_201"></a>4.	Location</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该字段将客户端引导至某个与请求URI不同的资源上，一般与3XX状态码配合使用，提供重定向的URI。<br>
+<br></p>
+<h4><a id="5%09RetryAfter_206"></a>5.	Retry-After</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该字段告知客户端多久后再次发送请求。<br>
+<br></p>
+<h4><a id="6%09Server_211"></a>6.	Server</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该字段告知客户端当前服务器上安装的HTTP服务器应用程序的信息。<br>
+<br></p>
+<h3><a id="%09_216"></a>（六）	实体首部字段</h3>
+<h4><a id="1%09Allow_217"></a>1.	Allow</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该字段通知客户端能够支持的HTTP方法，当服务器接受到不支持的HTTP方法时，会返回405状态码（Method Not Allowed），并将所有支持的方法写入Allow字段中返回。<br>
+<br></p>
+<h4><a id="2%09ContentEncoding_222"></a>2.	Content-Encoding</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该字段告知客户端服务器对实体的主体部分选用的内容编码方式，如gzip等。</p>
+<br>
+<h4><a id="3%09ContentLanguage_227"></a>3.	Content-Language</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该字段告知客户端，实体主体采用的自然语言。<br>
+<br></p>
+<h4><a id="4%09ContentLength_232"></a>4.	Content-Length</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该字段告知客户端实体主体部分的大小，单位是字节。<br>
+<br></p>
+<h4><a id="5%09ContentLocation_237"></a>5.	Content-Location</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该字段给出与报文主体部分对应的URI。<br>
+<br></p>
+<h4><a id="6%09ContentMD5_242"></a>6.	Content-MD5</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该字段由MD5算法生成的值组成，目的在于检查报文主体在传输过程中是否完整。对报文主体执行MD5算法得到的128位二进制数，由于HTTP首部字段无法记录二进制值，需要再通过Base64编码后将结果写入Content-MD5中，接收端会报文再次做MD5计算与Content-MD5比较得出结论。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 但是这种方式是不安全的，如果报文主体能够修改的话，将主体和对应的MD5都修改了， 接收端无法得知主体是否修改了。<br>
+<br></p>
+<h4><a id="7%09ContentRange_249"></a>7.	Content-Range</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该字段告知客户端实体的哪个部分符合范围请求，字段值以字节为单位。<br>
+<br></p>
+<h4><a id="8%09ContentType_254"></a>8.	Content-Type</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该字段说明了主体内对象的媒体类型。</p>
+<br>
+<h4><a id="9%09Expires_259"></a>9.	Expires</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该字段将资源失效的日期告知客户端。<br>
+<br></p>
+<h4><a id="10%09LastModified_264"></a>10.	Last-Modified</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该字段指明了资源的最终修改时间。<br>
+<br></p>
+<h3><a id="%09Cookie_269"></a>（七）	Cookie对应的首部字段</h3>
+<h4><a id="1%09_270"></a>1.	概述</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 管理服务器和客户端之间状态的Cookie的工作机制是用户识别和状态管理。浏览器会缓存用户的Cookie，在访问网站时取出Cookie携带访问。<br>
+<br></p>
+<h4><a id="2%09SetCookie_275"></a>2.	Set-Cookie</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 当服务器准备开始管理客户端的状态时，会事先告知各种信息，Set-Cookie字段的作用就是由服务器发送Cookie给客户端。<br>
+<br></p>
+<h4><a id="3%09Cookie_280"></a>3.	Cookie</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 客户端接受到服务器的Set-Cookie字段后，将其中的Cookie字段在下次请求时发送给服务器。</p>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,105 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【LeetCode刷题笔记（七十四）】之 60.  n个骰子的点数</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	题目</h2>
+<h3><a id="%09_9"></a>（一）	题干</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 把n个骰子扔在地上，所有骰子朝上一面的点数之和为s。输入n，打印出s的所有可能的值出现的概率。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 你需要用一个浮点数数组返回答案，其中第 i 个元素代表这 n 个骰子所能掷出的点数集合中第 i 小的那个的概率。</p>
+ <br>
+<h3><a id="__20"></a>（二） 示例</h3>
+<p>示例 1:</p>
+<pre><code class="prism language-java">输入<span class="token operator">:</span> <span class="token number">1</span>
+输出<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token number">0.16667</span><span class="token punctuation">,</span><span class="token number">0.16667</span><span class="token punctuation">,</span><span class="token number">0.16667</span><span class="token punctuation">,</span><span class="token number">0.16667</span><span class="token punctuation">,</span><span class="token number">0.16667</span><span class="token punctuation">,</span><span class="token number">0.16667</span><span class="token punctuation">]</span>
+</code></pre>
+<p>示例 2:</p>
+<pre><code class="prism language-java">输入<span class="token operator">:</span> <span class="token number">2</span>
+输出<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token number">0.02778</span><span class="token punctuation">,</span><span class="token number">0.05556</span><span class="token punctuation">,</span><span class="token number">0.08333</span><span class="token punctuation">,</span><span class="token number">0.11111</span><span class="token punctuation">,</span><span class="token number">0.13889</span><span class="token punctuation">,</span><span class="token number">0.16667</span><span class="token punctuation">,</span><span class="token number">0.13889</span><span class="token punctuation">,</span><span class="token number">0.11111</span><span class="token punctuation">,</span><span class="token number">0.08333</span><span class="token punctuation">,</span><span class="token number">0.05556</span><span class="token punctuation">,</span><span class="token number">0.02778</span><span class="token punctuation">]</span>
+</code></pre>
+<br>
+<h2><a id="%09_39"></a>二．	题解</h2>
+<h3><a id="%09_41"></a>（一）	思路</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 竟然又是DP的题目，只要题目中有递增，递减关系的都要想一想DP能不能做。所有骰子的点数和就是一个个骰子叠加上去的，因此下一次骰子的点数和等于前一次骰子的点数和 + 1到6之间的数即可，这就形成了DP的状态转移方程。因此，各个阶段之间的转换关系已经找出来，现在来分析最后一个阶段是什么？题目要求的是当投掷完n枚骰子后，各个点数出现的次数。因此阶段的状态表示就是第n枚骰子，点数j出现的次数，因此设定一个二维DP数组来表示，思路形成了，具体的代码就不需要讲解了。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 可以进一步优化空间，仅使用一维数组就可以实现，但是如果按照升序来叠加，就一定会叠加覆盖之前的数，如果被覆盖的数还要被其他的数所使用，就会无法实现DP。因此，我们使用倒序来叠加，这样即使要覆盖之前的数，他也已经被其他的数使用完毕，不用担心了。<br>
+<br></p>
+<h3><a id="%09_49"></a>（二）	代码</h3>
+<p>未优化：</p>
+<pre><code class="prism language-java"><span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">double</span><span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token function">dicesProbability</span><span class="token punctuation">(</span><span class="token keyword">int</span> n<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment">// s是n个骰子的点数之和，n个骰子共有？种点数和种类</span>
+        <span class="token comment">// 骰子的结果是对称的，</span>
+        <span class="token comment">// dp，每次骰子的点数都是增加的，注意，dp的题目的关键字是递增关系或者递减关系</span>
+        <span class="token comment">// 下一次某个点数等于上6个点数之和</span>
+        <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token punctuation">]</span> dp <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">int</span><span class="token punctuation">[</span>n<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">70</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token comment">// 第一次</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span> i <span class="token operator">&lt;=</span> <span class="token number">6</span><span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            dp<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token comment">// 从第二个骰子开始</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">2</span><span class="token punctuation">;</span> i <span class="token operator">&lt;=</span> n<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token comment">// 下一个骰子的可能点数和</span>
+            <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> j <span class="token operator">=</span> i<span class="token punctuation">;</span> j <span class="token operator">&lt;=</span> i<span class="token operator">*</span><span class="token number">6</span><span class="token punctuation">;</span> <span class="token operator">++</span>j<span class="token punctuation">)</span><span class="token punctuation">{</span>
+                <span class="token comment">// 前一个骰子 再加上1- 6 等于下一个骰子可能的骰子总和</span>
+                <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> z <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span> z <span class="token operator">&lt;=</span> <span class="token number">6</span><span class="token punctuation">;</span> <span class="token operator">++</span>z<span class="token punctuation">)</span><span class="token punctuation">{</span>
+                    <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token punctuation">(</span>j<span class="token operator">-</span>z<span class="token punctuation">)</span> <span class="token operator">&lt;</span> <span class="token punctuation">(</span>i<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                        <span class="token keyword">break</span><span class="token punctuation">;</span>
+                    <span class="token punctuation">}</span>
+                    dp<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">[</span>j<span class="token punctuation">]</span> <span class="token operator">+=</span> dp<span class="token punctuation">[</span>i<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">[</span>j<span class="token operator">-</span>z<span class="token punctuation">]</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">double</span><span class="token punctuation">[</span><span class="token punctuation">]</span> out <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">double</span><span class="token punctuation">[</span><span class="token number">5</span><span class="token operator">*</span>n<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> times <span class="token operator">:</span> dp<span class="token punctuation">[</span>n<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span>times <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token keyword">continue</span><span class="token punctuation">;</span>
+            out<span class="token punctuation">[</span>i<span class="token operator">++</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">double</span><span class="token punctuation">)</span><span class="token punctuation">(</span>times <span class="token operator">/</span> Math<span class="token punctuation">.</span><span class="token function">pow</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">,</span> n<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> out<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<p>优化：</p>
+<pre><code class="prism language-java"><span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">double</span><span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token function">twoSum</span><span class="token punctuation">(</span><span class="token keyword">int</span> n<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    	<span class="token keyword">int</span> dp<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token operator">=</span><span class="token keyword">new</span> <span class="token class-name">int</span><span class="token punctuation">[</span><span class="token number">70</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+ 		<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">;</span>i<span class="token operator">&lt;=</span><span class="token number">6</span> <span class="token punctuation">;</span>i<span class="token operator">++</span> <span class="token punctuation">)</span> <span class="token punctuation">{</span>
+ 			dp<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">;</span>
+ 		<span class="token punctuation">}</span>
+ 		<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">;</span>i<span class="token operator">&lt;=</span>n <span class="token punctuation">;</span>i<span class="token operator">++</span> <span class="token punctuation">)</span> <span class="token punctuation">{</span>
+ 			<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> j<span class="token operator">=</span><span class="token number">6</span><span class="token operator">*</span>i<span class="token punctuation">;</span>j<span class="token operator">&gt;=</span>i <span class="token punctuation">;</span>j<span class="token operator">--</span> <span class="token punctuation">)</span> <span class="token punctuation">{</span>
+ 				dp<span class="token punctuation">[</span>j<span class="token punctuation">]</span><span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">;</span>
+ 				<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> cur<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">;</span>cur<span class="token operator">&lt;=</span><span class="token number">6</span> <span class="token punctuation">;</span>cur<span class="token operator">++</span> <span class="token punctuation">)</span> <span class="token punctuation">{</span>
+ 					<span class="token keyword">if</span> <span class="token punctuation">(</span>j<span class="token operator">-</span>cur<span class="token operator">&lt;</span>i<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+ 						<span class="token keyword">break</span><span class="token punctuation">;</span>
+ 					<span class="token punctuation">}</span>
+                     dp<span class="token punctuation">[</span>j<span class="token punctuation">]</span><span class="token operator">+=</span>dp<span class="token punctuation">[</span>j<span class="token operator">-</span>cur<span class="token punctuation">]</span><span class="token punctuation">;</span>
+ 				<span class="token punctuation">}</span>
+ 				
+ 			<span class="token punctuation">}</span>
+ 		<span class="token punctuation">}</span>
+ 		<span class="token keyword">double</span> all<span class="token operator">=</span>Math<span class="token punctuation">.</span><span class="token function">pow</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">,</span>n<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">double</span><span class="token punctuation">[</span><span class="token punctuation">]</span> res<span class="token operator">=</span><span class="token keyword">new</span> <span class="token class-name">double</span><span class="token punctuation">[</span><span class="token number">5</span><span class="token operator">*</span>n<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+ 		<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i<span class="token operator">=</span>n<span class="token punctuation">;</span>i<span class="token operator">&lt;=</span><span class="token number">6</span><span class="token operator">*</span>n <span class="token punctuation">;</span>i<span class="token operator">++</span> <span class="token punctuation">)</span> <span class="token punctuation">{</span>
+ 			res<span class="token punctuation">[</span>i<span class="token operator">-</span>n<span class="token punctuation">]</span><span class="token operator">=</span><span class="token punctuation">(</span>dp<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token operator">*</span><span class="token number">1.0</span><span class="token operator">/</span>all<span class="token punctuation">)</span><span class="token punctuation">;</span>
+ 		<span class="token punctuation">}</span>
+ 		<span class="token keyword">return</span> res<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

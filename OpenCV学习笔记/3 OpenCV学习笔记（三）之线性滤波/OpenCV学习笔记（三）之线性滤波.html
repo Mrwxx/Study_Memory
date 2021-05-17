@@ -1,0 +1,98 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenCV学习笔记（三）之线性滤波</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="__7"></a>一. 卷积概念</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;卷积是图像处理中的一个操作，是kernel在图像的每个像素上的操作。kernel本质上是一个固定大小的矩阵数组，其中心点称为锚点（anchor point）。</p>
+<h2><a id="__9"></a>二. 卷积如何工作？</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;把kernel放到像素数组上，求锚点周覆盖的像素乘积之和（包括锚点），用来替换锚点覆盖下像素点值称为卷积处理。</p>
+<h2><a id="__11"></a>三. 常见卷积算子</h2>
+<h3><a id="1_Robert__13"></a>1. <strong>Robert 算子</strong></h3>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200528224447511.png" width="70%">
+</center><p>&nbsp;  &nbsp;  &nbsp;  &nbsp;左图是左斜45度方向的差异，右图是右斜45度方向的差异。</p>
+<h3><a id="2_Sobel__21"></a>2. Sobel 算子</h3>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200528224516713.png" width="70%">
+</center><p>&nbsp;  &nbsp;  &nbsp;  &nbsp;左图是水平方向的像素差异，右图是垂直方向的像素差异。</p>
+<h3><a id="3__28"></a><strong>3. 拉普拉斯算子</strong></h3>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200528224536149.png" width="60%">
+</center><h2><a id="__33"></a>四. 自定义线性滤波</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;自己定义一个线型滤波器的API  cv::filter2D</p>
+<pre><code class="prism language-cpp">cv<span class="token operator">::</span><span class="token function">filter2D</span><span class="token punctuation">(</span>
+	Mat src<span class="token punctuation">,</span>	<span class="token comment">//输入图像</span>
+	Mat dst<span class="token punctuation">,</span>	<span class="token comment">//输出图像</span>
+	<span class="token keyword">int</span> depth<span class="token punctuation">,</span>	<span class="token comment">//图像深度32/8</span>
+	Mat kernel<span class="token punctuation">,</span>	<span class="token comment">//卷积核/模板</span>
+	Point anchor<span class="token punctuation">,</span><span class="token comment">//锚点位置</span>
+	<span class="token keyword">double</span> delta<span class="token punctuation">,</span><span class="token comment">//计算出来的像素+delta</span>
+	<span class="token punctuation">)</span>
+</code></pre>
+<h2><a id="_46"></a>下面是代码：</h2>
+<pre><code class="prism language-cpp"><span class="token comment">/*****线性滤波*****/</span>
+
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;opencv2/opencv.hpp&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;string&gt;</span></span>
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	cv<span class="token operator">::</span>Mat src<span class="token punctuation">,</span> dst<span class="token punctuation">;</span>
+	src <span class="token operator">=</span> cv<span class="token operator">::</span><span class="token function">imread</span><span class="token punctuation">(</span><span class="token string">"1.jpg"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	string input_title <span class="token operator">=</span> <span class="token string">"input image"</span><span class="token punctuation">;</span>
+	string output_title <span class="token operator">=</span> <span class="token string">"output image"</span><span class="token punctuation">;</span>
+	
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span>input_title<span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span>output_title<span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span>input_title<span class="token punctuation">,</span> src<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token comment">//Robert X 方向</span>
+	cv<span class="token operator">::</span>Mat robert_x <span class="token operator">=</span> <span class="token punctuation">(</span>cv<span class="token operator">::</span>Mat_<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token operator">&gt;</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span> <span class="token operator">&lt;&lt;</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//线性滤波</span>
+	cv<span class="token operator">::</span><span class="token function">filter2D</span><span class="token punctuation">(</span>src<span class="token punctuation">,</span> dst<span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> robert_x<span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Point</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">0.0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token comment">//Robert Y 方向</span>
+	cv<span class="token operator">::</span>Mat robert_y <span class="token operator">=</span> <span class="token punctuation">(</span>cv<span class="token operator">::</span>Mat_<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token operator">&gt;</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span> <span class="token operator">&lt;&lt;</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//线性滤波</span>
+	cv<span class="token operator">::</span><span class="token function">filter2D</span><span class="token punctuation">(</span>src<span class="token punctuation">,</span> dst<span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> robert_y<span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Point</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">0.0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token comment">//Sobel X 方向</span>
+	cv<span class="token operator">::</span>Mat sobel_x <span class="token operator">=</span> <span class="token punctuation">(</span>cv<span class="token operator">::</span>Mat_<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token operator">&gt;</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">)</span> <span class="token operator">&lt;&lt;</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token operator">-</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//线性滤波</span>
+	cv<span class="token operator">::</span><span class="token function">filter2D</span><span class="token punctuation">(</span>src<span class="token punctuation">,</span> dst<span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> sobel_x<span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Point</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">0.0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token comment">//Sobel Y 方向</span>
+	cv<span class="token operator">::</span>Mat sobel_y <span class="token operator">=</span> <span class="token punctuation">(</span>cv<span class="token operator">::</span>Mat_<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token operator">&gt;</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">)</span> <span class="token operator">&lt;&lt;</span> <span class="token number">0</span><span class="token punctuation">,</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">,</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//线性滤波</span>
+	cv<span class="token operator">::</span><span class="token function">filter2D</span><span class="token punctuation">(</span>src<span class="token punctuation">,</span> dst<span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> sobel_y<span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Point</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">0.0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token comment">//拉普拉斯算子</span>
+	cv<span class="token operator">::</span>Mat lap <span class="token operator">=</span> <span class="token punctuation">(</span>cv<span class="token operator">::</span>Mat_<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token operator">&gt;</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">)</span> <span class="token operator">&lt;&lt;</span> <span class="token number">0</span><span class="token punctuation">,</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">,</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//线性滤波</span>
+	cv<span class="token operator">::</span><span class="token function">filter2D</span><span class="token punctuation">(</span>src<span class="token punctuation">,</span> dst<span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> lap<span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Point</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">0.0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span>output_title<span class="token punctuation">,</span> dst<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+
+	cv<span class="token operator">::</span><span class="token function">waitKey</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,95 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【LeetCode（三十六）】之剑指offer 07.重建二叉树</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	题目</h2>
+<h3><a id="%09_8"></a>（一）	题干</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;输入某二叉树的前序遍历和中序遍历的结果，请重建该二叉树。假设输入的前序遍历和中序遍历的结果中都不含重复的数字。<br>
+<br></p>
+<h3><a id="%09_14"></a>（二）	示例</h3>
+<pre><code class="prism language-cpp">给出
+前序遍历 preorder <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">9</span><span class="token punctuation">,</span><span class="token number">20</span><span class="token punctuation">,</span><span class="token number">15</span><span class="token punctuation">,</span><span class="token number">7</span><span class="token punctuation">]</span>
+中序遍历 inorder <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">9</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">15</span><span class="token punctuation">,</span><span class="token number">20</span><span class="token punctuation">,</span><span class="token number">7</span><span class="token punctuation">]</span>
+
+返回如下的二叉树：
+
+    <span class="token number">3</span>
+   <span class="token operator">/</span> \
+  <span class="token number">9</span>  <span class="token number">20</span>
+    <span class="token operator">/</span>  \
+   <span class="token number">15</span>   <span class="token number">7</span>
+</code></pre>
+<br>
+<h2><a id="%09_34"></a>二．	题解</h2>
+<h3><a id="%09_35"></a>（一）	思路</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;前序遍历就是先访问树的根节点，再访问树的左子树，最后访问树的右子树。中序遍历是先访问树的左子树，再访问树的根节点，最后访问树的右子树。可以看到，前序遍历是按照根节点，左子树，右子树排列的；而中序遍历是按照左子树，根节点，右子树排列的。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;因此，我们可以从前序遍历获取最前面的数，一定是根节点，根节点将中序遍历一分为二，左边是左子树，右边是右子树。获取根节点在中序遍历的索引后，我们可以计算得到左子树和右子树的节点数量。因此又可以在前序序列中找寻左子树和右子树的根节点了，如果左子树的节点数不为0，则左子树的根节点就是前序遍历中根节点的下一个数；而右子树的根节点在前序遍历中的索引是（根节点+左子树节点数）。这样就能递归下去了，每次递归就是创建一个新的树，需要每次从前序遍历和中序遍历中取出相应的数字，因此，我们需要记录每次取出的前序遍历和中序遍历的数字段的左右区间。题目的要求是重建二叉树，因此每次获取一个节点时都要重新创建节点，并且连接根节点，左子树和右子树。<br>
+<br></p>
+<h3><a id="%09_43"></a>（二）	代码实现</h3>
+<p>Java:</p>
+<pre><code class="prism language-java"><span class="token comment">/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */</span>
+<span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> TreeNode <span class="token function">buildTree</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> preorder<span class="token punctuation">,</span> <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> inorder<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>preorder <span class="token operator">==</span> null <span class="token operator">||</span> inorder <span class="token operator">==</span> null<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">return</span> null<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">int</span> length <span class="token operator">=</span> preorder<span class="token punctuation">.</span>length<span class="token punctuation">;</span>
+        <span class="token comment">//Map存储inorder的索引</span>
+        Map<span class="token generics function"><span class="token punctuation">&lt;</span>Integer<span class="token punctuation">,</span>Integer<span class="token punctuation">&gt;</span></span> store <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">HashMap</span><span class="token operator">&lt;</span><span class="token operator">&gt;</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> length<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            store<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span>inorder<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">,</span> i<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> 
+        
+        TreeNode root <span class="token operator">=</span> <span class="token function">dfs</span><span class="token punctuation">(</span>preorder<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> length<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> inorder<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> length<span class="token operator">-</span><span class="token number">1</span> <span class="token punctuation">,</span> store<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> root<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> TreeNode <span class="token function">dfs</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> preorder<span class="token punctuation">,</span> <span class="token keyword">int</span> preStart<span class="token punctuation">,</span> <span class="token keyword">int</span> preEnd<span class="token punctuation">,</span> <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> inorder<span class="token punctuation">,</span> <span class="token keyword">int</span> inStart<span class="token punctuation">,</span> <span class="token keyword">int</span> inEnd<span class="token punctuation">,</span> Map<span class="token generics function"><span class="token punctuation">&lt;</span>Integer<span class="token punctuation">,</span>Integer<span class="token punctuation">&gt;</span></span> store<span class="token punctuation">)</span>    <span class="token punctuation">{</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>preStart <span class="token operator">&gt;</span> preEnd<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">return</span> null<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">int</span> rootVal <span class="token operator">=</span> preorder<span class="token punctuation">[</span>preStart<span class="token punctuation">]</span><span class="token punctuation">;</span>
+        TreeNode root <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">TreeNode</span><span class="token punctuation">(</span>rootVal<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">//只有一个root</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>preStart <span class="token operator">==</span> preEnd<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">return</span> root<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token keyword">else</span><span class="token punctuation">{</span>      
+            <span class="token comment">//获取root在中序遍历中的索引</span>
+            <span class="token keyword">int</span> rootIndex <span class="token operator">=</span> store<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>rootVal<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token comment">//从中序遍历中获取左子树和右子树的节点数</span>
+            <span class="token keyword">int</span> leftNum <span class="token operator">=</span> rootIndex <span class="token operator">-</span> inStart<span class="token punctuation">,</span> rightNum <span class="token operator">=</span> inEnd <span class="token operator">-</span> rootIndex<span class="token punctuation">;</span>
+            <span class="token comment">//创建左子树</span>
+            TreeNode leftNode<span class="token operator">=</span> <span class="token function">dfs</span><span class="token punctuation">(</span>preorder<span class="token punctuation">,</span> preStart<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">,</span> preStart<span class="token operator">+</span>leftNum<span class="token punctuation">,</span>  inorder<span class="token punctuation">,</span> inStart<span class="token punctuation">,</span> rootIndex<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> store<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token comment">//创建右子树</span>
+            TreeNode rightNode <span class="token operator">=</span> <span class="token function">dfs</span><span class="token punctuation">(</span>preorder<span class="token punctuation">,</span> preEnd<span class="token operator">-</span>rightNum<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">,</span> preEnd<span class="token punctuation">,</span> inorder<span class="token punctuation">,</span> rootIndex<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">,</span> inEnd<span class="token punctuation">,</span> store<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            root<span class="token punctuation">.</span>left <span class="token operator">=</span> leftNode<span class="token punctuation">;</span>
+            root<span class="token punctuation">.</span>right <span class="token operator">=</span> rightNode<span class="token punctuation">;</span>
+            <span class="token keyword">return</span> root<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

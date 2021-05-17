@@ -1,0 +1,76 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Java学习笔记（三）】之多态的要点介绍</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	多态的定义</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; <strong>多态，从名字可以看出，是 同一个对象在不同时可表现出来的不同形态。</strong></p>
+<p>如：猫是一种动物，也是一个具体的物种猫。</p>
+<pre><code class="prism language-java">cat <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">cat</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+animal <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">cat</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; <strong>猫在不同的场合可以被形容为不同的对象，既可以是猫，也可以是动物，这就是多态</strong>。<br>
+<br></p>
+<h2><a id="%09_21"></a>二．	多态的前提</h2>
+<br>
+<ol>
+<li>继承关系</li>
+<li>方法重写</li>
+<li>父类引用指向子类对象<br>
+<br></li>
+</ol>
+<h2><a id="%09_28"></a>三．	多态中成员访问特点</h2>
+<h3><a id="%09_29"></a>（一）	成员变量的访问</h3>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; <strong>无法通过多态访问父类中不存在的成员变量，只能访问父类中存在的成员变量</strong>。因为多态是父类的引用指向子类的对象，即</p>
+<pre><code class="prism language-java">Animal a <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Cat</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 创建了子类对象Cat，多态表示为Animal，那么<strong>只有Animal父类中的成员变量才能够访问到，而子类中的特有的成员变量是无法访问到的。</strong><br>
+<br></p>
+<h3><a id="%09_41"></a>（二）	成员方法的访问</h3>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; <strong>成员方法是可以重写的</strong>，那么同样是创建了子类对象Cat,多态表示为Animal。</p>
+<pre><code class="prism language-java">Animal a <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Cat</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; <strong>通过多态可以调用子类中已经重写的成员方法，但是和成员变量一样，无法访问子类中特有的成员方法。</strong><br>
+<br></p>
+<h2><a id="%09_53"></a>四．	多态中的转型</h2>
+<h3><a id="%09_54"></a>（一）	向上转型</h3>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; <strong>所谓向上，即子类转为父类</strong>，通常用的父类的引用指向子类对象就是向上转型。如：</p>
+<pre><code class="prism language-java">Anima a <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Cat</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 创建了子类对象，并将它赋值给了父类对象，即子类转为父类。<br>
+<br></p>
+<h3><a id="%09_66"></a>（二）	向下转型</h3>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; <strong>所谓向下，即父类转为子类</strong>，将父类对象强转为子类对象。如：</p>
+<pre><code class="prism language-java">Animal a <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Cat</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+Cat c <span class="token operator">=</span> <span class="token punctuation">(</span>Cat<span class="token punctuation">)</span>a<span class="token punctuation">;</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 父类对象a被强转为了子类对象c。<br>
+<br></p>
+<h2><a id="%09_80"></a>五．	多态的利弊</h2>
+<h3><a id="%09_81"></a>（一）	多态的优点</h3>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; <strong>多态能够提高程序的扩展性，当我们定义一个方法时，只需要使用父类型作为参数，使用的时候，传入具体的子类型就可以实现我们的需求</strong>。特别是对于多种相似的子类重复操作时，非常方便。<br>
+<br></p>
+<h3><a id="%09_87"></a>（二）	多态的缺点</h3>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; <strong>多态只能使用父类中的成员变量，无法使用子类中特有的成员变量。<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp; 多态只能使用父类和子类中重写的成员方法，无法使用子类中特有的成员方法。</strong></p>
+</div>
+</body>
+
+</html>

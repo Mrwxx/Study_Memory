@@ -1,0 +1,70 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Linux学习笔记（四）】之gcc的编译流程与相关参数</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09gcc_7"></a>一．	gcc概述</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; GNU编译器套件（GNU Compiler Collection），是以GPL许可证所发行的自由软件，现已被大多数Unix操作系统（Linux，BSD，Mac OS）采纳为标准的编译器，GCC也同样适用于Windows。<br>
+<br></p>
+<h2><a id="%09gcc_11"></a>二．	gcc流程</h2>
+<h3><a id="%09gcc_E_helloc_12"></a>（一）	gcc -E hello.c</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 进行代码的预处理，展开头文件，并且进行宏替换。生成hello.i文件。<br>
+<br></p>
+<h3><a id="%09gcc_S_helloi_16"></a>（二）	gcc -S hello.i</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 生成汇编代码，生成hello.s文件。<br>
+<br></p>
+<h3><a id="%09gcc_c_hellos_20"></a>（三）	gcc -c hello.s</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 将汇编代码编译为二进制文件，生成hello.o文件。<br>
+<br></p>
+<h3><a id="%09ld_helloo_24"></a>（四）	ld hello.o</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 链接操作，生成可执行文件 hello.out。</p>
+<br>
+<h2><a id="%09gcc_29"></a>三．	gcc相关参数</h2>
+<h3><a id="I_i_30"></a>（一）-I （大写的i）</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 当编译的文件中需要导入其他头文件时，直接用-I后面接头文件所在的目录。</p>
+<pre><code class="prism language-cpp">gcc add<span class="token punctuation">.</span>c <span class="token operator">-</span>I<span class="token punctuation">.</span><span class="token operator">/</span>include<span class="token operator">/</span> <span class="token operator">-</span>o app
+</code></pre>
+<br>
+<h3><a id="D_38"></a>（二）-D</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 为源文件添加宏</p>
+<pre><code class="prism language-cpp">gcc add<span class="token punctuation">.</span>c <span class="token operator">-</span>I<span class="token punctuation">.</span><span class="token operator">/</span>include<span class="token operator">/</span> <span class="token operator">-</span>D DEBUG <span class="token operator">-</span>o app
+</code></pre>
+<br>
+<h3><a id="L_46"></a>（三）-L</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 为源文件添加包含的库路径<br>
+<br></p>
+<h3><a id="l_50"></a>（四）-l</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 为源文件需要的库指定库名。<br>
+<br></p>
+<h3><a id="o_54"></a>（五）-o</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 将源文件编译到指定的目标文件中。</p>
+<br>
+<h3><a id="g_59"></a>（六）-g</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 用于gdb调试<br>
+<br></p>
+<h3><a id="Wall_63"></a>（七）-Wall</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 显示更多的警告<br>
+<br></p>
+<h3><a id="E_67"></a>（八）-E</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 输出到标准输出，宏替换，头文件展开<br>
+<br></p>
+<h3><a id="c_71"></a>（九）-c</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 编译成二进制文件，.0文件<br>
+<br></p>
+<h3><a id="S_75"></a>（十）-S</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 生成汇编代码。</p>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,161 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【C++学习笔记（四十）】之STL中适配器的介绍</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一.	适配器</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;我们都知道，笔记本电脑的转接头适配器能够扩展缺少的接口，STL中的适配器也是一样的效果，<strong>它能够将某些类型扩展接口，适配到其他类型中</strong>。即扩展参数的个数，如将一元函数扩展为二元函数…</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>需要引入头文件</strong></p>
+<pre><code class="prism language-cpp"><span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;functional&gt;</span></span>
+</code></pre>
+<br>
+<h2><a id="__18"></a>二．仿函数 适配器扩展参数到二元</h2>
+<h3><a id="_19"></a>（一）应用场景：</h3>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;本为一元仿函数MyPoint()，需要将用户输入的num适配到原有的MyPoint()仿函数中，因此用适配器将MyPoint()仿函数适配为二元仿函数。<br>
+<br></p>
+<h3><a id="_25"></a>（二）步骤</h3>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>第一步</strong>： <strong>绑定数据 bind2nd</strong>，意思是绑定数据num到第二个参数start上; <strong>绑定数据bind1st</strong>，将数据num绑定到第一个参数v上</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>第二步</strong>：<strong>仿函数的类继承 binary_function&lt;参数类型1， 参数类型2，返回值类型&gt;</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>第三步</strong>：加const限定 operator()，不允许修改</p>
+<pre><code class="prism language-cpp"><span class="token keyword">class</span> <span class="token class-name">MyPoint</span> <span class="token operator">:</span> <span class="token keyword">public</span> binary_function<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token punctuation">,</span> <span class="token keyword">int</span><span class="token punctuation">,</span> <span class="token keyword">void</span><span class="token operator">&gt;</span>
+<span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token keyword">void</span> <span class="token keyword">operator</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token keyword">int</span> v<span class="token punctuation">,</span> <span class="token keyword">int</span> start<span class="token punctuation">)</span> <span class="token keyword">const</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> v <span class="token operator">+</span> start <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+<span class="token punctuation">}</span>	
+
+<span class="token keyword">void</span> <span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	vector<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token operator">&gt;</span> v<span class="token punctuation">;</span>
+	<span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span> <span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token number">10</span><span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>	
+		v<span class="token punctuation">.</span><span class="token function">push_back</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token keyword">int</span> num<span class="token punctuation">;</span>
+	cin <span class="token operator">&gt;&gt;</span> num<span class="token punctuation">;</span>
+	<span class="token function">for_each</span><span class="token punctuation">(</span>v<span class="token punctuation">.</span><span class="token function">begin</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> v<span class="token punctuation">.</span><span class="token function">end</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token function">bind2nd</span><span class="token punctuation">(</span><span class="token function">MyPoint</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> num<span class="token punctuation">)</span> <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h2><a id="_58"></a>三．取反适配器</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;not1对一元函数对象取反，not2对二元函数对象取反<br>
+<br></p>
+<h3><a id="_62"></a>（一）步骤</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;继承 unary_function&lt;参数类型1，返回值类型&gt;，限制const<br>
+<br></p>
+<h3><a id="_66"></a>（二）场景：</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在vector中寻找大于5的第一个数字，后更改需求，寻找小于5的第一个数字，将该一元仿函数转换成相反的功能。not1适配器，实现相反功能<br>
+<br></p>
+<pre><code class="prism language-cpp"><span class="token keyword">class</span> <span class="token class-name">GreaterThanFive</span> <span class="token operator">:</span> <span class="token keyword">public</span> unary_function<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token punctuation">,</span> <span class="token keyword">bool</span><span class="token operator">&gt;</span>
+<span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token keyword">bool</span> <span class="token keyword">operator</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token keyword">int</span> v<span class="token punctuation">)</span>	<span class="token keyword">const</span>
+	<span class="token punctuation">{</span>
+		<span class="token keyword">return</span> v <span class="token operator">&gt;</span> <span class="token number">5</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">void</span> <span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	vector<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token operator">&gt;</span> v<span class="token punctuation">;</span>
+	<span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token number">10</span><span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		v<span class="token punctuation">.</span><span class="token function">push_back</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+	vector<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token operator">&gt;</span> iterator pos <span class="token operator">=</span> <span class="token function">find_if</span><span class="token punctuation">(</span>v<span class="token punctuation">.</span><span class="token function">begin</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> v<span class="token punctuation">.</span><span class="token function">end</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token function">not1</span><span class="token punctuation">(</span><span class="token function">GreaterThanFive</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">if</span><span class="token punctuation">(</span> pos <span class="token operator">!=</span> v<span class="token punctuation">.</span><span class="token function">end</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> “找到小于<span class="token number">5</span>的数字为：” <span class="token operator">&lt;&lt;</span> <span class="token operator">*</span>pos <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token keyword">else</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span>”未找到” <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h2><a id="_ptr_fun_103"></a>四．普通函数指针适配器 ptr_fun</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;普通函数指针不像前面说的仿函数是个类能够继承，<strong>我们需要将普通函数指针适配为函数对象（仿函数），用ptr_fun(普通函数指针)适配成了函数对象</strong>，也能够向前面一样扩展接口参数。但不需要继承，以及限制const<br>
+<br></p>
+<pre><code class="prism language-cpp"><span class="token keyword">void</span> <span class="token function">MyPrint</span><span class="token punctuation">(</span><span class="token keyword">int</span> v<span class="token punctuation">,</span> <span class="token keyword">int</span> start<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	cout <span class="token operator">&lt;&lt;</span> v <span class="token operator">+</span>start <span class="token operator">&lt;&lt;</span>endl<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">void</span> <span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	vector<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token operator">&gt;</span> v<span class="token punctuation">;</span>
+	<span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token number">10</span><span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		v<span class="token punctuation">.</span><span class="token function">push_back</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token keyword">int</span> num<span class="token punctuation">;</span>
+	cin <span class="token operator">&gt;&gt;</span> num<span class="token punctuation">;</span>
+	<span class="token function">for_each</span><span class="token punctuation">(</span>v<span class="token punctuation">.</span><span class="token function">begin</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> v<span class="token punctuation">.</span><span class="token function">end</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token function">bind2nd</span><span class="token punctuation">(</span><span class="token function">ptr_fun</span><span class="token punctuation">(</span>MyPoint<span class="token punctuation">)</span><span class="token punctuation">,</span> num <span class="token punctuation">)</span> <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h2><a id="_mem_fun_ref__mem_fun_129"></a>五．成员函数适配器 mem_fun_ref / mem_fun</h2>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;针对类中的内容，我们之前对类中的内容进行排序时，设置一个全局回调函数，调用回调函数。因为是对同一个类的内容进行处理，那么用类中的成员函数不是更好么？</p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;因此，可以用成员函数适配器mem_fun_ref将类中的成员函数适配成回调函数。</strong></p>
+<p><strong>两种形式：</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;1. 当vector v; vector中存储的是<strong>Person对象</strong>时，用<strong>mem_fun_ref适配器</strong>。</p>
+<pre><code class="prism language-cpp"> <span class="token function">mem_fun_ref</span><span class="token punctuation">(</span> <span class="token operator">&amp;</span>Person<span class="token operator">::</span>showPerson<span class="token punctuation">)</span>`	
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;将Person类中的showPerson()成员函数配置成回调函数,注意括号内为Person类的showPerson的成员函数的地址。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;2. 当vector&lt;Person *&gt; v; vector中存储的是<strong>Person的对象指针</strong>时，使用<strong>mem_fun适配器</strong>。</p>
+<pre><code class="prism language-cpp"><span class="token function">mem_fun</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>Person<span class="token operator">::</span>showPerson<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<pre><code class="prism language-cpp"><span class="token keyword">class</span> <span class="token class-name">Person</span>
+<span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token function">Person</span><span class="token punctuation">(</span>string name<span class="token punctuation">,</span> <span class="token keyword">int</span> age<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_Name <span class="token operator">=</span> name<span class="token punctuation">;</span>
+		This<span class="token operator">-</span><span class="token operator">&gt;</span>m_Age <span class="token operator">=</span> age<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+	<span class="token keyword">void</span> <span class="token function">showPerson</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		cout <span class="token operator">&lt;&lt;</span> “姓名：” <span class="token operator">&lt;&lt;</span> m_Name <span class="token operator">&lt;&lt;</span>” 年龄：“ <span class="token operator">&lt;&lt;</span> m_Age <span class="token operator">&lt;&lt;</span>endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+	string m_Name<span class="token punctuation">;</span>
+	<span class="token keyword">int</span> m_Age<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">void</span> <span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	vector<span class="token operator">&lt;</span>Person<span class="token operator">&gt;</span> v<span class="token punctuation">;</span>
+	Person <span class="token function">p1</span><span class="token punctuation">(</span>“<span class="token number">1</span>”<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	Person <span class="token function">p2</span><span class="token punctuation">(</span>“<span class="token number">2</span>”<span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	v<span class="token punctuation">.</span><span class="token function">push_back</span><span class="token punctuation">(</span>p1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	v<span class="token punctuation">.</span><span class="token function">push_back</span><span class="token punctuation">(</span>p2<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token function">for_each</span><span class="token punctuation">(</span>v<span class="token punctuation">.</span><span class="token function">begin</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> v<span class="token punctuation">.</span><span class="token function">end</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token function">mem_fun_ref</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>Person<span class="token operator">::</span>showPerson<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<p><strong>以上就是STL中适配器的简单介绍，初次学习，请多关照！！！</strong></p>
+</div>
+</body>
+
+</html>

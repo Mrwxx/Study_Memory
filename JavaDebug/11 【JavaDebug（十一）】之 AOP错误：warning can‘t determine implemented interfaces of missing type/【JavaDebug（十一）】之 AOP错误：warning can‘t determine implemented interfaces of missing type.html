@@ -1,0 +1,26 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【JavaDebug（十一）】之 AOP错误：warning can‘t determine implemented interfaces of missing type</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="%09BUG_0"></a>一．	BUG描述</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在使用SpringBoot学习SpringAOP的引入时，在切面导入了注解@DeclareParents，出现了报错信息，如下所示：</p>
+<pre><code class="prism language-cpp">warning can‘t determine implemented interfaces of missing type org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>boot<span class="token punctuation">.</span>autoconfigure<span class="token punctuation">.</span>jdbc<span class="token punctuation">.</span>metadata<span class="token punctuation">.</span>DataSourcePoolMetadataProvidersConfiguration
+</code></pre>
+<br>
+<h2><a id="%09BUG_9"></a>二．	BUG解决</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;注解@DeclareParents中的属性value的值为需要增强的类的全限定名，我填写的内容如下所示：</p>
+<pre><code class="prism language-cpp">@<span class="token function">DeclareParents</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"com.springboot.chapter4.aspect.service.impl.UserServiceImpl+"</span><span class="token punctuation">,</span>
+                defaultImpl <span class="token operator">=</span> UserValidatorImpl<span class="token punctuation">.</span><span class="token keyword">class</span> <span class="token punctuation">)</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;可以看到，全限定名后面有一个+号，可能是不同版本的Spring要求不同，当我将+号去掉时，就不会报错了。</p>
+</div>
+</body>
+
+</html>

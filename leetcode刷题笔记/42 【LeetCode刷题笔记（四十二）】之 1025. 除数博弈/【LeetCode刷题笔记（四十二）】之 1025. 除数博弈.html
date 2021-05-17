@@ -1,0 +1,63 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【LeetCode刷题笔记（四十二）】之 1025. 除数博弈</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一.	题目</h2>
+<h3><a id="%09_8"></a>（一）	题干</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 爱丽丝和鲍勃一起玩游戏，他们轮流行动。爱丽丝先手开局。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 最初，黑板上有一个数字 N 。在每个玩家的回合，玩家需要执行以下操作：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 选出任一 x，满足 0 &lt; x &lt; N 且 N % x == 0,&nbsp;  &nbsp;  &nbsp;  &nbsp; 用 N - x 替换黑板上的数字 N 。如果玩家无法执行这些操作，就会输掉游戏。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 只有在爱丽丝在游戏中取得胜利时才返回 True，否则返回 False。假设两个玩家都以最佳状态参与游戏。<br>
+<br></p>
+<h3><a id="%09_20"></a>（二）	示例</h3>
+<p>示例 1：</p>
+<pre><code class="prism language-cpp">输入：<span class="token number">2</span>
+输出：<span class="token boolean">true</span>
+解释：爱丽丝选择 <span class="token number">1</span>，鲍勃无法进行操作。
+</code></pre>
+<p>示例 2：</p>
+<pre><code class="prism language-cpp">输入：<span class="token number">3</span>
+输出：<span class="token boolean">false</span>
+解释：爱丽丝选择 <span class="token number">1</span>，鲍勃也选择 <span class="token number">1</span>，然后爱丽丝无法进行操作。
+</code></pre>
+<br>
+<h2><a id="_42"></a>二．题解</h2>
+<h3><a id="_43"></a>（一）思路</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 初看题目，这是啥玩意，简直是阅读理解题目。细细思考，这又是一个动态规划的问题，从小值开始不断地增长，记录从N=1开始，先手是否会成功。因为，不论Alice开始先手的N是多少，Bob得到的数一定是小于N的，那么通过判断Bob得到的数所对应先手成功与否，就能够直接判断出Alice是否会成功。如果Bob得到的数先手一定会失败，那么Alice一定会成功。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;对于这种博弈问题，一定要从简单的情况开始推理，多推理几次，找出规律来！！！</p>
+<br>
+<h3><a id="%09_51"></a>（二）	代码实现</h3>
+<p>Java：</p>
+<pre><code class="prism language-java"><span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">divisorGame</span><span class="token punctuation">(</span><span class="token keyword">int</span> N<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">boolean</span><span class="token punctuation">[</span><span class="token punctuation">]</span> flag <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">boolean</span><span class="token punctuation">[</span>N<span class="token operator">+</span><span class="token number">5</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        flag<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+        flag<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">3</span><span class="token punctuation">;</span> i <span class="token operator">&lt;=</span> N<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> j <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span> j <span class="token operator">&lt;</span> i<span class="token punctuation">;</span> <span class="token operator">++</span>j<span class="token punctuation">)</span><span class="token punctuation">{</span>
+                <span class="token keyword">if</span><span class="token punctuation">(</span>i <span class="token operator">%</span> j <span class="token operator">==</span> <span class="token number">0</span> <span class="token operator">&amp;&amp;</span> <span class="token operator">!</span>flag<span class="token punctuation">[</span>i<span class="token operator">-</span>j<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                    flag<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+                    <span class="token keyword">break</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> flag<span class="token punctuation">[</span>N<span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

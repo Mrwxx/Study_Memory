@@ -1,0 +1,26 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【JavaDebug（十）】之SpringBoot2导入Feign时找不到注解@EnableFeignClients</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="%09BUG_0"></a>一．	BUG描述</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;使用SpringBoot 2.1.4 开发 Spring Cloud项目，导入Feign依赖后，发现找不到注解@EnableFeignClients。<br>
+<br></p>
+<h2><a id="%09_4"></a>二．	问题解决</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;由于Spring Cloud中Feign的包从org.springframework.cloud:spring-cloud-netflix-core转移到了org.springframework.cloud:spring-clloud-openfeign-core之中，可能我们所导入的feign依赖是之前的版本，即spring-cloud-netflix-core，我们需要手动设置feign的版本到2.1.1.RELEASE。</p>
+<pre><code class="prism language-cpp"><span class="token operator">&lt;</span>dependency<span class="token operator">&gt;</span>
+    <span class="token operator">&lt;</span>groupId<span class="token operator">&gt;</span>org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>cloud<span class="token operator">&lt;</span><span class="token operator">/</span>groupId<span class="token operator">&gt;</span>
+    <span class="token operator">&lt;</span>artifactId<span class="token operator">&gt;</span>spring<span class="token operator">-</span>cloud<span class="token operator">-</span>starter<span class="token operator">-</span>openfeign<span class="token operator">&lt;</span><span class="token operator">/</span>artifactId<span class="token operator">&gt;</span>
+    <span class="token operator">&lt;</span>version<span class="token operator">&gt;</span><span class="token number">2.1</span><span class="token number">.1</span><span class="token punctuation">.</span>RELEASE<span class="token operator">&lt;</span><span class="token operator">/</span>version<span class="token operator">&gt;</span>
+<span class="token operator">&lt;</span><span class="token operator">/</span>dependency<span class="token operator">&gt;</span>
+</code></pre>
+</div>
+</body>
+
+</html>

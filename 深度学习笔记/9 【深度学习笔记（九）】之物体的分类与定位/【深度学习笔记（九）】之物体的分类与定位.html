@@ -1,0 +1,87 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【深度学习笔记（九）】之物体的分类与定位</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="_8"></a>一．分类与定位</h2>
+<h3><a id="_9"></a>（一）定义</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;我们不光要对物体进行分类，还要对物体在图片中的位置进行定位。</p>
+<br>
+<h3><a id="_14"></a>（二）分类任务</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;输入图片，输出分类的标签，评估的标准是分类的准确性。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如下图所示：输入一张图片，输出标签为CAT。</p>
+<p><img src="https://img-blog.csdnimg.cn/20200729094818731.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01yd3h4eHg=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h3><a id="_21"></a>（三）定位任务</h3>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;输入图片，输出一个图片中的一个方框，该方框用向量（x,y,w,h）表示。X是左上角x轴坐标，y是左上角y轴坐标，w是方框的宽度，h是方框的高度。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;评估的标准是：正确方框位置和输出的方框位置的重合程度。<strong>重合程度</strong>越高，那么定位越准确。</p>
+<p><img src="https://img-blog.csdnimg.cn/2020072909482899.png" alt="在这里插入图片描述"><br>
+<br></p>
+<h2><a id="_29"></a>二．定位过程</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在机器学习中，我们学习了回归的概念，通过计算输出值和正确值的差距损失值，反向传播修改参数，直到损失值越来越小，输出值与正确值差距减小，满足我们的需求。</p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;定位的过程也是类似的，通过卷积神经网络计算出方框的位置，计算和正确方框位置的损失值，方向传播修改参数，使损失值越来越小，输出的方框和正确方框越来越接近。</strong><br>
+<img src="https://img-blog.csdnimg.cn/20200729094837754.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01yd3h4eHg=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<br>
+<h2><a id="_37"></a>三．分类和定位过程</h2>
+<h3><a id="_39"></a>（一）总体过程</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;输入图片，通过卷积神经网络提取特征，在得出的最后一层的卷积特征图后，<strong>设置两种全连接层任务，一种是分类任务，另一种是回归任务。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;分类全连接神经网络：正常的全连接分类神经网络，将图片的类别标出来。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;回归全连接神经网络：通过回归得出最优的方框位置。</p>
+<p><img src="https://img-blog.csdnimg.cn/20200729094846305.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01yd3h4eHg=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+ <br>
+<h3><a id="_51"></a>（二）具体步骤</h3>
+<ol>
+<li>训练一个分类模型或者微调一个分类模型（AlexNet，VGGNet）</li>
+</ol>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;所谓<strong>微调</strong>一个分类模型指的是将已经很成熟的模型调一下基本参数，已适用于本次分类任务。这样，避免了自己训练一个模型的成本。<br>
+<br></p>
+<ol start="2">
+<li>
+<p>给网络添加一个新的全连接层用于回归方框的位置参数。<br>
+<br></p>
+</li>
+<li>
+<p>用随机梯度下降（SGD）和欧氏距离损失（L2 LOSS）来训练回归层。<br>
+<br></p>
+</li>
+<li>
+<p>同时测试分类和回归。<br>
+<br></p>
+</li>
+</ol>
+<h3><a id="_69"></a>（三）回归层应该添加在哪里呢？</h3>
+<br>
+<ol>
+<li>
+<p>添加在最后一层卷积之后。如Overfeat，VGG<br>
+<br></p>
+</li>
+<li>
+<p>添加在最后的全连接层之后。如DeepPose, R-CNN<br>
+<img src="https://img-blog.csdnimg.cn/202007290948577.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01yd3h4eHg=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+</li>
+</ol>
+<h2><a id="_79"></a>四．滑动窗口</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>滑动窗口就是为了在输入图片中找出猫，通过在输入图片中滑动设置好的窗口，得出每个窗口中分类为猫的概率值。找出概率值最高的窗口区域，作为定位的区域。</strong></p>
+<p>如下所示：<br>
+<img src="https://img-blog.csdnimg.cn/20200729094913357.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01yd3h4eHg=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;上图中左图为滑动窗口，右图为输入图像，在图像中滑动四次，得出的最大概率值区域用于定位回归。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;下图为滑动后得到的概率值，取最大的0.8区域作为定位区域。<br>
+<img src="https://img-blog.csdnimg.cn/20200729094924376.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01yd3h4eHg=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>
+<br></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;那么现在问题出现了，滑动窗口的尺寸不可能总是和图片中猫的尺寸相适应，可能有的图片中猫的尺寸非常小，那么滑动窗口的尺寸相对于该图片中的猫的尺寸非常大，那么就很难检测出猫，计算出概率值。</p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;因此，不同的图片需要不同的预处理 ，通过调整输入图片的尺寸，猫的尺寸也得以调整，以适应滑动窗口的尺寸，便于物体的检测。</strong></p>
+</div>
+</body>
+
+</html>

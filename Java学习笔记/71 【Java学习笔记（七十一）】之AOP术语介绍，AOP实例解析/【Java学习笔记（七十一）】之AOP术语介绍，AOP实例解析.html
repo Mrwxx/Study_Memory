@@ -1,0 +1,231 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Java学习笔记（七十一）】之AOP术语介绍，AOP实例解析</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09AOP_7"></a>一．	AOP</h2>
+<h3><a id="%09AOP_8"></a>（一）	为什么使用AOP</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;SpringAOP是一种约定流程的编程，它可以将大量重复的流程通过约定的方式抽取出来，然后给予默认的实现，这样我们只需要完成部分的功能即可，那些恼人的重复流程可以留给SpringAOP完成。<br>
+<br></p>
+<h3><a id="%09AOP_13"></a>（二）	AOP术语</h3>
+<h4><a id="1%09join_point_14"></a>1.	连接点（join point）</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;指的是具体被拦截的对象，因为Spring只能支持方法，所以被拦截的对象就是指特定的方法。<br>
+<br></p>
+<h4><a id="2%09cut_point_20"></a>2.	切点（cut point）</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;有时不仅仅只有一个连接点，也可能是多个类的不同方法，我们可以通过正则表达式和指示器的规则来适配连接点，切点就是这种适配规则。<br>
+<br></p>
+<h4><a id="3%09advice_26"></a>3.	通知（advice）</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;按照约定的流程中的方法，分为前置通知（before advice）,后置通知（after advice），环绕通知（around advice），事后返回通知（afterReturning advice），异常通知（afterThrowing advice）。<br>
+<br></p>
+<h4><a id="4%09target_32"></a>4.	目标对象（target）</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;被代理的对象。<br>
+<br></p>
+<h4><a id="5%09introduction_38"></a>5.	引入（introduction）</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;引入新的类和其方法，增强现有的类。<br>
+<br></p>
+<h4><a id="6%09waving_44"></a>6.	织入（waving）</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通过动态代理技术，为原有的服务对象生成代理对象，然后将于切点定义匹配的连接点拦截，并按照约定将各类通知织入约定流程的过程。<br>
+<br></p>
+<h4><a id="7%09aspect_50"></a>7.	切面（aspect）</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;一个可以定义切点，各类通知和引入的内容，SpringAOP将通过他来增强Bean的功能或者将对应的方法织入流程。</p>
+<br>
+<h2><a id="%09AOP_57"></a>二．	AOP实例解析</h2>
+<h3><a id="%09_58"></a>（一）	环境介绍</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;这里，我们使用Spring Boot进行AOP实例测试。pom.xml如下所示：</p>
+<pre><code class="prism language-xml"><span class="token prolog">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>project</span> <span class="token attr-name">xmlns</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>http://maven.apache.org/POM/4.0.0<span class="token punctuation">"</span></span>
+         <span class="token attr-name"><span class="token namespace">xmlns:</span>xsi</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>http://www.w3.org/2001/XMLSchema-instance<span class="token punctuation">"</span></span>
+         <span class="token attr-name"><span class="token namespace">xsi:</span>schemaLocation</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>modelVersion</span><span class="token punctuation">&gt;</span></span>4.0.0<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>modelVersion</span><span class="token punctuation">&gt;</span></span>
+
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">&gt;</span></span>com.spb<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">&gt;</span></span>springbootTest2<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">&gt;</span></span>1.0-SNAPSHOT<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">&gt;</span></span>
+
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>parent</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">&gt;</span></span>spring-boot-starter-parent<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">&gt;</span></span>org.springframework.boot<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">&gt;</span></span>2.1.4.RELEASE<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>parent</span><span class="token punctuation">&gt;</span></span>
+
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependencies</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">&gt;</span></span>org.springframework.boot<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">&gt;</span></span>spring-boot-starter-web<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">&gt;</span></span>org.springframework.boot<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">&gt;</span></span>spring-boot-starter-aop<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">&gt;</span></span>org.aspectj<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">&gt;</span></span>aspectjweaver<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">&gt;</span></span>1.9.3<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependencies</span><span class="token punctuation">&gt;</span></span>
+
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>project</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<h3><a id="%09_101"></a>（二）	确定连接点</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;连接点就是我们需要拦截的方法，可能是需要增强功能，可能是需要在该方法执行前后添加一些输出字段，也可能是要在该方法出现异常时做出特定的操作。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;这里，我们设置一个UserService接口，一个UserServiceImpl实现类，PrintUser方法就是连接点。</p>
+<h4><a id="UserService_106"></a>UserService接口：</h4>
+<pre><code class="prism language-java"><span class="token keyword">package</span> com<span class="token punctuation">.</span>springboot<span class="token punctuation">.</span>chapter4<span class="token punctuation">.</span>aspect<span class="token punctuation">.</span>service<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> com<span class="token punctuation">.</span>springboot<span class="token punctuation">.</span>chapter4<span class="token punctuation">.</span>aspect<span class="token punctuation">.</span>pojo<span class="token punctuation">.</span>User<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">UserService</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">PrintUser</span><span class="token punctuation">(</span>User user<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h4><a id="UserServiceImpl_118"></a>UserServiceImpl实现类：</h4>
+<pre><code class="prism language-java"><span class="token keyword">package</span> com<span class="token punctuation">.</span>springboot<span class="token punctuation">.</span>chapter4<span class="token punctuation">.</span>aspect<span class="token punctuation">.</span>service<span class="token punctuation">.</span>impl<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> com<span class="token punctuation">.</span>springboot<span class="token punctuation">.</span>chapter4<span class="token punctuation">.</span>aspect<span class="token punctuation">.</span>pojo<span class="token punctuation">.</span>User<span class="token punctuation">;</span>
+<span class="token keyword">import</span> com<span class="token punctuation">.</span>springboot<span class="token punctuation">.</span>chapter4<span class="token punctuation">.</span>aspect<span class="token punctuation">.</span>service<span class="token punctuation">.</span>UserService<span class="token punctuation">;</span>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>stereotype<span class="token punctuation">.</span>Service<span class="token punctuation">;</span>
+
+<span class="token annotation punctuation">@Service</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserServiceImpl</span> <span class="token keyword">implements</span> <span class="token class-name">UserService</span> <span class="token punctuation">{</span>
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">PrintUser</span><span class="token punctuation">(</span>User user<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>user <span class="token operator">==</span> null<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">RuntimeException</span><span class="token punctuation">(</span><span class="token string">"检查用户参数是否为空..."</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"id= "</span> <span class="token operator">+</span> user<span class="token punctuation">.</span><span class="token function">getId</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"\tusername = "</span> <span class="token operator">+</span> user<span class="token punctuation">.</span><span class="token function">getUsername</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"\tpassword = "</span> <span class="token operator">+</span> user<span class="token punctuation">.</span><span class="token function">getPassword</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h3><a id="%09_144"></a>（三）	创建切面</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;创建一个切面类，在切面中定义AOP的切点，通知，引入。注意，这里的注解@Aspect需要引入spring-boot-starter-aop的启动依赖，声明这是一个切面！！！<br>
+<br></p>
+<h4><a id="1%09_150"></a>1.	定义切点</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;切点是一个匹配连接点的规则，使用的是正则表达式。切点也是一个方法，但是需要添加注解@Pointcut()，括号中是匹配规则，匹配的规则如下所示：</p>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@Pointcut</span><span class="token punctuation">(</span><span class="token string">"execution(* com.springboot.chapter4.aspect.service.UserService.PrintUser(..))"</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">pointCut</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span><span class="token punctuation">}</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（1）	execution： 表示在执行的时候，拦截里面的正则匹配的方法</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（2）	*： execution的括号内就是一个类似函数签名的样式，*在函数返回值的位置表示返回任意类型。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（3）	*后面跟着的是连接点的全限定名</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（4）	（…），表示着任意参数进行匹配</p>
+<br>
+<h4><a id="2%09_170"></a>2.	定义通知</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;不同的通知有不同的注解标识，@Before, @After, @AfterReturning, @AfterThrowing， 注解中可以引用上面定义的切点函数，表示使用该切点的规则匹配连接点，如下所示：</p>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@Before</span><span class="token punctuation">(</span><span class="token string">"pointCut()"</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">before</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"before"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token annotation punctuation">@Around</span><span class="token punctuation">(</span><span class="token string">"pointCut()"</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">around</span><span class="token punctuation">(</span>ProceedingJoinPoint jp<span class="token punctuation">)</span> <span class="token keyword">throws</span> Throwable <span class="token punctuation">{</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"around before..."</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">//回调目标对象的原有方法</span>
+    jp<span class="token punctuation">.</span><span class="token function">proceed</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"around after..."</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token annotation punctuation">@After</span><span class="token punctuation">(</span><span class="token string">"pointCut()"</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">after</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"after"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token annotation punctuation">@AfterReturning</span><span class="token punctuation">(</span><span class="token string">"pointCut()"</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">afterReturning</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"afterReturning"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token annotation punctuation">@AfterThrowing</span><span class="token punctuation">(</span><span class="token string">"pointCut()"</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">afterrThrowing</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"afterThrowing"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h4><a id="3%09_206"></a>3.	环绕通知</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;环绕通知很强大，使用的场景是在需要大幅度地修改原有目标对象的服务逻辑时，它会取代原有目标对象方法，或者回调原有目标对象方法。它很强大，也很不稳定，能不用就不用。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在使用时与其他的通知一样，都需要设置在切面类中，不过它有一个ProceedingJoinPoint类型的参数，这个参数的对象有一个proceed方法，通过这个方法可以回调原有目标对象的方法。如下所示：</p>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@Around</span><span class="token punctuation">(</span><span class="token string">"pointCut()"</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">around</span><span class="token punctuation">(</span>ProceedingJoinPoint jp<span class="token punctuation">)</span> <span class="token keyword">throws</span> Throwable <span class="token punctuation">{</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"around before..."</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">//回调目标对象的原有方法</span>
+    jp<span class="token punctuation">.</span><span class="token function">proceed</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"around after..."</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h4><a id="4%09_224"></a>4.	引入</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;我们可以引入其他的接口来增强现有接口的功能，如通过检测用户信息是否为空，如果为空，则不需要打印操作，也就不会有异常发生。因此，我们新建一个验证接口和实现类，用于增强现有的UserServiceImpl类。这个引入操作需要定义在切面类中，使用注解@DeclareParents()，该注解有两个必填的属性value和defaultImpl。value表示要增强功能的目标对象的全限定名；defaultImpl表示用于增强功能的类。在使用该增强的类时，可以直接将原有的UserService类强制转换为增强的接口UserValidator，调用该接口中的增强方法。如下所示：</p>
+<h5><a id="UserValidator_227"></a>验证接口UserValidator:</h5>
+<pre><code class="prism language-java"><span class="token keyword">package</span> com<span class="token punctuation">.</span>springboot<span class="token punctuation">.</span>chapter4<span class="token punctuation">.</span>aspect<span class="token punctuation">.</span>validator<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> com<span class="token punctuation">.</span>springboot<span class="token punctuation">.</span>chapter4<span class="token punctuation">.</span>aspect<span class="token punctuation">.</span>pojo<span class="token punctuation">.</span>User<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">UserValidator</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">validate</span><span class="token punctuation">(</span>User user<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h5><a id="UserValidatorImpl_242"></a>验证接口实现类UserValidatorImpl:</h5>
+<pre><code class="prism language-java"><span class="token keyword">package</span> com<span class="token punctuation">.</span>springboot<span class="token punctuation">.</span>chapter4<span class="token punctuation">.</span>aspect<span class="token punctuation">.</span>validator<span class="token punctuation">.</span>impl<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> com<span class="token punctuation">.</span>springboot<span class="token punctuation">.</span>chapter4<span class="token punctuation">.</span>aspect<span class="token punctuation">.</span>pojo<span class="token punctuation">.</span>User<span class="token punctuation">;</span>
+<span class="token keyword">import</span> com<span class="token punctuation">.</span>springboot<span class="token punctuation">.</span>chapter4<span class="token punctuation">.</span>aspect<span class="token punctuation">.</span>validator<span class="token punctuation">.</span>UserValidator<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserValidatorImpl</span> <span class="token keyword">implements</span> <span class="token class-name">UserValidator</span> <span class="token punctuation">{</span>
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">validate</span><span class="token punctuation">(</span>User user<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"引入新的接口： "</span> <span class="token operator">+</span> UserValidator<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">.</span><span class="token function">getSimpleName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> user <span class="token operator">!=</span> null<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h5><a id="_262"></a>切面中引入的定义：</h5>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@DeclareParents</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"com.springboot.chapter4.aspect.service.impl.UserServiceImpl"</span><span class="token punctuation">,</span>
+                defaultImpl <span class="token operator">=</span> UserValidatorImpl<span class="token punctuation">.</span><span class="token keyword">class</span> <span class="token punctuation">)</span>
+<span class="token keyword">public</span> UserValidator userValidator<span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h5><a id="_273"></a>测试引入的验证器：</h5>
+<pre><code class="prism language-java"><span class="token comment">//强制转换</span>
+UserValidator userValidator <span class="token operator">=</span> <span class="token punctuation">(</span>UserValidator<span class="token punctuation">)</span>userService<span class="token punctuation">;</span>
+<span class="token comment">//验证用户是否为空</span>
+<span class="token keyword">if</span><span class="token punctuation">(</span>userValidator<span class="token punctuation">.</span><span class="token function">validate</span><span class="token punctuation">(</span>user<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    userService<span class="token punctuation">.</span><span class="token function">PrintUser</span><span class="token punctuation">(</span>user<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h4><a id="5%09_287"></a>5.	引入的原理</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;JDK动态代理下会挂着两个接口，一个是原目标对象UserService，一个是引入的类UserValidator，我们可以将代理对象通过这两个接口相互转换，然后调度其对应的方法。<br>
+<br></p>
+<h4><a id="6%09_293"></a>6.	通知获取参数</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;我们可以在通知中传递参数，只需要在切点处添加对应的正则式即可，对于非环绕通知，还可以使用一个连接点（JoinPoint）类型的参数，通过它也可以获取参数。如下所示：</p>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@Befor</span><span class="token punctuation">(</span>“<span class="token function">pointCut</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span> <span class="token function">args</span><span class="token punctuation">(</span>user<span class="token punctuation">)</span>”<span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">beforeParam</span><span class="token punctuation">(</span>JoinPoint point<span class="token punctuation">,</span> User user<span class="token punctuation">)</span><span class="token punctuation">{</span>
+		Object<span class="token punctuation">[</span><span class="token punctuation">]</span> args <span class="token operator">=</span> point<span class="token punctuation">.</span><span class="token function">getArgs</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>“before…”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;JoinPoint类型的参数对于非环绕通知而言，Spring AOP会自动将它传递到通知中。</p>
+<br>
+<h4><a id="7%09_309"></a>7.	织入</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Spring 推崇使用接口 + 实现类的方式进行织入，事实上，也可以只使用类的方式进行织入。动态代理有多种实现方式，我们使用的一般是JDK，它要求被代理的目标对象必须有接口，而对于CGLIB而言，是不需要接口的。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在默认的情况下，当你的代理对象有接口时，它会以JDK动态代理的方式运行，否则以CGLIB运行。</p>
+</div>
+</body>
+
+</html>

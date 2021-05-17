@@ -1,0 +1,175 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【C++学习笔记（五十四）】之Qt中的对话框QDialog介绍</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="QDialog_7"></a>一．对话框QDialog</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;之前有说到，QDialog类负责对话框部件，继承于QWidget类。对话框一般用于实现用户交互，弹出一个顶层窗口。很多不适合放在主窗口的功能都可以放在对话框中。</p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;QDialog类及其子类对于parent指针有特别的设置：如果parent为NULL，那么该对话框独立作为一个顶层窗口；若parent不为NULL，则该对话框作为其父组件的子对话框，而非顶层窗口。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;顶层窗口与非顶层窗口的区别在于，顶层窗口在任务栏会有自己的位置，而非顶层窗口则会共享其父组件的位置。<br>
+<br></p>
+<h2><a id="_17"></a>二．对话框分为模态对话框和非模态对话框：</h2>
+<h3><a id="_19"></a>(一)模态对话框</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;阻塞同一程序的其他窗口操作，仅限于同一程序的界面位置。<br>
+<br></p>
+<h4><a id="1_23"></a>1.应用程序级别的模态</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>当该种模态的对话框出现时，用户必须首先对对话框进行交互，直到关闭对话框，然后才能访问程序中其他的窗口。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;QDialog::exec()实现应用程序级别的模态对话框<br>
+<br></p>
+<h4><a id="2_29"></a>2.窗口级别的模态</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>该模态仅仅阻塞与对话框关联的窗口，但是依然允许用户与程序中其它窗口交互</strong>。窗口级别的模态尤其适用于多窗口模式。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;QDialog::open()实现窗口级别的模态对话框<br>
+<br></p>
+<h3><a id="_35"></a>（二）非模态对话框</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>可以同时操作同一程序的其他窗口。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;使用QDialog::show()实现非模态对话框<br>
+<br></p>
+<pre><code class="prism language-cpp">QDialog <span class="token function">dialog</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+dialog<span class="token punctuation">.</span><span class="token function">setWindowTitle</span><span class="token punctuation">(</span><span class="token function">tr</span><span class="token punctuation">(</span><span class="token string">"Hello, dialog!"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+dialog<span class="token punctuation">.</span><span class="token function">show</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<p><strong>注意</strong>：使用show()时，对话框有时会闪现，然后就消失了。<strong>这是因为当dialog建立在栈上时，show()函数返回，MainWindow::open()函数结束，则dialog超出作用域被析构了，因此对话框消失了。</strong></p>
+<p><strong>解决</strong>：将dialog建立在堆上。<br>
+<br></p>
+<pre><code class="prism language-cpp">QDialog <span class="token operator">*</span>dialog <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token function">QDialog</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;这样做，也有问题，若主窗口不关闭，那么该对话框占用的内存就一直不会释放，怎么处理呢？</p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;设置dialog的属性，当dialog对话框关闭时，自动销毁对话框。</strong><br>
+<br></p>
+<pre><code class="prism language-cpp">QDialog <span class="token operator">*</span>dialog <span class="token operator">=</span> <span class="token keyword">new</span> QDialog<span class="token punctuation">;</span>
+dialog<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">setAttribute</span><span class="token punctuation">(</span>Qt<span class="token operator">::</span>WA_DeleteOnClose<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h2><a id="_70"></a>三．标准对话框</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>Qt中内置了很多标准的对话框</strong>，因为开发中，有很多功能都是软件通用的，所以不需要单独开发，直接使用就可以了。</p>
+<p><strong>Qt 的内置对话框大致分为以下几类：</strong></p>
+<ol>
+<li>QColorDialog：		选择颜色；</li>
+<li>QFileDialog：			选择文件或者目录；</li>
+<li>QFontDialog：			选择字体；</li>
+<li>QInputDialog：		允许用户输入一个值，并将其值返回；</li>
+<li>QMessageBox：			模态对话框，用于显示信息、询问问题等；</li>
+<li>QPageSetupDialog：	为打印机提供纸张相关的选项；</li>
+<li>QPrintDialog：		打印机配置；</li>
+<li>QPrintPreviewDialog：打印预览；</li>
+<li>QProgressDialog：		显示操作过程。<br>
+<br></li>
+</ol>
+<h2><a id="QMessageBox_86"></a>四．QMessageBox对话框</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;QMessageBox用于显示<strong>消息提示</strong>，是最常用的标准对话框。</p>
+<h3><a id="%09_89"></a>(一)	错误</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;提示错误信息的，参数如下所示：<br>
+<br></p>
+<pre><code class="prism language-cpp">StandardButton <span class="token function">critical</span><span class="token punctuation">(</span>QWidget <span class="token operator">*</span> parent<span class="token punctuation">,</span> 
+<span class="token keyword">const</span> QString <span class="token operator">&amp;</span> title<span class="token punctuation">,</span> 
+<span class="token keyword">const</span> QString <span class="token operator">&amp;</span> text<span class="token punctuation">,</span> 
+StandardButtons buttons <span class="token operator">=</span> Ok<span class="token punctuation">,</span> 
+StandardButton defaultButton <span class="token operator">=</span> NoButton<span class="token punctuation">)</span>：
+</code></pre>
+<br>
+<h3><a id="%09_103"></a>(二)	信息提示</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;弹出信息提示。<br>
+<br></p>
+<pre><code class="prism language-cpp">StandardButton <span class="token function">information</span><span class="token punctuation">(</span>QWidget <span class="token operator">*</span> parent<span class="token punctuation">,</span> 
+<span class="token keyword">const</span> QString <span class="token operator">&amp;</span> title<span class="token punctuation">,</span> 
+<span class="token keyword">const</span> QString <span class="token operator">&amp;</span> text<span class="token punctuation">,</span> 
+StandardButtons buttons <span class="token operator">=</span> Ok<span class="token punctuation">,</span> 
+StandardButton defaultButton <span class="token operator">=</span> NoButton<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h3><a id="_116"></a>（三）询问</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;与用户交互，询问用户如何操作？<br>
+<br></p>
+<pre><code class="prism language-cpp">StandardButton <span class="token function">question</span><span class="token punctuation">(</span>QWidget <span class="token operator">*</span> parent<span class="token punctuation">,</span>
+<span class="token keyword">const</span> QString <span class="token operator">&amp;</span> title<span class="token punctuation">,</span> 
+<span class="token keyword">const</span> QString <span class="token operator">&amp;</span> text<span class="token punctuation">,</span> 
+StandardButtons buttons <span class="token operator">=</span> <span class="token function">StandardButtons</span><span class="token punctuation">(</span> Yes <span class="token operator">|</span> No <span class="token punctuation">)</span><span class="token punctuation">,</span> 
+StandardButton defaultButton <span class="token operator">=</span> NoButton<span class="token punctuation">)</span> 
+</code></pre>
+<br>
+<h3><a id="_129"></a>（四）警告</h3>
+<br>
+<pre><code class="prism language-cpp">StandardButton <span class="token function">warning</span><span class="token punctuation">(</span>QWidget <span class="token operator">*</span> parent<span class="token punctuation">,</span> 
+<span class="token keyword">const</span> QString <span class="token operator">&amp;</span> title<span class="token punctuation">,</span> 
+<span class="token keyword">const</span> QString <span class="token operator">&amp;</span> text<span class="token punctuation">,</span> 
+StandardButtons buttons <span class="token operator">=</span> Ok<span class="token punctuation">,</span> 
+StandardButton defaultButton <span class="token operator">=</span> NoButton<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h2><a id="_142"></a>五．代码</h2>
+<br>
+<pre><code class="prism language-cpp"><span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">"mainwindow.h"</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">"ui_mainwindow.h"</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;QDebug&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;QDialog&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;QMessageBox&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;QColorDialog&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;QFileDialog&gt;</span></span>
+
+MainWindow<span class="token operator">::</span><span class="token function">MainWindow</span><span class="token punctuation">(</span>QWidget <span class="token operator">*</span>parent<span class="token punctuation">)</span>
+    <span class="token operator">:</span> <span class="token function">QMainWindow</span><span class="token punctuation">(</span>parent<span class="token punctuation">)</span>
+    <span class="token punctuation">,</span> <span class="token function">ui</span><span class="token punctuation">(</span><span class="token keyword">new</span> Ui<span class="token operator">::</span>MainWindow<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    ui<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">setupUi</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">//点击新建菜单项，弹出对话框</span>
+    <span class="token function">connect</span><span class="token punctuation">(</span>ui<span class="token operator">-</span><span class="token operator">&gt;</span>actionnew<span class="token punctuation">,</span> <span class="token operator">&amp;</span>QAction<span class="token operator">::</span>triggered<span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token operator">=</span><span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token function">qDebug</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">&lt;&lt;</span> <span class="token string">"弹出对话框！"</span><span class="token punctuation">;</span>
+<span class="token comment">//        //对话框：模态对话框（不可操作其他窗口）非模态对话框（可操作其他窗口）</span>
+<span class="token comment">//        QDialog dlg;</span>
+<span class="token comment">//        dlg.resize(200, 100);</span>
+<span class="token comment">//        //模态对话框</span>
+<span class="token comment">//        dlg.exec(); //阻塞后面的操作</span>
+
+<span class="token comment">//        //非模态对话框</span>
+<span class="token comment">//        //QDialog dlg2;       //创建在栈上，一闪而过</span>
+<span class="token comment">//        QDialog *dlg2 = new QDialog(this);</span>
+<span class="token comment">//        dlg2-&gt;resize(200,100);</span>
+<span class="token comment">//        dlg2-&gt;show();</span>
+
+        <span class="token comment">//使用标准对话框   QMessageBox</span>
+        <span class="token comment">//错误</span>
+        <span class="token comment">//QMessageBox::critical(this, "错误！","critical");</span>
+        <span class="token comment">//信息提示</span>
+        <span class="token comment">//QMessageBox::information(this, "信息！","message");</span>
+        <span class="token comment">//询问</span>
+<span class="token comment">//        if(QMessageBox::Save == QMessageBox::question(this,"询问","保存吗？", QMessageBox::Save | QMessageBox::Cancel))</span>
+<span class="token comment">//        {</span>
+<span class="token comment">//                qDebug() &lt;&lt; "点击的是保存";</span>
+<span class="token comment">//    }</span>
+<span class="token comment">//        else</span>
+<span class="token comment">//        {</span>
+<span class="token comment">//            qDebug() &lt;&lt; "点击的是取消";</span>
+<span class="token comment">//        }</span>
+
+        <span class="token comment">//颜色对话框</span>
+        QColor color <span class="token operator">=</span>  QColorDialog<span class="token operator">::</span><span class="token function">getColor</span><span class="token punctuation">(</span><span class="token function">QColor</span><span class="token punctuation">(</span><span class="token number">255</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">qDebug</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">&lt;&lt;</span> color<span class="token punctuation">.</span><span class="token function">red</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">&lt;&lt;</span> color<span class="token punctuation">.</span><span class="token function">green</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">&lt;&lt;</span> color<span class="token punctuation">.</span><span class="token function">blue</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        
+        <span class="token comment">//文件对话框</span>
+        QFileDialog<span class="token operator">::</span><span class="token function">getOpenFileName</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">,</span> <span class="token string">"打开文件"</span><span class="token punctuation">,</span><span class="token string">"./"</span><span class="token punctuation">,</span> <span class="token string">"*.txt"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+MainWindow<span class="token operator">::</span><span class="token operator">~</span><span class="token function">MainWindow</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token keyword">delete</span> ui<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

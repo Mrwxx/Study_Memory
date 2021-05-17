@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【LeetCode刷题笔记（七十一）】之1370.上升下降的字符串</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	题目</h2>
+<h3><a id="%09_9"></a>（一）	题干</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;给你一个字符串 s ，请你根据下面的算法重新构造字符串：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;从 s 中选出 最小 的字符，将它 接在 结果字符串的后面。<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;从 s 剩余字符中选出 最小 的字符，且该字符比上一个添加的字符大，将它 接在 结果字符串后面。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;重复步骤 2 ，直到你没法从 s 中选择字符。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;从 s 中选出 最大 的字符，将它 接在 结果字符串的后面。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;从 s 剩余字符中选出 最大 的字符，且该字符比上一个添加的字符小，将它 接在 结果字符串后面。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;重复步骤 5 ，直到你没法从 s 中选择字符。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;重复步骤 1 到 6 ，直到 s 中所有字符都已经被选过。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在任何一步中，如果最小或者最大字符不止一个 ，你可以选择其中任意一个，并将其添加到结果字符串。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;请你返回将 s 中字符重新排序后的 结果字符串 。</p>
+ <br>
+<h3><a id="%09_33"></a>（二）	示例</h3>
+<pre><code class="prism language-cpp">输入：s <span class="token operator">=</span> <span class="token string">"aaaabbbbcccc"</span>
+输出：<span class="token string">"abccbaabccba"</span>
+解释：第一轮的步骤 <span class="token number">1</span>，<span class="token number">2</span>，<span class="token number">3</span> 后，结果字符串为 result <span class="token operator">=</span> <span class="token string">"abc"</span>
+第一轮的步骤 <span class="token number">4</span>，<span class="token number">5</span>，<span class="token number">6</span> 后，结果字符串为 result <span class="token operator">=</span> <span class="token string">"abccba"</span>
+第一轮结束，现在 s <span class="token operator">=</span> <span class="token string">"aabbcc"</span> ，我们再次回到步骤 <span class="token number">1</span>
+第二轮的步骤 <span class="token number">1</span>，<span class="token number">2</span>，<span class="token number">3</span> 后，结果字符串为 result <span class="token operator">=</span> <span class="token string">"abccbaabc"</span>
+第二轮的步骤 <span class="token number">4</span>，<span class="token number">5</span>，<span class="token number">6</span> 后，结果字符串为 result <span class="token operator">=</span> <span class="token string">"abccbaabccba"</span>
+</code></pre>
+ <br>
+<h2><a id="%09_48"></a>二．	题解</h2>
+<h3><a id="%09_49"></a>（一）	思路</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;很显然，首先按照字典序升序取字符，然后按照字典序的降序取字符，每次取完字符都需要将该字符的计数值减一。由于，所有的字符共26个，我们需要计数每个字符出现的次数，因此创建一个容量为26的数组来计数，然后，每次迭代中有两个循环，一个循环是按照字典序的升序取字符，因此直接从数组的下标0开始迭代到25即表示字典序的升序；反之，表示字典序的逆序。<br>
+<br></p>
+<h3><a id="%09_55"></a>（二）	代码</h3>
+<p>Java:</p>
+<pre><code class="prism language-java"><span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> String <span class="token function">sortString</span><span class="token punctuation">(</span>String s<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment">// 桶计数</span>
+        <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> num <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">int</span><span class="token punctuation">[</span><span class="token number">26</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> s<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            num<span class="token punctuation">[</span>s<span class="token punctuation">.</span><span class="token function">charAt</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token operator">-</span><span class="token string">'a'</span><span class="token punctuation">]</span><span class="token operator">++</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token comment">// 由于第一种排序是按照字典序升序排列</span>
+        StringBuilder sb <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">StringBuilder</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">while</span><span class="token punctuation">(</span>sb<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">&lt;</span> s<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token number">26</span><span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span><span class="token punctuation">{</span>
+                <span class="token keyword">if</span><span class="token punctuation">(</span>num<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                    sb<span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token keyword">char</span><span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token string">'a'</span> <span class="token operator">+</span> i<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    num<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token operator">--</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+
+            <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">25</span><span class="token punctuation">;</span> i <span class="token operator">&gt;=</span> <span class="token number">0</span><span class="token punctuation">;</span> i<span class="token operator">--</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                <span class="token keyword">if</span><span class="token punctuation">(</span>num<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                    sb<span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token keyword">char</span><span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token string">'a'</span><span class="token operator">+</span>i<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    num<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token operator">--</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> sb<span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

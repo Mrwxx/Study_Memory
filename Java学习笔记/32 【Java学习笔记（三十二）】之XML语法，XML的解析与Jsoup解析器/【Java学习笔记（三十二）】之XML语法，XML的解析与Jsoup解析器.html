@@ -1,0 +1,289 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Java学习笔记（三十二）】之XML语法，XML的解析与Jsoup解析器</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09XML_7"></a>一．	XML</h2>
+<h3><a id="%09_8"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Extensible Markup Language，可扩展标记语言。所谓的可扩展性指的是XML的标签都是自定义的，不像HTML中标签都是预定义的。<br>
+<br></p>
+<h3><a id="%09_13"></a>（二）	功能</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;XML是用于存储数据的，一般用于配置文件和网络中传输。<br>
+<br></p>
+<h3><a id="%09XMLHTML_19"></a>（三）	XML与HTML的区别</h3>
+<ol>
+<li>
+<p>XML标签是自定义的，HTML标签是预定义的</p>
+</li>
+<li>
+<p>XML的语法严格，HTML的语法松散</p>
+</li>
+<li>
+<p>XML用于存储数据，HTML用于展示页面</p>
+</li>
+</ol>
+<br>
+<h2><a id="%09XML_30"></a>二．	XML的语法</h2>
+<h3><a id="%09_31"></a>（一）	基本语法</h3>
+<ol>
+<li>
+<p>XML文档中有且仅有一个根标签</p>
+</li>
+<li>
+<p>XML文档第一行为XML文档声明</p>
+</li>
+<li>
+<p>XML文档的后缀名为.xml</p>
+</li>
+<li>
+<p>XML文档的标签属性名需用引号引起来</p>
+</li>
+<li>
+<p>XML标签区分大小写<br>
+<br></p>
+</li>
+</ol>
+<h3><a id="%09XML_45"></a>（二）	XML文档的组成</h3>
+<h4><a id="1%09_46"></a>1.	文档声明</h4>
+<h5><a id="1%09_47"></a>（1）	格式</h5>
+<pre><code class="prism language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>?xml</span> <span class="token attr-name">属性列表</span> <span class="token attr-name">？</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<h5><a id="2%09_56"></a>（2）	属性列表</h5>
+<p><strong>version:</strong>  版本号，必写</p>
+<p><strong>encoding:</strong>  编码方式，告知解析引擎当前文档使用的字符集</p>
+<p><strong>standalone:</strong>：是否独立，独立即不依赖其他文件<br>
+<br></p>
+<h4><a id="2%09_66"></a>2.	标签</h4>
+<p>自定义的标签命名规则：<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;（1）	名称不能以数字或者标点符号开始</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（2）	名称可以包含字母，数字以及其他字符</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（3）	名称不能以xml（XML）开始<br>
+<br></p>
+<h4><a id="3%09_77"></a>3.	指令</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;结合CSS控制样式<br>
+<br></p>
+<h4><a id="4%09_83"></a>4.	文本</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;CDATA区：能够将该区域中的数据原样展示出来，如：</p>
+<pre><code class="prism language-html"><span class="token cdata">&lt;![CDATA[数据]]&gt;</span>
+</code></pre>
+<br>
+<h3><a id="%09XML_93"></a>（三）	XML文档的约束</h3>
+<h4><a id="1%09_94"></a>1.	概述</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;XML文档受到约束文档的限制，通过约束文档来规范XML文档的书写规则。将约束文档引入XML文档中。<br>
+<br></p>
+<h4><a id="2%09_100"></a>2.	约束的分类</h4>
+<h5><a id="1%09DTD_101"></a>（1）	DTD</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;dtd文档的简单语法：</p>
+<p>通过Element来定义标签<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;如：定义了一个students标签，该标签中有多个student标签。</p>
+<pre><code class="prism language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>!ELEMENT</span> <span class="token attr-name">students(student*)</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如：定义一个student标签，该标签还有 name，age，sex三个标签，每个标签只能按照顺序出现一次。</p>
+<pre><code class="prism language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>!ELEMENT</span> <span class="token attr-name">student(name,</span> <span class="token attr-name">age,</span> <span class="token attr-name">sex)</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如：定义一个name标签，该标签中存储的是字符串</p>
+<pre><code class="prism language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>!ELEMENT</span> <span class="token attr-name">name(#PCDATA)</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<p>将dtd文档引入到XML文档中，分为两种方式：<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;一种是写在XML文档内部的dtd</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;一种是写在XML文档外部的dtd文档。<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;外部的dtd文档又分为本地文档与网络中的文档：</p>
+<p>本地dtd：<code>&lt;!DOCTYPE 根标签名SYSTEM “dtd文件的位置”&gt;</code></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;根标签名为该dtd文档约束的XML文档中的根标签名，即最外层的标签名</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;SYSTEM代表的是本地的dtd文档<br>
+<br></p>
+<p>网络dtd：<code>&lt;!DOCTYPE 根标签名 PUBLIC “dtd文件名字” “dtd文件的位置URL”&gt;</code></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;同理，PUBLIC 代表着网络中的dtd文件<br>
+<br></p>
+<h5><a id="2%09Schemaxsd_149"></a>（2）	Schema(后缀为xsd)</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;xsd文档能够更加详细地限定XML的标签中的内容，当然也是更加的复杂。本质上xsd文档还是xml文档。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如：定义一个标签元素 students，类型是自定义类型studentsType</p>
+<pre><code class="prism language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">xsd:</span>element</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span>”students”</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span>”studentsType”</span> <span class="token punctuation">/&gt;</span></span>
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如：为students标签定义自定义类型studentsType，该类型中限定按照顺序存储student标签，student标签又限定为自定义studentType类型，最小值为0，最大值未限定。</p>
+<pre><code class="prism language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">xsd:</span>:complexType</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span>”studentsType”</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">xsd:</span>sequence</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">xsd:</span>element</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span>”student”</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span>”studentType”</span> <span class="token attr-name">minOccurs</span><span class="token attr-value"><span class="token punctuation">=</span>”0”</span> <span class="token attr-name">maxOccurs</span><span class="token attr-value"><span class="token punctuation">=</span>”unbounded”</span> <span class="token punctuation">/&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token namespace">xsd:</span>sequence</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token namespace">xsd:</span>complexType</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;接下来，为student定义studentType类型(复杂类型)，按照顺序存储name标签（类型为string），age标签(类型为ageType)，sex标签(类型为sexType)，最后限定一个必选的属性number，类型为自定义numberType。</p>
+<pre><code class="prism language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">xsd:</span>complexType</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span>”studentType”</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">xsd:</span>sequence</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">xsd:</span>element</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span>”name”</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span>”xsd:string”</span> <span class="token punctuation">/&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">xsd:</span>element</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span>”age”</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span>”ageType”</span> <span class="token punctuation">/&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">xsd:</span>element</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span>”sex”</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span>”sexType”</span> <span class="token punctuation">/&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token namespace">xsd:</span>sequence</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token namespace">xsd:</span>attribute</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span>”number”</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span>”numberType”</span> <span class="token attr-name">use</span><span class="token attr-value"><span class="token punctuation">=</span>”required”</span> <span class="token punctuation">/&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token namespace">xsd:</span>complexType</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;以ageType举例，ageType为简单类型，该类型限定基本数据类型为integer，最小值为0，最大值为256.</p>
+<pre><code class="prism language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">xsd:</span>simpleType</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span>”sexType”</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">xsd:</span>restriction</span> <span class="token attr-name">base</span><span class="token attr-value"><span class="token punctuation">=</span>”xsd:integer”</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">xsd:</span>minInclusive</span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation">=</span>”0”</span> <span class="token punctuation">/&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">xsd:</span>maxInclusive</span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation">=</span>”256”/</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token namespace">xsd:</span>restriction</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token namespace">xsd:</span>simpleType</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<p>xsd文档的导入：</p>
+<ol>
+<li>
+<p>填写XML文档的根标签students</p>
+</li>
+<li>
+<p>引入xsi前缀，xmlns:xsi=””</p>
+</li>
+<li>
+<p>引入xsd文件命名空间 xsi:schemaLocation=””</p>
+</li>
+<li>
+<p>为每一个xsd约束空间声明一个前缀，作为标识，因为当多个xsd文件中有相同的标签名需要区别，使用前缀会更加的方便。如：将该xsd声明为a ，xmlns:a=””</p>
+</li>
+</ol>
+<p>如：</p>
+<pre><code class="prism language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>students</span> <span class="token attr-name"><span class="token namespace">xmlns:</span>xsi</span><span class="token attr-value"><span class="token punctuation">=</span>http://www.w3.org/2001/XMLSchema-instance</span>
+<span class="token attr-name"><span class="token namespace">xsi:</span>schemaLocation</span><span class="token attr-value"><span class="token punctuation">=</span>”./xml</span> <span class="token attr-name">student.xsd”</span>
+<span class="token attr-name"><span class="token namespace">xmlns:</span>a</span><span class="token attr-value"><span class="token punctuation">=</span>”./xml”</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<h2><a id="%09XML_230"></a>三．	XML的解析</h2>
+<h3><a id="%09_231"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;操作XML文档，将文档中的数据读取到内存中，或者将内存中的数据保存到XML文档中，持久化地存储。<br>
+<br></p>
+<h3><a id="%09XML_237"></a>（二）	解析XML的方式</h3>
+<h4><a id="1%09DOM_238"></a>1.	DOM</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;将标记语言文档一次性地加载到内存中，在内存中形成一个DOM树。<br>
+<br></p>
+<h5><a id="1%09_244"></a>（1）	优点</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;操作非常方便，可以对文档进行增删改查的操作<br>
+<br></p>
+<h5><a id="2%09_250"></a>（2）	缺点</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;缺点是DOM树是一开始就会生成的，且非常占内存，因此一般用于服务器端。<br>
+<br></p>
+<h4><a id="2%09SAX_256"></a>2.	SAX</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;不是一次性地加载到内存中，而是逐行读取。<br>
+<br></p>
+<h5><a id="1%09_262"></a>（1）	优点</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;不会占用太大的内存，因此经常用于移动端等内存不大的环境中。<br>
+<br></p>
+<h5><a id="2%09_268"></a>（2）	缺点</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;只能读取，不能增删改操作。<br>
+<br></p>
+<h4><a id="3%09XML_274"></a>3.	XML的常见解析器</h4>
+<h5><a id="1%09JAXP_275"></a>（1）	JAXP</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;sun公司提供的解析器，支持DOM和SAX两种思想<br>
+<br></p>
+<h5><a id="2%09DOM4J_281"></a>（2）	DOM4J</h5>
+<h5><a id="3%09Jsoup_283"></a>（3）	Jsoup</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Java的一款HTML解析器，可直接解析某个URL地址，HTML文本内容，它提供了一套省力的API，可通过DOM，CSS以及类似于JQuery的操作方法来取出和操作数据。</p>
+<br>
+<h2><a id="%09Jsoup_291"></a>四．	Jsoup解析器</h2>
+<h3><a id="%09Jsoup_292"></a>（一）	Jsoup的使用步骤</h3>
+<ol>
+<li>
+<p>导入Jsoup的jar包</p>
+</li>
+<li>
+<p>获取Document对象</p>
+</li>
+<li>
+<p>获取对应的标签Element对象</p>
+</li>
+<li>
+<p>获取数据<br>
+<br></p>
+</li>
+</ol>
+<h3><a id="%09_304"></a>（二）	对象的使用</h3>
+<h4><a id="1%09Jsoup_305"></a>1.	Jsoup</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;工具类，可以解析HTML或XML文档，返回Document对象</p>
+<p><code>Jsoup.parse(File in, String charsetName)</code><br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;解析xml或HTML文件</p>
+<p><code>Jsoup.parse(String html)</code><br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;解析html或xml字符串</p>
+<p><code>Jsoup.parse(URL url, int timeoutMillis)</code><br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;通过网络路径获取指定的HTML或xml的文档对象</p>
+<br>
+<h4><a id="2%09Document_320"></a>2.	Document</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;文档对象，代表内存中的DOM树，获取Element对象的方法如下所示：</p>
+<p><code>getElementById(String id)</code><br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;根据id属性值获取唯一的element对象</p>
+<p><code>getElementsByTag(String tagName)</code><br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;根据标签名称获取元素对象集合</p>
+<p><code>getElementsByAttribute(String key)</code><br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;根据属性名称获取元素对象集合</p>
+<p><code>getElementsByAttributeValue(String key, String value)</code><br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;根据对应的属性名和属性值获取元素对象集合<br>
+<br></p>
+<h4><a id="3%09Elements_338"></a>3.	Elements</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Element对象的集合，可当做<code>ArrayList&lt;Element&gt;</code>来使用<br>
+<br></p>
+<h4><a id="4%09Element_344"></a>4.	Element</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;元素对象，在该元素对象中使用如下方法获取子元素对象：</p>
+<p><code>getElementById(String id)</code><br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;根据id属性值获取唯一的element对象</p>
+<p><code>getElementsByTag(String tagName)</code><br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;根据标签名称获取元素对象集合</p>
+<p><code>getElementsByAttribute(String key)</code><br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;根据属性名称获取元素对象集合</p>
+<p><code>getElementsByAttributeValue(String key, String value)</code><br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;根据对应的属性名和属性值获取</p>
+<br>
+<p>在该元素对象中使用如下方法获取属性值：</p>
+<p><code>String attr(String key)</code><br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;根据属性名称获取属性值</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在该元素对象中使用如下方法获取文本内容：<br>
+<code>String text()</code><br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;获取子元素对象中的所有纯文本内容</p>
+<p><code>String html()</code><br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;获取子元素对象中的所有内容（包括子元素的标签和纯文本内容）</p>
+<br>
+<h3><a id="%09Jsoup_380"></a>（三）	Jsoup选择器查询</h3>
+<h4><a id="1%09selector_381"></a>1.	selector:选择器</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通过选择器可以查找出文档中的标签信息，属性信息以及文本信息。</p>
+<pre><code class="prism language-html">Elements select(String cssQuery)
+</code></pre>
+<p>如：<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;查找document中标签名为name的元素</p>
+<pre><code class="prism language-html">document.select(“name”);
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;查找document中id值为a的元素</p>
+<pre><code class="prism language-html">document.select(“#a”);
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;查找doocument中的student标签，且该标签的number属性值为a的子标签</p>
+<pre><code class="prism language-html">document.select(“student[number=\”a\”]”);
+</code></pre>
+<br>
+<h4><a id="2%09Xpath_410"></a>2.	Xpath</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Xpath为XML的路径语言，是一种用来确定XML文档中某部分位置的语言，使用Jsoup的Xpath需要额外导入Xpath的jar包。通过查询手册，使用Xpath的语法查询。</p>
+<p>如：<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;通过标签名查询，标签名前是使用//</p>
+<pre><code class="prism language-html">List<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>JXNode</span><span class="token punctuation">&gt;</span></span> jxNodes = jxDocument.selN(“//student”);
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;查询student标签下的子标签name:，子标签中间用/隔开</p>
+<pre><code class="prism language-html">List<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>JXNode</span><span class="token punctuation">&gt;</span></span> jxNodes = jxDocument.selN(“//student/name”);
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;查询student标签下id属性等于a的name标签，使用@表示id</p>
+<pre><code class="prism language-html">LIst<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>JXNode</span><span class="token punctuation">&gt;</span></span> jxNode = jxDocument.selN(“//student/name[@id=’a’]”);
+</code></pre>
+</div>
+</body>
+
+</html>

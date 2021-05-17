@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【机器学习笔记（九）】之Anaconda 安装PyTorch踩的坑</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h3><a id="_PyTorch_8"></a>一. PyTorch的安装命令</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>Anaconda  安装 PyTorch</strong> 不像其他的库一样直接 Pip 安装，而是到<a href="https://pytorch.org/get-started/locally/">PyTorch官网</a>上选择你需要安装的环境配置，然后它会提供给你<strong>单独的安装命令</strong>。如下所示：</p>
+<pre><code class="prism language-cpp">conda install pytorch torchvision cudatoolkit<span class="token operator">=</span><span class="token number">10.2</span> <span class="token operator">-</span>c pytorch
+</code></pre>
+<p><img src="https://img-blog.csdnimg.cn/20200705115723883.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01yd3h4eHg=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h3><a id="_Anaconda_15"></a>二. 为Anaconda添加国内镜像源</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在安装过程中，我们会遇到很多问题，很多需要下载的包可能会由于网络连接的关系下载失败，因此，我们需要为Anaconda添加国内的镜像源，如清华的镜像源。添加镜像源的命令如下：</p>
+<pre><code class="prism language-cpp">conda config <span class="token operator">--</span>add channels https<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span>mirrors<span class="token punctuation">.</span>tuna<span class="token punctuation">.</span>tsinghua<span class="token punctuation">.</span>edu<span class="token punctuation">.</span>cn<span class="token operator">/</span>anaconda<span class="token operator">/</span>pkgs<span class="token operator">/</span>free<span class="token operator">/</span>
+conda config <span class="token operator">--</span>add channels https<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span>mirrors<span class="token punctuation">.</span>tuna<span class="token punctuation">.</span>tsinghua<span class="token punctuation">.</span>edu<span class="token punctuation">.</span>cn<span class="token operator">/</span>anaconda<span class="token operator">/</span>pkgs<span class="token operator">/</span>main<span class="token operator">/</span>
+conda config <span class="token operator">--</span>set show_channel_urls yes
+conda config <span class="token operator">--</span>add channels https<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span>mirrors<span class="token punctuation">.</span>tuna<span class="token punctuation">.</span>tsinghua<span class="token punctuation">.</span>edu<span class="token punctuation">.</span>cn<span class="token operator">/</span>anaconda<span class="token operator">/</span>cloud<span class="token operator">/</span>pytorch<span class="token operator">/</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;添加完镜像源后就可以<strong>执行官网给出的安装命令了</strong>。</p>
+<pre><code class="prism language-cpp">conda install pytorch torchvision cudatoolkit<span class="token operator">=</span><span class="token number">10.2</span> <span class="token operator">-</span>c pytorch
+</code></pre>
+<h3><a id="__28"></a>三. 手动下载缺失的库</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>如果下载还是有问题的，你可以根据 cmd 命令窗口给出的错误提示，手动到清华镜像源的PyTorch库中下载对应的库到本地</strong>，如下所示：<br>
+<img src="https://img-blog.csdnimg.cn/20200705120135875.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01yd3h4eHg=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;下载到本地后，用以下的命令进行本地的安装：<br>
+<strong>注意， --use–local后的文件地址是本地的绝对地址。</strong></p>
+<pre><code class="prism language-cpp">conda install <span class="token operator">--</span>use<span class="token operator">-</span>local D<span class="token operator">:</span>\downloads\torchvision<span class="token operator">-</span><span class="token number">0.6</span><span class="token number">.1</span><span class="token operator">-</span>py37_cu102<span class="token punctuation">.</span>tar<span class="token punctuation">.</span>bz2
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;把缺失的库文件安装好后，<strong>再次运行官网给出的安装命令</strong></p>
+<pre><code class="prism language-cpp">conda install pytorch torchvision cudatoolkit<span class="token operator">=</span><span class="token number">10.2</span> <span class="token operator">-</span>c pytorch
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;出现“done”就说明安装完成，可以进入Python 测试一下，导入torch成功！<br>
+<img src="https://img-blog.csdnimg.cn/20200705120459819.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01yd3h4eHg=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>
+！！​</p>
+</div>
+</body>
+
+</html>

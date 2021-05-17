@@ -1,0 +1,358 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Java学习笔记（四十一）】之Redis，NOSQL，Jedis的介绍</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09Redis_7"></a>一．	Redis</h2>
+<h3><a id="%09_8"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Redis 高性能的NOSQL系列的菲关系型数据库。Redis通过提供多种键值数据类型来适应不同场景下的存储需求。<br>
+<br></p>
+<h3><a id="%09Redis_13"></a>（二）	Redis支持的数据类型</h3>
+<ol>
+<li>
+<p>字符串类型 String</p>
+</li>
+<li>
+<p>哈希类型  hash</p>
+</li>
+<li>
+<p>列表类型 list</p>
+</li>
+<li>
+<p>集合类型  set</p>
+</li>
+<li>
+<p>有序集合类型  sortedset<br>
+<br></p>
+</li>
+</ol>
+<h3><a id="%09Redis_27"></a>（三）	Redis的应用场景</h3>
+<ol>
+<li>
+<p>缓存（数据查询，短连接，内容）</p>
+</li>
+<li>
+<p>任务队列（秒杀，抢购）</p>
+</li>
+<li>
+<p>应用排行榜</p>
+</li>
+<li>
+<p>数据过期处理</p>
+</li>
+<li>
+<p>分布式集群架构中的session分离<br>
+<br></p>
+</li>
+</ol>
+<h3><a id="%09_41"></a>（四）	安装与使用</h3>
+<h4><a id="1%09Redis_42"></a>1.	Redis下载</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;大陆地区请到Redis中文网http://www.redis.net.cn/，下载redis。<br>
+<br></p>
+<h4><a id="2%09_48"></a>2.	使用</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;解压下载的压缩包，可以得到一些文件：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;redis.windows.conf是配置文件</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;redis-cli.ext是redis的客户端</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;redis-server.exe是redis的服务器端</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;要使用redis，，先要打开服务器端，再打开客户端连接到服务器。<br>
+<br></p>
+<h3><a id="%09Redis_62"></a>（五）	Redis的数据结构</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Redis存储的是键值对的数据，key都是字符串，value有5种不同类型：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;字符串类型 String</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;哈希类型  hash</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;列表类型 list</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;集合类型  set</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;有序集合类型  sortedset<br>
+<br></p>
+<h3><a id="%09Redis_78"></a>（六）	Redis的命令操作</h3>
+<h4><a id="1%09String_79"></a>1.	字符串类型String</h4>
+<h5><a id="1%09_80"></a>（1）	存储</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;set key value<br>
+如：<code>set age 22</code><br>
+<br></p>
+<h5><a id="2%09_87"></a>（2）	获取</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;get key<br>
+如：<code>get age</code><br>
+<br></p>
+<h5><a id="3%09_94"></a>（3）	删除</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;del key<br>
+如：<code>del age</code><br>
+<br></p>
+<h4><a id="2%09_hash_101"></a>2.	哈希类型 hash</h4>
+<h5><a id="1%09_102"></a>（1）	存储</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;hset key field value</p>
+<p>如：field value是一个键值对</p>
+<pre><code class="prism language-sql">hset <span class="token keyword">user</span> name <span class="token number">22</span>
+</code></pre>
+<br>
+<h5><a id="2%09_114"></a>（2）	获取</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;hget key field 获取指定的field对应的值</p>
+<p>如：<code>hget user name</code></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;hgetall key获取所有的field和value</p>
+<p>如：<code>hgetall user</code><br>
+<br></p>
+<h5><a id="3%09_126"></a>（3）	删除</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;hdel key field</p>
+<p>如：<code>hdel user name</code><br>
+<br></p>
+<h4><a id="3%09list_134"></a>3.	列表类型list</h4>
+<h5><a id="1%09_135"></a>（1）	添加</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;可以添加一个元素到列表的头部（左边）或者尾部（右边）</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;lpush key value 将元素添加到列表的左边</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;rpush key value 将元素添加到列表的右边<br>
+如：</p>
+<pre><code class="prism language-sql">lpush mylist <span class="token number">1</span>
+rpush mylist  <span class="token number">10</span>
+</code></pre>
+<br>
+<h5><a id="2%09_151"></a>（2）	获取</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;可以通过一个范围获取元素：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;lrange key start end<br>
+如：</p>
+<pre><code class="prism language-sql">lrange mylist <span class="token number">1</span> <span class="token number">2</span>
+</code></pre>
+<br>
+<h5><a id="3%09_164"></a>（3）	删除</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;lpop key 删除列表最左边的元素，并返回该元素</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;rpop key 删除列表最右边的元素，并返回该元素<br>
+<br></p>
+<h4><a id="4%09set_172"></a>4.	集合类型set</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;set集合不允许有重复的元素。</p>
+<h5><a id="1%09_175"></a>（1）	存储</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;sadd key value<br>
+如：</p>
+<pre><code class="prism language-sql">sadd age <span class="token number">22</span>
+</code></pre>
+<br>
+<h5><a id="2%09_186"></a>（2）	获取</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;smembers key 获取set集合中的所有元素</p>
+<p>如：</p>
+<pre><code class="prism language-sql">smembers age
+</code></pre>
+<br>
+<h5><a id="3%09_198"></a>（3）	删除</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;srem key value， 删除set集合中的某个元素</p>
+<pre><code class="prism language-sql">srem age <span class="token number">22</span>
+</code></pre>
+<br>
+<h4><a id="5%09sortedset_208"></a>5.	有序集合类型sortedset</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;不仅不允许重复元素，且元素有序</p>
+<h5><a id="1%09_210"></a>（1）	存储</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;zadd key score value， 通过score分数来排序</p>
+<p>如：</p>
+<pre><code class="prism language-sql">zadd age <span class="token number">80</span> <span class="token number">22</span>
+</code></pre>
+<br>
+<h5><a id="2%09_222"></a>（2）	获取</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;zrange key start end</p>
+<p>如：</p>
+<pre><code class="prism language-sql">zrange age <span class="token number">0</span> <span class="token operator">-</span><span class="token number">1</span>
+</code></pre>
+<br>
+<h5><a id="3%09_234"></a>（3）	删除</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;zrem key value</p>
+<p>如：</p>
+<pre><code class="prism language-sql">zrem age <span class="token number">22</span>
+</code></pre>
+<br>
+<h4><a id="6%09_246"></a>6.	通用命令</h4>
+<h5><a id="1%09keys__247"></a>（1）	keys *</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;查询所有的键<br>
+<br></p>
+<h5><a id="2%09type_key_253"></a>（2）	type key</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;获取键对应的value的类型<br>
+<br></p>
+<h5><a id="3%09del_key_259"></a>（3）	del key</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;删除指定的key value<br>
+<br></p>
+<h3><a id="%09_265"></a>（七）	持久化</h3>
+<h4><a id="1%09_266"></a>1.	概述</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Redis是一个内存数据库，当Redis服务器重启或关闭时，数据就会丢失，我们需要将Redis内存中的数据持久化到硬盘上。<br>
+<br></p>
+<h4><a id="2%09Redis_272"></a>2.	Redis持久化机制</h4>
+<h5><a id="1%09RDB_273"></a>（1）	RDB</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Redis持久化的默方式，不需要进行配置，在一定的间隔时间中，会自动检测key的变化情况，然后持久化数据。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;想要修改RDB的间隔时间，可以到conf配置文件中进行修改</p>
+<p>找到如下的字段：</p>
+<pre><code class="prism language-sql"><span class="token keyword">save</span> <span class="token number">900</span> <span class="token number">1</span>		：至少一个<span class="token keyword">key</span>变化时<span class="token number">900</span>s后持久化
+<span class="token keyword">save</span> <span class="token number">300</span> <span class="token number">10</span>	：至少<span class="token number">10</span>个<span class="token keyword">key</span>变化时<span class="token number">300</span>s后持久化
+<span class="token keyword">save</span> <span class="token number">60</span> <span class="token number">10000</span> ：至少<span class="token number">10000</span>个<span class="token keyword">key</span>变化时，<span class="token number">60</span>s后持久化
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通过注释来阅读并修改。修改后，重启服务器，并制定配置文件名称。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;cd 到redis的文件夹，执行redis-server.exe命令并 添加 配置文件，如：</p>
+<pre><code class="prism language-sql">redis<span class="token operator">-</span>server<span class="token punctuation">.</span>exe redis<span class="token punctuation">.</span>windows<span class="token punctuation">.</span>conf
+</code></pre>
+<br>
+<h5><a id="2%09AOF_297"></a>（2）	AOF</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通过日志记录的方式，可以记录每一条命令的操作，在执行每一条Redis命令后，都会持久化数据。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;同样的，我们可以在conf配置文件中修改AOF的配置：</p>
+<pre><code class="prism language-sql">appendonly <span class="token keyword">no</span> 表示着关闭AOF
+appendonly yes 表示着开启AOF
+
+appendfsync always 表示着每一次操作有持久化
+appendfsync everysec 表示这每隔一秒进行一次持久化
+appendfsync <span class="token keyword">no</span>	 表示这不进行持久化
+</code></pre>
+<br>
+<h2><a id="%09_NOSQL_314"></a>二．	 NOSQL</h2>
+<h3><a id="_315"></a>（一）概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Not Only SQL，泛指非关系型数据库。随着Web2.0的兴起，传统的关系型数据库对于超大规模与高并发的Web2.0网站已经显得力不从心了。菲关系型数据库可以用作缓存来解决大数据的应用难题。由于NOSQL将数据存储在缓存中，查询速度会非常快。且NOSQL的存储格式有很多种，如key ,value,文档，图片。<br>
+<br></p>
+<h3><a id="NOSQL_321"></a>（二）NOSQL与关系型数据库的优劣</h3>
+<h4><a id="1%09_322"></a>1.	菲关系型数据库的优势</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（1）	性能NOSQL是基于键值对的，可以想象成表中的主键和之的对应关系，不需要经过SQL层的解析，性能很高。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（2）	可扩展性也是基于键值对，数据之间没有耦合性，所有容易扩展。<br>
+<br></p>
+<h4><a id="2%09_330"></a>2.	关系型数据库的优势</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（1）	复杂查询可以用SQL语句方便地在一个表以及多个表之间做复杂查询。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（2）	事务支持使得对于安全性能很高的数据访问得以实现。</p>
+<br>
+<h2><a id="%09Jedis_339"></a>三．	Jedis</h2>
+<h3><a id="%09_340"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如同我们之前使用JDBC连接MySql数据库一样，Jedis用于Java操作Redis数据库。<br>
+<br></p>
+<h3><a id="%09_346"></a>（二）	使用步骤</h3>
+<ol>
+<li>
+<p>导入jedis的jar包</p>
+</li>
+<li>
+<p>通过Java编写程序操作Redis数据库</p>
+</li>
+</ol>
+<pre><code class="prism language-java"><span class="token keyword">package</span> redis<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>junit<span class="token punctuation">.</span>Test<span class="token punctuation">;</span>
+<span class="token keyword">import</span> redis<span class="token punctuation">.</span>clients<span class="token punctuation">.</span>jedis<span class="token punctuation">.</span>Jedis<span class="token punctuation">;</span>
+
+<span class="token comment">/**
+ * jedis的测试类
+ */</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">RedisTest</span> <span class="token punctuation">{</span>
+
+    <span class="token annotation punctuation">@Test</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">test1</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token comment">//获取连接</span>
+        Jedis jedis <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Jedis</span><span class="token punctuation">(</span><span class="token string">"localhost"</span><span class="token punctuation">,</span> <span class="token number">6379</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">//操作</span>
+        jedis<span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span><span class="token string">"username"</span><span class="token punctuation">,</span> <span class="token string">"hehe"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">//关闭连接</span>
+        jedis<span class="token punctuation">.</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token punctuation">}</span>
+
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h3><a id="%09_379"></a>（三）	字符串的操作</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Jedis中的方法名与Redis的操作是相同的。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;set存储,get获取,setex存储有时间限制的键值对。</p>
+<pre><code class="prism language-java">Jedis jedis <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Jedis</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+jedis<span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span>“username”<span class="token punctuation">,</span> “hehe”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+String username <span class="token operator">=</span> jedis<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>“username”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+jedis<span class="token punctuation">.</span><span class="token function">setex</span><span class="token punctuation">(</span>“activecode”<span class="token punctuation">,</span> <span class="token number">20</span><span class="token punctuation">,</span> “hehe”<span class="token punctuation">)</span><span class="token punctuation">;</span>	<span class="token comment">//20秒后删除</span>
+jedis<span class="token punctuation">.</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h3><a id="%09_395"></a>（四）	哈希类型的操作</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;hset, hget。</p>
+<pre><code class="prism language-java">jedis<span class="token punctuation">.</span><span class="token function">hset</span><span class="token punctuation">(</span>“user”<span class="token punctuation">,</span> “name”<span class="token punctuation">,</span> “eee”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+jedis<span class="token punctuation">.</span><span class="token function">hset</span><span class="token punctuation">(</span>“user”<span class="token punctuation">,</span> “age”<span class="token punctuation">,</span> “<span class="token number">23</span>”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+String name – jedis<span class="token punctuation">.</span><span class="token function">hget</span><span class="token punctuation">(</span>“user”<span class="token punctuation">,</span> “name”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">//获取hash中的所有map中的数据</span>
+Map<span class="token generics function"><span class="token punctuation">&lt;</span>String <span class="token punctuation">,</span>String<span class="token punctuation">&gt;</span></span> user <span class="token operator">=</span> jedis<span class="token punctuation">.</span><span class="token function">hgetAll</span><span class="token punctuation">(</span>“user”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+Set<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">&gt;</span></span> keyset <span class="token operator">=</span> user<span class="token punctuation">.</span><span class="token function">keySet</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">for</span><span class="token punctuation">(</span>String key <span class="token operator">:</span> keySet<span class="token punctuation">)</span><span class="token punctuation">{</span>
+		String value <span class="token operator">=</span> user<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>key<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>key<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h3><a id="%09list_415"></a>（五）	列表list的操作</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;lpush, rpush, lpop, rpop</p>
+<pre><code class="prism language-java">jedis<span class="token punctuation">.</span><span class="token function">lpush</span><span class="token punctuation">(</span>“mylist”<span class="token punctuation">,</span> “a”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+jedis<span class="token punctuation">.</span><span class="token function">rpush</span><span class="token punctuation">(</span>“mylist”<span class="token punctuation">,</span> “b”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+List<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">&gt;</span></span> mylist <span class="token operator">=</span> jedis<span class="token punctuation">.</span><span class="token function">lrange</span><span class="token punctuation">(</span>“mylist”<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h3><a id="%09set_427"></a>（六）	集合set的操作</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;sadd，smembers</p>
+<pre><code class="prism language-java">jedis<span class="token punctuation">.</span><span class="token function">sadd</span><span class="token punctuation">(</span>“myset”<span class="token punctuation">,</span> “java”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+jedis<span class="token punctuation">.</span><span class="token function">sass</span><span class="token punctuation">(</span>“myset”<span class="token punctuation">,</span> “c”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+Set<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">&gt;</span></span> myset <span class="token operator">=</span> jedis<span class="token punctuation">.</span><span class="token function">smembers</span><span class="token punctuation">(</span>“myset”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h3><a id="%09Jedis_439"></a>（七）	Jedis连接池</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Jedis内置了连接池JedisPool，使用方法非常简单：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;首先创建JedisPool连接池对象，再调用getResource()方法获取Jedis连接。</p>
+<pre><code class="prism language-java">JedisPool jedisPool <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">JedisPool</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+Jedis jedis <span class="token operator">=</span> jedisPool<span class="token punctuation">.</span><span class="token function">getResource</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+jedis<span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span>“name”<span class="token punctuation">,</span> “hehe”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+jedis<span class="token punctuation">.</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;可以通过配置对象来配置JedisPool。在创建JedsiPool连接池对象时要将该配置对象传进去。</p>
+<pre><code class="prism language-java">JedisPoolConfig config <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">JedisPoolConfig</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+config<span class="token punctuation">.</span><span class="token function">setMaxTotal</span><span class="token punctuation">(</span><span class="token number">50</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+config<span class="token punctuation">.</span><span class="token function">setMaxIdle</span><span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+JedisPool jedisPool <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">JedisPool</span><span class="token punctuation">(</span>config<span class="token punctuation">,</span> “localhost”<span class="token punctuation">,</span> <span class="token number">6379</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;也可以通过设置一个RedisPoolUtils工具类专用于连接Redis数据库以及通过redis.properties配置文件来配置RedisPool连接池。</p>
+<pre><code class="prism language-java"><span class="token keyword">package</span> utils<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> redis<span class="token punctuation">.</span>clients<span class="token punctuation">.</span>jedis<span class="token punctuation">.</span>Jedis<span class="token punctuation">;</span>
+<span class="token keyword">import</span> redis<span class="token punctuation">.</span>clients<span class="token punctuation">.</span>jedis<span class="token punctuation">.</span>JedisPool<span class="token punctuation">;</span>
+<span class="token keyword">import</span> redis<span class="token punctuation">.</span>clients<span class="token punctuation">.</span>jedis<span class="token punctuation">.</span>JedisPoolConfig<span class="token punctuation">;</span>
+<span class="token keyword">import</span> redis<span class="token punctuation">.</span>clients<span class="token punctuation">.</span>util<span class="token punctuation">.</span>JedisURIHelper<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>io<span class="token punctuation">.</span>IOException<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>io<span class="token punctuation">.</span>InputStream<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>Properties<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">JetisUtils</span> <span class="token punctuation">{</span>
+
+    <span class="token keyword">private</span> <span class="token keyword">static</span> JedisPool jedisPool<span class="token punctuation">;</span>
+    <span class="token keyword">static</span> <span class="token punctuation">{</span>
+        <span class="token comment">//读取配置文件</span>
+        InputStream is <span class="token operator">=</span> JetisUtils<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">.</span><span class="token function">getClassLoader</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getResourceAsStream</span><span class="token punctuation">(</span><span class="token string">"jedis.properties"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">//创建Properties对象</span>
+        Properties pro <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Properties</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">//冠梁文件</span>
+        <span class="token keyword">try</span> <span class="token punctuation">{</span>
+            pro<span class="token punctuation">.</span><span class="token function">load</span><span class="token punctuation">(</span>is<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">IOException</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            e<span class="token punctuation">.</span><span class="token function">printStackTrace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token comment">//获取数据，设置到JedisPoolConfig中</span>
+        JedisPoolConfig config <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">JedisPoolConfig</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        config<span class="token punctuation">.</span><span class="token function">setMaxTotal</span><span class="token punctuation">(</span>Integer<span class="token punctuation">.</span><span class="token function">parseInt</span><span class="token punctuation">(</span>pro<span class="token punctuation">.</span><span class="token function">getProperty</span><span class="token punctuation">(</span><span class="token string">"maxTotal"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        config<span class="token punctuation">.</span><span class="token function">setMaxIdle</span><span class="token punctuation">(</span>Integer<span class="token punctuation">.</span><span class="token function">parseInt</span><span class="token punctuation">(</span>pro<span class="token punctuation">.</span><span class="token function">getProperty</span><span class="token punctuation">(</span><span class="token string">"maxIdle"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment">//初始化JedisPool</span>
+        jedisPool <span class="token operator">=</span> <span class="token keyword">new</span>  <span class="token class-name">JedisPool</span><span class="token punctuation">(</span>config<span class="token punctuation">,</span> pro<span class="token punctuation">.</span><span class="token function">getProperty</span><span class="token punctuation">(</span><span class="token string">"host"</span><span class="token punctuation">)</span><span class="token punctuation">,</span> Integer<span class="token punctuation">.</span><span class="token function">parseInt</span><span class="token punctuation">(</span>pro<span class="token punctuation">.</span><span class="token function">getProperty</span><span class="token punctuation">(</span><span class="token string">"port"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> Jedis <span class="token function">getJedis</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">return</span> jedisPool<span class="token punctuation">.</span><span class="token function">getResource</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,120 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【LeetCode刷题笔记（七十）】之438. 找到字符串中所有字母异位词</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	题目</h2>
+<h3><a id="%09_9"></a>（一）	题干</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;给定一个字符串 s 和一个非空字符串 p，找到 s 中所有是 p 的字母异位词的子串，返回这些子串的起始索引。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;字符串只包含小写英文字母，并且字符串 s 和 p 的长度都不超过 20100。</p>
+<p>说明：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;字母异位词指字母相同，但排列不同的字符串。<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;不考虑答案输出的顺序。<br>
+<br></p>
+<h3><a id="%09_22"></a>（二）	示例</h3>
+<pre><code class="prism language-java">输入<span class="token operator">:</span>
+s<span class="token operator">:</span> <span class="token string">"cbaebabacd"</span> p<span class="token operator">:</span> <span class="token string">"abc"</span>
+
+输出<span class="token operator">:</span>
+<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">]</span>
+
+解释<span class="token operator">:</span>
+起始索引等于 <span class="token number">0</span> 的子串是 <span class="token string">"cba"</span><span class="token punctuation">,</span> 它是 <span class="token string">"abc"</span> 的字母异位词。
+起始索引等于 <span class="token number">6</span> 的子串是 <span class="token string">"bac"</span><span class="token punctuation">,</span> 它是 <span class="token string">"abc"</span> 的字母异位词。
+</code></pre>
+<br>
+<h2><a id="%09_39"></a>二．	题解</h2>
+<h3><a id="%09_40"></a>（一）	思路</h3>
+<h4><a id="1%09_41"></a>1.	暴力解法</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;字母异位词，即两个字符串中的字母都是相同的，就是顺序不同。因此，我们可以将p串中的每个字符进行hash计数，存入一个hashmap中。然后遍历字符串s，对每个p.length()长度的s子串，判断哪些子串是p的字母异位词。 对每个s的子串中的每个字符，判断是否出现在了p串中，如果出现了，则将hashmap中的对应字符出现次数相应地减掉1，如果某个字符没有出现或者多出现了1次，减掉1后hashmap中就会出现负数，说明该子串不是，break后继续遍历。这样就可以找到所有的子串了。<br>
+<br></p>
+<h4><a id="2%09___47"></a>2.	滑动窗口 + 双指针</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;基本思路与暴力解法相同，首先都是要记录p串中字符的出现次数，然后用双指针作为滑动窗口的左右指针，初始化都指向0。创建一个临时计数数组tmp[]，记录滑动窗口内每个字符的出现次数，与p串中字符出现次数进行比较。右指针不断右移，每移入一个字符，将该字符的次数+1，如果该字符对应的数字大于p串中该字符的数字，则说明滑动窗口中该字符多了1个，则让左指针不断右移，将右移过程中碰到的字符的计数都-1，直到碰到一个该字符。这样，滑动窗口恢复正常，右指针可继续右移。若窗口的大小恰好为p串的长度，且每个字符的数字都没有超过p串的数字，说明滑动窗口内的字符串与p串是异位字符串，将窗口的左指针保存。</p>
+<br>
+<h3><a id="%09_54"></a>（二）	代码实现</h3>
+<h4><a id="1%09_56"></a>1.	暴力解法</h4>
+<p>Java：</p>
+<pre><code class="prism language-java"><span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> List<span class="token generics function"><span class="token punctuation">&lt;</span>Integer<span class="token punctuation">&gt;</span></span> <span class="token function">findAnagrams</span><span class="token punctuation">(</span>String s<span class="token punctuation">,</span> String p<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment">//字符串 操作</span>
+        <span class="token keyword">int</span> sn <span class="token operator">=</span> s<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">int</span> pn <span class="token operator">=</span> p<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        ArrayList<span class="token generics function"><span class="token punctuation">&lt;</span>Integer<span class="token punctuation">&gt;</span></span> list <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ArrayList</span><span class="token operator">&lt;</span><span class="token operator">&gt;</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>s <span class="token operator">==</span> null <span class="token operator">||</span> p <span class="token operator">==</span> null <span class="token operator">||</span> sn <span class="token operator">&lt;</span> pn<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">ArrayList</span><span class="token generics function"><span class="token punctuation">&lt;</span>Integer<span class="token punctuation">&gt;</span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token comment">// 由于字母只有26个，用数组保存出现次数即可</span>
+        <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> map <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">int</span><span class="token punctuation">[</span><span class="token number">26</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> pn<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            map<span class="token punctuation">[</span>p<span class="token punctuation">.</span><span class="token function">charAt</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token string">'a'</span><span class="token punctuation">]</span><span class="token operator">++</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token comment">//遍历s，取子字符串</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span> <span class="token punctuation">;</span> i <span class="token operator">&lt;=</span> sn<span class="token operator">-</span>pn<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> tmp <span class="token operator">=</span> Arrays<span class="token punctuation">.</span><span class="token function">copyOf</span><span class="token punctuation">(</span>map<span class="token punctuation">,</span> <span class="token number">26</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">int</span> j <span class="token operator">=</span> i<span class="token punctuation">;</span>
+            <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token punctuation">;</span> j <span class="token operator">&lt;</span> i<span class="token operator">+</span>pn<span class="token punctuation">;</span> <span class="token operator">++</span>j<span class="token punctuation">)</span><span class="token punctuation">{</span>
+                <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token operator">--</span>tmp<span class="token punctuation">[</span>s<span class="token punctuation">.</span><span class="token function">charAt</span><span class="token punctuation">(</span>j<span class="token punctuation">)</span><span class="token operator">-</span><span class="token string">'a'</span><span class="token punctuation">]</span> <span class="token operator">&lt;</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                    <span class="token keyword">break</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+            <span class="token comment">// 找到</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span>j <span class="token operator">==</span> i<span class="token operator">+</span> pn<span class="token punctuation">)</span><span class="token punctuation">{</span>
+                list<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> list<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h4><a id="2%09__97"></a>2.	滑动窗口+ 双指针</h4>
+<p>Java：</p>
+<pre><code class="prism language-java"><span class="token comment">// 滑动窗口 + 双指针</span>
+        <span class="token comment">// //字符串 操作</span>
+        <span class="token keyword">int</span> sn <span class="token operator">=</span> s<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">int</span> pn <span class="token operator">=</span> p<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        ArrayList<span class="token generics function"><span class="token punctuation">&lt;</span>Integer<span class="token punctuation">&gt;</span></span> list <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ArrayList</span><span class="token operator">&lt;</span><span class="token operator">&gt;</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>s <span class="token operator">==</span> null <span class="token operator">||</span> p <span class="token operator">==</span> null <span class="token operator">||</span> sn <span class="token operator">&lt;</span> pn<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">ArrayList</span><span class="token generics function"><span class="token punctuation">&lt;</span>Integer<span class="token punctuation">&gt;</span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token comment">// 由于字母只有26个，用数组保存出现次数即可</span>
+        <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> map <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">int</span><span class="token punctuation">[</span><span class="token number">26</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> pn<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            map<span class="token punctuation">[</span>p<span class="token punctuation">.</span><span class="token function">charAt</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token string">'a'</span><span class="token punctuation">]</span><span class="token operator">++</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token comment">//双指针</span>
+        <span class="token keyword">int</span> left <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">,</span> right <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+        <span class="token comment">// 滑动窗口数组</span>
+        <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> win <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">int</span><span class="token punctuation">[</span><span class="token number">26</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token keyword">while</span><span class="token punctuation">(</span>left <span class="token operator">&lt;</span> sn <span class="token operator">&amp;&amp;</span> right <span class="token operator">&lt;</span> sn<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token comment">// 右指针为当前判断的字符</span>
+            <span class="token keyword">int</span> cur <span class="token operator">=</span> s<span class="token punctuation">.</span><span class="token function">charAt</span><span class="token punctuation">(</span>right<span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token string">'a'</span><span class="token punctuation">;</span>
+            win<span class="token punctuation">[</span>cur<span class="token punctuation">]</span><span class="token operator">++</span><span class="token punctuation">;</span>
+            right<span class="token operator">++</span><span class="token punctuation">;</span>
+            <span class="token comment">// 当右指针所指的字符次数超了，就右移左指针</span>
+            <span class="token keyword">while</span><span class="token punctuation">(</span>win<span class="token punctuation">[</span>cur<span class="token punctuation">]</span> <span class="token operator">&gt;</span> map<span class="token punctuation">[</span>cur<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                win<span class="token punctuation">[</span>s<span class="token punctuation">.</span><span class="token function">charAt</span><span class="token punctuation">(</span>left<span class="token punctuation">)</span><span class="token operator">-</span><span class="token string">'a'</span><span class="token punctuation">]</span><span class="token operator">--</span><span class="token punctuation">;</span>
+                left<span class="token operator">++</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token comment">//如果滑动窗口与pn相等，说明找到一个</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span>right <span class="token operator">-</span> left <span class="token operator">==</span> pn<span class="token punctuation">)</span><span class="token punctuation">{</span>
+                list<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span>left<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> list<span class="token punctuation">;</span>
+</code></pre>
+</div>
+</body>
+
+</html>

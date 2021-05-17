@@ -1,0 +1,197 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenCV学习笔记（十八）之距离变换与分水岭算法实现图像分割</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="__7"></a>一. 什么是图像分割？</h2>
+<ol>
+<li>图像分割的目标是将图像中像素根据一定的规则分为若干个cluster集合，每个集合包含一类像素。</li>
+<li>根据算法分为监督学习方法和无监督学习方法 ，图像分割的多数算法都属于无监督学习方法。</li>
+</ol>
+<h2><a id="__10"></a>二. 距离变换常见算法：</h2>
+<ol>
+<li>不断膨胀/腐蚀</li>
+<li>基于倒角距离</li>
+</ol>
+<h2><a id="__14"></a>三. 分水岭变换常见算法：</h2>
+<h3><a id="_15"></a>(一).基于浸泡理论</h3>
+<h4><a id="API_16"></a>API</h4>
+<h5><a id="1_cvdistanceTransform_17"></a>1. 距离变换cv::distanceTransform</h5>
+<pre><code class="prism language-cpp">cv<span class="token operator">::</span><span class="token function">distanceTransform</span><span class="token punctuation">(</span>
+	InputArray src<span class="token punctuation">,</span>
+	OutputArray dst<span class="token punctuation">,</span>
+	OutputArray labels<span class="token punctuation">,</span>
+	<span class="token keyword">int</span> distanceType<span class="token punctuation">,</span>
+	<span class="token keyword">int</span> maskSize<span class="token punctuation">,</span>
+	<span class="token keyword">int</span> labelType<span class="token operator">=</span>DIST_LABEL_CCOMP
+<span class="token punctuation">)</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>distanceType</strong> = DIST_LI/DIST_L2,<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>maskSize</strong>=3 X 3,<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>labels</strong>, 离散维诺图输出<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>dst</strong>, 输出8位或32位的浮点数，单一通道</p>
+<h5><a id="2_cvwatershed_35"></a>2. 分水岭变换cv::watershed</h5>
+<pre><code class="prism language-cpp">cv<span class="token operator">::</span><span class="token function">watershed</span><span class="token punctuation">(</span>
+	InputArray image<span class="token punctuation">,</span>
+	InputOutputArray markers
+<span class="token punctuation">)</span>
+</code></pre>
+<h2><a id="__44"></a>四. 代码处理思路：</h2>
+<ol>
+<li>将白色背景变为黑色，目的是为了后面的变换做准备</li>
+<li>使用filter2D与拉普拉斯算子实现图像对比度的提高，sharp</li>
+<li>通过threshold转为二值图像</li>
+<li>距离变换</li>
+<li>对距离变换结果归一化到0-1之间</li>
+<li>使用阈值，再次二值化，得到标记</li>
+<li>腐蚀得到每个Peak-erode</li>
+<li>发现轮廓 - findContours</li>
+<li>绘制轮廓 - drawContours<br>
+10.分水岭变换 - watershed，并对每个分割区域着色输出</li>
+</ol>
+<pre><code class="prism language-cpp"><span class="token comment">/*****基于距离变换和分水岭的图像分割*****/</span>
+
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;opencv2/opencv.hpp&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token keyword">int</span> argc<span class="token punctuation">,</span> <span class="token keyword">char</span><span class="token operator">*</span><span class="token operator">*</span> argv<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	cv<span class="token operator">::</span>Mat src <span class="token operator">=</span> cv<span class="token operator">::</span><span class="token function">imread</span><span class="token punctuation">(</span><span class="token string">"rec_cir.png"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span><span class="token string">"in"</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span><span class="token string">"in"</span><span class="token punctuation">,</span> src<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token comment">//将背景提取，变为黑色</span>
+	<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> row <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> row <span class="token operator">&lt;</span> src<span class="token punctuation">.</span>rows<span class="token punctuation">;</span> <span class="token operator">++</span>row<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> col <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> col <span class="token operator">&lt;</span> src<span class="token punctuation">.</span>cols<span class="token punctuation">;</span> <span class="token operator">++</span>col<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+			<span class="token keyword">if</span> <span class="token punctuation">(</span>src<span class="token punctuation">.</span>at<span class="token operator">&lt;</span>cv<span class="token operator">::</span>Vec3b<span class="token operator">&gt;</span><span class="token punctuation">(</span>row<span class="token punctuation">,</span> col<span class="token punctuation">)</span> <span class="token operator">==</span> cv<span class="token operator">::</span><span class="token function">Vec3b</span><span class="token punctuation">(</span><span class="token number">255</span><span class="token punctuation">,</span> <span class="token number">255</span><span class="token punctuation">,</span> <span class="token number">255</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+				src<span class="token punctuation">.</span>at<span class="token operator">&lt;</span>cv<span class="token operator">::</span>Vec3b<span class="token operator">&gt;</span><span class="token punctuation">(</span>row<span class="token punctuation">,</span> col<span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+				src<span class="token punctuation">.</span>at<span class="token operator">&lt;</span>cv<span class="token operator">::</span>Vec3b<span class="token operator">&gt;</span><span class="token punctuation">(</span>row<span class="token punctuation">,</span> col<span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+				src<span class="token punctuation">.</span>at<span class="token operator">&lt;</span>cv<span class="token operator">::</span>Vec3b<span class="token operator">&gt;</span><span class="token punctuation">(</span>row<span class="token punctuation">,</span> col<span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+			<span class="token punctuation">}</span>
+		<span class="token punctuation">}</span>
+	<span class="token punctuation">}</span>
+	<span class="token comment">//显示背景变色的图片</span>
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span><span class="token string">"back"</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span><span class="token string">"back"</span><span class="token punctuation">,</span> src<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	
+	<span class="token comment">//锐化</span>
+	cv<span class="token operator">::</span>Mat kernel <span class="token operator">=</span> <span class="token punctuation">(</span>cv<span class="token operator">::</span>Mat_<span class="token operator">&lt;</span><span class="token keyword">float</span><span class="token operator">&gt;</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span> <span class="token operator">&lt;&lt;</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span>Mat imgLaplance<span class="token punctuation">;</span>			<span class="token comment">//Laplance变换后的结果</span>
+	cv<span class="token operator">::</span>Mat sharpenImg <span class="token operator">=</span> src<span class="token punctuation">;</span>		<span class="token comment">//锐化后的结果</span>
+	<span class="token comment">//Laplance变换</span>
+	cv<span class="token operator">::</span><span class="token function">filter2D</span><span class="token punctuation">(</span>src<span class="token punctuation">,</span> imgLaplance<span class="token punctuation">,</span> CV_32F<span class="token punctuation">,</span> kernel<span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Point</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+		<span class="token number">0</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>BORDER_DEFAULT<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//锐化即为原图减去拉式变换后的图像</span>
+	<span class="token comment">//两个图像相减，图像的类型深度必须相同</span>
+	src<span class="token punctuation">.</span><span class="token function">convertTo</span><span class="token punctuation">(</span>sharpenImg<span class="token punctuation">,</span> CV_32F<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span>Mat resultImg <span class="token operator">=</span> sharpenImg <span class="token operator">-</span> imgLaplance<span class="token punctuation">;</span>
+
+	<span class="token comment">//图像深度转为8UC3,3通道彩色图像显示</span>
+	resultImg<span class="token punctuation">.</span><span class="token function">convertTo</span><span class="token punctuation">(</span>resultImg<span class="token punctuation">,</span> CV_8UC3<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	imgLaplance<span class="token punctuation">.</span><span class="token function">convertTo</span><span class="token punctuation">(</span>imgLaplance<span class="token punctuation">,</span> CV_8UC3<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//显示锐化彩色结果</span>
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span><span class="token string">"sharp"</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span><span class="token string">"sharp"</span><span class="token punctuation">,</span> resultImg<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	src <span class="token operator">=</span> resultImg<span class="token punctuation">;</span>
+	<span class="token comment">//二值化</span>
+	cv<span class="token operator">::</span>Mat binaryImg<span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">cvtColor</span><span class="token punctuation">(</span>src<span class="token punctuation">,</span> resultImg<span class="token punctuation">,</span> cv<span class="token operator">::</span>COLOR_BGR2GRAY<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">threshold</span><span class="token punctuation">(</span>resultImg<span class="token punctuation">,</span> binaryImg<span class="token punctuation">,</span> <span class="token number">40</span><span class="token punctuation">,</span> <span class="token number">255</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>THRESH_BINARY <span class="token operator">|</span> cv<span class="token operator">::</span>THRESH_OTSU<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span><span class="token string">"binary"</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span><span class="token string">"binary"</span><span class="token punctuation">,</span> binaryImg<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token comment">//距离变换</span>
+	cv<span class="token operator">::</span>Mat distImg<span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">distanceTransform</span><span class="token punctuation">(</span>binaryImg<span class="token punctuation">,</span> distImg<span class="token punctuation">,</span> cv<span class="token operator">::</span>DIST_L1<span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//归一化到0-1</span>
+	cv<span class="token operator">::</span><span class="token function">normalize</span><span class="token punctuation">(</span>distImg<span class="token punctuation">,</span> distImg<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>NORM_MINMAX<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span><span class="token string">"dist_norm"</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span><span class="token string">"dist_norm"</span><span class="token punctuation">,</span> distImg<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token comment">//距离变换后再二值化</span>
+	cv<span class="token operator">::</span><span class="token function">threshold</span><span class="token punctuation">(</span>distImg<span class="token punctuation">,</span> distImg<span class="token punctuation">,</span> <span class="token number">0.4</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>THRESH_BINARY<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//二值化后腐蚀</span>
+	<span class="token comment">//腐蚀的结构体</span>
+	cv<span class="token operator">::</span>Mat k1 <span class="token operator">=</span> cv<span class="token operator">::</span>Mat<span class="token operator">::</span><span class="token function">ones</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> CV_8UC1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">erode</span><span class="token punctuation">(</span>distImg<span class="token punctuation">,</span> distImg<span class="token punctuation">,</span> k1<span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Point</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span><span class="token string">"dist_erode"</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span><span class="token string">"dist_erode"</span><span class="token punctuation">,</span> distImg<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	cv<span class="token operator">::</span>Mat dist_8u<span class="token punctuation">;</span>
+	<span class="token comment">//转换为8U深度</span>
+	distImg<span class="token punctuation">.</span><span class="token function">convertTo</span><span class="token punctuation">(</span>dist_8u<span class="token punctuation">,</span> CV_8U<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//找出轮廓</span>
+	vector<span class="token operator">&lt;</span>vector<span class="token operator">&lt;</span>cv<span class="token operator">::</span>Point<span class="token operator">&gt;&gt;</span> contours<span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">findContours</span><span class="token punctuation">(</span>dist_8u<span class="token punctuation">,</span> contours<span class="token punctuation">,</span> cv<span class="token operator">::</span>RETR_EXTERNAL<span class="token punctuation">,</span> cv<span class="token operator">::</span>CHAIN_APPROX_SIMPLE<span class="token punctuation">,</span>
+		cv<span class="token operator">::</span><span class="token function">Point</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//标记 markerssr</span>
+	cv<span class="token operator">::</span>Mat markers <span class="token operator">=</span> cv<span class="token operator">::</span>Mat<span class="token operator">::</span><span class="token function">zeros</span><span class="token punctuation">(</span>src<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> CV_32SC1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">for</span> <span class="token punctuation">(</span>size_t i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> contours<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		<span class="token comment">//在markers上画出轮廓</span>
+		cv<span class="token operator">::</span><span class="token function">drawContours</span><span class="token punctuation">(</span>markers<span class="token punctuation">,</span> contours<span class="token punctuation">,</span> <span class="token keyword">static_cast</span><span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token operator">&gt;</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">,</span>
+			cv<span class="token operator">::</span>Scalar<span class="token operator">::</span><span class="token function">all</span><span class="token punctuation">(</span><span class="token keyword">static_cast</span><span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token operator">&gt;</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	cv<span class="token operator">::</span><span class="token function">circle</span><span class="token punctuation">(</span>markers<span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Point</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Scalar</span><span class="token punctuation">(</span><span class="token number">255</span><span class="token punctuation">,</span> <span class="token number">255</span><span class="token punctuation">,</span> <span class="token number">255</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span><span class="token string">"markers"</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//32S格式的图片显示有问题，需要转换成32F</span>
+	<span class="token comment">//cv::imshow("markers", markers);</span>
+
+	<span class="token comment">//分水岭算法，</span>
+	cv<span class="token operator">::</span><span class="token function">watershed</span><span class="token punctuation">(</span>src<span class="token punctuation">,</span> markers<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//转化到8UC1深度</span>
+	cv<span class="token operator">::</span>Mat mark <span class="token operator">=</span> cv<span class="token operator">::</span>Mat<span class="token operator">::</span><span class="token function">zeros</span><span class="token punctuation">(</span>markers<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> CV_8UC1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	markers<span class="token punctuation">.</span><span class="token function">convertTo</span><span class="token punctuation">(</span>mark<span class="token punctuation">,</span> CV_8UC1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//图像取反</span>
+	cv<span class="token operator">::</span><span class="token function">bitwise_not</span><span class="token punctuation">(</span>mark<span class="token punctuation">,</span> mark<span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Mat</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span><span class="token string">"watershed image"</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span><span class="token string">"watershed image"</span><span class="token punctuation">,</span> mark<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token comment">//随机着色</span>
+	vector<span class="token operator">&lt;</span>cv<span class="token operator">::</span>Vec3b<span class="token operator">&gt;</span> colors<span class="token punctuation">;</span>
+	<span class="token keyword">for</span> <span class="token punctuation">(</span>size_t i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> contours<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		<span class="token keyword">int</span> r <span class="token operator">=</span> cv<span class="token operator">::</span><span class="token function">theRNG</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">uniform</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">255</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token keyword">int</span> g <span class="token operator">=</span> cv<span class="token operator">::</span><span class="token function">theRNG</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">uniform</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">255</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token keyword">int</span> b <span class="token operator">=</span> cv<span class="token operator">::</span><span class="token function">theRNG</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">uniform</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">255</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		colors<span class="token punctuation">.</span><span class="token function">push_back</span><span class="token punctuation">(</span>cv<span class="token operator">::</span><span class="token function">Vec3b</span><span class="token punctuation">(</span><span class="token punctuation">(</span>uchar<span class="token punctuation">)</span>b<span class="token punctuation">,</span> <span class="token punctuation">(</span>uchar<span class="token punctuation">)</span>g<span class="token punctuation">,</span> <span class="token punctuation">(</span>uchar<span class="token punctuation">)</span>r<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+	<span class="token comment">//填充每个图像</span>
+	cv<span class="token operator">::</span>Mat dst <span class="token operator">=</span> cv<span class="token operator">::</span>Mat<span class="token operator">::</span><span class="token function">zeros</span><span class="token punctuation">(</span>markers<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> CV_8UC3<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//对markers标记进行处理，每个标记的颜色对应着相同的相同数字的索引</span>
+	<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> row <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> row <span class="token operator">&lt;</span> markers<span class="token punctuation">.</span>rows<span class="token punctuation">;</span> <span class="token operator">++</span>row<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> col <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> col <span class="token operator">&lt;</span> markers<span class="token punctuation">.</span>cols<span class="token punctuation">;</span> <span class="token operator">++</span>col<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+			<span class="token comment">//markers中每个标记的索引就是对应的颜色</span>
+			<span class="token keyword">int</span> index <span class="token operator">=</span> markers<span class="token punctuation">.</span>at<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token operator">&gt;</span><span class="token punctuation">(</span>row<span class="token punctuation">,</span> col<span class="token punctuation">)</span><span class="token punctuation">;</span>
+			<span class="token comment">//若标记在所有的标记中</span>
+			<span class="token keyword">if</span> <span class="token punctuation">(</span>index <span class="token operator">&gt;</span> <span class="token number">0</span> <span class="token operator">&amp;&amp;</span> index <span class="token operator">&lt;=</span> <span class="token keyword">static_cast</span><span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token operator">&gt;</span><span class="token punctuation">(</span>contours<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+				<span class="token comment">//将该标记所标记的区域上色</span>
+				dst<span class="token punctuation">.</span>at<span class="token operator">&lt;</span>cv<span class="token operator">::</span>Vec3b<span class="token operator">&gt;</span><span class="token punctuation">(</span>row<span class="token punctuation">,</span> col<span class="token punctuation">)</span> <span class="token operator">=</span> colors<span class="token punctuation">[</span>index <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+			<span class="token punctuation">}</span>
+			<span class="token comment">//若不是标记的区域，而是背景，上色黑色</span>
+			<span class="token keyword">else</span> <span class="token punctuation">{</span>
+				dst<span class="token punctuation">.</span>at<span class="token operator">&lt;</span>cv<span class="token operator">::</span>Vec3b<span class="token operator">&gt;</span><span class="token punctuation">(</span>row<span class="token punctuation">,</span> col<span class="token punctuation">)</span> <span class="token operator">=</span> cv<span class="token operator">::</span><span class="token function">Vec3b</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+			<span class="token punctuation">}</span>
+		<span class="token punctuation">}</span>
+	<span class="token punctuation">}</span>
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span><span class="token string">"final"</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span><span class="token string">"final"</span><span class="token punctuation">,</span> dst<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	cv<span class="token operator">::</span><span class="token function">waitKey</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

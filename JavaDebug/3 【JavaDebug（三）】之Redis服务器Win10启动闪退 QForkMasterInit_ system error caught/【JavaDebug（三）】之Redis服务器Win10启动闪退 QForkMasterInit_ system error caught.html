@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【JavaDebug（三）】之Redis服务器Win10启动闪退 QForkMasterInit: system error caught</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="_Bug_7"></a>一. Bug描述</h2>
+<h3><a id="_8"></a>（一）环境描述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Win10家庭版<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;Redis 2.8.9<br>
+<br></p>
+<h3><a id="Bug_14"></a>（二）Bug描述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;首次在Win10上使用Redis时，执行redis-server.exe直接闪退，用cmd打开报如下的错误：</p>
+<pre><code class="prism language-cpp">QForkMasterInit<span class="token operator">:</span> system error caught<span class="token punctuation">.</span> error code<span class="token operator">=</span><span class="token number">0x000005af</span><span class="token punctuation">,</span> message<span class="token operator">=</span>VirtualAllocEx failed<span class="token punctuation">.</span><span class="token operator">:</span> unknow
+</code></pre>
+<br>
+<h2><a id="__24"></a>二. 解决方法</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;因为没有设置Redis的最大内存，我们需要手动为Redis的配置文件redis.wiindows.conf添加内存设置：</p>
+<pre><code class="prism language-cpp">maxmemory <span class="token number">268435456</span>
+maxheap <span class="token number">314572800</span>
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在cmd中重新打开redis-server.exe文件，后面要加上redis.windows.conf配置文件。</p>
+<pre><code class="prism language-cpp">D<span class="token operator">:</span>\JAVA\redis<span class="token operator">-</span><span class="token number">2.8</span><span class="token number">.9</span><span class="token operator">&gt;</span>redis<span class="token operator">-</span>server<span class="token punctuation">.</span>exe redis<span class="token punctuation">.</span>windows<span class="token punctuation">.</span>conf
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;成功登陆Redis服务器，问题成功解决。</p>
+</div>
+</body>
+
+</html>

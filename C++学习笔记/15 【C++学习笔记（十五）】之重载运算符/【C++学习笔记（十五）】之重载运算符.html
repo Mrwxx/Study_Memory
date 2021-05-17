@@ -1,0 +1,176 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【C++学习笔记（十五）】之重载运算符</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="__7"></a>一. 运算符重载</h2>
+<h3><a id="_8"></a>（一）定义：</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;对已有的运算符进行重新的定义，以适应不同的数据类型。其实还是一个函数，只不过函数名改为了operator加上要重载的运算符。</p>
+<h3><a id="_11"></a>（二）参数：</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;运算符重载函数的参数个数取决于：</p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;1.	运算符是一元运算符还是二元运算符<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;2.	运算符重载函数是全局函数还是成员函数。对于全局函数，一元运算符有一个参数，二元运算符有两个参数；对于成员函数，一元运算符没有参数，二元运算符有一个参数。</strong></p>
+<h2><a id="_17"></a>二.运算符重载实例</h2>
+<h3><a id="_18"></a>（一）+号运算符重载代码：</h3>
+<pre><code class="prism language-cpp"><span class="token macro property">#<span class="token directive keyword">define</span> _CRT_SECURE_NO_WARNINIGS</span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+<span class="token keyword">class</span> <span class="token class-name">Person</span>
+<span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token function">Person</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+	<span class="token function">Person</span><span class="token punctuation">(</span><span class="token keyword">int</span> a<span class="token punctuation">,</span> <span class="token keyword">int</span> b<span class="token punctuation">)</span> <span class="token operator">:</span> <span class="token function">m_A</span><span class="token punctuation">(</span>a<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token function">m_B</span><span class="token punctuation">(</span>b<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span><span class="token punctuation">}</span>
+
+	<span class="token comment">//+号重载 成员函数,将成员变量对应相加</span>
+	Person <span class="token keyword">operator</span><span class="token operator">+</span><span class="token punctuation">(</span>Person<span class="token operator">&amp;</span> p<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		Person tmp<span class="token punctuation">;</span>
+		tmp<span class="token punctuation">.</span>m_A <span class="token operator">=</span> <span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_A <span class="token operator">+</span> p<span class="token punctuation">.</span>m_A<span class="token punctuation">;</span>
+		tmp<span class="token punctuation">.</span>m_B <span class="token operator">=</span> <span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_B <span class="token operator">+</span> p<span class="token punctuation">.</span>m_B<span class="token punctuation">;</span>
+		<span class="token keyword">return</span> tmp<span class="token punctuation">;</span>
+
+	<span class="token punctuation">}</span>
+
+	<span class="token keyword">int</span> m_A<span class="token punctuation">;</span>
+	<span class="token keyword">int</span> m_B<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token comment">//全局函数，重载</span>
+<span class="token comment">//Person operator+ (Person &amp; p1, Person &amp; p2)</span>
+<span class="token comment">//{</span>
+<span class="token comment">//	Person tmp;</span>
+<span class="token comment">//	tmp.m_A = p1.m_A + p2.m_A;</span>
+<span class="token comment">//	tmp.m_B = p1.m_B + p2.m_B;</span>
+<span class="token comment">//	return tmp;</span>
+<span class="token comment">//}</span>
+
+<span class="token keyword">void</span> <span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	Person <span class="token function">p1</span><span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	Person <span class="token function">p2</span><span class="token punctuation">(</span><span class="token number">20</span><span class="token punctuation">,</span> <span class="token number">20</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	Person p3 <span class="token operator">=</span> p1 <span class="token operator">+</span> p2<span class="token punctuation">;</span>		<span class="token comment">//成员函数，全局函数都可以被调用</span>
+	cout <span class="token operator">&lt;&lt;</span> <span class="token string">"p3.m_A = "</span> <span class="token operator">&lt;&lt;</span> p3<span class="token punctuation">.</span>m_A <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	cout <span class="token operator">&lt;&lt;</span> <span class="token string">"p3.m_B = "</span> <span class="token operator">&lt;&lt;</span> p3<span class="token punctuation">.</span>m_B <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+
+	
+<span class="token punctuation">}</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	<span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3><a id="_74"></a>（二）左移运算符重载</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;首先，我们想要实现的需求是用左移运算符&lt;&lt;直接输出输出类，实现如下所示：<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;cout &lt;&lt; p<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;输出为<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;P的m_A为… p的m_B为…</p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;要实现这种功能，就要对cout进行重载。之前说到，重载运算符分为成员函数重载和全局函数重载，但是左移运算符&lt;&lt;前面已经有了cout，因此成员函数重载是无法使用的，只能用全局函数重载。</strong><br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;同时，左移运算符还有连续输出的功能，这一点就要通过重载的全局函数返回cout引用来实现。<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;当需要输出的数据为类中的私有数据时，还需要将重载全局函数添加为类的友元函数。</p>
+<p>代码如下：</p>
+<pre><code class="prism language-cpp"><span class="token macro property">#<span class="token directive keyword">define</span> _CRT_SECURE_NO_WARNINGS</span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+<span class="token keyword">class</span> <span class="token class-name">Person</span>
+<span class="token punctuation">{</span>
+	<span class="token keyword">friend</span> ostream<span class="token operator">&amp;</span> <span class="token keyword">operator</span><span class="token operator">&lt;&lt;</span><span class="token punctuation">(</span>ostream<span class="token operator">&amp;</span> cout<span class="token punctuation">,</span> Person<span class="token operator">&amp;</span> p1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token function">Person</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span><span class="token punctuation">}</span>
+	<span class="token function">Person</span><span class="token punctuation">(</span><span class="token keyword">int</span> a<span class="token punctuation">,</span> <span class="token keyword">int</span> b<span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_A <span class="token operator">=</span> a<span class="token punctuation">;</span>
+		<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_B <span class="token operator">=</span> b<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+<span class="token keyword">private</span><span class="token operator">:</span>
+	<span class="token keyword">int</span> m_A<span class="token punctuation">;</span>
+	<span class="token keyword">int</span> m_B<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token comment">//全局函数重载</span>
+ostream<span class="token operator">&amp;</span> <span class="token keyword">operator</span><span class="token operator">&lt;&lt;</span><span class="token punctuation">(</span>ostream<span class="token operator">&amp;</span> cout<span class="token punctuation">,</span> Person<span class="token operator">&amp;</span> p1<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	cout <span class="token operator">&lt;&lt;</span> <span class="token string">"m_A = "</span> <span class="token operator">&lt;&lt;</span> p1<span class="token punctuation">.</span>m_A <span class="token operator">&lt;&lt;</span> <span class="token string">"m_B = "</span> <span class="token operator">&lt;&lt;</span> p1<span class="token punctuation">.</span>m_B<span class="token punctuation">;</span>
+	<span class="token keyword">return</span> cout<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">void</span> <span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	Person <span class="token function">p1</span><span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cout <span class="token operator">&lt;&lt;</span> p1 <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	<span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3><a id="_130"></a>（三）前置后置++重载</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如何区分前置++和后置++的重载函数？<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;用占位参数区分：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;前置++： MyInterger&amp; operator++(){}<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;后置++： MyInterger operator++(int){}</p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;前置++ 返回的是类的引用，因为前置++，数据值已经+1了，返回的是已经+1的类，可以用引用，一遍后续操作。<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;后置++ 返回的是类，因为需要开辟临时变量存储未+1的值，返回的是临时变量，是不能用引用的。</strong><br>
+代码：</p>
+<pre><code class="prism language-cpp"><span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+Using <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+<span class="token keyword">class</span> <span class="token class-name">MyInteger</span>
+<span class="token punctuation">{</span>
+	<span class="token keyword">friend</span> ostream<span class="token operator">&amp;</span> <span class="token keyword">operator</span><span class="token operator">&lt;&lt;</span><span class="token punctuation">(</span>ostream<span class="token operator">&amp;</span> cout<span class="token punctuation">,</span> MyInteger<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">public</span><span class="token operator">:</span>
+	<span class="token function">MyInteger</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		m_Num <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+	<span class="token comment">//前置++重载</span>
+	MyInteger<span class="token operator">&amp;</span> oeprator<span class="token operator">++</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span>m_Num<span class="token operator">++</span><span class="token punctuation">;</span>
+		<span class="token keyword">return</span> <span class="token operator">*</span><span class="token keyword">this</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+	<span class="token comment">//后置++重载</span>
+	MyInteger <span class="token keyword">operator</span><span class="token operator">++</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		<span class="token comment">//临时变量保存</span>
+		MyInteger tmp <span class="token operator">=</span> <span class="token operator">*</span><span class="token keyword">this</span><span class="token punctuation">;</span>
+		m_Num<span class="token operator">++</span><span class="token punctuation">;</span>
+		<span class="token keyword">return</span> tmp<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+	<span class="token keyword">int</span> m_Num<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+ostream<span class="token operator">&amp;</span> <span class="token keyword">operator</span><span class="token operator">&lt;&lt;</span><span class="token punctuation">(</span>ostream<span class="token operator">&amp;</span> cout<span class="token punctuation">,</span> MyInteger<span class="token operator">&amp;</span> myInt<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+	cout <span class="token operator">&lt;&lt;</span> myInt<span class="token punctuation">.</span>m_Num<span class="token punctuation">;</span>
+	<span class="token keyword">return</span> cout<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

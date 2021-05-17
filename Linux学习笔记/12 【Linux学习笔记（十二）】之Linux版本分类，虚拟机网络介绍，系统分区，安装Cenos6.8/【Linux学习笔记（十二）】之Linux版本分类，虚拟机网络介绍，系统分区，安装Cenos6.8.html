@@ -1,0 +1,134 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Linux学习笔记（十二）】之Linux版本分类，虚拟机网络介绍，系统分区，安装Cenos6.8</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09Linux_7"></a>一．	Linux版本分类</h2>
+<h3><a id="%09_8"></a>（一）	内核版</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;内核版在www.kernel.org上发布，虽然现在已经发布到了3.10.x的版本了，但是主流的版本依然是2.6.x版本，因为服务器最重要的是保持稳定，使用旧版本能够减少出现错误的几率。<br>
+<br></p>
+<h3><a id="%09_13"></a>（二）	发行版</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;发行版本是在内核版本的基础上添加图形界面或者第三方软件，组成了发行版本。这发行版本又分为了RedHat系列和Debian系列，RedHat系列包括RedHat，Centos等等，Debian系列包括Debian, Ubuntu等等。</p>
+<h4><a id="1%09RedHat_15"></a>1.	RedHat系列</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;RedHat系列分为个人版（Fedora）和服务器版（RedHat Enterprise Linux，RHEL），个人版可以安装所有的服务应用，包括图形化界面等等，服务器版是没有一些功能的，因为服务器追求极致的性能，如图形化界面之类的功能都是可以抛弃的。<br>
+<br></p>
+<h4><a id="2%09Debian_21"></a>2.	Debian系列</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;添加了图形化界面等功能的Linux版本。</p>
+<br>
+<h2><a id="%09_28"></a>二．	虚拟机介绍</h2>
+<h3><a id="%09_29"></a>（一）	虚拟机管理技巧</h3>
+<h4><a id="1%09_30"></a>1.	快照</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;养成良好的习惯，在比较重要的节点保存虚拟机的快照，能够随时恢复到快照的虚拟机状态，这对于我们学习与工作都是有好处的。<br>
+<br></p>
+<h4><a id="2%09_36"></a>2.	克隆</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;当我们需要多个相同的虚拟机做实验时，不用重新地创建一个新的虚拟机，而是直接克隆当前的虚拟机即可。克隆分为链接克隆和完整克隆，链接克隆是对原始虚拟机的引用，所需要的存储空间很少，但是必须在能够访问原始虚拟机的条件下才能够运行。而完整克隆是对原始虚拟机当前状态的完整副本，该副本虚拟机完全独立，但是需要较多的存储空间。<br>
+<br></p>
+<h3><a id="%09_42"></a>（二）	虚拟机网络介绍</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在物理机中安装了虚拟机后，物理机中就多了两个虚拟网卡，一个是VMnet1, 一个是VMnet8。</p>
+<h4><a id="1%09_44"></a>1.	桥接模式</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;直接连接到物理机网络，使用真实的物理机网卡VMnet0通信。因此，虚拟机可以和物理机进行通信，也可以连接到局域网上，只要物理机能够连接到互联网，虚拟机就能够连接到互联网。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在使用物理机的真实网卡通信时，也分为有线网卡和无线网卡，我们可以选择自动配置，也可以手动地在虚拟网络编辑器中配置桥接时的网卡。<br>
+<br></p>
+<h4><a id="2%09NAT_52"></a>2.	NAT模式</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;NAT模式连接虚拟网卡VMnet8，用于共享主机的IP地址，因此该虚拟机是可以连接到物理机的，同时也可以利用物理机的IP地址来访问互联网，由于虚拟机使用的是虚拟网卡，所以是不能连接到局域网上的。</p>
+<br>
+<h4><a id="3%09_59"></a>3.	仅主机模式</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;仅主机模式连接虚拟网卡VMnet1。该虚拟机与物理机共享的是专用的网络，只能连接到物理机，无法连接到互联网或者局域网。</p>
+<br>
+<h2><a id="%09_66"></a>三．	系统分区</h2>
+<h3><a id="%09_67"></a>（一）	磁盘分区</h3>
+<h4><a id="1%09_68"></a>1.	概述</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;磁盘分区是使用分区编辑器在磁盘上划分几个逻辑部分，碟片一旦划分成数个分区，不同类的目录与文件可以存储进不同的分区。<br>
+<br></p>
+<h4><a id="2%09_74"></a>2.	两种分区表形式</h4>
+<h5><a id="1%09MBR_75"></a>（1）	MBR分区表</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;MBR（主引导记录）分区表，最大支持2.1TB硬盘，最多支持4个分区。这不是说超过2.1TB的硬盘就不能使用MBR进行分区了，而是说剩余的硬盘资源是无法识别的。<br>
+<br></p>
+<h5><a id="2%09GPT_81"></a>（2）	GPT分区表</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;全局唯一标示分区表，GPT支持9.4ZB硬盘（1ZB=1024PB， 1PB=1024EB，1EB=1024TB）。理论上支持的分区数没有限制，但是Windows限制128个主分区。<br>
+<br></p>
+<h4><a id="3%09_87"></a>3.	分区类型</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;对于MBR分区表来说，主分区最多只能有4个，但是可以添加扩展分区，扩展分区最多只能有一个，且主分区加上扩展分区最多只能有4个。扩展分区是为了突破4个主分区的限制的，它可以包含多个逻辑分区，但是无法写入数据。</p>
+<br>
+<h3><a id="%09_93"></a>（二）	格式化</h3>
+<h4><a id="1%09_94"></a>1.	概述</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;格式化又称为逻辑格式化，它是指根据用户选定的文件系统（如FAT16，FAT32，NFTS，EXT4等），在磁盘的特定区域写入特定的数据，在分区中划出一片用于存放文件分配表，目录表等用于文件管理的磁盘空间。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;注意！！！格式化绝不是为了清空数据，而是为了写入文件系统，以管理文件。<br>
+<br></p>
+<h4><a id="2%09block_102"></a>2.	block</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;格式化会将分区划分为很多的block，block数据块是分区中最小的存储单位，通常为4KB，2KB或者1KB。<br>
+<br></p>
+<h4><a id="3%09_108"></a>3.	索引</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;当我们存入这么多的数据时，如何快速的查找呢？</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;每个文件上都会引入一个Inode索引，该索引包括Inode索引号，文件创建时间，文件存储路径，权限。当索引到该文件时，首先检查是否有权限，能否获得文件的存储位置？</p>
+<br>
+<h3><a id="%09_116"></a>（三）	硬件设备文件名</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Linux中所有的硬件设备都是有文件名的，在做完分区和格式化后，需要为每个分区设置分区设备文件名。</p>
+<h4><a id="1%09_119"></a>1.	设备文件名</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;/dev/hda1 ， hd表示这是IDE硬盘接口，目前已接近淘汰，只有光盘中还在使用。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;/dev/sda1 ， SCSI硬盘接口，SATA硬盘接口，USB接口都会被识别为sd接口类型，后面的a表示这是第一块该类型的接口，1表示这是第一个分区。<br>
+<br></p>
+<h3><a id="%09_127"></a>（四）	设置挂载点</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;有了硬盘的设备文件名后，就可以找到该设备位置，然后为该分区设置挂载点。所谓的挂载点类似于Windows中的盘符概念，D盘，C盘，让我们能够轻易地分辨每个分区，同时也方便查找。我们需要使用一个已经存在的空目录作为挂载点，它是访问分区资源的入口，然后将分区挂载到挂载点上。</p>
+<br>
+<h3><a id="%09_133"></a>（五）	分区类型</h3>
+<h4><a id="1%09_134"></a>1.	必须实现的分区</h4>
+<h5><a id="1%09__135"></a>（1）	根分区 /</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;每块硬盘在没有分区时都只有一个根分区，一定要对根分区进行分区。</p>
+<br>
+<h5><a id="2%09swap_141"></a>（2）	swap分区（交换分区）</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;交换分区可以理解为虚拟内存，用于提升计算机的性能，如果真是内存小于4GB，那么swap分区的大小是真实内存的两倍；如果真是内存大于4GB，那么内存一致；如果是实验环境，则不大于2GB。<br>
+<br></p>
+<h5><a id="3%09_147"></a>（3）	推荐分区</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;系统启动时需要释放部分文件，我们需要为系统的启动/boot分区留有部分的空间，可以设置一个启动分区，大概为1GB。</p>
+<br>
+<h2><a id="%09CentOS_154"></a>四．	CentOS安装</h2>
+<h3><a id="_155"></a>（一）安装过程注意事项</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;下载DVD镜像后，启动一个空的虚拟机进行安装Centos，注意不要选择扫描光盘，直接跳过。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;安装中文版本，因为如果安装英文版本，它会缺少中文编码和字体，时间选择上海，布局选择自定义，然后为虚拟硬盘进行分区，为每个分区选择挂载点，文件系统类型，分区大小。swap分区在文件系统的选择中，且没有挂载点。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;最多只能划分4个主分区，其他的都是扩展分区。最后的CetOs安装版本选择Basic Server安装版本，因为服务器不需要图形化界面，则不选前两项带图形化界面的，而minimal 最小化版本中缺少基本的服务，因此选择Basic Server版本最合适。<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;注意，这里要给根分区分配较大的空间，否则安装会失败。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;安装成功后，记得给虚拟机做一个快照。<br>
+<br></p>
+<h3><a id="__169"></a>（二） 安装日志记录</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;注意，在安装完成后，Centos给我们记录了三个日志：</p>
+<h4><a id="1%09rootinstalllog_171"></a>1.	/root/install.log</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;存储了安装在系统中的软件包以及版本的信息</p>
+<br>
+<h4><a id="2%09rootinstalllogsyslog_177"></a>2.	/root/install.log.syslog</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;存储了安装过程中留下的事件记录<br>
+<br></p>
+<h4><a id="3%09rootanacondakscfg_183"></a>3.	/root/anaconda-ks.cfg</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;以Kickstart配置文件的格式记录下安装过程中设置的选项信息，这个在我们需要批量安装虚拟机的时候可以使用，省去了单独安装每台虚拟机的麻烦。</p>
+<br>
+<h2><a id="%09_190"></a>五．	远程连接管理工具</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;工作中，我们都是使用远程连接管理工具来连接虚拟机的。</p>
+<h3><a id="%09IP_192"></a>（一）	配置IP</h3>
+<h4><a id="1%09setup_193"></a>1.	setup</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;RedHat 版本Linux中独有的工具，直接使用该工具能够对虚拟机进行配置。<br>
+<br></p>
+<h4><a id="2_IP_199"></a>2． 配置IP</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;执行setup命令后，进入了配置界面，选择NetWork Configuration配置网络。再选择Device configuration，能够同时配置IP和DNS。进入后可以看到我们的网卡eth0，我们可以设置该网卡是否使用DHCP自动获取IP，或者配置静态的IP地址，掩码，网关，DNS。注意，ON-BOOT选项一定要选中，选中的标志是*号，这表示着该网卡会开启。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;不要过于随机地设置静态IP地址，如果我们选择的是NAT连接方式，那么虚拟机的IP地址要与物理机在同一个子网中，即两个IP地址的前3个字段是相同的，最后一个字段只要不是1和2就行，1被虚拟网卡占用了，2被虚拟机的网关占用了。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如，虚拟网卡的的IP地址为 192.168.112.1，那么虚拟机的IP地址可以分配为192.168.112.24，网关为192.168.112.2， 子网掩码为255.255.255.0,。DNS设置为谷歌的8.8.8.8。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;设置完IP地址后，重启网络服务，用ifconfig测试IP地址是否配置成功，测试虚拟机能够ping通物理机以及能否连接到互联网上。</p>
+<pre><code class="prism language-cpp">service network restart
+ifconfig
+ping www<span class="token punctuation">.</span>baidu<span class="token punctuation">.</span>com
+</code></pre>
+</div>
+</body>
+
+</html>

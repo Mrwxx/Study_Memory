@@ -1,0 +1,78 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【C++学习笔记（二十四）】之类型转换</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	类型转换</h2>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;类型转换(cast)是将一种数据类型转换成另一种数据类型</strong>。例如，如果将一个整型值赋给一个浮点类型的变量，编译器会暗地里将其转换成浮点类型。</p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;转换会带来问题，比如在转换指针时，我们很可能将其转换成一个比它更大的类型，但这可能会破坏其他的数据。</strong></p>
+<h2><a id="%09static_cast_13"></a>二．	静态转换（static_cast）</h2>
+<h3><a id="1%09_14"></a>1.	用于基本数据类型之间的转换。</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如把int转换成char，把char转换成int。这种转换的安全性也要开发人员来保证。</p>
+<pre><code class="prism language-cpp"><span class="token keyword">int</span> a<span class="token punctuation">;</span>
+<span class="token keyword">double</span> b <span class="token operator">=</span> <span class="token keyword">static_cast</span><span class="token operator">&lt;</span><span class="token keyword">double</span><span class="token operator">&gt;</span><span class="token punctuation">(</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<h3><a id="2%09_22"></a>2.	用于类层次结构中基类和子类之间指针或引用的转换。</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;没有继承关系的类是无法转换的。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>上行转换</strong>（将子类的指针或引用转换为基类表示）是安全的，具体原因多态中已经讲过。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>下行转换</strong>（把基类指针或引用转换成子类表示）是不安全的。</p>
+<p>如：</p>
+<pre><code class="prism language-cpp"><span class="token keyword">class</span> <span class="token class-name">Animal</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token keyword">class</span> <span class="token class-name">Dog</span> <span class="token operator">:</span> <span class="token keyword">public</span> <span class="token function">Animal</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+Animal <span class="token operator">*</span> animal1 <span class="token operator">=</span> <span class="token constant">NULL</span><span class="token punctuation">;</span>
+Dog <span class="token operator">*</span> dog1 <span class="token operator">=</span> <span class="token constant">NULL</span><span class="token punctuation">;</span>
+Animal <span class="token operator">*</span> animal2 <span class="token operator">=</span> <span class="token keyword">static_cast</span><span class="token operator">&lt;</span>Animal <span class="token operator">*</span><span class="token operator">&gt;</span><span class="token punctuation">(</span>dog1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h2><a id="_dynamic_cast_40"></a>三. 动态转换（dynamic_cast）</h2>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;基础类型是不能转换的，如double转int都是不能转换的。<br>
+<strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;因为动态转换十分严格，如果有失去精度或者不安全的转换都是不允许的。</strong></p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;因此，在基类和子类的转换中，上行转换是安全的，可以用动态转换；而下行转换是不安全的，因此不能用动态转换。</strong><br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;但是，<strong>通过多态可以让下行转换通过动态转换实现</strong>。因为使用多态，父类指针也是用子类的内存大小进行构造的，不论基类，子类怎么转换，指针都不会越界。如下所示：</p>
+<pre><code class="prism language-cpp"><span class="token keyword">class</span> <span class="token class-name">Base</span>
+<span class="token punctuation">{</span>
+<span class="token keyword">virtual</span> <span class="token keyword">void</span> <span class="token function">func</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>	<span class="token comment">//虚函数</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">class</span> <span class="token class-name">Child</span>
+<span class="token punctuation">{</span>
+<span class="token keyword">virtual</span> <span class="token keyword">void</span> <span class="token function">func</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+Base <span class="token operator">*</span> base <span class="token operator">=</span> <span class="token keyword">new</span> Child<span class="token punctuation">;</span>
+Child <span class="token operator">*</span> child <span class="token operator">=</span> <span class="token keyword">dynamic_cast</span><span class="token operator">&lt;</span>Child<span class="token operator">*</span><span class="token operator">&gt;</span><span class="token punctuation">(</span>base<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h2><a id="_const_cast_66"></a>四. 常量转换（const_cast）</h2>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;该运算符用来修改类型的const属性，为非常量添加const属性，为常量去掉const属性。</p>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;注意:不能直接对非指针和非引用的变量使用const_cast操作符去直接移除它的const.</strong></p>
+<p>使用实例：</p>
+<pre><code class="prism language-cpp"><span class="token keyword">const</span> <span class="token keyword">int</span> <span class="token operator">*</span>p <span class="token operator">=</span> <span class="token constant">NULL</span><span class="token punctuation">;</span>
+<span class="token keyword">int</span> <span class="token operator">*</span>newp <span class="token operator">=</span> <span class="token keyword">const_cast</span><span class="token operator">&lt;</span><span class="token keyword">int</span> <span class="token operator">*</span><span class="token operator">&gt;</span><span class="token punctuation">(</span>p<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">int</span> <span class="token operator">*</span>p2 <span class="token operator">=</span> <span class="token constant">NULL</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> <span class="token keyword">int</span> <span class="token operator">*</span> newp2 <span class="token operator">=</span> <span class="token keyword">const_cast</span><span class="token operator">&lt;</span><span class="token keyword">const</span> <span class="token keyword">int</span> <span class="token operator">*</span><span class="token operator">&gt;</span><span class="token punctuation">(</span>p2<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<h2><a id="reinterpret_cast_83"></a>五．重新解释转换（reinterpret_cast）</h2>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;最不安全的一种转换机制，可以将一种数据类型转换成另外一种类型，非常危险，所以不推荐使用。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如把int转换为int*</p>
+<pre><code class="prism language-cpp"><span class="token keyword">int</span> a <span class="token operator">=</span> <span class="token number">10</span><span class="token punctuation">;</span>
+<span class="token keyword">int</span> <span class="token operator">*</span>p <span class="token operator">=</span> <span class="token keyword">reinterpret_cast</span><span class="token operator">&lt;</span><span class="token keyword">int</span> <span class="token operator">*</span><span class="token operator">&gt;</span><span class="token punctuation">(</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+</div>
+</body>
+
+</html>

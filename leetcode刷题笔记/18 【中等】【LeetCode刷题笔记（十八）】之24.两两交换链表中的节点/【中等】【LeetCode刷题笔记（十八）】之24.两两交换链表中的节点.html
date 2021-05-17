@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【中等】【LeetCode刷题笔记（十八）】之24.两两交换链表中的节点</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	题目</h2>
+<h3><a id="%09_8"></a>（一）	题干</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 给定一个链表，两两交换其中相邻的节点，并返回交换后的链表。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 你不能只是单纯的改变节点内部的值，而是需要实际的进行节点交换。<br>
+<br></p>
+<h3><a id="%09_17"></a>（二）	示例</h3>
+<pre><code class="prism language-cpp">给定 <span class="token number">1</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token number">2</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token number">3</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token number">4</span><span class="token punctuation">,</span> 你应该返回 <span class="token number">2</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token number">1</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token number">4</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token number">3.</span>
+</code></pre>
+<br>
+<h2><a id="%09_27"></a>二．	题解</h2>
+<h3><a id="%09_28"></a>（一）	思路</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 从题目来看，题目给出一个链表，两两交换相邻的节点，那些已经交换过的节点不需要再次交换。这又是一个从头开始，一直循环到链表的结尾的问题，又可以使用递归来解决，每次递归交换两个节点，返回递归中的第二个节点，之后再进入下一个递归，每个递归函数传入一个节点，直到链表中没有节点了。最后返回的是原始链表的第二个节点。<br>
+<br></p>
+<h3><a id="%09_34"></a>（二）	代码实现</h3>
+<h4><a id="1_Java_35"></a>1. Java</h4>
+<pre><code class="prism language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ChangeList24</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> ListNode <span class="token function">swapPairs</span><span class="token punctuation">(</span>ListNode head<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token comment">//如果链表为空或者链表只有头结点</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token punctuation">(</span>head<span class="token operator">==</span>null<span class="token punctuation">)</span><span class="token operator">||</span> <span class="token punctuation">(</span>head<span class="token punctuation">.</span>next<span class="token operator">==</span>null<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">return</span> head<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment">//交换传入的节点和下一个节点</span>
+        ListNode firstNode <span class="token operator">=</span> head<span class="token punctuation">;</span>
+        ListNode secondNode <span class="token operator">=</span> head<span class="token punctuation">.</span>next<span class="token punctuation">;</span>
+        <span class="token comment">//进入递归函数</span>
+        <span class="token comment">//传入的节点的下一个节点是下一个递归函数的返回值</span>
+        firstNode<span class="token punctuation">.</span>next <span class="token operator">=</span> <span class="token function">swapPairs</span><span class="token punctuation">(</span>secondNode<span class="token punctuation">.</span>next<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        secondNode<span class="token punctuation">.</span>next <span class="token operator">=</span> firstNode<span class="token punctuation">;</span>
+
+        <span class="token comment">//返回交换后的第二个节点</span>
+        <span class="token keyword">return</span> secondNode<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

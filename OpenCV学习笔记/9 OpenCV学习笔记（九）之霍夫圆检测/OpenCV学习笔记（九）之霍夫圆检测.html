@@ -1,0 +1,87 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenCV学习笔记（九）之霍夫圆检测</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="__8"></a>一. 霍夫圆检测</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;因为霍夫圆检测对噪声比较敏感，所以首先要对图像做中值滤波。<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;基于效率考虑，OpenCV中实现的霍夫变换圆检测是基于图像梯度的实现，分为两步：</p>
+<ol>
+<li>检测边缘，发现可能的圆心</li>
+<li>在第一步的基础上从候选圆心开始计算最佳半径大小。</li>
+</ol>
+<h2><a id="_API_14"></a>二. 霍夫圆检测API</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>cv::HoughCircles()API分析</strong></p>
+<pre><code class="prism language-cpp">cv<span class="token operator">::</span><span class="token function">HoughCircles</span><span class="token punctuation">(</span>
+	InputArray image<span class="token punctuation">,</span>	<span class="token comment">//输入图像，必须是8位的单通道灰度图像</span>
+	OutputArray circles<span class="token punctuation">,</span>	<span class="token comment">//圆信息</span>
+	Int method<span class="token punctuation">,</span>				<span class="token comment">//方法</span>
+	Double dp<span class="token punctuation">,</span>				<span class="token comment">//dp = 1，尺度，在原图上查找为1,</span>
+	Double mindist<span class="token punctuation">,</span>		<span class="token comment">//两个圆心相聚的最小距离可以认为是两个圆</span>
+	Double param1<span class="token punctuation">,</span>		<span class="token comment">//Canny边缘检测的高阈值</span>
+	Double param2<span class="token punctuation">,</span>		<span class="token comment">//中心点累加阈值-候选圆心</span>
+	Int minradius<span class="token punctuation">,</span>			<span class="token comment">//最小半径</span>
+	Int maxradius<span class="token punctuation">,</span>			<span class="token comment">//最大半径</span>
+）
+</code></pre>
+<h2><a id="__29"></a>三. <strong>霍夫圆检测应用代码：</strong></h2>
+<pre><code class="prism language-cpp"><span class="token comment">/*****霍夫圆变换*****/</span>
+
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;opencv2/opencv.hpp&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;string&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;vector&gt;</span></span>
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+string in_title <span class="token operator">=</span> <span class="token string">"input image"</span><span class="token punctuation">;</span>
+string ou_title <span class="token operator">=</span> <span class="token string">"output image"</span><span class="token punctuation">;</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	cv<span class="token operator">::</span>Mat src<span class="token punctuation">,</span> dst<span class="token punctuation">,</span> gray_src<span class="token punctuation">;</span>
+	src <span class="token operator">=</span> cv<span class="token operator">::</span><span class="token function">imread</span><span class="token punctuation">(</span><span class="token string">"检测圆.png"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span>in_title<span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span>in_title<span class="token punctuation">,</span> src<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token comment">//中值滤波</span>
+	cv<span class="token operator">::</span>Mat m_output<span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">medianBlur</span><span class="token punctuation">(</span>src<span class="token punctuation">,</span> m_output<span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">cvtColor</span><span class="token punctuation">(</span>m_output<span class="token punctuation">,</span> m_output<span class="token punctuation">,</span> cv<span class="token operator">::</span>COLOR_BGR2GRAY<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token comment">//霍夫圆检测</span>
+	<span class="token comment">//圆的圆心和半径</span>
+	vector<span class="token operator">&lt;</span>cv<span class="token operator">::</span>Vec3f<span class="token operator">&gt;</span> p_circles<span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">HoughCircles</span><span class="token punctuation">(</span>m_output<span class="token punctuation">,</span> p_circles<span class="token punctuation">,</span> cv<span class="token operator">::</span>HOUGH_GRADIENT<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span>
+		<span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">100</span><span class="token punctuation">,</span> <span class="token number">25</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">50</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	src<span class="token punctuation">.</span><span class="token function">copyTo</span><span class="token punctuation">(</span>dst<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//画出圆</span>
+	<span class="token keyword">for</span> <span class="token punctuation">(</span>size_t i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> p_circles<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		cv<span class="token operator">::</span>Vec3f cc <span class="token operator">=</span> p_circles<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">;</span>
+		cv<span class="token operator">::</span><span class="token function">circle</span><span class="token punctuation">(</span>dst<span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Point</span><span class="token punctuation">(</span>cc<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> cc<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span> cc<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Scalar</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">255</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+			<span class="token number">2</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>LINE_AA<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		cv<span class="token operator">::</span><span class="token function">circle</span><span class="token punctuation">(</span>dst<span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Point</span><span class="token punctuation">(</span>cc<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> cc<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Scalar</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">255</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+			<span class="token number">2</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>LINE_AA<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span>ou_title<span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span>ou_title<span class="token punctuation">,</span> dst<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	cv<span class="token operator">::</span><span class="token function">waitKey</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

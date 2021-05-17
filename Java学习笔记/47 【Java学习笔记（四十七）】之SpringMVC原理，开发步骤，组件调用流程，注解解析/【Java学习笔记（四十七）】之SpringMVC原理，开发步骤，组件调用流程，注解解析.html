@@ -1,0 +1,208 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Java学习笔记（四十七）】之SpringMVC原理，开发步骤，组件调用流程，注解解析</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09Springweb_7"></a>一．	Spring集成web环境</h2>
+<h3><a id="%09ApplicationContext_8"></a>（一）	ApplicationContext应用上下文获取方式</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;应用上下文对象是通过new ClassPathXmlApplicationContext(Spring配置文件)方式获取的，但是这样每次从容器中获取Bean对象时都要创建一次应用上下文对象，很麻烦，且十分低效。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;因此，我们想到将应用上下文对象放到最大的域中共享。在Web项目中，可以使用ServletContextListener监听Web应用的启动，我们可以在Web项目启动时，就加在Spring的配置文件，创建应用上下文对象ApplicationContext，再将该对象存储到最大的域servletContext域中，这样既可以在任意位置从域中获取应用上下文对象ApplicationContext了。<br>
+<br></p>
+<h3><a id="%09_15"></a>（二）	自定义监听器</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;自定义一个监听器监听服务器的启动，加载配置文件，存储app应用上下文对象。</p>
+<pre><code class="prism language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ContextLoaderListener</span> <span class="token keyword">implements</span> <span class="token class-name">ServletContextListener</span><span class="token punctuation">{</span>
+		<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">contextInitialized</span><span class="token punctuation">(</span>ServletContextEvent servletContextEvent<span class="token punctuation">)</span><span class="token punctuation">{</span>
+			ApplicationContext app <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ClassPathXmlApplicationContext</span><span class="token punctuation">(</span>“applicationContext<span class="token punctuation">.</span>xml”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+			ServletContext servletContext <span class="token operator">=</span> servletContextEvent<span class="token punctuation">.</span><span class="token function">getServletContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+			servletContext<span class="token punctuation">.</span><span class="token function">setAttribute</span><span class="token punctuation">(</span>“app”<span class="token punctuation">,</span> app<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h3><a id="%09Spring_31"></a>（三）	Spring封装监听器</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Spring提供了一个监听器ContextLoaderListener，该监听器加载了Spring配置文件，创建应用上下文对象，并存储到ServletContext域中，并且提供了一个工具WebApplicationContextUtils供使用者获取应用上下文对象。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;这样一来，我们要做的事情就少了很多，只需要：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;1.	在web.xml中配置ContextLoaderListener监听器，提供配置文件的名称给监听器，同时还要导入spring-web的坐标。</p>
+<p>配置监听器的class：</p>
+<pre><code class="prism language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>listener</span><span class="token punctuation">&gt;</span></span>
+	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>listener-class</span><span class="token punctuation">&gt;</span></span>org.springframework.web.context.ContextLoaderListener<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>listener-class</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>listener</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;还要在web.xml中提供配置文件的名称给监听器，用全局初始化参数来配置：</p>
+<pre><code class="prism language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>!—全局初始化参数--</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>context-parm</span><span class="token punctuation">&gt;</span></span>
+	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>param-name</span><span class="token punctuation">&gt;</span></span>contextConfigLocation<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>param-name</span><span class="token punctuation">&gt;</span></span>
+	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>param-value</span><span class="token punctuation">&gt;</span></span>classpath:applicationContext.xml<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>param-value</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>context-parm</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<p>注意，路径名前面要加上classpath:<br>
+<br></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;2.	使用WebApplicationContextUtils获取应用上下文对象ApplicationContext。</p>
+<pre><code class="prism language-java">ServletContext servletContext <span class="token operator">=</span><span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getServletContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+ApplicationContext app <span class="token operator">=</span> WebApplicationContextUtils<span class="token punctuation">.</span><span class="token function">getWebApplicationContext</span><span class="token punctuation">(</span>servletContext<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h2><a id="%09SpringMVC_72"></a>二．	SpringMVC</h2>
+<h3><a id="%09_73"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;SpringMVC是一种基于Java的实现MVC设计模型的请求驱动类型的轻量级Web框架。<br>
+<br></p>
+<h3><a id="%09SpringMVC_79"></a>（二）	SpringMVC原理</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;客户端向服务器发送请求 ，服务器接收到了请求后，会封装代表请求的request对象，和代表响应的response对象，并调用服务器中相应的Servlet资源。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;web层中Servlet的行为分为公有行为和特有行为，公有行为如接受数据，指定视图等等，特有行为指的是不同的特有功能，如表单数据的校验，Cookie的编写。因此，我们可以把公有行为抽取为一个前端控制器，SpringMVC框架中的前端控制器是一个Servlet。特有行为抽取为POJO（简单JavaBean对象），用于不同的功能。因此，服务器在请求资源时，先经过前端控制器使用一些共有的功能，再通过POJO来调用不同的功能。<br>
+<br></p>
+<h3><a id="%09SpringMVC_87"></a>（三）	SpringMVC的开发步骤</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;1.	导入SpringMVC的包，注意，要导入spring-webmvc和spring-web的坐标。</p>
+<pre><code class="prism language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">&gt;</span></span>org.springframework<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">&gt;</span></span>spring-web<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">&gt;</span></span>5.0.5.RELEASE<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">&gt;</span></span>org.springframework<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">&gt;</span></span>spring-webmvc<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">&gt;</span></span>5.0.5.RELEASE<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;2.	SpringMVC使用Servlet作为前端控制器，因此要配置Servlet，即SpringMVC的核心DispatcherServlet。在web.xml中配置Servlet，像一般的Servlet一样进行配置，配置就是创建一个DispatcherServlet。</p>
+<pre><code class="prism language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>servlet</span><span class="token punctuation">&gt;</span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>servlet-name</span><span class="token punctuation">&gt;</span></span>DispatcherServlet<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>servlet-name</span><span class="token punctuation">&gt;</span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>servlet-class</span><span class="token punctuation">&gt;</span></span>org.springframework.web.servlet.DispatcherServlet<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>servlet-class</span><span class="token punctuation">&gt;</span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>load-on-startup</span><span class="token punctuation">&gt;</span></span>1<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>load-on-startup</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>servlet</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>servlet-mapping</span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>servlet-name</span><span class="token punctuation">&gt;</span></span>DispatcherServlet<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>servlet-name</span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>url-pattern</span><span class="token punctuation">&gt;</span></span>/<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>url-pattern</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>servlet-mapping</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;注意： url-pattern 取为“/”意思是所有的请求都要经过DiapatcherServlet<br>
+<br></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;3.	编写POJO特有功能，在SpringMVC中，把POJO称为控制器Controller，控制每种功能特有的工作，如调用业务层，指派视图。<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;创建controller包，在包中创建各个功能类，如创建UserController类，返回success,jsp视图：</p>
+<pre><code class="prism language-java"><span class="token keyword">package</span> com<span class="token punctuation">.</span>springmvc<span class="token punctuation">.</span>controller<span class="token punctuation">;</span>
+
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">{</span>
+
+    <span class="token keyword">public</span> String <span class="token function">save</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"Controller save running"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> <span class="token string">"success.jsp"</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;4.	将Controller控制器，使用注解配置到Spring容器中，由于这是web层，因此可以使用<code>@Controller</code>。同时还要配置Controller类中业务方法的映射地址，因为请求需要知道要调用哪个Controller类中的哪个方法才能实现功能。在save方法上用注解<code>@RequestMapping(“/quick”)</code>，表示服务器在访问quick资源时就会映射到UserController类中的save方法了。</p>
+<pre><code class="prism language-java"><span class="token keyword">package</span> com<span class="token punctuation">.</span>springmvc<span class="token punctuation">.</span>controller<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>stereotype<span class="token punctuation">.</span>Controller<span class="token punctuation">;</span>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>web<span class="token punctuation">.</span>bind<span class="token punctuation">.</span>annotation<span class="token punctuation">.</span>RequestMapping<span class="token punctuation">;</span>
+
+<span class="token annotation punctuation">@Controller</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">{</span>
+
+    <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span><span class="token string">"/quick"</span><span class="token punctuation">)</span>
+    <span class="token keyword">public</span> String <span class="token function">save</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"Controller save running"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> <span class="token string">"success.jsp"</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;5.	有了注解，就要配置组件扫描，使用context命名空间的component-scan，定义在Spring-mvc.xml文件进行配置，这是SpringMVC自己的配置文件。因此只需要设置base-package为controller包即可，service层，dao层的组件扫描可以在applicationContext.xml中配置。</p>
+<pre><code class="prism language-xml"><span class="token prolog">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>beans</span> <span class="token attr-name">xmlns</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>http://www.springframework.org/schema/beans<span class="token punctuation">"</span></span>
+       <span class="token attr-name"><span class="token namespace">xmlns:</span>xsi</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>http://www.w3.org/2001/XMLSchema-instance<span class="token punctuation">"</span></span>
+       <span class="token attr-name"><span class="token namespace">xmlns:</span>context</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>http://www.springframework.org/schema/context<span class="token punctuation">"</span></span>
+       <span class="token attr-name"><span class="token namespace">xsi:</span>schemaLocation</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+
+<span class="token comment">&lt;!--    Controller组件扫描--&gt;</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">context:</span>component-scan</span> <span class="token attr-name">base-package</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>com.springmvc.controller<span class="token punctuation">"</span></span><span class="token punctuation">/&gt;</span></span>
+
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>beans</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;同时，还要让spring-mvc.xml这个配置文件加载到springMVC中，而SpringMVC的核心是DispatcherServlet，因此在配置Servlet时加载spring-mvc.xml，因此在web.xml中同样是使用全局初始化参数：<br>
+<br></p>
+<pre><code class="prism language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>servlet</span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>servlet-name</span><span class="token punctuation">&gt;</span></span>DispatcherServlet<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>servlet-name</span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>servlet-class</span><span class="token punctuation">&gt;</span></span>org.springframework.web.servlet.DispatcherServlet<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>servlet-class</span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>init-param</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>param-name</span><span class="token punctuation">&gt;</span></span>contextConfigLocation<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>param-name</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>param-value</span><span class="token punctuation">&gt;</span></span>classpath:spring-mvc.xml<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>param-value</span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>init-param</span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>load-on-startup</span><span class="token punctuation">&gt;</span></span>1<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>load-on-startup</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>servlet</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>servlet-mapping</span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>servlet-name</span><span class="token punctuation">&gt;</span></span>DispatcherServlet<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>servlet-name</span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>url-pattern</span><span class="token punctuation">&gt;</span></span>/<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>url-pattern</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>servlet-mapping</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<h3><a id="%09SpringMVC_213"></a>（四）	SpringMVC的流程操作</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;1.	客户端发送请求到Tomcat引擎，该引擎接受请求，解析请求资源地址。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;2.	Tomcat引擎封装请求对象request，响应对象response，调用目标资源。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;3.	通过Service(req, resp)方法获取请求资源的地址，映射访问真实资源，即Controller类中的方法。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;4.	方法执行后，响应对象response封装成http响应返回给客户端。</p>
+<br>
+<h2><a id="%09SpringMVC_226"></a>三．	SpringMVC的组件</h2>
+<h3><a id="%09SpringMVC_227"></a>（一）	SpringMVC的组件调用</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;1.	前端控制器DispatcherServlet只是一个调度器，并没有执行具体的功能，它只是调用SpringMVC中的不同组件。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;2.	前端控制器通过请求查询Handler到HandlerMapping处理器映射器中查询要执行哪些资源，才能拿到请求的资源，处理器映射器返回的是处理器执行链HandlerExecutionChain，这是一连串的资源执行顺序。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;3.	前端控制器拿到HandlerExecution处理器执行链后，再去通过请求执行Handler调用HandlerAdaptor处理器适配器，然后它会请求处理器Handler，即我们写的POJO（Controller）执行相应的操作。Handler返回响应给HandlerAdaptor，HandlerAdaptro返回模型和视图ModelAndView给前端控制器。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;4.	前端控制器拿到ModelAndView之后，要展示视图，因此通过请求视图解析器ViewResolver，解析视图并返回View视图对象给前端控制器。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;5.	前端控制器拿到View对象后，请求渲染视图页面，即将模型数据填充到视图中，并将渲染后的视图返回给客户端。<br>
+<br></p>
+<h3><a id="%09SpringMVC_241"></a>（二）	SpringMVC的注解解析</h3>
+<h4><a id="1%09RequestMapping_242"></a>1.	@RequestMapping</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;用于建立请求URL和Controller类中的处理请求方法之间的对应关系，一般放置在Controller类上或者方法上。<br>
+<br></p>
+<h5><a id="1%09Controller_248"></a>（1）	放在Controller类上</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;当注解@RequestMapping()放在Controller类上时，代表这是请求URL的第一级访问目录，如果此处不写注解，那么就相当于应用的根目录。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如，@RequestMapping(“/first”)代表着请求URL的第一级访问目录为first，则在浏览器中输入请求URL时，就要先输入/first。<br>
+<br></p>
+<h5><a id="2%09_256"></a>（2）	放在方法上</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<code>@RequestMapping()</code>注解放在方法上，代表着请求URL的第二级访问目录，与类上定义的一级访问目录一起组成了访问的虚拟路径。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如，<code>@RequestMapping(“/second”)</code>，如果没有第一级路径，则直接用localhost:8080/quick访问这个方法；如果类上的注解定义第一级路径为/first，则访问路径为 localhost:8080/first/second<br>
+<br></p>
+<h5><a id="3%09_264"></a>（3）	属性</h5>
+<p>value属性<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;用于指定请求的URL，就是上面所说的一级二级目录。<br>
+<br></p>
+<p>method属性<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;用于指定请求的方式，如GET或者POST，且只能够以这种方式请求访问，如果以其他的方式则会报错。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如，method=RequestMethod.GET<br>
+<br></p>
+<p>params属性<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;params用于指定限制请求参数的条件，可以限制必须有什么参数或者不能有什么参数。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如，params={“accountName”}表示请求参数中必须有accountName</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;params={“money!100”}表示请求参数中money不能是100<br>
+<br></p>
+<h3><a id="%09SpringMVCXML_289"></a>（三）	SpringMVC的XML配置解析</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;SpringMVC有默认的组件配置，默认组件都是在DispatcherServlet.properties配置文件中配置的，该配置文件的地址是 <code>org.springframework.web.servlet.DispatcherServlet.properties</code>，该文件中配置了默认的视图解析器</p>
+<p>如：</p>
+<pre><code class="prism language-xml">org.springframework.web.servlet.ViewResolver=org.springframework.web.servlet.view.InternalResourceViewResovler
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;要想配置内部资源解析器，通过在spring-mvc.xml文件中创建一个bean对象，设置资源的前缀prefix和后缀suffix，如设置只解析前缀为/jsp/，后缀为.jsp的视图。</p>
+<pre><code class="prism language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>bean</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span>”viewResolver”</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span>”org.springframework.web.servlet.view.InternalResourceViewResolver”</span><span class="token punctuation">&gt;</span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>property</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span>”prefix”</span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation">=</span>”/jsp/”</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>property</span><span class="token punctuation">&gt;</span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>property</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span>”suffix”</span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation">=</span>”.jsp”</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>property</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>bean</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+</div>
+</body>
+
+</html>

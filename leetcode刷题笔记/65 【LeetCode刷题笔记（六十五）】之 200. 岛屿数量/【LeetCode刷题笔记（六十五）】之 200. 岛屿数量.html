@@ -1,0 +1,102 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【LeetCode刷题笔记（六十五）】之 200. 岛屿数量</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	题目</h2>
+<h3><a id="%09_8"></a>（一）	题干</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;给你一个由 ‘1’（陆地）和 ‘0’（水）组成的的二维网格，请你计算网格中岛屿的数量。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;岛屿总是被水包围，并且每座岛屿只能由水平方向和/或竖直方向上相邻的陆地连接形成。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;此外，你可以假设该网格的四条边均被水包围。<br>
+<br></p>
+<h3><a id="%09_17"></a>（二）	示例</h3>
+<p>示例 1：</p>
+<pre><code class="prism language-cpp">输入：grid <span class="token operator">=</span> <span class="token punctuation">[</span>
+  <span class="token punctuation">[</span><span class="token string">"1"</span><span class="token punctuation">,</span><span class="token string">"1"</span><span class="token punctuation">,</span><span class="token string">"1"</span><span class="token punctuation">,</span><span class="token string">"1"</span><span class="token punctuation">,</span><span class="token string">"0"</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+  <span class="token punctuation">[</span><span class="token string">"1"</span><span class="token punctuation">,</span><span class="token string">"1"</span><span class="token punctuation">,</span><span class="token string">"0"</span><span class="token punctuation">,</span><span class="token string">"1"</span><span class="token punctuation">,</span><span class="token string">"0"</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+  <span class="token punctuation">[</span><span class="token string">"1"</span><span class="token punctuation">,</span><span class="token string">"1"</span><span class="token punctuation">,</span><span class="token string">"0"</span><span class="token punctuation">,</span><span class="token string">"0"</span><span class="token punctuation">,</span><span class="token string">"0"</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+  <span class="token punctuation">[</span><span class="token string">"0"</span><span class="token punctuation">,</span><span class="token string">"0"</span><span class="token punctuation">,</span><span class="token string">"0"</span><span class="token punctuation">,</span><span class="token string">"0"</span><span class="token punctuation">,</span><span class="token string">"0"</span><span class="token punctuation">]</span>
+<span class="token punctuation">]</span>
+输出：<span class="token number">1</span>
+</code></pre>
+<p>示例 2：</p>
+<pre><code class="prism language-cpp">输入：grid <span class="token operator">=</span> <span class="token punctuation">[</span>
+  <span class="token punctuation">[</span><span class="token string">"1"</span><span class="token punctuation">,</span><span class="token string">"1"</span><span class="token punctuation">,</span><span class="token string">"0"</span><span class="token punctuation">,</span><span class="token string">"0"</span><span class="token punctuation">,</span><span class="token string">"0"</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+  <span class="token punctuation">[</span><span class="token string">"1"</span><span class="token punctuation">,</span><span class="token string">"1"</span><span class="token punctuation">,</span><span class="token string">"0"</span><span class="token punctuation">,</span><span class="token string">"0"</span><span class="token punctuation">,</span><span class="token string">"0"</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+  <span class="token punctuation">[</span><span class="token string">"0"</span><span class="token punctuation">,</span><span class="token string">"0"</span><span class="token punctuation">,</span><span class="token string">"1"</span><span class="token punctuation">,</span><span class="token string">"0"</span><span class="token punctuation">,</span><span class="token string">"0"</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+  <span class="token punctuation">[</span><span class="token string">"0"</span><span class="token punctuation">,</span><span class="token string">"0"</span><span class="token punctuation">,</span><span class="token string">"0"</span><span class="token punctuation">,</span><span class="token string">"1"</span><span class="token punctuation">,</span><span class="token string">"1"</span><span class="token punctuation">]</span>
+<span class="token punctuation">]</span>
+输出：<span class="token number">3</span>
+</code></pre>
+<p>提示：</p>
+<pre><code class="prism language-cpp">m <span class="token operator">==</span> grid<span class="token punctuation">.</span>length
+n <span class="token operator">==</span> grid<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>length
+<span class="token number">1</span> <span class="token operator">&lt;=</span> m<span class="token punctuation">,</span> n <span class="token operator">&lt;=</span> <span class="token number">300</span>
+grid<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">[</span>j<span class="token punctuation">]</span> 的值为 <span class="token string">'0'</span> 或 <span class="token string">'1'</span>
+</code></pre>
+<br>
+<h2><a id="%09_58"></a>二．	题解</h2>
+<h3><a id="%09_59"></a>（一）	思路</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;岛屿问题，用dfs的思路解决。对二维数组进行遍历，寻找等于1的节点，从该节点开始dfs递归，设置已访问过的节点的值为0，防止之后重复访问该节点。然后向四个方向进行尝试访问，如果超出了二维数组的范围或者下一个节点为0，则直接return。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;之前，我总是考虑着二维数组边界的问题，不同的边界溢出情况不一样，想着要用不同的if语句来判断，但是这里直接统一成了4个方向进行访问，根据变化后的坐标情况判断坐标是否溢出，就不需要再分边界情况讨论了，非常方便。<br>
+<br></p>
+<h3><a id="%09_67"></a>（二）	代码</h3>
+<p>Java:</p>
+<pre><code class="prism language-java"><span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
+    
+    <span class="token keyword">public</span> <span class="token keyword">int</span> <span class="token function">numIslands</span><span class="token punctuation">(</span><span class="token keyword">char</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token punctuation">]</span> grid<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment">//dfs的思路</span>
+        <span class="token comment">//二维数组迭代，判断当前节点是否等于1</span>
+        <span class="token comment">//如果等于1， 则进入递归，往上，下，左，右走，如果下一个点为0或者超过了二维数组的范围则return</span>
+        <span class="token comment">//如果不等于1，则pass</span>
+        <span class="token comment">//用一个num记录岛屿数量</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>grid <span class="token operator">==</span> null <span class="token operator">||</span> grid<span class="token punctuation">.</span>length<span class="token operator">==</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">int</span> mr <span class="token operator">=</span> grid<span class="token punctuation">.</span>length<span class="token punctuation">;</span>
+        <span class="token keyword">int</span> nc <span class="token operator">=</span> grid<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">.</span>length<span class="token punctuation">;</span>
+        <span class="token keyword">int</span> num <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> mr<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> j <span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">;</span> j <span class="token operator">&lt;</span> nc<span class="token punctuation">;</span> <span class="token operator">++</span>j<span class="token punctuation">)</span><span class="token punctuation">{</span>
+                <span class="token keyword">if</span><span class="token punctuation">(</span>grid<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">[</span>j<span class="token punctuation">]</span> <span class="token operator">==</span> <span class="token string">'1'</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                    <span class="token comment">//进入递归</span>
+                    num<span class="token operator">++</span><span class="token punctuation">;</span>
+                    <span class="token function">dfs</span><span class="token punctuation">(</span>grid<span class="token punctuation">,</span> i<span class="token punctuation">,</span> j<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> num<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">dfs</span><span class="token punctuation">(</span><span class="token keyword">char</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token punctuation">]</span> grid<span class="token punctuation">,</span> <span class="token keyword">int</span> r<span class="token punctuation">,</span> <span class="token keyword">int</span> c<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">int</span> mr <span class="token operator">=</span> grid<span class="token punctuation">.</span>length<span class="token punctuation">;</span>
+        <span class="token keyword">int</span> nc <span class="token operator">=</span> grid<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">.</span>length<span class="token punctuation">;</span>
+        <span class="token comment">//递归</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>r <span class="token operator">&lt;</span> <span class="token number">0</span> <span class="token operator">||</span> c <span class="token operator">&lt;</span> <span class="token number">0</span> <span class="token operator">||</span> r <span class="token operator">&gt;=</span> mr <span class="token operator">||</span> c <span class="token operator">&gt;=</span> nc <span class="token operator">||</span> grid<span class="token punctuation">[</span>r<span class="token punctuation">]</span><span class="token punctuation">[</span>c<span class="token punctuation">]</span> <span class="token operator">==</span> <span class="token string">'0'</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">return</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token comment">//当前节点为 1，访问后设置为0</span>
+        grid<span class="token punctuation">[</span>r<span class="token punctuation">]</span><span class="token punctuation">[</span>c<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">'0'</span><span class="token punctuation">;</span>
+        <span class="token comment">//递归四个方向节点</span>
+        <span class="token function">dfs</span><span class="token punctuation">(</span>grid<span class="token punctuation">,</span> r<span class="token punctuation">,</span> c<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">dfs</span><span class="token punctuation">(</span>grid<span class="token punctuation">,</span> r<span class="token punctuation">,</span> c<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">dfs</span><span class="token punctuation">(</span>grid<span class="token punctuation">,</span> r<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> c<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">dfs</span><span class="token punctuation">(</span>grid<span class="token punctuation">,</span> r<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">,</span> c<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

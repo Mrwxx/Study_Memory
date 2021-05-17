@@ -1,0 +1,182 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Java学习笔记（一百三十一）】之 Java中的锁的详细介绍</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><p></p><div class="toc"><h3>文章目录</h3><ul><ul><li><a href="#_1">本文章由公号【开发小鸽】发布！欢迎关注！！！</a></li><li><a href="#%09Lock_8">一．	Lock接口</a></li><ul><li><a href="#%09_10">（一）	概述</a></li><li><a href="#%09_15">（二）	基本使用</a></li></ul><li><a href="#%09_41">二．	队列同步器</a></li><ul><li><a href="#%09AQS_43">（一）	AQS概述</a></li><li><a href="#%09AQS_58">（二）	AQS结构分析</a></li><ul><li><a href="#1%09AQS_60">1.	AQS的设计思路</a></li><li><a href="#2%09AQS_65">2.	重写AQS的方法</a></li><li><a href="#3%09AQS_78">3.	AQS中的模板方法</a></li></ul><li><a href="#%09AQS_84">（三）	AQS的实现分析</a></li><ul><li><a href="#1%09_86">1.	概述</a></li><li><a href="#2%09_92">2.	同步队列</a></li><li><a href="#3%09_100">3.	独占式同步状态获取与释放</a></li><li><a href="#4%09_105">4.	共享式同步状态获取与释放</a></li><li><a href="#5__110">5. 独占式超时获取同步状态</a></li><li><a href="#6__115">6. 自定义同步组件步骤</a></li></ul></ul><li><a href="#%09_123">三．	重入锁</a></li><ul><li><a href="#%09ReentrantLock_125">（一）	ReentrantLock锁概述</a></li><li><a href="#%09_131">（二）	重进入的实现</a></li><li><a href="#%09_139">（三）	公平锁实现</a></li></ul><li><a href="#%09_150">四．	读写锁</a></li><ul><li><a href="#%09_152">（一）	概述</a></li><li><a href="#_ReentrantReadWriteLock_157">（二） ReentrantReadWriteLock的特性</a></li><ul><li><a href="#1__158">1. 公平性选择</a></li><li><a href="#2__162">2. 重进入</a></li><li><a href="#3__166">3. 锁降级</a></li></ul><li><a href="#%09_170">（三）	读写锁的接口与实现类</a></li><ul><li><a href="#1%09ReadWriteLock_172">1.	ReadWriteLock接口</a></li><li><a href="#2%09ReentrantReadWriteLock_177">2.	ReentrantReadWriteLock实现类</a></li></ul><li><a href="#%09_191">（四）	读写锁的实现分析</a></li><ul><li><a href="#1%09_193">1.	读写状态设计</a></li><li><a href="#2%09_199">2.	写锁的获取与释放</a></li><li><a href="#3%09_205">3.	读锁的获取与释放</a></li><li><a href="#4%09_213">4.	锁降级</a></li></ul></ul><li><a href="#_LockSupport_225">五. LockSupport工具</a></li><li><a href="#%09Condition_230">六．	Condition</a></li><ul><li><a href="#%09_232">（一）	概述</a></li><li><a href="#%09Condition_238">（二）	Condition使用方法</a></li><li><a href="#%09Condition_251">（三）	Condition的实现</a></li><ul><li><a href="#1__257">1. 等待队列</a></li><li><a href="#2__266">2. 等待</a></li><li><a href="#3__271">3. 通知</a></li></ul></ul></ul></ul></div><p></p>
+<h2><a id="_1"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09Lock_8"></a>一．	Lock接口</h2>
+<h3><a id="%09_10"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 锁是用来控制多个线程访问共享资源的方式，synchronized关键字可以实现锁的功能。JDK5之后，并发包中新增了Lock接口和相关实现类用来实现锁功能，它提供了与synchronized类似的同步功能，只是在使用时需要显式地获取和释放锁。它的优势是灵活地获取和释放锁，可中断地获取锁，超时获取锁。<br>
+<br></p>
+<h3><a id="%09_15"></a>（二）	基本使用</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; Lock锁的使用方式很简单，先获取锁，然后释放锁：</p>
+<pre><code class="prism language-cpp">ReentrantLock lock <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token function">ReentrantLock</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+lock<span class="token punctuation">.</span><span class="token function">lock</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">try</span><span class="token punctuation">{</span><span class="token punctuation">}</span>
+finally <span class="token punctuation">{</span>
+    lock<span class="token punctuation">.</span><span class="token function">unlock</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 在finally块中释放锁，目的是保证在获取到锁之后，最终能够释放锁，不要将获取锁的过程写在try块中，因为如果在获取锁的过程中发生异常，异常抛出的同时，锁也会被释放。</p>
+<br>
+<p>（三）Lock与synchronized的区别</p>
+<ol>
+<li>
+<p>synchronized隐式地获取锁和释放锁，使用者无法操控获取与释放的时机，Lock锁是显示地获取锁与释放锁的，使用者可以操纵何时获取锁与释放锁；</p>
+</li>
+<li>
+<p>Lock锁可以响应中断，当获取到Lock锁的线程被中断时，中断异常将会被抛出，同时锁会释放；</p>
+</li>
+<li>
+<p>Lock锁可以在指定的截止时间之前获取锁，如果时间到了仍然无法获取锁，则返回；</p>
+</li>
+<li>
+<p>Lock锁能够尝试非阻塞地获取锁；<br>
+<br></p>
+</li>
+</ol>
+<h2><a id="%09_41"></a>二．	队列同步器</h2>
+<h3><a id="%09AQS_43"></a>（一）	AQS概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 队列同步器（AbstractQueuedSynchronized, AQS）是用来构建锁或者其他同步组件的基础框架，使用了一个int成员变量表示同步状态，通过内置的FIFO队列来完成资源获取线程的排队工作。AQS同步器中提供了三个方法来管理同步状态：</p>
+<pre><code class="prism language-cpp"><span class="token function">getState</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>	<span class="token comment">// 获取同步状态</span>
+<span class="token function">setState</span><span class="token punctuation">(</span><span class="token keyword">int</span> newState<span class="token punctuation">)</span><span class="token punctuation">;</span>	<span class="token comment">//设置同步状态</span>
+<span class="token function">compareAndSetState</span><span class="token punctuation">(</span><span class="token keyword">int</span> expect<span class="token punctuation">,</span> <span class="token keyword">int</span> update<span class="token punctuation">)</span><span class="token punctuation">;</span>	<span class="token comment">//使用CAS设置同步状态</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 当我们要自定义同步组件时，可以将实现AQS同步器的子类作为自定义同步组件的静态内部类，然后调用AQS中的方法，这些方法都是线程安全的，它们能够保证状态的改变是安全的。AQS同步器支持独占式地获取同步状态，也支持共享式地获取同步状态，因此我们就可以自定义实现不同类型的同步组件，如ReentrantLock是独占式的锁, ReentrantReadWriteLock中的读锁是共享式的锁。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 可以这样理解AQS同步器和锁的关系，我们是在锁的实现中聚合AQS，利用AQS实现锁的语义。AQS同步器面向锁的实现者，简化了锁的实现方式，屏蔽了同步状态管理，线程的排队，等待与唤醒等底层操作。<br>
+<br></p>
+<h3><a id="%09AQS_58"></a>（二）	AQS结构分析</h3>
+<h4><a id="1%09AQS_60"></a>1.	AQS的设计思路</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; AQS的设计是基于模板方法模式的，当我们要自定义同步组件时需要创建新的子类继承同步器并重写指定的方法，然后将创建的AQS的子类组合在自定义同步组件类的实现中，并调用AQS提供的固定模板方法，这些模板方法会调用我们在AQS子类中重写的方法。<br>
+<br></p>
+<h4><a id="2%09AQS_65"></a>2.	重写AQS的方法</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 重写AQS中的方法大致有以下几个：</p>
+<pre><code class="prism language-cpp"><span class="token function">tryAcquire</span><span class="token punctuation">(</span><span class="token keyword">int</span> arg<span class="token punctuation">)</span><span class="token operator">:</span>独占式地获取同步状态；
+<span class="token function">tryRelease</span><span class="token punctuation">(</span><span class="token keyword">int</span> arg<span class="token punctuation">)</span><span class="token operator">:</span>独占式地释放同步状态；
+<span class="token function">tryAcquireShared</span><span class="token punctuation">(</span><span class="token keyword">int</span> arg<span class="token punctuation">)</span><span class="token operator">:</span>共享式地获取同步状态；
+<span class="token function">tryReleaseShared</span><span class="token punctuation">(</span><span class="token keyword">int</span> arg<span class="token punctuation">)</span><span class="token operator">:</span>共享式地释放同步状态；
+</code></pre>
+<br>
+<h4><a id="3%09AQS_78"></a>3.	AQS中的模板方法</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; AQS中的模板方法分为三类： 独占式获取与释放同步状态，共享式获取与释放同步状态，查询同步队列中等待线程情况。自定义的同步组件将调用同步器提供的模板方法来实现自己的同步语义。<br>
+<br></p>
+<h3><a id="%09AQS_84"></a>（三）	AQS的实现分析</h3>
+<h4><a id="1%09_86"></a>1.	概述</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; AQS的实现关键组件包括同步队列，独占式同步状态获取与释放，共享式同步状态获取与释放以及超时获取同步状态等操作。</p>
+<br>
+<h4><a id="2%09_92"></a>2.	同步队列</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; AQS依赖内部的同步队列（FIFO双向队列）来完成同步状态管理，当前线程获取同步状态信息失败时，同步器会将当前线程以及等待状态信息构造为一个节点加入同步队列的尾部中，同时阻塞当前线程，当同步状态释放时，会将首节点的线程唤醒，使其尝试获取同步状态。同步队列中的节点用来保存获取同步状态失败的线程引用，等待状态以及前驱和后驱节点。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; AQS同步器包含了两个节点类型的引用，一个指向同步队列的头结点，另一个指向尾结点。当一个线程获取同步状态失败后，将该线程构造为节点加入同步队列的尾部，这个加入队列的过程必须是线程安安全的，因此AQS提供了一个基于CAS的设置尾结点的方法<code>compareAndSetTail(Node expect, Node update)</code>。而首节点是获取同步状态成功的节点，首节点的线程在释放同步状态时，将会唤醒后继节点，后继节点在获取同步状态成功时将自己设置为首节点，设置头结点的过程不需要使用CAS保证，因为队列的头结点的后继节点只有一个，本身就是安全的。<br>
+<br></p>
+<h4><a id="3%09_100"></a>3.	独占式同步状态获取与释放</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 调用同步器的模板方法<code>acquire(int arg)</code>可以获取同步状态，该方法对中断不敏感，即当前线程进入同步队列后，后续对该线程进行中断操作时，线程不会从同步队列中移出。acquire()方法首先调用了自定义同步器中重写的tryAcquire()方法，该方法保证了线程安全地获取同步状态；如果获取失败，则构造同步节点，加入同步队列的尾部，最后以死循环自旋的方式尝试获取同步状态，只有当前节点的前驱节点是头节点时才会尝试获取同步状态，因为只有前驱节点是头结点，在头结点同步状态释放时才会唤醒下一个节点的线程，下一个线程才可以尝试获取同步状态，唤醒下一个节点线程的方法是LockSupport类的<code>unpark(Thread thread)</code>方法。被阻塞线程节点通常由于非首节点线程前驱节点的出队或被中断而从等待状态返回，随后检查自己的前驱是否是头结点，如果是则尝试获取同步状态。<br>
+<br></p>
+<h4><a id="4%09_105"></a>4.	共享式同步状态获取与释放</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 共享式与独占式的区别就是同一时刻有多个线程同时获取到同步状态。在acquireShared()方法中，同步器调用tryAcquireShared()方法来尝试获取同步状态，返回值为int类型，当返回值&gt;= 0时，表示能够获取到。因此在共享式获取的自旋过程中，如果当前节点的前驱为头结点时，尝试获取同步状态，如果返回值&gt;=0，则获取成功从自旋退出。释放同步状态的方法tryReleaseShared(int arg)必须保证同步状态（资源数）安全释放，一般是通过循环和CAS来保证的，因为释放同步状态的操作可能来自多个线程。</p>
+<br>
+<h4><a id="5__110"></a>5. 独占式超时获取同步状态</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通过调用AQS同步器的<code>doAcquireNanos(int arg, long annosTimeOut)</code>方法可以超时获取同步状态，在指定时间段内获取同步状态，如果获取到则返回true。AQS同步器提供了<code>acquireInterruptibly(int arg)</code>方法，在等待获取同步状态时，如果当前线程被中断，则立即返回抛出<code>InterruptedException</code>异常。超时获取同步状态过程在支持响应中断的基础上，增加了超时获取的特性，需要计算出需要睡眠的时间nanosTimeout，会不断地更新该时间为now()-last()，当前时间减去上次唤醒时间，如果大于0则表示时间未到，需要继续睡眠。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在自旋过程中，当节点的前驱节点为头结点时会尝试获取同步状态，过程与独占式同步获取相同；但是在同步状态获取失败的处理上有些不同，如果状态获取失败，则判断是否超时，如果没有超时则继续等待，否则进入快速的自旋过程中。<br>
+<br></p>
+<h4><a id="6__115"></a>6. 自定义同步组件步骤</h4>
+<p>（1） 理清同步组件的功能，确定独占式或是共享式同步组件；</p>
+<p>（2）在同步组件类内部创建AQS的子类，根据独占式或是共享式模式，重写AQS的对应方法；</p>
+<p>（3） 定义同步组件中的方法调用AQS子类中的模板方法实现同步组件的语义；<br>
+<br></p>
+<h2><a id="%09_123"></a>三．	重入锁</h2>
+<h3><a id="%09ReentrantLock_125"></a>（一）	ReentrantLock锁概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 支持重进入的锁，能够支持一个线程对资源的重复加锁，还支持获取锁时的公平和非公平选择。synchronized关键字隐式地支持锁的重进入，ReentrantLock锁在调用lock()方法时，已经获取到锁的线程，依然能够再次调用lock()方法获取锁。对于公平性，在绝对时间上，先对锁进行获取请求的线程一定先被满足，可以使用ReentrantLock的构造函数来选择公平性，非公平锁效率更高，因为线程切换次数较少。<br>
+<br></p>
+<h3><a id="%09_131"></a>（二）	重进入的实现</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 重进入指的是线程在已经获取到锁的情况下能够再次获取该锁而不会被阻塞。当线程再次获取锁时，锁需要识别获取锁的线程是否为当前占有锁的线程，如果是则再次获取，否则如果是其他的线程则无法获取锁。如果线程重复n次获取了锁，在第n次释放锁后，其他线程才可以获取到锁，这是通过对当前锁被重复获取次数计数来实现的，锁被释放时，计数减一，当计数等于0即表示锁被成功释放。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; ReentrantLock是通过组合自定义同步器来实现锁的获取与释放的，以非公平锁的实现举例。在获取同步状态的<code>nonfairTryAcquire()</code>方法中，增加了再次获取同步状态的处理逻辑，如果当前线程是已经获取锁的线程，则增加同步状态值并返回true，表示重进入成功，同时在释放同步状态时就需要减少同步状态值了。只有当同步状态值为0时，才会将锁的占有线程设置为null，返回true，表示锁释放成功。<br>
+<br></p>
+<h3><a id="%09_139"></a>（三）	公平锁实现</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 公平锁的实现tryAcquire()方法中，与非公平锁的区别是在修改同步状态的判断条件中多了一个hasQueuedPredecessors()方法，该方法用于判断在同步队列中当前节点是否有前驱节点，如果有表示还有更早的线程节点请求锁，因此当前节点需要等待前驱线程获取并释放锁。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 公平锁每次都是从同步队列的头结点获取锁，而非公平锁会出现线程连续获得锁的现象，这是因为在非公平锁中当一个线程请求锁时，只要获取了同步状态即成功获取锁，那么刚刚释放的线程再次获取同步状态的几率很大，使得其他的线程只能继续等待了。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 非公平锁是默认的实现，因为它的性能更好，不需要过多的线程切换，公平锁为了保证FIFO，需要大量的线程切换。<br>
+<br></p>
+<h2><a id="%09_150"></a>四．	读写锁</h2>
+<h3><a id="%09_152"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 读写锁在同一时刻允许多个读线程访问，在写线程访问时，所有的读线程和写线程都会被阻塞；在读线程访问时，写线程是阻塞的，而读线程可以继续；读写锁维护了一对锁，一个读锁，一个写锁。因为读的需求远大于写，因此读写锁能够提供比排它锁更好的并发性和吞吐量，JUC中提供的实现是ReentrantReadWriteLock，支持重进入，支持锁降级，写锁降级为读锁。<br>
+<br></p>
+<h3><a id="_ReentrantReadWriteLock_157"></a>（二） ReentrantReadWriteLock的特性</h3>
+<h4><a id="1__158"></a>1. 公平性选择</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;支持选择公平锁或是非公平锁实现。<br>
+<br></p>
+<h4><a id="2__162"></a>2. 重进入</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;支持重进入，如读线程获取了读锁，能够再次获取读锁，写线程获取了写锁，能够再次获取写锁，或读锁。<br>
+<br></p>
+<h4><a id="3__166"></a>3. 锁降级</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;遵循获取写锁，再获取读锁，再释放写锁的次序，写锁能够降级为读锁。<br>
+<br></p>
+<h3><a id="%09_170"></a>（三）	读写锁的接口与实现类</h3>
+<h4><a id="1%09ReadWriteLock_172"></a>1.	ReadWriteLock接口</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 接口ReadWriteLock仅仅定义了获取读锁readLock()和写锁writeLock()两个方法。<br>
+<br></p>
+<h4><a id="2%09ReentrantReadWriteLock_177"></a>2.	ReentrantReadWriteLock实现类</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 实现了ReadWriteLock接口，提供了一些便于外界监控其内部工作状态的方法，如下所示：</p>
+<pre><code class="prism language-cpp"><span class="token function">getReadLockCount</span><span class="token punctuation">(</span><span class="token punctuation">)</span>：返回当前读锁被获取的次数；
+<span class="token function">getReadHoldCount</span><span class="token punctuation">(</span><span class="token punctuation">)</span>：返回当前线程获取读锁的次数，使用ThreadLocal保存当前线程获取的次数；
+<span class="token function">isWriteLocked</span><span class="token punctuation">(</span><span class="token punctuation">)</span>：判断写锁是否被获取；
+<span class="token function">getWriteHoldCount</span><span class="token punctuation">(</span><span class="token punctuation">)</span>：返回当前写锁被获取的次数；
+</code></pre>
+<br>
+<h3><a id="%09_191"></a>（四）	读写锁的实现分析</h3>
+<h4><a id="1%09_193"></a>1.	读写状态设计</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 读写锁同样依赖自定义同步器AQS来实现同步功能，读写状态就是同步器中的同步状态。在ReentrantLock中同步状态是锁被一个线程重复获取的次数，而读写锁的同步状态需要在一个整型变量上维护多个读线程以及一个写线程的状态。在一个整型变量上维护多种状态，就需要按位切割，因此将状态分为两个部分，高16位表示读状态，低16位表示写状态，这样就能够表示两个值了。<br>
+<br></p>
+<h4><a id="2%09_199"></a>2.	写锁的获取与释放</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 写锁是一个支持重进入的排他锁，如果当前线程获取了写锁，则增加写状态，如果读锁此时已获取或者当前线程并不是已经获取到写锁的线程，则进入等待状态。读锁存在时，写锁不能获取，因为读写锁要确保写锁的操作对读锁可见。只有等待所有的读锁释放后，写锁才能被获取。写锁的释放与ReentrantLock的释放过程类似，每次释放都会减少写状态。<br>
+<br></p>
+<h4><a id="3%09_205"></a>3.	读锁的获取与释放</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 读锁是一个支持重进入的共享锁，能够被多个线程同时获取，在没有其他写线程访问时，读锁总会被成功地获取，增加读状态。如果当前线程在获取读锁时，写锁被其他线程获取，则当前线程进入等待。读锁的每次释放可能有多个线程同时释放读锁，同时减少读状态。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; JDK6的读锁实现更加复杂，添加了新的函数，如返回当前线程获取读锁的次数的<code>getReadHoldCount()</code>方法，这个实现是通过ThreadLocal实现的，每个线程将各自获取读锁的次数保存在ThreadLocal中，由线程自身维护。<br>
+<br></p>
+<h4><a id="4%09_213"></a>4.	锁降级</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 锁降级的过程就是写锁降级为读锁，即当前线程持有写锁，接着获取读锁，最后释放持有的写锁的过程，最终从写锁降级为了读锁。</p>
+<p><strong>为什么需要锁降级呢？</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 也就是说为什么需要将写锁降级为读锁，我们可以考虑这样一个场景，当前我们在持续地写入，因此引入写锁保持线程安全，但是接下来我们需要进行读取操作了，因此如何在写锁释放的同时保证能够用读锁锁住呢？如果此时另一个线程和读锁一起竞争，并获取了写锁修改了数据，当前线程是无法感知该数据的变化的。因此我们在写锁存在的时候插入读锁，再释放写锁，这样读锁自然而然就生效了。</p>
+<br>
+<h2><a id="_LockSupport_225"></a>五. LockSupport工具</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 当需要阻塞或唤醒一个线程的时候，都会使用LockSupport工具类来完成，该类中定义了一组static方法，提供了基本的线程阻塞和唤醒功能，该类是构建同步组件的基础工具。park开头的方法用来阻塞当前线程，以unpack开头的方法用来唤醒一个被阻塞的线程。JDK6中，LockSupport新增了park的重载方法，其中的参数blocker表示当前线程正在等待的对象，即阻塞对象，通过dump线程可以查看到该线程的阻塞对象，与synchronized关键字相同，便于问题的排查，弥补了Lock锁的设计问题。<br>
+<br></p>
+<h2><a id="%09Condition_230"></a>六．	Condition</h2>
+<h3><a id="%09_232"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 任意一个Java对象都有一组监视器方法定义在Object类中，如wait()和notify()，这些方法和Synchronized配合可以实现等待/通知模式，Condition接口也提供了类似的监视器功能，可以和Lock锁配合实现这种功能。<br>
+<br></p>
+<h3><a id="%09Condition_238"></a>（二）	Condition使用方法</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 首先要获取到Condition对象关联的锁，Condition对象是通过调用Lock对象的newCondition()方法创建出来的，即Condition是依赖Lock对象的。</p>
+<pre><code class="prism language-cpp">Lock lock <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token function">ReentrantLock</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+Condition condition <span class="token operator">=</span> lock<span class="token punctuation">.</span><span class="token function">newCondition</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 当调用condition的await()方法后，当前线程会释放锁，并再次等待；而其他线程则会调用condition对象的signal()方法，通知Condition绑定的锁所在的线程后，该线程才从await()方法中返回，如果返回了则表示该线程已经获得了锁。<br>
+<br></p>
+<h3><a id="%09Condition_251"></a>（三）	Condition的实现</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; ConditionObject是AQS同步器的内部类，因为Condition的操作需要获取相关联的锁，所以作为同步器的内部类也比较合理。每个Condition对象都包含了一个等待队列，通过该队列实现等待/通知功能。<br>
+<br></p>
+<h4><a id="1__257"></a>1. 等待队列</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 队列中的每个节点都是一个线程引用，即在Condition对象上等待的线程，线程调用了await()方法后，就会释放锁，构造成节点加入等待队列中并进入等待状态。节点的定义复用了AQS的节点定义，也就是说等待队列和同步队列中的节点类型都是AQS的静态内部类AbstractQueuedSynchronizer.Node。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 一个Condition对象包含一个等待队列，Condition拥有队列的头结点和尾结点的指针，当调用Condition.await()方法来新增节点时无需使用CAS保证，因为能够调用该方法的线程一定是获取到锁的线程。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; Lock锁是通过AQS同步器实现的，而AQS中又包含了Condition，一个Lock可以有多个Condition对象，因此一个Lock对象拥有一个同步队列和多个等待队列。<br>
+<br></p>
+<h4><a id="2__266"></a>2. 等待</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 当调用Conditon的await()方法后，相当于同步队列的首节点（获取锁的线程节点）释放了同步状态，线程状态变为等待状态，并唤醒同步队列中的后续节点，然后构造为新的节点移动到Condition的等待队列的结尾中。<br>
+<br></p>
+<h4><a id="3__271"></a>3. 通知</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; signal()方法则会唤醒等待队列中等待时间最长的首节点，在唤醒该节点之前，会将该节点移动到同步队列中，使用LockSupport唤醒线程，该线程会调用AQS的acquireQueued()方法加入获取同步状态的竞争中。Condition的signalAll()方法相当于对等待队列中的每个节点都执行了一次signal()方法，也就是将等待队列中的所有节点都移动到了同步队列中，并唤醒每个节点的线程。</p>
+</div>
+</body>
+
+</html>

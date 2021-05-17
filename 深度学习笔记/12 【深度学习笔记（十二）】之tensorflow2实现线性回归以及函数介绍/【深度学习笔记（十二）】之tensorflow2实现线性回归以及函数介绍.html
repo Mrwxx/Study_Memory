@@ -1,0 +1,107 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【深度学习笔记（十二）】之tensorflow2实现线性回归以及函数介绍</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="%09Tensorflow2_0"></a>一．	Tensorflow2相关函数介绍</h2>
+<h3><a id="%09tensorflow2_1"></a>（一）	tensorflow2中的自动求导机制</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;tf.GradientTape()自动进行求导，在tf.GradientTape()的上下文内，所有的变量和计算步骤都会被记录用于求导。<br>
+<br></p>
+<pre><code class="prism language-python"><span class="token keyword">import</span> tensorflow <span class="token keyword">as</span> tf
+x <span class="token operator">=</span> tf<span class="token punctuation">.</span>Variable<span class="token punctuation">(</span>initial_value<span class="token operator">=</span><span class="token number">3</span><span class="token punctuation">.</span><span class="token punctuation">)</span>
+<span class="token keyword">with</span> tf<span class="token punctuation">.</span>GradientTape<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">as</span> tape<span class="token punctuation">:</span> 
+	y <span class="token operator">=</span> tf<span class="token punctuation">.</span>square<span class="token punctuation">(</span>x<span class="token punctuation">)</span>
+	y_grad <span class="token operator">=</span> tape<span class="token punctuation">.</span>gradient<span class="token punctuation">(</span>y<span class="token punctuation">,</span> x<span class="token punctuation">)</span> <span class="token comment"># 计算y关于x的导数</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token punctuation">[</span>y<span class="token punctuation">,</span> y_grad<span class="token punctuation">]</span><span class="token punctuation">)</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;求导用tape.gradient(y, x)进行，求张量y 对变量x的导数。</p>
+<p>输出是：</p>
+<pre><code class="prism language-python"><span class="token punctuation">[</span>array<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">9</span><span class="token punctuation">.</span><span class="token punctuation">]</span><span class="token punctuation">,</span> dtype<span class="token operator">=</span>float32<span class="token punctuation">)</span><span class="token punctuation">,</span> array<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">6</span><span class="token punctuation">.</span><span class="token punctuation">]</span><span class="token punctuation">,</span> dtype<span class="token operator">=</span>float32<span class="token punctuation">)</span><span class="token punctuation">]</span>
+</code></pre>
+<br>
+<h3><a id="%09_26"></a>（二）	设置优化器</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;线性回归用SGD随机梯度下降进行优化：</p>
+<pre><code class="prism language-python">optimizer <span class="token operator">=</span> tf<span class="token punctuation">.</span>keras<span class="token punctuation">.</span>optimizers<span class="token punctuation">.</span>SGD<span class="token punctuation">(</span>learning_rate<span class="token operator">=</span><span class="token number">1e</span><span class="token operator">-</span><span class="token number">3</span><span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h3><a id="%09_36"></a>（三）	自动根据梯度更新参数</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;当求解出损失函数关于变量的梯度时，我们可以根据这些梯度进行更新参数，依靠的是优化器。注意：括号内的参数是损失函数对变量求导的梯度和变量的列表。</p>
+<pre><code class="prism language-python">optimizer<span class="token punctuation">.</span>apply_gradients<span class="token punctuation">(</span>grads_and_vars<span class="token operator">=</span><span class="token builtin">zip</span><span class="token punctuation">(</span>grads<span class="token punctuation">,</span> variables<span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h3><a id="%09zip_46"></a>（四）	zip函数</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;zip（a, b）将a和b对应的数都合成一个个元组，返回由这些元组组成的列表。<br>
+如：</p>
+<pre><code class="prism language-python">a <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">]</span>  ，  b <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">]</span>  ，那么  <span class="token builtin">zip</span><span class="token punctuation">(</span>a<span class="token punctuation">,</span> b<span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">,</span> …<span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">)</span><span class="token punctuation">]</span>
+</code></pre>
+<br>
+<h3><a id="%09_57"></a>（五）	变量</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;线性回归中要不断地更新参数，参数需要用变量来设置。</p>
+<pre><code class="prism language-python">a <span class="token operator">=</span> tf<span class="token punctuation">.</span>Variable<span class="token punctuation">(</span>initial_value<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">.</span><span class="token punctuation">)</span>
+<span class="token number">5</span><span class="token punctuation">.</span> b <span class="token operator">=</span> tf<span class="token punctuation">.</span>Variable<span class="token punctuation">(</span>initial_value<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">.</span><span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h2><a id="%09tf2_68"></a>二．	tf2实现线性回归</h2>
+<br>
+<pre><code class="prism language-python"><span class="token keyword">import</span> tensorflow <span class="token keyword">as</span> tf
+<span class="token keyword">import</span> numpy <span class="token keyword">as</span> np
+<span class="token keyword">import</span> matplotlib<span class="token punctuation">.</span>pyplot <span class="token keyword">as</span> plt
+
+<span class="token comment">#随机1000个点，y = 0.1 x + 0.3</span>
+num_points <span class="token operator">=</span> <span class="token number">1000</span>
+vector_set <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+<span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>num_points<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    x1 <span class="token operator">=</span> np<span class="token punctuation">.</span>random<span class="token punctuation">.</span>normal<span class="token punctuation">(</span><span class="token number">0.0</span><span class="token punctuation">,</span> <span class="token number">0.55</span><span class="token punctuation">)</span>
+    y1 <span class="token operator">=</span> x1 <span class="token operator">*</span> <span class="token number">0.1</span> <span class="token operator">+</span> <span class="token number">0.3</span> <span class="token operator">+</span> np<span class="token punctuation">.</span>random<span class="token punctuation">.</span>normal<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">.</span><span class="token punctuation">,</span> <span class="token number">0.03</span><span class="token punctuation">)</span>
+    vector_set<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token punctuation">[</span>x1<span class="token punctuation">,</span> y1<span class="token punctuation">]</span><span class="token punctuation">)</span>
+
+<span class="token comment">#生成样本</span>
+x_data <span class="token operator">=</span> <span class="token punctuation">[</span>v<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token keyword">for</span> v <span class="token keyword">in</span> vector_set<span class="token punctuation">]</span>
+y_data <span class="token operator">=</span> <span class="token punctuation">[</span>v<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token keyword">for</span> v <span class="token keyword">in</span> vector_set<span class="token punctuation">]</span>
+
+<span class="token comment">#画图显示</span>
+plt<span class="token punctuation">.</span>scatter<span class="token punctuation">(</span>x_data<span class="token punctuation">,</span> y_data<span class="token punctuation">,</span> c<span class="token operator">=</span><span class="token string">'r'</span><span class="token punctuation">)</span>
+plt<span class="token punctuation">.</span>show<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+<span class="token comment">#参数</span>
+w <span class="token operator">=</span> tf<span class="token punctuation">.</span>Variable<span class="token punctuation">(</span>tf<span class="token punctuation">.</span>random<span class="token punctuation">.</span>uniform<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1.0</span><span class="token punctuation">,</span> <span class="token number">1.0</span><span class="token punctuation">)</span><span class="token punctuation">,</span> name<span class="token operator">=</span><span class="token string">'w'</span><span class="token punctuation">)</span>
+b <span class="token operator">=</span> tf<span class="token punctuation">.</span>Variable<span class="token punctuation">(</span>tf<span class="token punctuation">.</span>zeros<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span> name<span class="token operator">=</span><span class="token string">'b'</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token comment">#需要更新的变量</span>
+variables <span class="token operator">=</span> <span class="token punctuation">[</span>w<span class="token punctuation">,</span> b<span class="token punctuation">]</span>
+
+<span class="token comment">#采用梯度下降法优化参数</span>
+<span class="token comment">#优化器</span>
+opt <span class="token operator">=</span> tf<span class="token punctuation">.</span>keras<span class="token punctuation">.</span>optimizers<span class="token punctuation">.</span>SGD<span class="token punctuation">(</span><span class="token number">1e</span><span class="token operator">-</span><span class="token number">3</span><span class="token punctuation">)</span>
+<span class="token comment">#迭代次数</span>
+num_epoch <span class="token operator">=</span> <span class="token number">10000</span>
+<span class="token keyword">for</span> e <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>num_epoch<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token comment">#使用tf.GradientTape()记录损失函数的梯度信息</span>
+    <span class="token keyword">with</span> tf<span class="token punctuation">.</span>GradientTape<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">as</span> tape<span class="token punctuation">:</span>
+        <span class="token comment">#预测值</span>
+        y <span class="token operator">=</span> w <span class="token operator">*</span> x_data <span class="token operator">+</span> b
+        <span class="token comment">#损失值</span>
+        loss <span class="token operator">=</span> tf<span class="token punctuation">.</span>reduce_mean<span class="token punctuation">(</span>tf<span class="token punctuation">.</span>square<span class="token punctuation">(</span>y <span class="token operator">-</span> y_data<span class="token punctuation">)</span><span class="token punctuation">,</span> name<span class="token operator">=</span><span class="token string">'loss'</span><span class="token punctuation">)</span>
+    <span class="token comment">#自动计算loss 关于更新变量的梯度</span>
+    grads <span class="token operator">=</span> tape<span class="token punctuation">.</span>gradient<span class="token punctuation">(</span>loss<span class="token punctuation">,</span> variables<span class="token punctuation">)</span>
+    <span class="token comment">#自动根据梯度更新参数</span>
+    opt<span class="token punctuation">.</span>apply_gradients<span class="token punctuation">(</span><span class="token builtin">zip</span><span class="token punctuation">(</span>grads<span class="token punctuation">,</span> variables<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>e <span class="token operator">%</span> <span class="token number">100</span> <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span>variables<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h2><a id="%09_123"></a>三．	结果校验</h2>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;我们设置的1000个随机点分布在直线y  =0.1x + 0.3 周围。得出的结果不断迭代，如下所示：</p>
+<pre><code class="prism language-python"><span class="token punctuation">[</span><span class="token operator">&lt;</span>tf<span class="token punctuation">.</span>Variable <span class="token string">'w:0'</span> shape<span class="token operator">=</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token punctuation">)</span> dtype<span class="token operator">=</span>float32<span class="token punctuation">,</span> numpy<span class="token operator">=</span>array<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0.10239088</span><span class="token punctuation">]</span><span class="token punctuation">,</span> dtype<span class="token operator">=</span>float32<span class="token punctuation">)</span><span class="token operator">&gt;</span><span class="token punctuation">,</span> <span class="token operator">&lt;</span>tf<span class="token punctuation">.</span>Variable <span class="token string">'Variable:0'</span> shape<span class="token operator">=</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token punctuation">)</span> dtype<span class="token operator">=</span>float32<span class="token punctuation">,</span> numpy<span class="token operator">=</span>array<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0.29980734</span><span class="token punctuation">]</span><span class="token punctuation">,</span> dtype<span class="token operator">=</span>float32<span class="token punctuation">)</span><span class="token operator">&gt;</span><span class="token punctuation">]</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;可以看到，10000次迭代后，w参数变为了0.10239088， b参数变为了0.29980734，已经非常地接近正确的参数值了。</p>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,111 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenCV学习笔记（十四）之查找轮廓</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="__8"></a>一. 查找轮廓</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;查找轮廓是在图像边缘提取的基础上，寻找对象的轮廓的方法。所以边缘提取的阈值选定会影响最终轮廓发现的结果。</p>
+<h2><a id="_API_10"></a>二. API分析</h2>
+<h3><a id="1_cvfindContours_11"></a>1. cv::findContours</h3>
+<pre><code class="prism language-cpp">cv<span class="token operator">::</span><span class="token function">findCountours</span><span class="token punctuation">(</span>
+	InputArray binImg<span class="token punctuation">;</span>		<span class="token comment">//输入图像</span>
+	OutputArrayOfArrays contours<span class="token punctuation">,</span>	<span class="token comment">//发现的轮廓对象</span>
+	OutputArray hierarchy<span class="token punctuation">,</span><span class="token comment">//图像的拓扑结构</span>
+	<span class="token keyword">int</span> mode<span class="token punctuation">,</span>						<span class="token comment">//轮廓返回的模式</span>
+	<span class="token keyword">int</span> method<span class="token punctuation">,</span>					<span class="token comment">//发现的方法</span>
+	Point offset<span class="token operator">=</span> <span class="token function">Point</span><span class="token punctuation">(</span><span class="token punctuation">)</span>	<span class="token comment">//轮廓像素的位移</span>
+<span class="token punctuation">)</span>	
+</code></pre>
+<h3><a id="2_cvdrawContours_24"></a>2. cv::drawContours</h3>
+<pre><code class="prism language-cpp">cv<span class="token operator">:</span><span class="token function">drawContours</span><span class="token punctuation">(</span>
+	InputOutputArray binImg<span class="token punctuation">;</span>	<span class="token comment">//输入图像</span>
+	OutputArrayOfArrays contours<span class="token punctuation">,</span>	<span class="token comment">//轮廓对象</span>
+	Int contourIdx<span class="token punctuation">,</span>						<span class="token comment">//轮廓索引号</span>
+	<span class="token keyword">const</span> Scalar <span class="token operator">&amp;</span> color<span class="token punctuation">,</span>			<span class="token comment">//绘制的颜色</span>
+	<span class="token keyword">int</span> thickness<span class="token punctuation">,</span>						<span class="token comment">//绘制线宽</span>
+	<span class="token keyword">int</span> lineType<span class="token punctuation">,</span>							<span class="token comment">//绘制线性</span>
+	InputArray hierarchy<span class="token punctuation">,</span>			<span class="token comment">//拓扑结构图</span>
+	<span class="token keyword">int</span> maxlevel<span class="token punctuation">,</span>						<span class="token comment">//最大层数，0为只绘制当前的，1为绘制当前及内嵌的轮廓</span>
+	Point offset <span class="token operator">=</span> <span class="token function">Point</span><span class="token punctuation">(</span><span class="token punctuation">)</span>			<span class="token comment">//轮廓位移</span>
+<span class="token punctuation">)</span>
+</code></pre>
+<h2><a id="__40"></a>三. 代码流程：</h2>
+<ol>
+<li>输入图像转为灰度图像–cvtColor</li>
+<li>使用Canny进行边缘提取，得到二值图像</li>
+<li>使用findContours寻找轮廓</li>
+<li>使用drawContours绘制轮廓</li>
+</ol>
+<h2><a id="__46"></a>四. 代码实现</h2>
+<pre><code class="prism language-cpp"><span class="token comment">/*****轮廓查找*****/</span>
+
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;opencv2/opencv.hpp&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;iostream&gt;</span></span>
+<span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+
+<span class="token keyword">int</span> threshold <span class="token operator">=</span> <span class="token number">50</span><span class="token punctuation">;</span>
+<span class="token keyword">int</span> threshold_max <span class="token operator">=</span> <span class="token number">150</span><span class="token punctuation">;</span>
+cv<span class="token operator">::</span>Mat src<span class="token punctuation">,</span> dst<span class="token punctuation">,</span> gray_src<span class="token punctuation">;</span>
+
+<span class="token keyword">void</span> <span class="token function">Demo_Contours</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">,</span> <span class="token keyword">void</span><span class="token operator">*</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token keyword">int</span> argc<span class="token punctuation">,</span> <span class="token keyword">char</span><span class="token operator">*</span><span class="token operator">*</span> argv<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	src <span class="token operator">=</span> cv<span class="token operator">::</span><span class="token function">imread</span><span class="token punctuation">(</span><span class="token string">"1.jpg"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span><span class="token string">"in"</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">namedWindow</span><span class="token punctuation">(</span><span class="token string">"ou"</span><span class="token punctuation">,</span> cv<span class="token operator">::</span>WINDOW_NORMAL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span><span class="token string">"in"</span><span class="token punctuation">,</span> src<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token comment">//转灰度图像</span>
+	cv<span class="token operator">::</span><span class="token function">cvtColor</span><span class="token punctuation">(</span>src<span class="token punctuation">,</span> gray_src<span class="token punctuation">,</span> cv<span class="token operator">::</span>COLOR_BGR2GRAY<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	
+	<span class="token comment">//Canny边缘检测</span>
+	cv<span class="token operator">::</span><span class="token function">createTrackbar</span><span class="token punctuation">(</span><span class="token string">"Canny Threshold: "</span><span class="token punctuation">,</span> <span class="token string">"ou"</span><span class="token punctuation">,</span> <span class="token operator">&amp;</span>threshold<span class="token punctuation">,</span> threshold_max<span class="token punctuation">,</span>
+		Demo_Contours<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token function">Demo_Contours</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	cv<span class="token operator">::</span><span class="token function">waitKey</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">void</span> <span class="token function">Demo_Contours</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">,</span> <span class="token keyword">void</span><span class="token operator">*</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	<span class="token comment">//Canny边缘检测</span>
+	cv<span class="token operator">::</span>Mat canny_edge<span class="token punctuation">;</span>			<span class="token comment">//Canny输出edge</span>
+	cv<span class="token operator">::</span><span class="token function">Canny</span><span class="token punctuation">(</span>gray_src<span class="token punctuation">,</span> canny_edge<span class="token punctuation">,</span> threshold<span class="token punctuation">,</span> threshold <span class="token operator">*</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token comment">//轮廓点的vector</span>
+	vector<span class="token operator">&lt;</span>vector<span class="token operator">&lt;</span>cv<span class="token operator">::</span>Point<span class="token operator">&gt;&gt;</span> contours<span class="token punctuation">;</span>
+	<span class="token comment">//轮廓的拓扑图,即轮廓的结构层次</span>
+	vector<span class="token operator">&lt;</span>cv<span class="token operator">::</span>Vec4i<span class="token operator">&gt;</span> hierarchy<span class="token punctuation">;</span>
+	<span class="token comment">//通过canny边缘检测的结果查找轮廓</span>
+	cv<span class="token operator">::</span><span class="token function">findContours</span><span class="token punctuation">(</span>canny_edge<span class="token punctuation">,</span> contours<span class="token punctuation">,</span> hierarchy<span class="token punctuation">,</span> cv<span class="token operator">::</span>RETR_TREE<span class="token punctuation">,</span>
+		cv<span class="token operator">::</span>CHAIN_APPROX_SIMPLE<span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Point</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token comment">//得到轮廓点后准备画出所有的轮廓</span>
+	dst <span class="token operator">=</span> cv<span class="token operator">::</span>Mat<span class="token operator">::</span><span class="token function">zeros</span><span class="token punctuation">(</span>src<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> CV_8UC3<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token comment">//随机数</span>
+	cv<span class="token operator">::</span>RNG <span class="token function">rng</span><span class="token punctuation">(</span><span class="token number">12345</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">for</span> <span class="token punctuation">(</span>size_t i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> contours<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		cv<span class="token operator">::</span>Scalar color <span class="token operator">=</span> cv<span class="token operator">::</span><span class="token function">Scalar</span><span class="token punctuation">(</span>rng<span class="token punctuation">.</span><span class="token function">uniform</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">255</span><span class="token punctuation">)</span><span class="token punctuation">,</span> rng<span class="token punctuation">.</span><span class="token function">uniform</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">255</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+			rng<span class="token punctuation">.</span><span class="token function">uniform</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">255</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		cv<span class="token operator">::</span><span class="token function">drawContours</span><span class="token punctuation">(</span>dst<span class="token punctuation">,</span> contours<span class="token punctuation">,</span> i<span class="token punctuation">,</span> color<span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> hierarchy<span class="token punctuation">,</span>
+			<span class="token number">0</span><span class="token punctuation">,</span> cv<span class="token operator">::</span><span class="token function">Point</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+	cv<span class="token operator">::</span><span class="token function">imshow</span><span class="token punctuation">(</span><span class="token string">"ou"</span><span class="token punctuation">,</span> dst<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,97 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【C++学习笔记（三十四）】之list链表容器</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="list__8"></a>一、list 链表容器</h2>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp; 链表是一种物理存储单元上不连续的存储结构，它是通过指针链接起来的。一个结点包括两个部分，一部分是存储数据的，一部分是存储下一个结点地址的指针。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; list链表容器扩充空间是需要多少给多少，插入一个就多链接一个结点，删除一个就释放一个结点。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; list容器是一个循环的双向链表，list链表容器对于元素的插入和删除，都是常数时间复杂度的，但是，对于查找元素，时间复杂度就非常高。<br>
+<br></p>
+<h2><a id="_17"></a>二．优缺点：</h2>
+<br>
+<ol>
+<li>动态存储，不会浪费内存</li>
+<li>插入删除方便，但查找费时<br>
+<br></li>
+</ol>
+<h2><a id="list_24"></a>三．list容器的迭代</h2>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp; 由于list是一个循环的双向链表，迭代器必须能够具备前移、后移的能力，因此迭代器是双向迭代器</strong>。同时由于链表是不连续存储的，不支持随机访问，不可以用系统提供的算法，但是类的内部会提供。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 如： <strong>sort算法不支持list容器，但是list容器自带着sort成员函数。</strong></p>
+<pre><code class="prism language-cpp">list<span class="token operator">&lt;</span><span class="token keyword">int</span><span class="token operator">&gt;</span> l<span class="token punctuation">;</span>
+l<span class="token punctuation">.</span><span class="token function">sort</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 不连续存储的链表另一个特点是：插入和删除操作不会影响原有的list迭代器失效。因为各个结点都可以说是独立的。</p>
+<br>
+<h2><a id="List_38"></a>四．List容器的常用操作</h2>
+<h3><a id="list_39"></a>（一）list构造函数</h3>
+<br>
+<pre><code class="prism language-cpp">list<span class="token operator">&lt;</span>T<span class="token operator">&gt;</span> lstT<span class="token punctuation">;</span><span class="token comment">//list采用采用模板类实现,对象的默认构造形式：</span>
+<span class="token function">list</span><span class="token punctuation">(</span>beg<span class="token punctuation">,</span>end<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//构造函数将[beg, end)区间中的元素拷贝给本身。</span>
+<span class="token function">list</span><span class="token punctuation">(</span>n<span class="token punctuation">,</span>elem<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//构造函数将n个elem拷贝给本身。</span>
+<span class="token function">list</span><span class="token punctuation">(</span><span class="token keyword">const</span> list <span class="token operator">&amp;</span>lst<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//拷贝构造函数。</span>
+</code></pre>
+<br>
+<h3><a id="list_51"></a>（二）list元素插入和删除操作</h3>
+<br>
+<pre><code class="prism language-cpp"><span class="token function">push_back</span><span class="token punctuation">(</span>elem<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//在容器尾部加入一个元素</span>
+<span class="token function">pop_back</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//删除容器中最后一个元素</span>
+<span class="token function">push_front</span><span class="token punctuation">(</span>elem<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//在容器开头插入一个元素</span>
+<span class="token function">pop_front</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//从容器开头移除第一个元素</span>
+<span class="token function">insert</span><span class="token punctuation">(</span>pos<span class="token punctuation">,</span>elem<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//在pos位置插elem元素的拷贝，返回新数据的位置。</span>
+<span class="token function">insert</span><span class="token punctuation">(</span>pos<span class="token punctuation">,</span>n<span class="token punctuation">,</span>elem<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//在pos位置插入n个elem数据，无返回值。</span>
+<span class="token function">insert</span><span class="token punctuation">(</span>pos<span class="token punctuation">,</span>beg<span class="token punctuation">,</span>end<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//在pos位置插入[beg,end)区间的数据，无返回值。</span>
+<span class="token function">clear</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//移除容器的所有数据</span>
+<span class="token function">erase</span><span class="token punctuation">(</span>beg<span class="token punctuation">,</span>end<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//删除[beg,end)区间的数据，返回下一个数据的位置。</span>
+<span class="token function">erase</span><span class="token punctuation">(</span>pos<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//删除pos位置的数据，返回下一个数据的位置。</span>
+<span class="token function">remove</span><span class="token punctuation">(</span>elem<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//删除容器中所有与elem值匹配的元素。</span>
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 当用list容器的remove操作删除自定义的数据类型时，根据list容器的remove源码可以得知。需要重载 == 操作符。<br>
+<br></p>
+<h3><a id="list_74"></a>（三）list容器大小操作</h3>
+<br>
+<pre><code class="prism language-cpp"><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//返回容器中元素的个数</span>
+<span class="token function">empty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//判断容器是否为空</span>
+<span class="token function">resize</span><span class="token punctuation">(</span>num<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//重新指定容器的长度为num，</span>
+若容器变长，则以默认值填充新位置。
+如果容器变短，则末尾超出容器长度的元素被删除。
+<span class="token function">resize</span><span class="token punctuation">(</span>num<span class="token punctuation">,</span> elem<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//重新指定容器的长度为num，</span>
+若容器变长，则以elem值填充新位置。
+如果容器变短，则末尾超出容器长度的元素被删除。
+</code></pre>
+<br>
+<h3><a id="list_89"></a>（四）list容器赋值操作</h3>
+<br>
+<pre><code class="prism language-cpp"><span class="token function">assign</span><span class="token punctuation">(</span>beg<span class="token punctuation">,</span> end<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//将[beg, end)区间中的数据拷贝赋值给本身。</span>
+<span class="token function">assign</span><span class="token punctuation">(</span>n<span class="token punctuation">,</span> elem<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//将n个elem拷贝赋值给本身。</span>
+list<span class="token operator">&amp;</span> <span class="token keyword">operator</span><span class="token operator">=</span><span class="token punctuation">(</span><span class="token keyword">const</span> list <span class="token operator">&amp;</span>lst<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//重载等号操作符</span>
+<span class="token function">swap</span><span class="token punctuation">(</span>lst<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//将lst与本身的元素互换。</span>
+</code></pre>
+<br>
+<h3><a id="list_100"></a>（五）list容器元素的存取</h3>
+<br>
+<pre><code class="prism language-cpp"><span class="token function">front</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//返回第一个元素。</span>
+<span class="token function">back</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//返回最后一个元素。</span>
+</code></pre>
+<br>
+<h3><a id="List_109"></a>（六）List反转排序</h3>
+<br>
+<pre><code class="prism language-cpp"><span class="token function">reverse</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//反转链表，比如lst包含1,3,5元素，运行此方法后，lst就包含5,3,1元素。</span>
+<span class="token function">sort</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">//list排序</span>
+</code></pre>
+</div>
+</body>
+
+</html>

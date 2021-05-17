@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【深度学习笔记（二）】之Softmax分类器</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09Softmax_7"></a>一.	Softmax分类器</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;用SVM损失函数得出的只是一个个的分数，还要通过对比分数来分类。那么，如果直接输出结果为分类的概率，岂不是更好？<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;这里，给出了softmax分类器，直接输出分类的概率。</p>
+<h2><a id="Sigmoid_11"></a>二．Sigmoid函数</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;由于概率是在【0，1】之间，这时就需要引入sigmoid函数<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;Sigmoid函数<br>
+<img src="https://img-blog.csdnimg.cn/20200716104144621.png" alt="在这里插入图片描述"><br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;输入从负无穷到正无穷，输出在【0，1】之间。可以将得分值映射到【0，1】之间。</p>
+<p><img src="https://img-blog.csdnimg.cn/20200716104152547.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01yd3h4eHg=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h2><a id="Softmax_18"></a>三．Softmax损失函数</h2>
+<h3><a id="_19"></a>（一）公式</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Softmax分类器也是用损失函数来评估，并对分类的正确与否进行调整。<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;损失函数：交叉熵损失<br>
+<img src="https://img-blog.csdnimg.cn/20200716104158808.png" alt="在这里插入图片描述"></p>
+<h3><a id="_23"></a>（二）理解损失函数</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如何理解这个损失函数呢？现在来举个例子：<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;下面是一个对猫进行分类的结果，第一列数字是得分函数得出的分数，第二列是e<sup>x</sup>后的结果，第三列是归一化概率的结果。</p>
+<h4><a id="1_ex_26"></a>1. 对分数求e<sup>x</sup></h4>
+<p><strong>&nbsp;  &nbsp;  &nbsp;  &nbsp;我们要根据这个分数先分别求e<sup>x</sup>， 因为得分函数得出的分数相差并不大，我们需要将得分大的数用e的次幂拉大与其他数的差距，即分数越大，可能性越大，结果越明显</strong>。而越小的数，通过e的次幂，扩大的效果肯定不如大的分数；甚至小于0的分数，通过e的次幂缩放到可以忽略的地步。如第二列数字所示。</p>
+<h4><a id="2__28"></a>2. 归一化概率</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;接下来就是对e的次幂后的分数进行归一化操作，如何归一化呢？<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;就是用e的次幂后的三个分数，求每个分数的占三个分数的比例，即第三列数字。</p>
+<h4><a id="3__32"></a>3. 损失函数</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;由于这次分类是错误的，猫识别为车的分数5.1要比正确分类3.2高，因此，需要损失函数来调整。注意：这里的损失函数是对正确分类cat的归一化概率0.13进行计算，<strong>通过函数-log</strong>，<strong>若正确分类的概率值越接近于1，则说明分类效果很好，对应的损失函数-log也是接近于0的；若正确分类的概率越接近于0，则说明分类效果很差，对应的损失函数-log就越大</strong>。</p>
+<p><img src="https://img-blog.csdnimg.cn/20200716104206452.png" alt="在这里插入图片描述"></p>
+<h2><a id="__36"></a>四. 总结</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Softmax分类器能够扩大分数的差距，即使得分函数的分数结果差别都不大，通过softmax分类器，就能够使得分数的差距进一步拉大，使得分类效果更加明显。</p>
+</div>
+</body>
+
+</html>
