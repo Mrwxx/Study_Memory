@@ -1,0 +1,134 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【云计算学习笔记（十八）】之OpenStack服务拓扑设计，Keystone，Glance</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><p></p><div class="toc"><h3>文章目录</h3><ul><ul><li><a href="#_1">本文章由公号【开发小鸽】发布！欢迎关注！！！</a></li><li><a href="#OpenStack_10">一．OpenStack的服务拓扑设计</a></li><ul><li><a href="#Controller_15">（一）控制节点Controller</a></li><li><a href="#Network_22">（二）网络节点Network</a></li><li><a href="#Storage_27">（三）存储节点Storage</a></li><li><a href="#Compute_32">（四）计算节点Compute</a></li></ul><li><a href="#KeyStone_37">二．KeyStone服务</a></li><ul><li><a href="#User_38">（一）用户User</a></li><li><a href="#Credentials_43">（二）凭证Credentials</a></li><li><a href="#Authentication_48">（三）认证Authentication</a></li><li><a href="#Token_53">（四）令牌Token</a></li><li><a href="#Project_58">（五）项目Project</a></li><li><a href="#Endpoint_65">（六）地址Endpoint</a></li><li><a href="#Role_70">（七）角色Role</a></li></ul><li><a href="#Glance_79">三．Glance服务</a></li><ul><li><a href="#Glance_80">（一）Glance服务的功能</a></li><li><a href="#Glance_90">（二）Glance服务组件架构</a></li><ul><li><a href="#1glanceapi_96">1.glance-api</a></li><li><a href="#2glanceregistry_105">2.glance-registry</a></li><li><a href="#3store_backend_114">3.store backend</a></li></ul><li><a href="#Glance_121">（三）Glance的操作</a></li><ul><li><a href="#1Image_126">1.创建Image</a></li><li><a href="#2Image_137">2.删除Image</a></li></ul><li><a href="#Glance_147">（四）Glance的日志</a></li><li><a href="#%09OpenStack_152">（五）	OpenStack的命令行操作</a></li><ul><li><a href="#1_153">1.执行命令之前，需要设置环境变量</a></li><li><a href="#2_158">2.各个服务的命令都有增删改查的操作</a></li><li><a href="#3help_181">3.help查看命令的用法</a></li></ul></ul></ul></ul></div><p></p>
+<h2><a id="_1"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="OpenStack_10"></a>一．OpenStack的服务拓扑设计</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;OpenStack是一个分布式系统，由若干个节点构成，每个节点上可以部署OpenStack中的不同服务，同时每个服务的不同组件也可以分布式地部署在不同的节点上。<br>
+<br></p>
+<h3><a id="Controller_15"></a>（一）控制节点Controller</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Controller节点上运行的服务有Keystone，Glance，Horizon以及Nova和Neutron中管理相关的组件。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;还有支持OpenStack的服务，如Mysql，RabbitMQ和网络时间服务NTP。<br>
+<br></p>
+<h3><a id="Network_22"></a>（二）网络节点Network</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;运行的服务是Neutron，为OpenStack提供L2和L3网络，包括虚拟机网络，DHCP，路由，NAT等。<br>
+<br></p>
+<h3><a id="Storage_27"></a>（三）存储节点Storage</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;提供块存储服务Cinder或对象存储服务Swift。<br>
+<br></p>
+<h3><a id="Compute_32"></a>（四）计算节点Compute</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;运行Hpervisor（默认使用KVM），该组件用于创建以及管理虚拟机，同时还运行着Neutron服务的agent代理，为虚拟机提供网络支持。<br>
+<br></p>
+<h2><a id="KeyStone_37"></a>二．KeyStone服务</h2>
+<h3><a id="User_38"></a>（一）用户User</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;User指代任何使用OpenStack的实体，可以是真正的用户，其他系统。当User请求访问OpenStack时，Keystone会对其进行验证。除了admin和demo，OpenStack也为nova, cinder, glance ,neutron服务创建了相应的User，admin可以管理这些User。<br>
+<br></p>
+<h3><a id="Credentials_43"></a>（二）凭证Credentials</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Credentials是User用来证明自己身份的信息，可以是账户/密码，令牌Token等。<br>
+<br></p>
+<h3><a id="Authentication_48"></a>（三）认证Authentication</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Authentication是Keystone验证User身份的过程。<br>
+<br></p>
+<h3><a id="Token_53"></a>（四）令牌Token</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Token是由数字和字母组成的字符串，User成功Authentication之后，它由KeyStone分配给User，Token就会作为访问服务的Credential，服务会向Keystone验证Token的有效性，Token的默认有限期是24H。<br>
+<br></p>
+<h3><a id="Project_58"></a>（五）项目Project</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Project用于将OpenStack的资源（计算，存储和网络）进行分组和隔离。根据OpenStack服务的对象不同，Project可以是一个客户（公有云中的租户），部门。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;注意，资源的所有权是属于Project的，而不是User，每个User（包括admin）都必须挂在Project里才能够访问该Project的资源，一个User可以属于多个Project。<br>
+<br></p>
+<h3><a id="Endpoint_65"></a>（六）地址Endpoint</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Endpoint 是一个网络上可以访问的URL，Service通过Endpoint暴露自己的API，Keystone负责管理和维护每个Service的Endpoint。<br>
+<br></p>
+<h3><a id="Role_70"></a>（七）角色Role</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;安全包含两部分：Authentication（认证）和Authrization（鉴权）。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Keystone通过Role来实现鉴权的，在Keystone中定义不同的Role，每个Role可能有不同的权限，可以为User分配多个Role。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;每个Service决定每个Role可以做什么事情，通过各自的policy.json文件对Role进行访问控制。<br>
+<br></p>
+<h2><a id="Glance_79"></a>三．Glance服务</h2>
+<h3><a id="Glance_80"></a>（一）Glance服务的功能</h3>
+<ol>
+<li>
+<p>提供REST API，让用户能够查询和获取Image的元数据和Image本身；</p>
+</li>
+<li>
+<p>支持多种方式存储Image，包括普通的文件系统，Swift，Amazon S3；</p>
+</li>
+<li>
+<p>对实例Instance执行快照snapshot可以创建新的Image；<br>
+<br></p>
+</li>
+</ol>
+<h3><a id="Glance_90"></a>（二）Glance服务组件架构</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Glance的架构如下所示：<br>
+<img src="https://img-blog.csdnimg.cn/20210604160845721.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01yd3h4eHg=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<p>可以看到Glance由三部分组成：</p>
+<h4><a id="1glanceapi_96"></a>1.glance-api</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;后台运行的服务进程，对外提供Rest API，响应Image查询，获取和存储的调用，它不会真真的处理请求。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如果是和Image metadata（元数据）相关的操作，glance-api会将请求转发给glance-registry，再和数据库进行交互取出相应的数据；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如果是和Image自身存取相关的操作，glance-api会将请求转发给Image的存储系统store backend；<br>
+<br></p>
+<h4><a id="2glanceregistry_105"></a>2.glance-registry</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;系统后台运行的服务进程，负责处理和存取Image的metadata（元数据），如Image的大小和类型，都会存储在database数据库中，默认是Mysql。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Glance支持多种类型的Image。如下所示：<br>
+<img src="https://img-blog.csdnimg.cn/20210604160926289.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01yd3h4eHg=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>
+<br></p>
+<h4><a id="3store_backend_114"></a>3.store backend</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Glance服务自己不会存储Image的，而是存储在backend中，Glance支持多种类型的backedn，如：默认本地文件系统，Amazon S3，Cinder，Swift，VMware ESX。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;具体使用哪种backend，是在/etc/glance/glance-api.conf中配置的。<br>
+<br></p>
+<h3><a id="Glance_121"></a>（三）Glance的操作</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;OpenStack提供了Web UI（Horizon）和命令行CLI两种交互界面，命令行支持的功能更多，且参数更多，执行速度更快，且CLI可以放在脚本中批处理，同时对于耗时的操作CLI更加适合。<br>
+<br></p>
+<h4><a id="1Image_126"></a>1.创建Image</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如果设置Image为public，则其他Project可以使用该Image；如果设置为Protected，则该Image不允许被删除。建议使用CLI命令行操作，还可以显示创建的状态。</p>
+<pre><code class="prism language-cpp">glance image<span class="token operator">-</span>create –name cirrors—file <span class="token operator">/</span>tmp<span class="token operator">/</span>xxxx<span class="token punctuation">.</span>img –disk<span class="token operator">-</span>format qcow2 –container<span class="token operator">-</span>format bare –progress
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;最后一个参数—progress可以显示Image文件上传的百分比，更加直观。<br>
+<br></p>
+<h4><a id="2Image_137"></a>2.删除Image</h4>
+<pre><code class="prism language-cpp">glance image<span class="token operator">-</span><span class="token keyword">delete</span> xxxx
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;后面的是Image的ID。<br>
+<br></p>
+<h3><a id="Glance_147"></a>（四）Glance的日志</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;OpenStack排查问题的方法主要是通过日志，每个Service都有自己的日志。Glance的日志有两个，glanceapi.log和glanceregistry.log。glace-api日志记录了Rest API的调用情况，glance-registry日志记录了Glance服务处理请求的过程以及数据库的操作。如果需要得到更加详细的日志，可以在<code>/etc/glance/*.conf</code>中打开debug选项。<br>
+<br></p>
+<h3><a id="%09OpenStack_152"></a>（五）	OpenStack的命令行操作</h3>
+<h4><a id="1_153"></a>1.执行命令之前，需要设置环境变量</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;这些变量包含用户名，Project，密码等，如果不设置，那么每次执行命令时都必须设置相关的命令行参数。<br>
+<br></p>
+<h4><a id="2_158"></a>2.各个服务的命令都有增删改查的操作</h4>
+<p>格式是：</p>
+<pre><code class="prism language-cpp">CMD <span class="token operator">&lt;</span>obj<span class="token operator">&gt;</span><span class="token operator">-</span>create <span class="token punctuation">[</span>param1<span class="token punctuation">]</span><span class="token punctuation">[</span>param2<span class="token punctuation">]</span>…
+CMD <span class="token operator">&lt;</span>obj<span class="token operator">&gt;</span><span class="token operator">-</span><span class="token keyword">delete</span> <span class="token punctuation">[</span>param1<span class="token punctuation">]</span><span class="token punctuation">[</span>param2<span class="token punctuation">]</span>…
+CMD <span class="token operator">&lt;</span>obj<span class="token operator">&gt;</span><span class="token operator">-</span>update <span class="token punctuation">[</span>param1<span class="token punctuation">]</span><span class="token punctuation">[</span>param2<span class="token punctuation">]</span>…
+CMD <span class="token operator">&lt;</span>obj<span class="token operator">&gt;</span><span class="token operator">-</span>list <span class="token punctuation">[</span>param1<span class="token punctuation">]</span><span class="token punctuation">[</span>param2<span class="token punctuation">]</span>…
+CMD <span class="token operator">&lt;</span>obj<span class="token operator">&gt;</span><span class="token operator">-</span>show <span class="token punctuation">[</span>param1<span class="token punctuation">]</span><span class="token punctuation">[</span>param2<span class="token punctuation">]</span>…
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如glance中管理的是image，那么CMD就是glance，obj就是image；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;netron中管理的是网络和子网，那么CMD就是neutron，obj就是net和subnet；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;nova的obj可以省略，如针对instance的操作：</p>
+<pre><code class="prism language-cpp">nova boot <span class="token punctuation">,</span> nova <span class="token keyword">delete</span><span class="token punctuation">,</span> nova list<span class="token punctuation">,</span> nova show<span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h4><a id="3help_181"></a>3.help查看命令的用法</h4>
+<p>格式是：</p>
+<pre><code class="prism language-cpp">CMD help <span class="token punctuation">[</span>sub<span class="token operator">-</span>CMD<span class="token punctuation">]</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如glance help image-update可以查询image-update的用法。</p>
+</div>
+</body>
+
+</html>
