@@ -1,0 +1,158 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【OpenStack（Train版）安装部署（四）】之Placement服务环境部署</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><p></p><div class="toc"><h3>文章目录</h3><ul><ul><li><a href="#_1">本文章由公号【开发小鸽】发布！欢迎关注！！！</a></li><li><a href="#Placement_9">一．Placement服务安装</a></li><ul><li><a href="#_10">（一）介绍</a></li><li><a href="#placement_21">（二）placement服务组件</a></li><li><a href="#Placement_42">（三）Placement服务部署</a></li><ul><li><a href="#1Placement_43">1.创建Placement的数据库</a></li><li><a href="#2placement_60">2.创建placement用户</a></li><li><a href="#3placementplacement_74">3.创建一个placement服务，服务类型为placement</a></li><li><a href="#4PlacementAPI_82">4、注册Placement服务API访问端口</a></li><li><a href="#5_placement_95">5. 安装placement软件包</a></li><li><a href="#6__103">6. 修改配置文件</a></li><li><a href="#7placement_176">7.初始化placement数据库</a></li><li><a href="#8Apache_00placemenctapiconf_188">8.修改Apache配置文件 00-placemenct-api.conf</a></li><li><a href="#9apache_216">9.重启apache服务</a></li><li><a href="#10placement_229">10.检查placement状态</a></li></ul></ul></ul></ul></div><p></p>
+<h2><a id="_1"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="Placement_9"></a>一．Placement服务安装</h2>
+<h3><a id="_10"></a>（一）介绍</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在安装Nova模块之前，需先安装Placement组件，Placement在openstack的Stein版本之前，属于Nova组件的一部分。该组件需要在Nova之前安装。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Placement服务跟踪资源（比如计算节点，存储资源池，网络资源池等）的使用情况，提供自定义资源的能力，为分配资源提供服务。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Placement在openstack的Stein版本之前，属于Nova组件的一部分。该组件应该在Nova之前安装。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Placement API作为一个标准的WSGI脚本，为WSGI服务器提供了模块级的应用程序属性。<br>
+<br></p>
+<h3><a id="placement_21"></a>（二）placement服务组件</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;1、Placement提供了placement-api WSGI脚本，用于与Apache，nginx或其他支持WSGI的Web服务器一起运行服务(通过nginx或apache实现python入口代理)。根据用于部署OpenStack的打包解决方案，WSGI脚本可能位于/usr/bin 或/usr/local/bin中</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;2、Placement服务是从 S 版本，从nova服务中拆分出来的组件，作用是收集各个node节点的可用资源，把node节点的资源统计写入到mysql,Placement服务会被nova scheduler服务进行调用 Placement服务的监听端口是8778</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;3、需修改的配置文件：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（1）placement.conf</p>
+<p>主要修改思路：<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;Keystone认证相关（url、HOST:PORT、域、账号密码等）</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;对接数据库（位置）</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（2） 00-placement-api.conf<br>
+主要修改思路：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Apache权限、访问控制<br>
+<br></p>
+<h3><a id="Placement_42"></a>（三）Placement服务部署</h3>
+<h4><a id="1Placement_43"></a>1.创建Placement的数据库</h4>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># mysql <span class="token operator">-</span>uroot <span class="token operator">-</span>p 
+MariaDB <span class="token punctuation">[</span><span class="token punctuation">(</span>none<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token operator">&gt;</span> CREATE DATABASE placement<span class="token punctuation">;</span> 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;授予Placement数据库本地登录以及远程登录权限</p>
+<pre><code class="prism language-cpp">MariaDB <span class="token punctuation">[</span><span class="token punctuation">(</span>none<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token operator">&gt;</span> GRANT ALL PRIVILEGES ON placement<span class="token punctuation">.</span><span class="token operator">*</span> TO <span class="token string">'placement'</span>@<span class="token string">'localhost'</span> IDENTIFIED BY <span class="token string">'PLACEMENT_DBPASS'</span><span class="token punctuation">;</span> 
+MariaDB <span class="token punctuation">[</span><span class="token punctuation">(</span>none<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token operator">&gt;</span> GRANT ALL PRIVILEGES ON placement<span class="token punctuation">.</span><span class="token operator">*</span> TO <span class="token string">'placement'</span>@<span class="token string">'%'</span> IDENTIFIED BY <span class="token string">'PLACEMENT_DBPASS'</span><span class="token punctuation">;</span> 
+MariaDB <span class="token punctuation">[</span><span class="token punctuation">(</span>none<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token operator">&gt;</span> exit； 
+</code></pre>
+<br>
+<h4><a id="2placement_60"></a>2.创建placement用户</h4>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># openstack user create <span class="token operator">--</span>domain <span class="token keyword">default</span> <span class="token operator">--</span>password PLACEMENT_PASS placement
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;添加placement用户为admin角色，service项目</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># openstack role add <span class="token operator">--</span>project service <span class="token operator">--</span>user placement admin
+</code></pre>
+<br>
+<h4><a id="3placementplacement_74"></a>3.创建一个placement服务，服务类型为placement</h4>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># openstack service create <span class="token operator">--</span>name placement <span class="token operator">--</span>description <span class="token string">"Placement API"</span> placement
+</code></pre>
+<br>
+<h4><a id="4PlacementAPI_82"></a>4、注册Placement服务API访问端口</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;注册三个API到placement的service中；注册的信息会写入到mysql中</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># openstack endpoint create <span class="token operator">--</span>region RegionOne placement <span class="token keyword">public</span> http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">8778</span>
+
+<span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># openstack endpoint create <span class="token operator">--</span>region RegionOne placement internal http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">8778</span>
+
+<span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># openstack endpoint create <span class="token operator">--</span>region RegionOne placement admin http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">8778</span>
+</code></pre>
+<br>
+<h4><a id="5_placement_95"></a>5. 安装placement软件包</h4>
+<pre><code class="prism language-cpp">yum install openstack<span class="token operator">-</span>placement<span class="token operator">-</span>api <span class="token operator">-</span>y
+</code></pre>
+<br>
+<h4><a id="6__103"></a>6. 修改配置文件</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;精简配置文件，删除注释内容</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># cp <span class="token operator">/</span>etc<span class="token operator">/</span>placement<span class="token operator">/</span>placement<span class="token punctuation">.</span>conf <span class="token operator">/</span>etc<span class="token operator">/</span>placement<span class="token operator">/</span>placement<span class="token punctuation">.</span>conf<span class="token punctuation">.</span>bak 
+<span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># grep <span class="token operator">-</span>Ev <span class="token string">'^$|#'</span> <span class="token operator">/</span>etc<span class="token operator">/</span>placement<span class="token operator">/</span>placement<span class="token punctuation">.</span>conf<span class="token punctuation">.</span>bak <span class="token operator">&gt;</span> <span class="token operator">/</span>etc<span class="token operator">/</span>placement<span class="token operator">/</span>placement<span class="token punctuation">.</span>conf
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;修改placement数据库连接地址</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>placement<span class="token operator">/</span>placement<span class="token punctuation">.</span>conf placement_database connection mysql<span class="token operator">+</span>pymysql<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span>placement<span class="token operator">:</span>PLACEMENT_DBPASS@<span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">/</span>placement
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;修改placement的认证策略为keystone</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>placement<span class="token operator">/</span>placement<span class="token punctuation">.</span>conf api auth_strategy keystone
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;修改placement的认证地址</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>placement<span class="token operator">/</span>placement<span class="token punctuation">.</span>conf keystone_authtoken auth_url  http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">5000</span><span class="token operator">/</span>v3
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;修改memcached服务器的地址</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>placement<span class="token operator">/</span>placement<span class="token punctuation">.</span>conf keystone_authtoken memcached_servers <span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">11211</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;修改认证方式为password</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>placement<span class="token operator">/</span>placement<span class="token punctuation">.</span>conf keystone_authtoken auth_type password
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;修改项目domain名称为Default</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>placement<span class="token operator">/</span>placement<span class="token punctuation">.</span>conf keystone_authtoken project_domain_name Default
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;修改用户的domain名称为Default</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>placement<span class="token operator">/</span>placement<span class="token punctuation">.</span>conf keystone_authtoken user_domain_name Default
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;修改项目名称为service</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>placement<span class="token operator">/</span>placement<span class="token punctuation">.</span>conf keystone_authtoken project_name service
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;修改用户名为placement</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>placement<span class="token operator">/</span>placement<span class="token punctuation">.</span>conf keystone_authtoken username placement
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;修改认证密码为PLACEMENT_PASS</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>placement<span class="token operator">/</span>placement<span class="token punctuation">.</span>conf keystone_authtoken password PLACEMENT_PASS
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;查看当前的placement.conf配置文件：<br>
+<img src="https://img-blog.csdnimg.cn/20210623074822481.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01yd3h4eHg=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>
+<br></p>
+<h4><a id="7placement_176"></a>7.初始化placement数据库</h4>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># su <span class="token operator">-</span>s <span class="token operator">/</span>bin<span class="token operator">/</span>sh <span class="token operator">-</span>c <span class="token string">"placement-manage db sync"</span> placement
+</code></pre>
+<p>检查数据库初始情况：</p>
+<p><img src="https://img-blog.csdnimg.cn/20210623074832783.png" alt="在这里插入图片描述"><br>
+<br></p>
+<h4><a id="8Apache_00placemenctapiconf_188"></a>8.修改Apache配置文件 00-placemenct-api.conf</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;安装完placement服务后会自动创建该文件-虚拟主机配置	， 修改placement的apache配置文件（官方文档坑点之一，这个步骤官方文档没有提到，如果不做，后面计算服务检查时将会报错）</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;此处是bug，必须添加下面的配置来启用对placement api的访问，否则在访问apache的api时会报403；添加在文件的最后即可</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># vim <span class="token operator">/</span>etc<span class="token operator">/</span>httpd<span class="token operator">/</span>conf<span class="token punctuation">.</span>d<span class="token operator">/</span><span class="token number">00</span><span class="token operator">-</span>placement<span class="token operator">-</span>api<span class="token punctuation">.</span>conf
+</code></pre>
+<p>在该文件的末尾添加：</p>
+<pre><code class="prism language-cpp"><span class="token operator">&lt;</span>Directory <span class="token operator">/</span>usr<span class="token operator">/</span>bin<span class="token operator">&gt;</span>		
+<span class="token operator">&lt;</span>IfVersion <span class="token operator">&gt;=</span> <span class="token number">2.4</span><span class="token operator">&gt;</span>		   
+  Require all granted
+<span class="token operator">&lt;</span><span class="token operator">/</span>IfVersion<span class="token operator">&gt;</span>
+<span class="token operator">&lt;</span>IfVersion <span class="token operator">&lt;</span> <span class="token number">2.4</span><span class="token operator">&gt;</span>		    #apache版本；允许apache访问<span class="token operator">/</span>usr<span class="token operator">/</span>bin目录；否则<span class="token operator">/</span>usr<span class="token operator">/</span>bin<span class="token operator">/</span>placement<span class="token operator">-</span>api将不允许被访问
+  Order allow<span class="token punctuation">,</span>deny				
+  Allow from all			#允许apache访问
+<span class="token operator">&lt;</span><span class="token operator">/</span>IfVersion<span class="token operator">&gt;</span>
+<span class="token operator">&lt;</span><span class="token operator">/</span>Directory<span class="token operator">&gt;</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;注意是在VirtualHost选项内，如下所示，而不是在末尾：<br>
+<img src="https://img-blog.csdnimg.cn/2021062307484456.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01yd3h4eHg=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>
+<br></p>
+<h4><a id="9apache_216"></a>9.重启apache服务</h4>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># systemctl restart httpd
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;httpd服务重启情况正常。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;再检查服务是否启动成功，使用netstat -tnlup查看端口情况，如果存在8778的端口，表示placement服务启动成功。<br>
+<img src="https://img-blog.csdnimg.cn/20210623074857507.png" alt="在这里插入图片描述"><br>
+<br></p>
+<h4><a id="10placement_229"></a>10.检查placement状态</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;进一步检查，使用命令：</p>
+<pre><code class="prism language-cpp">curl http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">8778</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;直接访问placement的API地址，看是否能返回json。</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># curl http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span>controller<span class="token operator">:</span><span class="token number">8778</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;或者<code>http://192.168.112.146:8778</code> 都可以返回json：<br>
+<img src="https://img-blog.csdnimg.cn/20210623074911160.png" alt="在这里插入图片描述"></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;检查placement状态</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@ct placement<span class="token punctuation">]</span># placement<span class="token operator">-</span>status upgrade check
+</code></pre>
+<p><img src="https://img-blog.csdnimg.cn/20210623074918130.png" alt="在这里插入图片描述"></p>
+</div>
+</body>
+
+</html>
