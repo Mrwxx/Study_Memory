@@ -1,0 +1,390 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【OpenStack（Train版）安装部署（五）】之Nova服务在Controller节点和Compute节点的部署</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><p></p><div class="toc"><h3>文章目录</h3><ul><ul><li><a href="#_1">本文章由公号【开发小鸽】发布！欢迎关注！！！</a></li><li><a href="#Nova_8">（一）Nova子服务节点分配</a></li><li><a href="#NovaController_14">（二）Nova子服务Controller节点部署</a></li><ul><li><a href="#1__15">1. 创建数据库并授权</a></li><li><a href="#2_nova_47">2. 创建nova用户</a></li><li><a href="#3_novaadmin_54">3. 向nova用户添加admin角色</a></li><li><a href="#4_nova_61">4. 创建nova服务实体</a></li><li><a href="#5_Novaendpoint_73">5. 给Nova服务关联endpoint（端点）</a></li><li><a href="#6Controllernova_84">6.Controller节点需要安装的nova子服务</a></li><li><a href="#7_novaconf_91">7. 修改nova.conf配置文件</a></li><li><a href="#8_novaapi_283">8. 填充nova-api数据库</a></li><li><a href="#9cell0_290">9.注册cell0数据库</a></li><li><a href="#10_nova_319">10. 启动计算服务nova并将其配置为开机自启</a></li><li><a href="#11nova_327">11.检测nova服务启动情况</a></li></ul><li><a href="#NovaCompute_337">（三）Nova子服务Compute节点部署</a></li><ul><li><a href="#1OpenStack_Train_338">1.安装OpenStack Train版本源</a></li><li><a href="#2novacompute_344">2.安装nova-compute软件包</a></li><li><a href="#3nova_350">3.修改计算节点的nova配置文件</a></li><li><a href="#4__538">4. 确定计算节点是否支持虚拟机硬件加速</a></li><li><a href="#5Compute_552">5.启动Compute服务及其相关服务，并设置开机自启</a></li><li><a href="#6Compute_616">6.修改Compute节点主机名配置</a></li><li><a href="#7controller_629">7.验证（controller节点操作）</a></li><li><a href="#8Controller_640">8.发现计算节点主机（Controller节点操作）</a></li><li><a href="#9Controller_667">9.验证计算节点服务（Controller节点操作）</a></li></ul></ul></ul></div><p></p>
+<h2><a id="_1"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="Nova_8"></a>（一）Nova子服务节点分配</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 计算服务nova较之前的服务稍显复杂（但没有网络服务neutron复杂），它需要在控制节点和计算节点都安装。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 控制节点主要安装nova-api（nova主服务）、nova-scheduler（nova调度服务）、nova-conductor（nova数据库服务，提供数据库访问）、nova-novncproxy（nova的vnc服务，提供实例的控制台）等服务。<br>
+计算节点主要安装nova-compute（nova计算服务）。</p>
+<h2><a id="NovaController_14"></a>（二）Nova子服务Controller节点部署</h2>
+<h3><a id="1__15"></a>1. 创建数据库并授权</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 创建三个数据库nova, nova_api, nova_cell0，并授予nova用户对三个数据库的本地登录以及远程登录权限，并设定密码为NOVA_DBPASS：</p>
+<pre><code class="prism language-cpp">MariaDB <span class="token punctuation">[</span><span class="token punctuation">(</span>none<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token operator">&gt;</span> CREATE DATABASE nova_api<span class="token punctuation">;</span> 
+Query OK<span class="token punctuation">,</span> <span class="token number">1</span> row affected <span class="token punctuation">(</span><span class="token number">0.000</span> sec<span class="token punctuation">)</span> 
+
+MariaDB <span class="token punctuation">[</span><span class="token punctuation">(</span>none<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token operator">&gt;</span> CREATE DATABASE nova<span class="token punctuation">;</span> 
+Query OK<span class="token punctuation">,</span> <span class="token number">1</span> row affected <span class="token punctuation">(</span><span class="token number">0.000</span> sec<span class="token punctuation">)</span>
+
+MariaDB <span class="token punctuation">[</span><span class="token punctuation">(</span>none<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token operator">&gt;</span> CREATE DATABASE nova_cell0<span class="token punctuation">;</span> 
+Query OK<span class="token punctuation">,</span> <span class="token number">1</span> row affected <span class="token punctuation">(</span><span class="token number">0.000</span> sec<span class="token punctuation">)</span> 
+
+MariaDB <span class="token punctuation">[</span><span class="token punctuation">(</span>none<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token operator">&gt;</span> GRANT ALL PRIVILEGES ON nova_api<span class="token punctuation">.</span><span class="token operator">*</span> TO <span class="token string">'nova'</span>@<span class="token string">'localhost'</span> IDENTIFIED BY <span class="token string">'NOVA_DBPASS'</span><span class="token punctuation">;</span> 
+Query OK<span class="token punctuation">,</span> <span class="token number">0</span> rows affected <span class="token punctuation">(</span><span class="token number">0.000</span> sec<span class="token punctuation">)</span> 
+
+MariaDB <span class="token punctuation">[</span><span class="token punctuation">(</span>none<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token operator">&gt;</span> GRANT ALL PRIVILEGES ON nova_api<span class="token punctuation">.</span><span class="token operator">*</span> TO <span class="token string">'nova'</span>@<span class="token string">'%'</span> IDENTIFIED BY <span class="token string">'NOVA_DBPASS'</span><span class="token punctuation">;</span> 
+Query OK<span class="token punctuation">,</span> <span class="token number">0</span> rows affected <span class="token punctuation">(</span><span class="token number">0.000</span> sec<span class="token punctuation">)</span> 
+
+MariaDB <span class="token punctuation">[</span><span class="token punctuation">(</span>none<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token operator">&gt;</span> GRANT ALL PRIVILEGES ON nova<span class="token punctuation">.</span><span class="token operator">*</span> TO <span class="token string">'nova'</span>@<span class="token string">'localhost'</span> IDENTIFIED BY <span class="token string">'NOVA_DBPASS'</span><span class="token punctuation">;</span> 
+Query OK<span class="token punctuation">,</span> <span class="token number">0</span> rows affected <span class="token punctuation">(</span><span class="token number">0.000</span> sec<span class="token punctuation">)</span> 
+
+MariaDB <span class="token punctuation">[</span><span class="token punctuation">(</span>none<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token operator">&gt;</span> GRANT ALL PRIVILEGES ON nova<span class="token punctuation">.</span><span class="token operator">*</span> TO <span class="token string">'nova'</span>@<span class="token string">'%'</span> IDENTIFIED BY <span class="token string">'NOVA_DBPASS'</span><span class="token punctuation">;</span> 
+Query OK<span class="token punctuation">,</span> <span class="token number">0</span> rows affected <span class="token punctuation">(</span><span class="token number">0.000</span> sec<span class="token punctuation">)</span> 
+
+MariaDB <span class="token punctuation">[</span><span class="token punctuation">(</span>none<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token operator">&gt;</span> GRANT ALL PRIVILEGES ON nova_cell0<span class="token punctuation">.</span><span class="token operator">*</span> TO <span class="token string">'nova'</span>@<span class="token string">'localhost'</span> IDENTIFIED BY <span class="token string">'NOVA_DBPASS'</span><span class="token punctuation">;</span> 
+Query OK<span class="token punctuation">,</span> <span class="token number">0</span> rows affected <span class="token punctuation">(</span><span class="token number">0.000</span> sec<span class="token punctuation">)</span> 
+
+MariaDB <span class="token punctuation">[</span><span class="token punctuation">(</span>none<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token operator">&gt;</span> GRANT ALL PRIVILEGES ON nova_cell0<span class="token punctuation">.</span><span class="token operator">*</span> TO <span class="token string">'nova'</span>@<span class="token string">'%'</span> IDENTIFIED BY <span class="token string">'NOVA_DBPASS'</span><span class="token punctuation">;</span> 
+Query OK<span class="token punctuation">,</span> <span class="token number">0</span> rows affected <span class="token punctuation">(</span><span class="token number">0.001</span> sec<span class="token punctuation">)</span>
+</code></pre>
+<h3><a id="2_nova_47"></a>2. 创建nova用户</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 创建OpenStack的用户nova，密码为NOVA_PASS：</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># openstack user create <span class="token operator">--</span>domain <span class="token keyword">default</span> <span class="token operator">--</span>password NOVA_PASS nova
+</code></pre>
+<h3><a id="3_novaadmin_54"></a>3. 向nova用户添加admin角色</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 为nova用户添加admin角色，并且加入项目service中：</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># openstack role add <span class="token operator">--</span>project service <span class="token operator">--</span>user nova admin
+</code></pre>
+<h3><a id="4_nova_61"></a>4. 创建nova服务实体</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 创建nova服务service，类型是compute：</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># openstack service create <span class="token operator">--</span>name nova <span class="token operator">--</span>description <span class="token string">"OpenStack Compute"</span> compute
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 查看当前的service列表：</p>
+<p><img src="https://img-blog.csdnimg.cn/20210626175430788.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01yd3h4eHg=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h3><a id="5_Novaendpoint_73"></a>5. 给Nova服务关联endpoint（端点）</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 创建三个endpoint端点，与之前一样：</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># openstack endpoint create <span class="token operator">--</span>region RegionOne compute <span class="token keyword">public</span> http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">8774</span><span class="token operator">/</span>v2<span class="token punctuation">.</span><span class="token number">1</span>
+
+<span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># openstack endpoint create <span class="token operator">--</span>region RegionOne compute internal http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">8774</span><span class="token operator">/</span>v2<span class="token punctuation">.</span><span class="token number">1</span>
+
+<span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># openstack endpoint create <span class="token operator">--</span>region RegionOne compute admin http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">8774</span><span class="token operator">/</span>v2<span class="token punctuation">.</span><span class="token number">1</span>
+</code></pre>
+<h3><a id="6Controllernova_84"></a>6.Controller节点需要安装的nova子服务</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; nova-api, nova-conductor, nova-novncproxy, nova-scheduler四个组件：</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># yum install openstack<span class="token operator">-</span>nova<span class="token operator">-</span>api openstack<span class="token operator">-</span>nova<span class="token operator">-</span>conductor openstack<span class="token operator">-</span>nova<span class="token operator">-</span>novncproxy openstack<span class="token operator">-</span>nova<span class="token operator">-</span>scheduler <span class="token operator">-</span>y
+</code></pre>
+<h3><a id="7_novaconf_91"></a>7. 修改nova.conf配置文件</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 精简nova.conf配置文件：</p>
+<pre><code class="prism language-cpp">cp <span class="token operator">-</span>a <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf<span class="token punctuation">{</span><span class="token punctuation">,</span><span class="token punctuation">.</span>bak<span class="token punctuation">}</span> 
+grep <span class="token operator">-</span>Ev <span class="token string">'^$|#'</span> <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf<span class="token punctuation">.</span>bak <span class="token operator">&gt;</span> <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 指定支持的API类型</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf DEFAULT enabled_apis osapi_compute<span class="token punctuation">,</span>metadata 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 定义Controller节点的IP</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf DEFAULT my_ip <span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 通过neutron获取IP地址</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf DEFAULT use_neutron <span class="token boolean">true</span> 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 防火墙驱动</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf DEFAULT firewall_driver nova<span class="token punctuation">.</span>virt<span class="token punctuation">.</span>firewall<span class="token punctuation">.</span>NoopFirewallDriver 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 指定连接的rabbitmq</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf DEFAULT transport_url rabbit<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span>openstack<span class="token operator">:</span>RABBIT_PASS@<span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span> 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; nova_api数据库的mysql连接</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf api_database connection mysql<span class="token operator">+</span>pymysql<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span>nova<span class="token operator">:</span>NOVA_DBPASS@<span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">/</span>nova_api
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; nova数据库的mysql连接</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf database connection mysql<span class="token operator">+</span>pymysql<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span>nova<span class="token operator">:</span>NOVA_DBPASS@<span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">/</span>nova 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; placement数据库的mysql连接</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf placement_database connection mysql<span class="token operator">+</span>pymysql<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span>placement<span class="token operator">:</span>PLACEMENT_DBPASS@<span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">/</span>placement 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; nova的认证策略为keystone</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf api auth_strategy keystone 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; keystone的认证url</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf keystone_authtoken auth_url http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">5000</span><span class="token operator">/</span>v3
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; memcached的服务地址</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf keystone_authtoken memcached_servers <span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">11211</span> 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; keystone认证方式为password</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf keystone_authtoken auth_type password 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; keystone的项目Domain为Default</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf keystone_authtoken project_domain_name Default 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 用户的Damain为Default</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf keystone_authtoken user_domain_name Default 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 项目名为service</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf keystone_authtoken project_name service 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; keystone的登录用户名为nova</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf keystone_authtoken username nova 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; nova用户在keystone的登录密码为NOVA_PASS</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf keystone_authtoken password NOVA_PASS 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; vnc如果配置不正确，则连接不上虚拟机的控制台</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf vnc enabled <span class="token boolean">true</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; vnc监听地址</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf vnc server_listen <span class="token string">' $my_ip'</span> 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; server的客户端地址为本机地址；此地址是管理网的地址</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf vnc server_proxyclient_address <span class="token string">' $my_ip'</span> 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; glance的地址</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf glance api_servers http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">9292</span> 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 指定锁路径, 锁的作用是创建虚拟机时，在执行某个操作的时候，需要等此步骤执行完后才能执行下一个步骤，不能并行执行，保证操作是一步一步的执行</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf oslo_concurrency lock_path <span class="token operator">/</span>var<span class="token operator">/</span>lib<span class="token operator">/</span>nova<span class="token operator">/</span>tmp 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; placement服务的region名称</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf placement region_name RegionOne 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; placement服务的项目所属Domain为Default</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf placement project_domain_name Default 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; placement服务的项目名为service</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf placement project_name service 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; placement服务的认证方式为password</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf placement auth_type password 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; placement服务的用户所属Domain为Default</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf placement user_domain_name Default 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; placement服务的认证url</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf placement auth_url http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">5000</span><span class="token operator">/</span>v3 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; placement服务的用户名为placement</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf placement username placement 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; placement服务的密码为PLACEMENT_PASS</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf placement password PLACEMENT_PASS
+</code></pre>
+<h3><a id="8_novaapi_283"></a>8. 填充nova-api数据库</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 初始化nova_api数据库</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># su <span class="token operator">-</span>s <span class="token operator">/</span>bin<span class="token operator">/</span>sh <span class="token operator">-</span>c <span class="token string">"nova-manage api_db sync"</span> nova 
+</code></pre>
+<h3><a id="9cell0_290"></a>9.注册cell0数据库</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; nova服务内部把资源划分到不同的cell中，把计算节点划分到不同的cell中；openstack内部基于cell把计算节点进行逻辑上的分组</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># su <span class="token operator">-</span>s <span class="token operator">/</span>bin<span class="token operator">/</span>sh <span class="token operator">-</span>c <span class="token string">"nova-manage cell_v2 map_cell0"</span> nova 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 创建cell1单元格</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># su <span class="token operator">-</span>s <span class="token operator">/</span>bin<span class="token operator">/</span>sh <span class="token operator">-</span>c <span class="token string">"nova-manage cell_v2 create_cell --name=cell1 --verbose"</span> nova
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 初始化nova数据库，可以通过 /var/log/nova/nova-manage.log 日志判断是否初始化成功</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># su <span class="token operator">-</span>s <span class="token operator">/</span>bin<span class="token operator">/</span>sh <span class="token operator">-</span>c <span class="token string">"nova-manage db sync"</span> nova
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 可使用以下命令验证cell0和cell1是否注册成功</p>
+<pre><code class="prism language-cpp">su <span class="token operator">-</span>s <span class="token operator">/</span>bin<span class="token operator">/</span>sh <span class="token operator">-</span>c <span class="token string">"nova-manage cell_v2 list_cells"</span> nova 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 验证cell0和cell1组件是否注册成功</p>
+<p><img src="https://img-blog.csdnimg.cn/20210626175455269.png" alt="在这里插入图片描述"></p>
+<h3><a id="10_nova_319"></a>10. 启动计算服务nova并将其配置为开机自启</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 将Controller节点的4个nova子服务设置开机自启动</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># systemctl enable openstack<span class="token operator">-</span>nova<span class="token operator">-</span>api<span class="token punctuation">.</span>service openstack<span class="token operator">-</span>nova<span class="token operator">-</span>scheduler<span class="token punctuation">.</span>service openstack<span class="token operator">-</span>nova<span class="token operator">-</span>conductor<span class="token punctuation">.</span>service openstack<span class="token operator">-</span>nova<span class="token operator">-</span>novncproxy<span class="token punctuation">.</span>service 
+<span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># systemctl start openstack<span class="token operator">-</span>nova<span class="token operator">-</span>api<span class="token punctuation">.</span>service openstack<span class="token operator">-</span>nova<span class="token operator">-</span>scheduler<span class="token punctuation">.</span>service openstack<span class="token operator">-</span>nova<span class="token operator">-</span>conductor<span class="token punctuation">.</span>service openstack<span class="token operator">-</span>nova<span class="token operator">-</span>novncproxy<span class="token punctuation">.</span>service 
+</code></pre>
+<h3><a id="11nova_327"></a>11.检测nova服务启动情况</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 同样，使用netstat -tnlup查看端口情况，如出现8774和8775端口则表示nova服务正常启动。</p>
+<p><img src="https://img-blog.csdnimg.cn/20210626175503916.png" alt="在这里插入图片描述"></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 再通过访问Controller节点的8774端口，返回信息：</p>
+<p><img src="https://img-blog.csdnimg.cn/20210626175508930.png" alt="在这里插入图片描述"></p>
+<h2><a id="NovaCompute_337"></a>（三）Nova子服务Compute节点部署</h2>
+<h3><a id="1OpenStack_Train_338"></a>1.安装OpenStack Train版本源</h3>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@compute01 <span class="token operator">~</span><span class="token punctuation">]</span># yum install centos<span class="token operator">-</span>release<span class="token operator">-</span>openstack<span class="token operator">-</span>train <span class="token operator">-</span>y
+</code></pre>
+<h3><a id="2novacompute_344"></a>2.安装nova-compute软件包</h3>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@compute01 <span class="token operator">~</span><span class="token punctuation">]</span># yum install openstack<span class="token operator">-</span>nova<span class="token operator">-</span>compute <span class="token operator">-</span>y
+</code></pre>
+<h3><a id="3nova_350"></a>3.修改计算节点的nova配置文件</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 精简nova.conf配置文件</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@compute01 <span class="token operator">~</span><span class="token punctuation">]</span># cp <span class="token operator">-</span>a <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf<span class="token punctuation">{</span><span class="token punctuation">,</span><span class="token punctuation">.</span>bak<span class="token punctuation">}</span> 
+<span class="token punctuation">[</span>root@compute01 <span class="token operator">~</span><span class="token punctuation">]</span># grep <span class="token operator">-</span>Ev <span class="token string">'^$|#'</span> <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf<span class="token punctuation">.</span>bak <span class="token operator">&gt;</span> <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 安装openstack-utils工具</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># yum install <span class="token operator">-</span>y openstack<span class="token operator">-</span>utils
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 指定支持的API类型</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf DEFAULT enabled_apis osapi_compute<span class="token punctuation">,</span>metadata 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 定义Compute节点的IP</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf DEFAULT my_ip <span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.145</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 通过neutron获取IP地址</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf DEFAULT use_neutron <span class="token boolean">true</span> 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 防火墙驱动</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf DEFAULT firewall_driver nova<span class="token punctuation">.</span>virt<span class="token punctuation">.</span>firewall<span class="token punctuation">.</span>NoopFirewallDriver 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 指定连接的rabbitmq，在Controller节点中</p>
+<pre><code class="prism language-cpp">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf DEFAULT transport_url rabbit<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span>openstack<span class="token operator">:</span>RABBIT_PASS@<span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 认证策略为keystone</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@compute01 <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf api auth_strategy keystone 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; keystone认证URL（Controller中）</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@compute01 <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf keystone_authtoken auth_url http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">5000</span><span class="token operator">/</span>v3 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; memcached服务地址（Controller中）</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@compute01 <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf keystone_authtoken memcached_servers <span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">11211</span> 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; keystone的认证方式为password</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@compute01 <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf keystone_authtoken auth_type password 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; keystone的项目Damain名为Default</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@compute01 <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf keystone_authtoken project_domain_name Default 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; keystone的用户Damain名为Default</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@compute01 <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf keystone_authtoken user_domain_name Default 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; keystone的project为service</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@compute01 <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf keystone_authtoken project_name service 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; keystone的用户名为nova</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@compute01 <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf keystone_authtoken username nova 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; keystone的认证密码为NOVA_PASS</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@compute01 <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf keystone_authtoken password NOVA_PASS 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; vnc连接控制台</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@compute01 <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf vnc enabled <span class="token boolean">true</span> 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; vnc服务监听IP</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@compute01 <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf vnc server_listen <span class="token number">0.0</span><span class="token number">.0</span><span class="token number">.0</span> 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; vnc代理客户端地址为本机地址</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@compute01 <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf vnc server_proxyclient_address <span class="token string">' $my_ip'</span> 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; vnc代理基本url（Controller中）</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@compute01 <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf vnc novncproxy_base_url http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">6080</span><span class="token operator">/</span>vnc_auto<span class="token punctuation">.</span>html 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; glance的api</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@compute01 <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf glance api_servers http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">9292</span> 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 线程锁位置：</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@compute01 <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf oslo_concurrency lock_path <span class="token operator">/</span>var<span class="token operator">/</span>lib<span class="token operator">/</span>nova<span class="token operator">/</span>tmp 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; placement服务的Region名称</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@compute01 <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf placement region_name RegionOne 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; placement服务的project所属的Domain为Default</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@compute01 <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf placement project_domain_name Default 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; placement服务的project名为service</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@compute01 <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf placement project_name service 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; placement服务的认证方式为password</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@compute01 <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf placement auth_type password 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; placement服务的用户Domain为Default</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@compute01 <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf placement user_domain_name Default 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; placement服务的认证地址url</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@compute01 <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf placement auth_url http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">5000</span><span class="token operator">/</span>v3 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; placement服务的用户名为placement</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@compute01 <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf placement username placement 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; placement服务的密码</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@compute01 <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf placement password PLACEMENT_PASS 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; compute子服务的libvirt类型</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@compute01 <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf libvirt virt_type qemu
+</code></pre>
+<h3><a id="4__538"></a>4. 确定计算节点是否支持虚拟机硬件加速</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 检查当前计算节点：</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@compute01 <span class="token operator">~</span><span class="token punctuation">]</span># egrep <span class="token operator">-</span>c <span class="token string">'(vmx|svm)'</span> <span class="token operator">/</span>proc<span class="token operator">/</span>cpuinfo
+</code></pre>
+<p><img src="https://img-blog.csdnimg.cn/20210626175531635.png" alt="在这里插入图片描述"></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 如果此命令返回值不是0，则计算节点支持硬件加速，不需要加入下面的配置。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 如果此命令返回值是0，则计算节点不支持硬件加速，并且必须配置libvirt为使用QEMU而不是KVM，需要编辑/etc/nova/nova.conf 文件中的[libvirt]部分： <code>[libvirt] virt_type = qemu</code></p>
+<h3><a id="5Compute_552"></a>5.启动Compute服务及其相关服务，并设置开机自启</h3>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@compute01 <span class="token operator">~</span><span class="token punctuation">]</span># systemctl enable libvirtd<span class="token punctuation">.</span>service openstack<span class="token operator">-</span>nova<span class="token operator">-</span>compute<span class="token punctuation">.</span>service 
+<span class="token punctuation">[</span>root@compute01 <span class="token operator">~</span><span class="token punctuation">]</span># systemctl start libvirtd<span class="token punctuation">.</span>service openstack<span class="token operator">-</span>nova<span class="token operator">-</span>compute<span class="token punctuation">.</span>service
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 执行命令后，openstack-nova-compute.service服务一直启动不起来，到/var/<br>
+log/nova/nova-compute.log日志中查看启动失败情况，结果如下：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 可以看到，是rabbitmq的连接问题，此时我并没有开启Controller节点的rabbitmq，因此尝试开启Controller节点。<br>
+<img src="https://img-blog.csdnimg.cn/20210626175543393.png" alt="在这里插入图片描述"></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 可是openstack-nova-compute.service服务依然启动失败，查看compute节点的nova-compute.log日志可以看到如下信息：</p>
+<pre><code class="prism language-cpp">tail <span class="token operator">/</span>var<span class="token operator">/</span>log<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token operator">-</span>compute<span class="token punctuation">.</span>log
+</code></pre>
+<p><img src="https://img-blog.csdnimg.cn/20210626175550757.png" alt="在这里插入图片描述"></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 从最后可以看到，是AccessRefused导致的，即AMQPLAIN拒绝登录，说明是登录rabbitmq失败，因此到Controller节点中的查看rabbitmq的日志：</p>
+<pre><code class="prism language-cpp">tail <span class="token operator">/</span>var<span class="token operator">/</span>log<span class="token operator">/</span>rabbitmq<span class="token operator">/</span>rabbitt@controller<span class="token punctuation">.</span>log
+</code></pre>
+<p><img src="https://img-blog.csdnimg.cn/20210626175601983.png" alt="在这里插入图片描述"></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 从中间的一行可以看到，是openstack用户没有有效的认证，下面查看rabbitmq中的用户信息：</p>
+<pre><code class="prism language-cpp">rabbitmqctl list_users
+</code></pre>
+<p><img src="https://img-blog.csdnimg.cn/20210626175608728.png" alt="在这里插入图片描述"></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 可以看到，只有一个guest用户，权限是admin，因此需要添加一个openstack用户，设置密码为RABBIT_PASS，这个密码是我们在Compute节点的nova.conf中配置的密码：</p>
+<pre><code class="prism language-cpp">rabbitmqctl add_user openstack RABBIT_PASS
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 增加配置、读取及写入相关权限</p>
+<pre><code class="prism language-cpp">rabbitmqctl set_permissions openstack <span class="token string">".*"</span> <span class="token string">".*"</span> <span class="token string">".*"</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 重启Controller节点中的rabbitmq服务，</p>
+<pre><code class="prism language-cpp">systemctl restart rabbitmq<span class="token operator">-</span>server<span class="token punctuation">.</span>service
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 重启Compute节点中的openstack-nova-compute服务</p>
+<pre><code class="prism language-cpp">systemctl restart openstack<span class="token operator">-</span>nova<span class="token operator">-</span>compute<span class="token punctuation">.</span>service
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 最终，查看openstack-nova-compute服务启动成功，如下所示：<br>
+<img src="https://img-blog.csdnimg.cn/202106261756203.png" alt="在这里插入图片描述"></p>
+<h3><a id="6Compute_616"></a>6.修改Compute节点主机名配置</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 修改主机名，方便操作</p>
+<pre><code class="prism language-cpp">hostnamectl set<span class="token operator">-</span>hostname computer
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 配置hosts</p>
+<pre><code class="prism language-cpp"><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.145</span> compute
+</code></pre>
+<h3><a id="7controller_629"></a>7.验证（controller节点操作）</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 查看compute节点是否注册到controller上，通过消息队列；需要在controller节点执行以下的指令：</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@ct <span class="token operator">~</span><span class="token punctuation">]</span># openstack compute service list <span class="token operator">--</span>service nova<span class="token operator">-</span>compute
+</code></pre>
+<p><img src="https://img-blog.csdnimg.cn/20210626175633126.png" alt="在这里插入图片描述"></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 这里有两个是因为我在之前没有设置Compute节点的hostname，修改完hostname之后的状态为UP。</p>
+<h3><a id="8Controller_640"></a>8.发现计算节点主机（Controller节点操作）</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 扫描当前openstack中有哪些计算节点可用，发现后会把计算节点创建到cell中，后面就可以在cell中创建虚拟机；相当于openstack内部对计算节点进行分组，把计算节点分配到不同的cell中</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@ct <span class="token operator">~</span><span class="token punctuation">]</span># su <span class="token operator">-</span>s <span class="token operator">/</span>bin<span class="token operator">/</span>sh <span class="token operator">-</span>c <span class="token string">"nova-manage cell_v2 discover_hosts --verbose"</span> nova
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 可以看到，发现两个cell，一个是cell1，其中不包含host注解；另一个是cell，其中包含了两个host，就是我们之前在未设置hostname和设置之后的两个host：</p>
+<p><img src="https://img-blog.csdnimg.cn/20210626175642304.png" alt="在这里插入图片描述"></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 由于在以后添加新的计算节点时，必须在控制器节点上运行”su -s /bin/sh -c “nova-manage cell_v2 discover_hosts --verbose” nova“以注册这些新的计算节点。这样很麻烦，因此可以修改Controller节点的nova.conf文件：</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@ct <span class="token operator">~</span><span class="token punctuation">]</span># vim <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf
+<span class="token punctuation">[</span>scheduler<span class="token punctuation">]</span>
+discover_hosts_in_cells_interval <span class="token operator">=</span> <span class="token number">300</span>			#每<span class="token number">300</span>秒扫描一次
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 设置扫描时间为300秒扫描一次。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 重启Controller节点的nova-api.service服务：</p>
+<pre><code class="prism language-cpp">systemctl restart openstack<span class="token operator">-</span>nova<span class="token operator">-</span>api<span class="token punctuation">.</span>service
+</code></pre>
+<h3><a id="9Controller_667"></a>9.验证计算节点服务（Controller节点操作）</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 检查 nova 的各个服务是否都是正常，以及 compute 服务是否注册成功</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@ct <span class="token operator">~</span><span class="token punctuation">]</span># openstack compute service list
+</code></pre>
+<p><img src="https://img-blog.csdnimg.cn/20210626175656193.png" alt="在这里插入图片描述"></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 可以看到，controller节点中启动了两个服务，compute节点启动了一个服务。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 查看OpenStack各个组件的 访问api 是否正常</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@ct <span class="token operator">~</span><span class="token punctuation">]</span># openstack catalog list
+</code></pre>
+<p><img src="https://img-blog.csdnimg.cn/20210626175706162.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01yd3h4eHg=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 查看cell的api和placement的api是否正常，只要其中一个有误，后期无法创建虚拟机</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@ct <span class="token operator">~</span><span class="token punctuation">]</span># nova<span class="token operator">-</span>status upgrade check
+</code></pre>
+<p><img src="https://img-blog.csdnimg.cn/20210626175714388.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01yd3h4eHg=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+</div>
+</body>
+
+</html>
