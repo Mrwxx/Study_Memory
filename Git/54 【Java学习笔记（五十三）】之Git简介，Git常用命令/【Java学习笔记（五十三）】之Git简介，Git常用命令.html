@@ -1,0 +1,248 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Java学习笔记（五十三）】之Git简介，Git常用命令</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09Git_7"></a>一．	Git</h2>
+<h3><a id="%09GitSVN_8"></a>（一）	Git与SVN的对比</h3>
+<h4><a id="1%09SVN_9"></a>1.	SVN</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;SVN是集中式版本控制系统，版本库是集中放在中央服务器上的，开发人员只能从中央服务器中下载最新的版本进行开发，开发完毕后，需要将自己开发的代码提交到中央服务器中。</p>
+<p>集中式版本控制工具缺点：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;服务器单点故障：当服务器出现故障时，所有的开发需要等待服务器的故障排除后才能继续进行。容错性很差<br>
+<br></p>
+<h4><a id="2%09Git_18"></a>2.	Git</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Git是分布式版本控制系统（Distributed Version Control System，DVCS），分为两种类型的仓库：本地仓库和远程仓库。本地仓库是开发人员自己电脑上的Git仓库，远程仓库是远程服务器上的Git仓库。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;当开发人员开发完毕后，可以通过Commit命名将代码提交到本地仓库上；若想将代码提交到远程仓库中，使用Push推送命令推送到远程仓库中；若想从远程仓库中下载代码到本地仓库，使用Pull拉取命令；若想直接将远程仓库复制到本地，就使用Clone克隆命令。<br>
+<br></p>
+<h3><a id="%09Git_26"></a>（二）	Git工作流程</h3>
+<p>Git的工作流程如下所示：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;1.	从远程仓库中通过Clone克隆代码到本地仓库中。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;2.	开发人员从本地仓库中通过checkout获取代码后进行代码修改。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;3.	开发人员修改完代码后，想要将代码提交到本地仓库中，首先将代码Add提交到暂存区，之后暂存区会将代码Commit到本地仓库中。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;4.	提交到本地仓库后，本地仓库保存着修改的历史版本。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;5.	当需要将代码上传到远程仓库时，可以通过Push从本地仓库推送代码到远程仓库中。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;6.	若想直接从远程仓库中获取代码，则可以通过Pull拉取代码到工作区中，不经过本地仓库。<br>
+<br></p>
+<h2><a id="%09Git_45"></a>二．	Git代码托管服务</h2>
+<h3><a id="%09Git_46"></a>（一）	常用的Git代码托管服务</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通常我们是借助互联网上提供的一些代码托管服务来搭建Git远程仓库，其中比较常见的有GitHub，码云，GitLab等。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;GitHub是一个面向开源即私有软件项目的托管平台，因为只支持Git作为唯一的版本库格式进行托管，因此命名为GitHub；码云是国内的一个代码托管平台；GitLab是一个用于仓库管理系统的开源项目，使用Git作为代码管理工具，并在此基础上搭建起来的web服务。<br>
+<br></p>
+<h3><a id="%09_54"></a>（二）	使用码云进行代码托管</h3>
+<h4><a id="1%09_55"></a>1.	创建新仓库</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;登录码云，创建新的仓库，每个Git远程仓库都会对应一个网络地址，可以店家克隆/下载按钮弹出窗口，窗口中就是Git远程仓库对应的网络地址。<br>
+<br></p>
+<h4><a id="2%09_61"></a>2.	邀请其他用户成为仓库成员</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;项目的开发是由多人共同完成的，为了使多个参与者都有权限操作远程仓库，需要邀请其他项目参与者成为当前仓库的成员。<br>
+<br></p>
+<h2><a id="%09Git_68"></a>三．	Git常用命令</h2>
+<h3><a id="%09_69"></a>（一）	环境配置</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;安装完Git后首先要设置用户名和email名称，每次Git提交时都会使用该用户名和email地址进行验证。<br>
+<br></p>
+<h4><a id="1%09_75"></a>1.	设置用户信息</h4>
+<pre><code class="prism language-cpp">git config –global user<span class="token punctuation">.</span>name “mrwxx”
+git config –global user<span class="token punctuation">.</span>email hello@wxx<span class="token punctuation">.</span>cn
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;git config 是用于Git配置的命令， --global代表着这是全局的， user.name代表着用户名称，user.email代表着email地址。<br>
+<br></p>
+<h4><a id="2%09_87"></a>2.	查看配置信息</h4>
+<p>以列表形式显示所有的Git配置：</p>
+<pre><code class="prism language-cpp">git config –list
+</code></pre>
+<p>显示单个Git配置：</p>
+<pre><code class="prism language-cpp">git config user<span class="token punctuation">.</span>name
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;当我们手动设置完Git的配置后，这些配置信息会保存在本地用户的目录下，如本地的C:\Users\Mr.wmxx下面，有一个.gitconfig文件，文件中存储着刚刚配置的信息：<br>
+<br></p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>user<span class="token punctuation">]</span>
+	name <span class="token operator">=</span> mrwxx
+	email <span class="token operator">=</span> hello@wxx<span class="token punctuation">.</span>cn
+</code></pre>
+<br>
+<h3><a id="%09Git_114"></a>（二）	获取Git仓库</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;获取Git仓库有两种方式，一种是在本地初始化一个Git仓库，另一种是从远程仓库中克隆一个。<br>
+<br></p>
+<h4><a id="1%09Git_120"></a>1.	本地初始化Git仓库</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在本地初始化一个Git仓库，就是将本地的一个文件夹作为Git仓库，在某个文件夹下右键进入Git Bash，使用git init命令初始化一个Git仓库。这样，该文件夹下会生成一个.git隐藏文件夹。<br>
+<br></p>
+<h4><a id="2%09_126"></a>2.	克隆远程仓库</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;克隆远程仓库到本地中，在本地的文件夹下进入Git Bash，使用git clone 命令，后面加 远程仓库的地址即可。</p>
+<pre><code class="prism language-cpp">git clone https<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span>gitee<span class="token punctuation">.</span>com<span class="token operator">/</span>mrxx<span class="token operator">/</span>repos<span class="token punctuation">.</span>git
+</code></pre>
+<br>
+<h3><a id="%09_136"></a>（三）	工作目录，暂存区以及版本库</h3>
+<h4><a id="1%09_137"></a>1.	版本库</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;前面所说的.git文件夹就是版本库，版本库中存储了很多的配置信息，日志信息和文件版本信息。<br>
+<br></p>
+<h4><a id="2%09_143"></a>2.	工作目录（工作区）</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;包含.git文件夹的目录就是工作目录，主要用于存放开发的代码。<br>
+<br></p>
+<h4><a id="3%09_149"></a>3.	暂存区</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;.git文件夹中的index文件就是暂存区，暂存区用于临时保存修改的文件。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;开发人员在工作区进行开发，开发修改后的代码通过 git add命令传到暂存区，再通过git commit 命令提交到版本库中。<br>
+<br></p>
+<h3><a id="%09Git_157"></a>（四）	Git工作目录下文件的两种状态</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Git工作目录下的文件存在两种状态，这些文件的状态会随着Git命令的执行而发生变化。</p>
+<h4><a id="1%09untracked_160"></a>1.	untracked</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;未跟踪状态，说明它未被纳入版本控制中。<br>
+<br></p>
+<h4><a id="2%09tracked_166"></a>2.	tracked</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;已跟踪状态，说明它已经被Git纳入版本控制了，且已跟踪状态又分为三种状态：</p>
+<h5><a id="1%09Unmodified_168"></a>（1）	Unmodified</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;未修改状态，文件没有被修改过。</p>
+<h5><a id="2%09Modified_171"></a>（2）	Modified</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;已修改状态，文件已经被修改过了。</p>
+<h5><a id="3%09Staged_174"></a>（3）	Staged</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;已暂存状态，文件已经放入暂存区中、<br>
+<br></p>
+<h3><a id="%09_180"></a>（五）	本地仓库操作</h3>
+<h4><a id="1%09git_status_182"></a>1.	git status</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在工作区中使用git status查看工作区中文件的状态。<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;使用 git status -s使得输出结果更加简洁</p>
+<br>
+<h4><a id="2%09git_add_189"></a>2.	git add</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;git add命令将未跟踪的文件加入暂存区中，那么该文件的状态就会变为已跟踪中的已暂存状态。</p>
+<pre><code class="prism language-cpp">git add hello<span class="token punctuation">.</span>txt
+</code></pre>
+<br>
+<h4><a id="3%09git_reset_199"></a>3.	git reset</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;git reset命令将暂存区中的文件取消暂存，那么该文件的状态就会发生变化，变为未跟踪。</p>
+<pre><code class="prism language-cpp">git reset hello<span class="token punctuation">.</span>txt
+</code></pre>
+<br>
+<h4><a id="4%09git_commit_209"></a>4.	git commit</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;要想将代码提交到本地仓库中，必须通过暂存区，即先将代码通过git add命令存到暂存区中，再通过git commit命令将代码提交到本地仓库中。</p>
+<pre><code class="prism language-cpp">git commit <span class="token operator">-</span>m “init hello<span class="token punctuation">.</span>txt”
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;-m代表着日志，每次上传代码到本地仓库中，必须要写日志信息，如果不加-m，它会弹出一个编辑器让我们进行编写。<br>
+<br></p>
+<h4><a id="5%09git_rm_221"></a>5.	git rm</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;git rm命令将文件从工作区中删除，但是，本地仓库中的该文件并没有被删除，要想删除，需要提交到本地仓库。提交之前我们需要将该文件添加到暂存区中，有趣的是，使用git rm命令删除该文件后，该文件就自动被添加到了暂存区中，因此我们可以直接使用git commit命令提交就可以了，本地仓库中的该文件就被删除了。<br>
+<br></p>
+<h4><a id="6%09ignore_227"></a>6.	.ignore文件</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;工作区中有一些文件是不需要纳入Git的管理的，也不希望他们总是出现在未跟踪文件列表中，因此，我们可以在工作区中创建一个名为 .gitignore的文件，在该文件中列出需要忽略的文件模式，如下所示：</p>
+<p>*.a  : 代表着忽略所有的.a格式文件</p>
+<p>!lib.a : 代表着除了lib.a之外</p>
+<p>/TODO : 代表着忽略TODO文件</p>
+<p>build/ : 代表着忽略build文件夹下的所有文件</p>
+<p>doc/*.txt : 代表着忽略doc文件夹下的所有txt文件</p>
+<p>doc/**/*.txt : 代表和忽略doc目录下的所有子目录的txt文件<br>
+<br></p>
+<h4><a id="7%09git_log_245"></a>7.	git log</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通过git log命令查看日志记录，按Enter键向下浏览记录，按q键 退出到命令行。<br>
+<br></p>
+<h3><a id="%09_251"></a>（六）	远程仓库操作</h3>
+<h4><a id="1%09git_remote_252"></a>1.	git remote</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;当一个本地的工作空间和远程仓库建立了联系后，通过git remote命令查看已经配置的远程仓库服务器，它会列出指定的每一个远程服务器的简写，如果已经克隆了远程仓库，那么至少有一个origin，这是Git克隆的远程仓库服务器的默认名字。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;想要更加详细的信息，可以在git remote命令后面加上 -v，可以显示远程仓库服务器的地址：</p>
+<pre><code class="prism language-cpp">git remote <span class="token operator">-</span>v
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;若是想查看某一个远程仓库服务器的信息，则使用git remote show 命令后面加上该仓库的简写即可：</p>
+<pre><code class="prism language-cpp">git remote show origin
+</code></pre>
+<br>
+<h4><a id="2%09git_remote_add_270"></a>2.	git remote add</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通过git remote add命令为本地添加远程仓库，命令后面首先加上 远程仓库的简写，然后是 远程仓库的地址：</p>
+<pre><code class="prism language-cpp">git remote add origin https<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span>gitee<span class="token punctuation">.</span>com<span class="token operator">/</span>mtwxx<span class="token operator">/</span>repos<span class="token punctuation">.</span>git
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;我们可以为本地添加多个远程仓库。<br>
+<br></p>
+<h4><a id="3%09git_clone_282"></a>3.	git clone</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;git clone命令负责从远程仓库中进行拷贝，Git克隆的是该Git仓库服务器上几乎所有数据（包括日志信息，历史记录等）。当执行git clone 命令时，默认配置下远程Git仓库中的每一个文件的每一个版本都会被拉取下来。</p>
+<pre><code class="prism language-cpp">git clone https<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span>gitee<span class="token punctuation">.</span>com<span class="token operator">/</span>mrwxx<span class="token operator">/</span>repo<span class="token punctuation">.</span>git
+</code></pre>
+<br>
+<h4><a id="4%09git_remote_rm_292"></a>4.	git remote rm</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通过git remote rm 命令移除本地连接的一个远程仓库，命令后面跟远程仓库的简称。这里只是在本地中移除远程仓库的记录，不会影响到真正的远程仓库。</p>
+<pre><code class="prism language-cpp">git remote rm origin
+</code></pre>
+<br>
+<h4><a id="5%09git_fetch_302"></a>5.	git fetch</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;git fetch是从远程仓库获取最新版本到本地仓库中，不会自动地merge，不会自动合并到本地仓库中，即不会直接显示在本地仓库中。</p>
+<pre><code class="prism language-cpp">git fetch origin master
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;origin是远程仓库的简称，master是远程仓库的分支。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;我们还要通过 git merge 来合并代码到工作区中，后面接远程仓库的分支，如：</p>
+<pre><code class="prism language-cpp">git merge origin<span class="token operator">/</span>master
+</code></pre>
+<br>
+<h4><a id="6%09git_pull_320"></a>6.	git pull</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;git pull也是从远程仓库获取最新版本到本地仓库，但是会自动merge，合并代码。</p>
+<pre><code class="prism language-cpp">git pull origin master
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;注意：如果当前的本地仓库是本地创建的仓库，且仓库中存在文件，此时再从远程仓库中拉取文件时会报错（fatal:refusing to merge unrelated histories），这是因为原有的文件与拉取的文件无法合并。可以通过在git pull命令后添加参数 –allow-unrelated-histories来解决</p>
+<pre><code class="prism language-cpp">git pull origin master –allowed<span class="token operator">-</span>histories<span class="token operator">-</span>histories
+</code></pre>
+<br>
+<h4><a id="7%09git_push_336"></a>7.	git push</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通过git push命令将本地的代码推送到远程仓库中，后面接远程仓库的简写，以及分支名：</p>
+<pre><code class="prism language-cpp">git push origin master
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;这个操作一般都是在我们对之前下载的代码进行修改之后，修改后的代码是没有进入本地仓库的，因此我们首先要将修改后的代码提交到本地仓库，而提交到本地仓库首先要存到暂存区，使用git add 添加到暂存区或者 git commit -a命令直接提交到本地仓库中。在这之后，就可以执行git push命令推送新的代码到远程仓库了。<br>
+<br></p>
+<h3><a id="%09Git_348"></a>（七）	Git分支</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;所有的版本控制系统都有分支，使用分支意味着可以把工作从开发主线上分离开来，以免影响开发主线。Git的master分支不是特殊的，之所以每个仓库都有master分支，是因为git init会默认创建它。</p>
+<h4><a id="1%09_350"></a>1.	查看分支</h4>
+<p><code>git branch</code>  列出本地所有分支</p>
+<p><code>git branch -r</code> 列出所有远程分支</p>
+<p><code>git branch -a</code> 列出本地和远程的所有分支<br>
+<br></p>
+<h4><a id="2%09_360"></a>2.	创建分支</h4>
+<p><code>git branch a</code> 创建a分支<br>
+<br></p>
+<h4><a id="3%09_367"></a>3.	切换分支</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;我们通过git checkout来切换分支，命令行中会显示目前使用的分支：</p>
+<p><code>git checkout a</code> 切换到a分支<br>
+<br></p>
+<h4><a id="4%09_375"></a>4.	推送到远程仓库分支</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;将本地的分支推送到远程仓库的分支中，如推送到origin仓库的b1分支中：</p>
+<pre><code class="prism language-cpp">git push origin b1
+</code></pre>
+<br>
+<h4><a id="5%09_385"></a>5.	合并分支</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通过<code>git merge</code>命令合并两个分支，如我们要将b3分支合并到master分支上，那么，我们需要切换到master分支中，使用git merge b1命令合并分支。如果在两个不同的分支中，对同一个文件同一个部分进行了不同的修改，Git就合并它们，会提示文件冲突。此时我们需要打开冲突的文件并修复冲突内容，最后执行git add命令将代码存到暂存区中。<br>
+<br></p>
+<h4><a id="6%09_391"></a>6.	删除分支</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;若要删除本地的分支，可以通过<code>git branch -d</code> 后面接分支的名称来删除该分支。若在该分支中已经进行了修改，且没有推送到远程仓库中，那么使用上面的命令并不会删除分支，因为直接删除会有丢失修改数据的风险。若坚持要直接删除，将-d参数改为-D参数即可删除。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;若要删除远程仓库中的分支，可以使用<code>git push origin -d branchName</code>，origin是远程仓库的简称，branchName是分支的名称。<br>
+<br></p>
+<h3><a id="%09Git_399"></a>（八）	Git标签</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Git可以给历史中的某一个提交打上标签，以示重要，人们会使用这个功能来标记发布节点。标签指的是某个分支某个特定时间点的状态，通过标签，可以很方便地切换到标记时的状态。</p>
+<h4><a id="1%09git_tag_401"></a>1.	git tag</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;列出已有的标签<br>
+<br></p>
+<h4><a id="2%09git_show_tag_407"></a>2.	git show [tag]</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;查看tag信息<br>
+<br></p>
+<h4><a id="3%09git_tag_tagName_413"></a>3.	git tag [tagName]</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;新建一个tag标签<br>
+<br></p>
+<h4><a id="4%09git_push_remote_tag_419"></a>4.	git push [remote] [tag]</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;将标签推送至远程仓库，提交指定tag<br>
+如： <code>git push origin v0.1</code><br>
+<br></p>
+<h4><a id="5%09git_checkout_b_branch_tag_426"></a>5.	git checkout -b [branch] [tag]</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;检出标签，新建一个分支，将该分支指向某个tag<br>
+<br></p>
+<h4><a id="6%09git_tag_d_tag_432"></a>6.	git tag -d [tag]</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;删除本地标签，<br>
+<br></p>
+<h4><a id="7%09git_push_remote_refstagstag_438"></a>7.	git push [remote] :refs/tags/[tag]</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;删除远程仓库的tag，:ref/tags是固定写法：</p>
+<pre><code class="prism language-cpp">git push origin <span class="token operator">:</span>refs<span class="token operator">/</span>tags<span class="token operator">/</span><span class="token punctuation">[</span>tag<span class="token punctuation">]</span>
+</code></pre>
+</div>
+</body>
+
+</html>

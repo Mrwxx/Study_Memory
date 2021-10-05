@@ -1,0 +1,285 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Java学习笔记（三十五）】之响应消息，Response对象,ServletContext对象，文件下载实例</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	响应消息</h2>
+<h3><a id="%09_8"></a>（一）	响应消息的组成</h3>
+<ol>
+<li>
+<p>请求行</p>
+</li>
+<li>
+<p>请求头</p>
+</li>
+<li>
+<p>请求空行</p>
+</li>
+<li>
+<p>请求体<br>
+<br></p>
+</li>
+</ol>
+<h3><a id="%09_19"></a>（二）	响应行</h3>
+<h4><a id="1%09_20"></a>1.	组成</h4>
+<pre><code class="prism language-java">协议<span class="token operator">/</span>版本 响应状态码 状态码描述
+</code></pre>
+<br>
+<h4><a id="2%09_29"></a>2.	响应状态码</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;服务器告诉客户端浏览器本次请求和响应的状态。状态码一般都是3位数字，分为5大类：</p>
+<h5><a id="1%091xx_31"></a>（1）	1xx</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;一百多的数字代表着服务器接收到了客户端的请求，但是没有接收完成。<br>
+<br></p>
+<h5><a id="2%092xx_37"></a>（2）	2xx</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;二百多的数字代表着请求成功。<br>
+<br></p>
+<h5><a id="3%093xx_43"></a>（3）	3xx</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;三百多的数字代表着重定向，客户端向服务器发送请求，服务器将该请求重定向到其他位置，如缓存中（304）<br>
+<br></p>
+<h5><a id="4%094xx_49"></a>（4）	4xx</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;四百多的数字代表着客户端的请求错误，如404代表着客户端的请求路径中没有对应的资源，如405代表着请求方式没有对应的doxxx方法<br>
+<br></p>
+<h5><a id="5%095xx_55"></a>（5）	5xx</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;五百多的数字代表着服务器端的错误，如500代表着服务器内部异常。<br>
+<br></p>
+<h3><a id="%09_61"></a>（三）	响应头</h3>
+<h4><a id="1%09_62"></a>1.	格式</h4>
+<pre><code class="prism language-java">头名称：值
+</code></pre>
+<br>
+<h4><a id="2%09_71"></a>2.	常见响应头</h4>
+<h5><a id="1%09ContentType_72"></a>（1）	Content-Type</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;服务器告诉客户端本次响应体数据格式以及编码格式</p>
+<pre><code class="prism language-java">Content<span class="token operator">-</span>Type<span class="token operator">:</span> text<span class="token operator">/</span>html<span class="token punctuation">;</span>charset<span class="token operator">=</span>UTF<span class="token operator">-</span><span class="token number">8</span>
+</code></pre>
+<br>
+<h5><a id="2%09Contentdisposition_83"></a>（2）	Content-disposition</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;服务器告诉客户端以什么方式打开响应体数据。默认值为 in-line，代表着在当前页面打开</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;值为attachment;filename=xx代表着以附件形式打开响应体，一般用于文件下载中。<br>
+<br></p>
+<h2><a id="%09Response_92"></a>二．	Response对象</h2>
+<h3><a id="%09Response_93"></a>（一）	设置Response对象</h3>
+<h4><a id="1%09_94"></a>1.	设置响应行</h4>
+<h5><a id="1%09_95"></a>（1）	格式</h5>
+<pre><code class="prism language-java">HTTP<span class="token operator">/</span><span class="token number">1.1</span> <span class="token number">200</span> ok
+</code></pre>
+<br>
+<h5><a id="2%09_104"></a>（2）	设置状态码</h5>
+<pre><code class="prism language-java"><span class="token function">setStatus</span><span class="token punctuation">(</span><span class="token keyword">int</span> src<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h4><a id="2%09_113"></a>2.	设置响应头</h4>
+<pre><code class="prism language-java"><span class="token function">setHeader</span><span class="token punctuation">(</span>String name<span class="token punctuation">,</span> String value<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h4><a id="3%09_122"></a>3.	设置响应体</h4>
+<h5><a id="1%09_123"></a>（1）	获取输出流</h5>
+<p>字符输出流： <code>printWriter getWriter()</code><br>
+字节输出流： <code>ServletOutputStream getOutputStream()</code><br>
+<br></p>
+<h5><a id="2%09_130"></a>（2）	使用输出流，将数据输出到客户端浏览器中</h5>
+<br>
+<h3><a id="%09_135"></a>（二）	重定向实例</h3>
+<h4><a id="1%09_136"></a>1.	思路</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;设置状态码为302，返回另一个资源的路径。<br>
+<br></p>
+<h4><a id="2%09_142"></a>2.	代码实现</h4>
+<pre><code class="prism language-java"><span class="token comment">//访问demo1，会跳转到demo2</span>
+System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"demo1"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">//1.设置状态码为302</span>
+resp<span class="token punctuation">.</span><span class="token function">setStatus</span><span class="token punctuation">(</span><span class="token number">302</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">//2. 设置响应头location</span>
+resp<span class="token punctuation">.</span><span class="token function">setHeader</span><span class="token punctuation">(</span><span class="token string">"location"</span><span class="token punctuation">,</span> <span class="token string">"/Login/Response/responseDemo2"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">//简单的重定向方法</span>
+resp<span class="token punctuation">.</span><span class="token function">sendRedirect</span><span class="token punctuation">(</span>“<span class="token operator">/</span>Login<span class="token operator">/</span>Response<span class="token operator">/</span>responseDemo2”<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h4><a id="3%09_158"></a>3.	重定向的特点</h4>
+<p>（1）	地址栏发生变化</p>
+<p>（2）	重定向可以访问其他服务器的资源</p>
+<p>（3）	重定向是两次请求，因此不能像转发一样使用request域来共享数据<br>
+<br></p>
+<h3><a id="%09_168"></a>（三）	路径的写法</h3>
+<h4><a id="1%09_169"></a>1.	相对路径</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;以./开头的路径，要找到当前资源路径和目标资源路径之间的相对位置关系。<br>
+如：</p>
+<pre><code class="prism language-java"><span class="token punctuation">.</span>/index<span class="token punctuation">.</span>html
+</code></pre>
+<br>
+<h4><a id="2%09_180"></a>2.	绝对路径</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通过绝对路径可以确定唯一的资源，可以省略协议和域名，直接以/开头写绝对路径，如：</p>
+<pre><code class="prism language-java"><span class="token operator">/</span>login<span class="token operator">/</span>response
+</code></pre>
+<br>
+<h4><a id="3%09_190"></a>3.	路径的使用</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;对于客户端和服务器，我们提供的路径是不一样的。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;若路径是提供给客户端浏览器的，则需要添加虚拟目录（项目的访问路径），这个虚拟目录可以通过动态获取，如：</p>
+<pre><code class="prism language-java">request<span class="token punctuation">.</span><span class="token function">getContextPath</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;若路径是提供给服务器的，则不需要添加虚拟路径，直接写路径即可。<br>
+<br></p>
+<h3><a id="%09_204"></a>（四）	输出字符数据实例</h3>
+<h4><a id="1%09_205"></a>1.	中文字符的乱码问题</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;当我们想要输出中文字符到浏览器中时，会出现乱码问题，这是因为系统使用的编码表和Tomcat返回的字符输出流的编码表不一致。Tomcat服务器返回的字符输出流的编码表为ISO-8859-1，不支持中文，因此我们需要设置字符输出流的编码为支持中文的编码表，如GBK，”utf-8”，然后通过设置response的响应头的content-type属性，将使用的编码表告诉浏览器，建议浏览器使用该编码表解码。这样，乱码问题就解决了。<br>
+<br></p>
+<h4><a id="2%09_211"></a>2.	思路</h4>
+<p>（1）	设置输出流的编码方式</p>
+<p>（2）	获取响应的字符输出流</p>
+<p>（3）	输出数据到浏览器中<br>
+<br></p>
+<h4><a id="3%09_221"></a>3.	实现代码</h4>
+<pre><code class="prism language-java"><span class="token comment">//设置流的默认编码</span>
+resp<span class="token punctuation">.</span><span class="token function">setCharacterEncoding</span><span class="token punctuation">(</span><span class="token string">"GBK"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">//告诉浏览器，服务器发送的消息体数据的编码格式</span>
+resp<span class="token punctuation">.</span><span class="token function">setHeader</span><span class="token punctuation">(</span><span class="token string">"content-type"</span><span class="token punctuation">,</span> <span class="token string">"text/html;charset=GBK"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">//简单的设置编码方式</span>
+resp<span class="token punctuation">.</span><span class="token function">setContentType</span><span class="token punctuation">(</span><span class="token string">"text/html;charset=GBK"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">//获取字符输出流</span>
+PrintWriter pw <span class="token operator">=</span> resp<span class="token punctuation">.</span><span class="token function">getWriter</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">//输出数据</span>
+pw<span class="token punctuation">.</span><span class="token function">write</span><span class="token punctuation">(</span><span class="token string">" 你的 world"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h3><a id="%09_240"></a>（五）	输出字节数据到浏览器</h3>
+<h4><a id="1%09_241"></a>1.	思路</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;获取字节输出流</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;输出数据到浏览器<br>
+<br></p>
+<h4><a id="2%09_249"></a>2.	代码实现</h4>
+<pre><code class="prism language-java">resp<span class="token punctuation">.</span><span class="token function">setContentType</span><span class="token punctuation">(</span><span class="token string">"text/html;chareset=utf-8"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">//获取字节输出流</span>
+ServletOutputStream sos <span class="token operator">=</span> resp<span class="token punctuation">.</span><span class="token function">getOutputStream</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">//输出数据</span>
+sos<span class="token punctuation">.</span><span class="token function">write</span><span class="token punctuation">(</span><span class="token string">"你好"</span><span class="token punctuation">.</span><span class="token function">getBytes</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h2><a id="%09ServletContext_264"></a>三．	ServletContext对象</h2>
+<h3><a id="%09_265"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;ServletContext对象代表着整个web应用，可以和程序的容器（服务器）进行通信。<br>
+<br></p>
+<h3><a id="%09ServletContext_271"></a>（二）	获取ServletContext对象</h3>
+<h4><a id="1%09request_272"></a>1.	通过request对象获取</h4>
+<pre><code class="prism language-java">request<span class="token punctuation">.</span><span class="token function">getServletContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h4><a id="2%09HttpServlet_281"></a>2.	通过HttpServlet获取</h4>
+<pre><code class="prism language-java"><span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getServletContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span>；
+</code></pre>
+<br>
+<h3><a id="%09ServletContext_290"></a>（三）	ServletContext对象的功能</h3>
+<h4><a id="1%09MIME_291"></a>1.	获取MIME类型</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;MIME类型：在互联网通信过程中定义的一种文件数据类型</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;格式：大类型/小类型</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如：<code>text/html ; image/jpeg</code></p>
+<pre><code class="prism language-java"><span class="token comment">//获取ServletContext对象</span>
+ServletContext context <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getServletContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">//定义文件名称</span>
+String filename <span class="token operator">=</span> <span class="token string">"a.jpg"</span><span class="token punctuation">;</span>
+<span class="token comment">//获取MIME类型</span>
+String mimeType <span class="token operator">=</span> context<span class="token punctuation">.</span><span class="token function">getMimeType</span><span class="token punctuation">(</span>filename<span class="token punctuation">)</span><span class="token punctuation">;</span>
+System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>mimeType<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h4><a id="2%09_311"></a>2.	域对象共享数据</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通过ServletContext对象来设置参数，共享数据。用这个方式时要谨慎，因为ServletContext对象的范围是面向所有用户的所有请求数据，并不安全。</p>
+<pre><code class="prism language-java"><span class="token function">setAttribute</span><span class="token punctuation">(</span>String name<span class="token punctuation">,</span> Object value<span class="token punctuation">)</span>
+<span class="token function">getAttribute</span><span class="token punctuation">(</span>String name<span class="token punctuation">)</span>
+<span class="token function">removeAttribute</span><span class="token punctuation">(</span>String name<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h4><a id="3%09ServletContext_323"></a>3.	通过ServletContext对象获取文件服务器路径</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通过ServletContext对象可以获取项目中文件的路径。</p>
+<h5><a id="1%09web_325"></a>（1）	文件在web目录下</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;当文件在web目录下时，直接在前面加上反斜杠获取路径:</p>
+<pre><code class="prism language-java">String a <span class="token operator">=</span> context<span class="token punctuation">.</span><span class="token function">getRealPath</span><span class="token punctuation">(</span>“<span class="token operator">/</span>a<span class="token punctuation">.</span>txt”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h5><a id="2%09web_335"></a>（2）	文件在web目录下的文件夹内</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;若文件在web目录下的WEB-INF文件夹中，则在反斜杠后再添加WEB-INF文件夹的名称即可：</p>
+<pre><code class="prism language-java">String b <span class="token operator">=</span> context<span class="token punctuation">.</span><span class="token function">getRealPath</span><span class="token punctuation">(</span>“<span class="token operator">/</span>WEB<span class="token operator">-</span>INF<span class="token operator">/</span>b<span class="token punctuation">.</span>txt”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h5><a id="3%09src_345"></a>（3）	文件在src目录下</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;若文件在src目录下，则需要到web目录下的WEB-INF文件夹中的classes文件夹中查找：</p>
+<pre><code class="prism language-java">String c <span class="token operator">=</span> context<span class="token punctuation">.</span><span class="token function">getRealPath</span><span class="token punctuation">(</span>“<span class="token operator">/</span>WEB<span class="token operator">-</span>INF<span class="token operator">/</span>classes<span class="token operator">/</span>c<span class="token punctuation">.</span>txt”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h2><a id="%09_356"></a>四．	文件下载实例</h2>
+<h3><a id="%09_357"></a>（一）	需求分析</h3>
+<h4><a id="1%09_358"></a>1.	在页面中显示超链接</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;超链接指向的资源如果能够被浏览器解析，则在浏览器中展示，如果不能解析，则弹出下载提示框。<br>
+<br></p>
+<h4><a id="2%09_364"></a>2.	点击超链接后弹出下载提示框</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通过设置响应头的资源打开方式为attachment即可：</p>
+<pre><code class="prism language-java">content<span class="token operator">-</span>disposition<span class="token operator">:</span>attachment<span class="token punctuation">;</span>filename<span class="token operator">=</span>xxx
+</code></pre>
+<br>
+<h4><a id="3%09_374"></a>3.	点击下载</h4>
+<h3><a id="%09_376"></a>（二）	实现步骤</h3>
+<h4><a id="1%09_377"></a>1.	定义页面</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;编辑超链接href属性，将href指向一个Servlet对象，不论下载什么资源都使用这个Servlet对象，并传递资源的名称filename。</p>
+<pre><code class="prism language-html">&lt;a href=”/Response/downloadServlet?filename=1.jpg”&gt;图片<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>a</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<h4><a id="2%09Servlet_387"></a>2.	实现Servlet</h4>
+<h5><a id="1%09href_388"></a>（1）	获取href中资源文件的名称</h5>
+<pre><code class="prism language-java">String filename <span class="token operator">=</span> req<span class="token punctuation">.</span><span class="token function">getParameter</span><span class="token punctuation">(</span><span class="token string">"filename"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h5><a id="2%09_397"></a>（2）	获取资源文件的真实路径</h5>
+<pre><code class="prism language-java">ServletContext context <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getServletContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+String realPath <span class="token operator">=</span> context<span class="token punctuation">.</span><span class="token function">getRealPath</span><span class="token punctuation">(</span><span class="token string">"/img/"</span><span class="token operator">+</span>filename<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h5><a id="3%09_407"></a>（3）	使用字节输入流将资源文件加载到内存中</h5>
+<pre><code class="prism language-java"><span class="token comment">//用字节流关联，将文件字节读入到内存汇总</span>
+FileInputStream fis <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">FileInputStream</span><span class="token punctuation">(</span>realPath<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h5><a id="4%09response_417"></a>（4）	指定response对象的响应头</h5>
+<pre><code class="prism language-java"><span class="token comment">//设置response的响应头</span>
+<span class="token comment">//设置响应头的文件类型 content-type</span>
+String mimeType <span class="token operator">=</span> context<span class="token punctuation">.</span><span class="token function">getMimeType</span><span class="token punctuation">(</span>filename<span class="token punctuation">)</span><span class="token punctuation">;</span>
+resp<span class="token punctuation">.</span><span class="token function">setHeader</span><span class="token punctuation">(</span><span class="token string">"content-type"</span><span class="token punctuation">,</span> mimeType<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">//设置响应头的打开方式 content-disposition</span>
+resp<span class="token punctuation">.</span><span class="token function">setHeader</span><span class="token punctuation">(</span><span class="token string">"content-disposition"</span><span class="token punctuation">,</span> <span class="token string">"attachment;filename="</span> <span class="token operator">+</span> filename<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h5><a id="5%09response_431"></a>（5）	将数据写出到response输出流中</h5>
+<pre><code class="prism language-java"><span class="token comment">//将输入流的数据写出到输出流中</span>
+<span class="token comment">//为response对象关联一个输出流</span>
+ServletOutputStream sos <span class="token operator">=</span> resp<span class="token punctuation">.</span><span class="token function">getOutputStream</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">byte</span><span class="token punctuation">[</span><span class="token punctuation">]</span> buff <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">byte</span><span class="token punctuation">[</span><span class="token number">1024</span> <span class="token operator">*</span> <span class="token number">8</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token keyword">int</span> len <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token keyword">while</span><span class="token punctuation">(</span><span class="token punctuation">(</span>len <span class="token operator">=</span> fis<span class="token punctuation">.</span><span class="token function">read</span><span class="token punctuation">(</span>buff<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    sos<span class="token punctuation">.</span><span class="token function">write</span><span class="token punctuation">(</span>buff<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> len<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h4><a id="3%09_448"></a>3.	解决中文编码问题</h4>
+<h5><a id="1%09useragent_449"></a>（1）	获取user-agent请求头、</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;获取客户度使用的浏览器版本信息：</p>
+<pre><code class="prism language-java">String agent<span class="token operator">=</span>  request<span class="token punctuation">.</span><span class="token function">getHeader</span><span class="token punctuation">(</span>“user<span class="token operator">-</span>agent”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h5><a id="2%09DownLoadUtils_459"></a>（2）	使用DownLoadUtils工具类方法编码文件名</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;根据不同的版本信息，设置filename的不同编码方式：</p>
+<pre><code class="prism language-java">filename <span class="token operator">=</span> DownLoadUtils<span class="token punctuation">.</span><span class="token function">getFileName</span><span class="token punctuation">(</span>agent<span class="token punctuation">,</span> filename<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+</div>
+</body>
+
+</html>

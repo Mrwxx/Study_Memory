@@ -1,0 +1,124 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Java学习笔记（十二）】之复制单级与多级文件夹</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	复制单级文件夹</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;单级文件夹，即该文件夹中只有文件，没有文件夹。<br>
+<br></p>
+<pre><code class="prism language-java"><span class="token keyword">package</span> File使用<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>io<span class="token punctuation">.</span>*<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> 复制单级文件夹 <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> IOException <span class="token punctuation">{</span>
+        <span class="token comment">//文件夹File对象</span>
+        File srcFolder <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">File</span><span class="token punctuation">(</span><span class="token string">"D:\\MR.WANG\\FILE"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        String srcFolderName <span class="token operator">=</span> srcFolder<span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment">//目的路径File对象</span>
+        File destFolder <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">File</span><span class="token punctuation">(</span><span class="token string">"Student"</span><span class="token punctuation">,</span> srcFolderName<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment">//判断目的路径是否存在</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token operator">!</span>destFolder<span class="token punctuation">.</span><span class="token function">exists</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            destFolder<span class="token punctuation">.</span><span class="token function">mkdir</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment">//获取src目录所有File</span>
+        File<span class="token punctuation">[</span><span class="token punctuation">]</span> srcFiles <span class="token operator">=</span> srcFolder<span class="token punctuation">.</span><span class="token function">listFiles</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment">//遍历</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span>File srcFile <span class="token operator">:</span> srcFiles<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            String srcFileName <span class="token operator">=</span> srcFile<span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            File destFile <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">File</span><span class="token punctuation">(</span>destFolder<span class="token punctuation">,</span> srcFileName<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+            <span class="token function">copyFile</span><span class="token punctuation">(</span>srcFile<span class="token punctuation">,</span> destFile<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">copyFile</span><span class="token punctuation">(</span>File srcFile<span class="token punctuation">,</span> File destFile<span class="token punctuation">)</span> <span class="token keyword">throws</span> IOException <span class="token punctuation">{</span>
+        BufferedInputStream bis <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">BufferedInputStream</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">FileInputStream</span><span class="token punctuation">(</span>srcFile<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        BufferedOutputStream bos <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">BufferedOutputStream</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">FileOutputStream</span><span class="token punctuation">(</span>destFile<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">byte</span><span class="token punctuation">[</span><span class="token punctuation">]</span> bys <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">byte</span><span class="token punctuation">[</span><span class="token number">1024</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token keyword">int</span> len<span class="token punctuation">;</span>
+        <span class="token keyword">while</span><span class="token punctuation">(</span><span class="token punctuation">(</span>len<span class="token operator">=</span>bis<span class="token punctuation">.</span><span class="token function">read</span><span class="token punctuation">(</span>bys<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token operator">!=</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            bos<span class="token punctuation">.</span><span class="token function">write</span><span class="token punctuation">(</span>bys<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> len<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        bos<span class="token punctuation">.</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        bis<span class="token punctuation">.</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h2><a id="__62"></a>二. 复制多级文件夹</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;多级文件夹，一个文件夹嵌套和多个文件夹。<br>
+<br></p>
+<pre><code class="prism language-java"><span class="token keyword">import</span> java<span class="token punctuation">.</span>io<span class="token punctuation">.</span>*<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> 复制多级文件夹 <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> IOException <span class="token punctuation">{</span>
+        File srcFile <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">File</span><span class="token punctuation">(</span><span class="token string">"D:\\MR.WANG\\FILE"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        File destFile <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">File</span><span class="token punctuation">(</span><span class="token string">"Student"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token function">copyFolder</span><span class="token punctuation">(</span>srcFile<span class="token punctuation">,</span> destFile<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">copyFolder</span><span class="token punctuation">(</span>File srcFile<span class="token punctuation">,</span> File destFile<span class="token punctuation">)</span> <span class="token keyword">throws</span> IOException <span class="token punctuation">{</span>
+        <span class="token comment">//判断是否是目录</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>srcFile<span class="token punctuation">.</span><span class="token function">isDirectory</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token comment">//是目录，创建新目录</span>
+            String srcFileName <span class="token operator">=</span> srcFile<span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            File newFolder <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">File</span><span class="token punctuation">(</span>destFile<span class="token punctuation">,</span> srcFileName<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token comment">//如果该目录不存在</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token operator">!</span>newFolder<span class="token punctuation">.</span><span class="token function">exists</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                newFolder<span class="token punctuation">.</span><span class="token function">mkdir</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+
+            <span class="token comment">//获取源目录里的File对象</span>
+            File<span class="token punctuation">[</span><span class="token punctuation">]</span> fileArray <span class="token operator">=</span> srcFile<span class="token punctuation">.</span><span class="token function">listFiles</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token comment">//对每个File对象递归调用copyFolder操作</span>
+            <span class="token keyword">for</span><span class="token punctuation">(</span>File file <span class="token operator">:</span> fileArray<span class="token punctuation">)</span><span class="token punctuation">{</span>
+                <span class="token function">copyFolder</span><span class="token punctuation">(</span>file<span class="token punctuation">,</span> newFolder<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+        <span class="token comment">//如果不是目录，直接复制文件</span>
+        <span class="token keyword">else</span><span class="token punctuation">{</span>
+            File newFile <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">File</span><span class="token punctuation">(</span>destFile<span class="token punctuation">,</span> srcFile<span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token function">copyFile</span><span class="token punctuation">(</span>srcFile<span class="token punctuation">,</span> newFile<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">copyFile</span><span class="token punctuation">(</span>File srcFile<span class="token punctuation">,</span> File destFile<span class="token punctuation">)</span> <span class="token keyword">throws</span> IOException <span class="token punctuation">{</span>
+        <span class="token comment">//字节流缓冲</span>
+        BufferedInputStream bis <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">BufferedInputStream</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">FileInputStream</span><span class="token punctuation">(</span>srcFile<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        BufferedOutputStream bos <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">BufferedOutputStream</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">FileOutputStream</span><span class="token punctuation">(</span>destFile<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">byte</span><span class="token punctuation">[</span><span class="token punctuation">]</span> bys <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">byte</span><span class="token punctuation">[</span><span class="token number">1024</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token keyword">int</span> len<span class="token punctuation">;</span>
+        <span class="token keyword">while</span><span class="token punctuation">(</span><span class="token punctuation">(</span>len<span class="token operator">=</span>bis<span class="token punctuation">.</span><span class="token function">read</span><span class="token punctuation">(</span>bys<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token operator">!=</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            bos<span class="token punctuation">.</span><span class="token function">write</span><span class="token punctuation">(</span>bys<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> len<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        bos<span class="token punctuation">.</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        bis<span class="token punctuation">.</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

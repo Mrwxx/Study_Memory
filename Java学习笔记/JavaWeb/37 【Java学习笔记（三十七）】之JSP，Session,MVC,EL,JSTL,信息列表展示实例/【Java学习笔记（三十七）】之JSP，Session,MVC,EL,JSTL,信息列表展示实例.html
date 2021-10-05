@@ -1,0 +1,407 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Java学习笔记（三十七）】之JSP，Session,MVC,EL,JSTL,信息列表展示实例</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09JSP_7"></a>一．	JSP</h2>
+<h3><a id="%09_8"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Java Server Pages，Java服务器端页面。其实就是一个特殊的页面，既可以定义html标签，又可以定义java代码。非常方便，用于简化书写。<br>
+<br></p>
+<h3><a id="%09_13"></a>（二）	原理</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;1. 浏览器请求.jsp文件，服务器解析请求消息，寻找是否有.jsp文件</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;2. 如果找到了.jsp文件，则将.jsp文件转换为.java文件。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;3. 编译.java文件，生成.calss字节码文件。由字节码文件提供访问，其实该字节码文件本质上是一个Servlet。<br>
+<br></p>
+<h3><a id="%09JSP_23"></a>（三）	JSP的脚本</h3>
+<ol>
+<li>
+<p>&lt;% 代码 % &gt;：定义的Java代码，在service方法中。service方法中可以些什么，则该代码就可以写什么。</p>
+</li>
+<li>
+<p>&lt;%! 代码 %&gt;：定义的java代码，在jsp转换后的java类的成员位置，即成员变量。</p>
+</li>
+<li>
+<p>&lt;%= 代码 %&gt;：定义的java代码，会输出到页面上。即输出语句，该语句定义在service方法中。<br>
+<br></p>
+</li>
+</ol>
+<h3><a id="%09JSP_33"></a>（四）	JSP的内置对象</h3>
+<h4><a id="1%09_34"></a>1.	概述</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在.jsp页面中不需要获取和创建的对象，可以直接使用。如request, response, out…<br>
+<br></p>
+<h4><a id="2%09out_40"></a>2.	out对象</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;字符输出流对象，可以将数据输出到页面上，和response.getWriter()类似。</p>
+<p>response.getWriter()和out.write()的区别:</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在Tomcat服务器给客户端作出响应之前，会先在response缓冲区中查找数据，再到out缓冲区中查找数据。一般都用out，而不用response.getWriter()。<br>
+<br></p>
+<h4><a id="3%09pageContext_50"></a>3.	pageContext</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;真实类型为PageContext，当前页面共享数据，还可以获取其他的内置对象<br>
+<br></p>
+<h4><a id="4%09request_56"></a>4.	request</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;真实类型为HttpServletRequest，一次请求访问的多个资源共享<br>
+<br></p>
+<h4><a id="5%09session_62"></a>5.	session</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;真实类型为HttpSession，一次会话的多个请求间共享数据</p>
+<br>
+<h4><a id="6%09application_68"></a>6.	application</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;真实类型为ServletContext，在所有的用户间共享数据。<br>
+<br></p>
+<h4><a id="7%09response_74"></a>7.	response</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;真实类型为HttpServletResponse，是响应对象<br>
+<br></p>
+<h4><a id="8%09page_80"></a>8.	page</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;真实类型为Object，当前页面(Servlet)的对象。<br>
+<br></p>
+<h4><a id="9%09config_86"></a>9.	config</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;真实类型为ServletConfig，用于配置Servlet的配置对象。<br>
+<br></p>
+<h4><a id="10%09exception_92"></a>10.	exception</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;真实类型为Throwable，是异常对象。</p>
+<br>
+<h3><a id="%09JSP_99"></a>（五）	JSP的指令</h3>
+<h4><a id="1%09_100"></a>1.	作用</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;JSP指令用于配置JSP页面，导入资源文件。<br>
+<br></p>
+<h4><a id="2%09_106"></a>2.	格式</h4>
+<pre><code class="prism language-html">&lt;%@ 指令名称 属性名1=属性值1 属性名2=属性值2 %&gt;
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;多个属性名和属性值间用空格隔开。<br>
+<br></p>
+<h4><a id="3%09_117"></a>3.	指令名称分类</h4>
+<h5><a id="1%09page_118"></a>（1）	page</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;用于配置JSP页面。</p>
+<p>属性名：<br>
+contentType:<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;设置响应体的mime类型以及字符集，设置当前JSP页面的编码</p>
+<p>import:<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;导包<br>
+errorPage:<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;当前页面发生异常后，会自动跳转到指定的错误页面</p>
+<p>isErrosPage:<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;标识当前页面是否是错误页面。若是，则可以使用内置对象Exception<br>
+<br></p>
+<h5><a id="2%09include_136"></a>（2）	include</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;导入页面的资源文件<br>
+如：</p>
+<pre><code class="prism language-html">&lt;%@ include file=”a.jsp” %&gt;
+</code></pre>
+<br>
+<h5><a id="3%09taglib_148"></a>（3）	taglib</h5>
+<p>导入资源</p>
+<pre><code class="prism language-html">&lt;%@ taglib prefix=”c” url=http://java.sun.com/jsp/jstl/core %&gt;
+</code></pre>
+<p>prefix:自定义的前缀名<br>
+<br></p>
+<h3><a id="%09JSP_160"></a>（六）	JSP的注释</h3>
+<h4><a id="1%09html_161"></a>1.	html注释</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;JSP页面中可以使用html的注释，但是该注释只能注释html代码片段</p>
+<pre><code class="prism language-html"><span class="token comment">&lt;!-- --&gt;</span>
+</code></pre>
+<br>
+<h4><a id="2%09JSP_171"></a>2.	JSP注释</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;JSP特有的注释，可以注释JSP页面中的所有内容</p>
+<pre><code class="prism language-html">&lt;%--- --%&gt;
+</code></pre>
+<br>
+<h2><a id="%09Session_182"></a>二．	Session</h2>
+<h3><a id="%09_183"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;服务器端的会话技术，在一次会话中的多次请求间共享数据，将数据保存在服务器端的对象中。<br>
+<br></p>
+<h3><a id="%09_189"></a>（二）	使用</h3>
+<h4><a id="1%09HttpSession_190"></a>1.	获取HttpSession对象</h4>
+<pre><code class="prism language-java">HttpSession session <span class="token operator">=</span> request<span class="token punctuation">.</span><span class="token function">getSession</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h4><a id="2%09HttpSession_199"></a>2.	使用HttpSession对象</h4>
+<p>获取参数：</p>
+<pre><code class="prism language-java">Object <span class="token function">getAttribute</span><span class="token punctuation">(</span>String name<span class="token punctuation">)</span>
+</code></pre>
+<p>设置参数：</p>
+<pre><code class="prism language-java"><span class="token keyword">void</span> <span class="token function">setAttribute</span><span class="token punctuation">(</span>String name<span class="token punctuation">,</span> Object vlaue<span class="token punctuation">)</span>
+</code></pre>
+<p>删除参数：</p>
+<pre><code class="prism language-java"><span class="token keyword">void</span> <span class="token function">removeAttribute</span><span class="token punctuation">(</span>String name<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h3><a id="%09Session_221"></a>（三）	Session原理</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;1. Sesssion是依赖于Cookie的，Session是存储与服务器中的，那么当浏览器第一次请求时，服务器中没有Session，则会在服务器中创建一个新的Session对象，该对象有响应的id。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;2. 服务器通过response响应浏览器的请求时，会设置一个set-cookie响应头，存储的值为Session对象的id（JSESSIONID）。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;3. 浏览器获取到该响应头后，就可以将该Cookie存储在浏览器中，下一次请求时将该JSESSIONID键值对设置在cookie请求头中发送给服务器。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;4. 服务器收到该请求后，通过cookie查找对应JSESSIONID的Session对象。这就保证了在一次会话中多次请求的Session对象是相同的。<br>
+<br></p>
+<h3><a id="%09_233"></a>（四）	注意事项</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;1.	客户端关闭，服务器不关闭，两次获取的Session是否为同一个？</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;否。如果想要相同的Session，则再创建一个Cookie，键为JSESSION，设置最大存活时间，让Cookie持久化保存。<br>
+<br></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;2.	客户端不关闭，服务器关闭，两次获取的Session是同一个吗？</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;否。这样容易导致数据的丢失。要使两次获取的Session是同一个，就要做到Session的钝化与活化：<br>
+Session的钝化：<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;在服务器正常关闭之前，将Session对象序列化到硬盘上</p>
+<p>Session的活化：<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;在服务器启动后，将Session文件转化为内存中的Session对象。<br>
+<br></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;3.	Session的销毁<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;（1）	服务器关闭，则Session销毁</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;（2）	Session对象调用 invalidate()</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;（3）	Session默认失效时间为30分钟</p>
+<p>可以在web.xml中修改：</p>
+<pre><code class="prism language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>session-config</span><span class="token punctuation">&gt;</span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>session-timeout</span><span class="token punctuation">&gt;</span></span>30<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>session-timeout</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>session-config</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<h3><a id="%09Session_271"></a>（五）	Session的特点</h3>
+<ol>
+<li>
+<p>Session用于存储一次会话的多次请求的数据，存在于服务器端</p>
+</li>
+<li>
+<p>Session可以存储任意类型，任意大小的数据，不同于Cookie的限制。</p>
+</li>
+<li>
+<p>Session数据安全，Cookie相对不太安全</p>
+</li>
+</ol>
+<br>
+<h2><a id="%09MVC_282"></a>三．	MVC</h2>
+<h3><a id="%09_283"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;M：Model，模型<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;V：View，视图<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;C: Controller，控制器<br>
+<br></p>
+<h3><a id="%09_291"></a>（二）	原理</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;控制器通过调用模型，进行业务操作，模型将数据返回给控制器，控制器再将数据交给视图进行展示。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Java Web中使用Servlet充当控制器，使用JavaBean作为模型，使用JSP作为视图。<br>
+<br></p>
+<h3><a id="%09MVC_299"></a>（三）	MVC的分工</h3>
+<h4><a id="1%09Mode_300"></a>1.	Mode</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;模型使用JavaBean，完成具体的业务操作，如：查询数据库，封装对象<br>
+<br></p>
+<h4><a id="2%09View_306"></a>2.	View</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;视图使用JSP来展示数据。<br>
+<br></p>
+<h4><a id="3%09Controller_312"></a>3.	Controller</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;控制器使用Servlet来获取用户的输入，调用模型，接受模型的返回数据，将数据交给视图进行展示。<br>
+<br></p>
+<h3><a id="%09MVC_318"></a>（四）	MVC的优劣</h3>
+<h4><a id="1%09_319"></a>1.	优点</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;耦合性低，方便维护，利于分工合作，且代码的重用性高<br>
+<br></p>
+<h4><a id="2%09_325"></a>2.	缺点</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;项目架构变得更加复杂。</p>
+<br>
+<h2><a id="%09EL_332"></a>四．	EL表达式</h2>
+<h3><a id="%09_333"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Expression Language，表达式语言。用于替换和简化JSP页面中的Java代码的编写。<br>
+<br></p>
+<h3><a id="%09EL_339"></a>（二）	EL语法</h3>
+<pre><code class="prism language-html">${表达式}
+</code></pre>
+<br>
+<h3><a id="%09_348"></a>（三）	注意事项</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;JSP默认支持EL表达式，若想要忽略EL表达式，则设置JSP中的page指令，isELIgnored=”true”，就可以忽略所有的EL表达式了。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;若想要忽略单个EL表达式，则在EL表达式前加个\即可：</p>
+<pre><code class="prism language-html">\${表达式}
+</code></pre>
+<br>
+<h3><a id="%09EL_360"></a>（四）	EL的使用</h3>
+<h4><a id="1%09_361"></a>1.	运算</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;算数运算符，比较运算符，逻辑运算符，空运算符。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;其他运算符用法都大同小异，重点介绍空运算符：empty</p>
+<p><code>${empty list}</code>：判断字符串，集合，数组对象是否为null并且长度是否为0</p>
+<p><code>${not empty list}</code>：判断字符串，集合，数组对象是否不为null，并且长度&gt;0<br>
+<br></p>
+<h4><a id="2%09_374"></a>2.	获取值</h4>
+<h5><a id="1_375"></a>（1）获取方式</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;EL表达式只能从域对象中获取值。<br>
+<br></p>
+<h5><a id="2_381"></a>（2）获取语法</h5>
+<p><code>${域名称.键名}</code>：从指定域中获取指定键的值。</p>
+<p><code>${键名}</code>：依次从最小的域中查找是否有该键对应的值，直到找到为止。</p>
+<p><code>${域名称.键名.属性名}</code>：获取对象中的属性值，本质上调用对象的getter方法</p>
+<p><code>${域名称.键名[索引]}</code>：获取List集合中的值</p>
+<p><code>${域名称.键名.key名称}</code>：获取Map集合中的值</p>
+<p><code>${域名称.键名[“key名称”]}</code>：获取Map集合中的值</p>
+<p>域名称：</p>
+<pre><code class="prism language-html">pageScope (pageContext)
+requestScope (request)
+sessionScope (session)
+applicationScope (application)
+</code></pre>
+<br>
+<h5><a id="3_406"></a>（3）举例</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在request域中存储了name=hh，要想通过EL表达式获取该键值，则通过以下方式获取：</p>
+<pre><code class="prism language-html">${requestScope.name}
+</code></pre>
+<br>
+<h2><a id="%09JSTL_417"></a>五．	JSTL</h2>
+<h3><a id="%09_418"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;JavaServer Pages Tag Library，JSP标准标签库，是由Apache组织提供的开源的jsp标签<br>
+<br></p>
+<h3><a id="%09_424"></a>（二）	作用</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;JSTL用于简化和替换jsp页面上的java代码<br>
+<br></p>
+<h3><a id="%09_430"></a>（三）	使用步骤</h3>
+<ol>
+<li>
+<p>导入JSTL相关的jar包</p>
+</li>
+<li>
+<p>引入标签库：taglib指令： <code>&lt;%@ taglib %&gt;</code></p>
+</li>
+<li>
+<p>使用标签<br>
+<br></p>
+</li>
+</ol>
+<h3><a id="%09JSTL_440"></a>（四）	常用的JSTL标签</h3>
+<h4><a id="1%09if_441"></a>1.	if</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;相当于Java代码中的if语句。</p>
+<p>标签中的属性：<br>
+test:<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;接受boolean表达式，如果表达式为true，则显示if标签体内容；否则，不显示标签体内容。一般情况下，test属性值会结合EL表达式一起使用，在test属性中设置boolean表达式：</p>
+<pre><code class="prism language-html">&lt;c:if test=”${number % 2 == 0} ”&gt;
+a
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token namespace">c:</span>if</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<h4><a id="2%09choose_457"></a>2.	choose</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;相当于Java代码中的switch语句。</p>
+<p>使用方法：<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;使用choose标签声明，相当于switch声明</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;使用when标签作判断，相当于case</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;使用otherwise标签作其他情况的声明，相当于default<br>
+<br></p>
+<h4><a id="3%09foreach_471"></a>3.	foreach</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;相当于Java代码中的for语句。</p>
+<h5><a id="1%09_474"></a>（1）	完成重复的操作</h5>
+<p>设置一些属性：<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;begin:开始值</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;end:结束值</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;var:临时变量</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;step:步长</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;varStatus:循环状态对象</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;index:容器中元素的索引，从0开始</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;count:循环次数，从1开始<br>
+如：</p>
+<pre><code class="prism language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">c:</span>forEach</span> <span class="token attr-name">begin</span><span class="token attr-value"><span class="token punctuation">=</span>”1”</span> <span class="token attr-name">end</span><span class="token attr-value"><span class="token punctuation">=</span>”10”</span> <span class="token attr-name">var</span><span class="token attr-value"><span class="token punctuation">=</span>”i”</span> <span class="token attr-name">step</span><span class="token attr-value"><span class="token punctuation">=</span>”2”</span> <span class="token attr-name">varStatus</span><span class="token attr-value"><span class="token punctuation">=</span>”s”</span><span class="token punctuation">&gt;</span></span>
+${i} ${s.index} ${s.count}
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token namespace">c:</span>forEach</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<h5><a id="2%09_500"></a>（2）	遍历容器</h5>
+<p>属性：<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;items:容器对象</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;var:容器中元素的临时变量</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;varStatus:循环状态对象</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;index:容器中元素的索引，从0开始</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;count:循环次数，从1开始<br>
+如：</p>
+<pre><code class="prism language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">c:</span>forEach</span> <span class="token attr-name">items</span><span class="token attr-value"><span class="token punctuation">=</span>”${list}”</span> <span class="token attr-name">var</span><span class="token attr-value"><span class="token punctuation">=</span>”str”</span> <span class="token attr-name">varStatus</span><span class="token attr-value"><span class="token punctuation">=</span>”s”</span><span class="token punctuation">&gt;</span></span>
+${s.index} ${s.count}
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span><span class="token namespace">c:</span>forEach</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<h2><a id="%09_523"></a>六．	三层架构</h2>
+<h3><a id="%09_524"></a>（一）	概述</h3>
+<h4><a id="1%09_525"></a>1.	表示层</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;用户通过界面上的组件和服务器进行交互<br>
+<br></p>
+<h4><a id="2%09_531"></a>2.	业务逻辑层</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;该层用于处理业务逻辑<br>
+<br></p>
+<h4><a id="3%09_537"></a>3.	数据访问层</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;该层用于操作数据存储文件<br>
+<br></p>
+<h3><a id="%09_543"></a>（二）	原理</h3>
+<ol>
+<li>
+<p>浏览器发出请求后，表示层接受了用户的参数，表示层中的控制器（Servlet）调用了业务逻辑层进行处理。</p>
+</li>
+<li>
+<p>业务逻辑层组合了数据访问层中的简单方法，形成了复杂业务逻辑操作。</p>
+</li>
+<li>
+<p>数据访问层对数据库进行操作，返回数据给业务逻辑层。</p>
+</li>
+<li>
+<p>数据访问层将数据封装，返回给业务逻辑层。</p>
+</li>
+<li>
+<p>业务逻辑层将数据再传递给表示层的控制器(Servlet)，控制器将数据发送给视图（JSP），视图再将数据发送给浏览器进行展示。<br>
+<br></p>
+</li>
+</ol>
+<h3><a id="%09_557"></a>（三）	三层架构的作用</h3>
+<h4><a id="1%09_558"></a>1.	表示层</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;表示层接受用户的参数，封装数据，控制器（Servlet）调用业务逻辑层完成处理，之后接受到返回的数据后转发视图（JSP）页面完成显示。<br>
+<br></p>
+<h4><a id="2%09service_564"></a>2.	业务逻辑层（service层）</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;组合数据访问层中的简单数据库操作方法，形成复杂的业务逻辑操作。<br>
+<br></p>
+<h4><a id="3%09dao_570"></a>3.	数据访问层（dao层）</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;定义了对数据库的最基本的CRUD操作。<br>
+<br></p>
+<h3><a id="%09_576"></a>（四）	三层标准包名</h3>
+<h4><a id="1%09_577"></a>1.	表示层</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;cn.xx.项目名.web<br>
+<br></p>
+<h4><a id="2%09_583"></a>2.	业务逻辑层</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;cn.xx.项目名.service<br>
+<br></p>
+<h4><a id="3%09_589"></a>3.	数据访问层</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;cn.xx.项目名.dao</p>
+<br>
+<h2><a id="%09_596"></a>七．	信息列表展示实例</h2>
+<h3><a id="%09_597"></a>（一）	需求分析</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;该实例是对用户信息的增删改查操作。<br>
+<br></p>
+<h3><a id="%09_603"></a>（二）	设计</h3>
+<h4><a id="1%09_604"></a>1.	技术选型</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Servlet + JSP + MySQL + JDBCTemplate + Duird + BeanUtils + Tomcat<br>
+<br></p>
+<h4><a id="2%09_610"></a>2.	数据库设计</h4>
+<pre><code class="prism language-sql"><span class="token keyword">create</span> <span class="token keyword">database</span> info<span class="token punctuation">;</span>
+<span class="token keyword">use</span> info<span class="token punctuation">;</span>
+<span class="token keyword">create</span> <span class="token keyword">table</span> <span class="token keyword">user</span><span class="token punctuation">(</span>
+		id <span class="token keyword">int</span> <span class="token keyword">primary</span> <span class="token keyword">key</span> <span class="token keyword">auto_increment</span><span class="token punctuation">,</span>
+		name <span class="token keyword">varchar</span><span class="token punctuation">(</span><span class="token number">20</span><span class="token punctuation">)</span> <span class="token operator">not</span> <span class="token boolean">null</span><span class="token punctuation">,</span>
+		gender <span class="token keyword">varchar</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+		age <span class="token keyword">int</span><span class="token punctuation">,</span>
+		address <span class="token keyword">varchar</span><span class="token punctuation">(</span><span class="token number">32</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+		qq <span class="token keyword">varchar</span><span class="token punctuation">(</span><span class="token number">20</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+		email <span class="token keyword">varchar</span><span class="token punctuation">(</span><span class="token number">50</span><span class="token punctuation">)</span>
+<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h3><a id="%09_629"></a>（三）	开发</h3>
+<h4><a id="1%09_630"></a>1.	环境搭建</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;创建数据库环境<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;创建项目，导入需要的jar包<br>
+<br></p>
+<h4><a id="2%09_637"></a>2.	查询所有用户信息实现流程</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（1）	浏览器发出请求到表示层的控制器（UserListServlet）中，该控制器调用service层的findAll()方法，返回List集合。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（2）	service层中设置有UserService接口和UserServiceImpl实现类，在接口中有一个findAll()方法，实现类的findAll()方法调用了dao层的findAll()方法。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（3）	dao层设置有UserDao接口和UserDaoImpl实现类。接口中有findAll()方法，实现类中的findAll()方法用JDBC对数据库进行操作。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（4）	数据返回到表示层中，数据的格式为List，将list集合存入request域中。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（5）	list.jsp页面通过JSTL +EL技术用foreach标签遍历list集合生成表格table。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（6）	转发list.jsp页面给浏览器进行展示。<br>
+<br></p>
+<h4><a id="3%09_654"></a>3.	项目结构</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（1）	src目录下存放所有的Java代码，包括web层，service层，dao层，工具类utils包，对象domain包，以及druid的配置文件druid.properties</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（2）	web目录下存放所有的前端页面，所有的.html, .js, .jsp文件。以及WEB-INF目录，存放项目的依赖Jar包</p>
+</div>
+</body>
+
+</html>

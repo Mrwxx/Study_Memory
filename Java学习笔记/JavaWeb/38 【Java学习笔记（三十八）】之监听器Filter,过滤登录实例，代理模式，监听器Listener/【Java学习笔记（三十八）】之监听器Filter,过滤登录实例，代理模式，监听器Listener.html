@@ -1,0 +1,211 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Java学习笔记（三十八）】之监听器Filter,过滤登录实例，代理模式，监听器Listener</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09Filter_7"></a>一．	Filter</h2>
+<h3><a id="%09_8"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Filter过滤器，当访问服务器的资源时 ，过滤器可以将请求拦截下来，完成一些特殊的功能。<br>
+<br></p>
+<h3><a id="%09_13"></a>（二）	作用</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;过滤器一般完成通用的操作，如：登录验证，统一编码处理，敏感字符过滤<br>
+<br></p>
+<h3><a id="%09_19"></a>（三）	过滤器的使用</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;1.	定义一个类，实现Filter接口</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;2.	重写接口中的方法</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;3.	通过注解@WebFilter配置拦截路径，即 访问该路径的资源之前，都会执行该过滤器。或者通过web.xml配置拦截路径：<br>
+<br></p>
+<pre><code class="prism language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>filter</span><span class="token punctuation">&gt;</span></span>
+	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>filter-name</span><span class="token punctuation">&gt;</span></span>demo1<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>filter-name</span><span class="token punctuation">&gt;</span></span>
+	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>filter-class</span><span class="token punctuation">&gt;</span></span>cn.pro.filter.FilterDemo1<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>filter-class</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>filter</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>filter-mapping</span><span class="token punctuation">&gt;</span></span>
+	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>filter-name</span><span class="token punctuation">&gt;</span></span>demo1<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>filter-name</span><span class="token punctuation">&gt;</span></span>
+	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>url-pattern</span><span class="token punctuation">&gt;</span></span>/*<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>url-pattern</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>filter-mapping</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;4.	在doFilter方法中要对请求进行放行操作：filterChain.doFilter(servletRequest, ServletResponse)<br>
+<br></p>
+<h3><a id="%09_45"></a>（四）	过滤器的执行流程</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;1.	浏览器在请求服务器的资源时，要经过过滤器，过滤器对request对象请求消息进行增强处理。执行放行代码段之前的代码。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;2.	过滤器处理后，将request请求对象进行放行。执行放行代码段。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;3.	服务器将response发往浏览器的过程中，经过过滤器，过滤器对response对象进行增强处理。执行的是放行下面的代码段。</p>
+<pre><code class="prism language-java">System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"filterDemo1执行了"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">//放行</span>
+chain<span class="token punctuation">.</span><span class="token function">doFilter</span><span class="token punctuation">(</span>req<span class="token punctuation">,</span> resp<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"filterDemo2回来了"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h3><a id="%09_63"></a>（五）	过滤器的生命周期方法</h3>
+<h4><a id="1%09init_64"></a>1.	init方法</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在服务器启动后，会创建Filter对象，然后调用init方法，只执行一次，用于加载资源。<br>
+<br></p>
+<h4><a id="2%09doFilter_70"></a>2.	doFilter方法</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;每一次请求资源被拦截时，会执行doFilter方法<br>
+<br></p>
+<h4><a id="3%09destroy_76"></a>3.	destroy方法</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在服务器关闭后，Filter对象被销毁，如果服务器是正常关闭，则会执行destroy方法，用于释放资源。<br>
+<br></p>
+<h3><a id="%09_82"></a>（六）	过滤器的配置</h3>
+<h4><a id="1%09_83"></a>1．	过滤器的拦截路径配置</h4>
+<h5><a id="1%09_84"></a>（1）	具体资源路径</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<code>/index.jsp</code>，只有当访问index.jsp资源时，过滤器才会被执行<br>
+<br></p>
+<h5><a id="2%09_90"></a>（2）	拦截目录</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<code>/user/*</code> ，只有访问/user下的所有资源，过滤器才会被执行<br>
+<br></p>
+<h5><a id="3%09_96"></a>（3）	后缀名拦截</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<code>*.jsp</code>，访问所有后缀名为jsp资源时，过滤器都会被执行<br>
+<br></p>
+<h5><a id="4%09_102"></a>（4）	拦截所有资源</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;/*	，访问所有资源时，过滤器都会被执行<br>
+<br></p>
+<h4><a id="2___108"></a>2.  拦截方式的配置</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;可以通过注解配置或者web.xml进行配置。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;注解配置中，设置dispatcherTypes属性，该属性可选值：</p>
+<h5><a id="1%09REQUEST_112"></a>（1）	REQUEST</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;默认值。表示浏览器直接请求资源</p>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@WebFilter</span><span class="token punctuation">(</span>“<span class="token comment">/*”, dispatcherTypes=DispatcherType.REQUEST)
+</span></code></pre>
+<br>
+<h5><a id="2%09FORWARD_122"></a>（2）	FORWARD</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;表示转发访问资源。<br>
+<br></p>
+<h5><a id="3%09INCLUDE_128"></a>（3）	INCLUDE</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;包含访问资源。<br>
+<br></p>
+<h5><a id="4%09ERROR_134"></a>（4）	ERROR</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;表示错误跳转资源。<br>
+<br></p>
+<h5><a id="5%09ASYNC_140"></a>（5）	ASYNC</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;异步访问资源。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如果有多个限制条件，则用大括号括起来，如：</p>
+<pre><code class="prism language-java">dispatcherTypes <span class="token operator">=</span> <span class="token punctuation">(</span>DispatcherType<span class="token punctuation">.</span>REQUEST<span class="token punctuation">,</span> DispatcherType<span class="token punctuation">.</span>ERROR<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h3><a id="%09_152"></a>（七）	过滤器链</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;当有多个过滤器链存在时，过滤器的执行顺序是怎样的？</p>
+<p>如；有两个过滤器1，过滤器2，则执行顺序是：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;过滤器1 -&gt; 过滤器2 -&gt; 资源执行 -&gt; 过滤器2  -&gt; 过滤器1<br>
+<br></p>
+<h3><a id="%09_162"></a>（八）	过滤器执行顺序问题</h3>
+<h4><a id="1%09_163"></a>1.	注解配置</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在注解中配置过滤器时，按照类名的字符串比较规则进行比较，值小的先执行<br>
+<br></p>
+<h4><a id="2%09webxml_169"></a>2.	web.xml配置</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在web,xml中配置过滤器时，哪个过滤器的标签定义在上面，谁就先执行。<br>
+<br></p>
+<h2><a id="%09_176"></a>二．	过滤器实例</h2>
+<h3><a id="%09_177"></a>（一）	登录验证</h3>
+<h4><a id="1%09_178"></a>1.	需求</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;过滤器验证是否登录了，如果登录了，则直接放行；如果没有登录，则跳转到登录界面，输出提示。<br>
+<br></p>
+<h4><a id="2%09_184"></a>2.	思路</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（1）	由于我们访问资源时可能直接访问登陆相关的资源，那么此次请求就不应该被阻拦，应该直接放行。因此首先判断是否是登录相关的资源，如果是，则直接放行；如果不是，则判断是否登录。<br>
+<br></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（2）	要判断当前用户是否已经登录，就要通过Session中是否有User来判断，如果有，则放行；如果没有，则跳转到登录界面。</p>
+<br>
+<h2><a id="%09_196"></a>三．	代理模式</h2>
+<h3><a id="%09_197"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;代理对象通过代理真实对象，以达到增强真实对象功能的目的。<br>
+<br></p>
+<h3><a id="%09_203"></a>（二）	实现方式</h3>
+<h4><a id="1%09_204"></a>1.	静态代理</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;有一个类文件描述代理模式<br>
+<br></p>
+<h4><a id="2%09_210"></a>2.	动态代理</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在内存中形成代理类，没有一个类文件代表代理对象。</p>
+<p>实现步骤：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（1）	代理对象和真实对象实现相同的接口</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（2）	代理对象 = Proxy.newInstance();</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（3）	使用代理对象调用方法</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（4）	增强方法<br>
+<br></p>
+<h4><a id="3%09_226"></a>3.	动态代理的使用</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（1）	创建真实对象</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（2）	创建动态代理对象增强真实对象。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;使用Proxy.newProxyInstance()方法创建动态代理对象，传入的参数为：<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;类加载器：<code>真实对象.getClass().getClassLoader()</code></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;接口数组：<code>真实对象.getClass().getInterfaces()</code></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;处理器对象：<code>new InvocationHandler(){}</code></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;处理器为一个匿名对象，其中存放着代理增强的逻辑代码在invoke()方法中，代理对象调用的所有方法都会触发invoke()方法的执行：</p>
+<pre><code class="prism language-java"><span class="token keyword">public</span> Object <span class="token function">invoke</span><span class="token punctuation">(</span>Object proxy<span class="token punctuation">,</span> Method method<span class="token punctuation">,</span> Object<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span><span class="token punctuation">{</span><span class="token punctuation">}</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;proxy:代理对象</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;method:代理对象调用的方法，被封装为对象</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;args:代理对象调用方法时，传递的真实参数</p>
+<br>
+<h4><a id="4%09_254"></a>4.	增强的方式</h4>
+<h5><a id="1%09_255"></a>（1）	增强参数</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通过args参数数组可以获取参数，因而可以修改参数。并重新通过真实方法将该参数传入调用invoke()方法。</p>
+<pre><code class="prism language-java"><span class="token keyword">double</span> money <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">double</span><span class="token punctuation">)</span>args<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+money <span class="token operator">=</span> money <span class="token operator">*</span> <span class="token number">0.85</span><span class="token punctuation">;</span>
+Object obj <span class="token operator">=</span> method<span class="token punctuation">.</span><span class="token function">invoke</span><span class="token punctuation">(</span>Lenovo<span class="token punctuation">,</span>money<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">return</span> obj<span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h5><a id="2%09_268"></a>（2）	增强返回值</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;可以通过修改返回值来增强。</p>
+<pre><code class="prism language-java"><span class="token keyword">return</span> obj <span class="token operator">+</span> “_鼠标垫”<span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h5><a id="3%09_278"></a>（3）	增强方法体</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在方法体中添加操作，以增强真实对象。</p>
+<br>
+<h2><a id="%09_285"></a>四．	监听器</h2>
+<h3><a id="%09_286"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;监听器，顾名思义用于监听事件的发生。<br>
+<br></p>
+<h3><a id="%09_292"></a>（二）	监听机制</h3>
+<h4><a id="1%09_293"></a>1.	事件</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;某个事件，如按下键盘<br>
+<br></p>
+<h4><a id="2%09_299"></a>2.	事件源</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;事件发生的地方<br>
+<br></p>
+<h4><a id="3%09_305"></a>3.	监听器</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;用于监听事件发生的对象。<br>
+<br></p>
+<h4><a id="4%09_311"></a>4.	注册监听</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;将事件，事件源，监听器绑定在一起，当事件源上发生某个事件后，执行监听器的代码。<br>
+<br></p>
+<h3><a id="%09ServletContextListener_317"></a>（三）	ServletContextListener监听器</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;监听ServletContext对象的创建和销毁。</p>
+<h4><a id="1%09_319"></a>1.	方法</h4>
+<pre><code class="prism language-java"><span class="token keyword">void</span> <span class="token function">contextDestroyed</span><span class="token punctuation">(</span>ServletContextEvent sce<span class="token punctuation">)</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;ServletContext对象被销毁前会调用该方法</p>
+<pre><code class="prism language-java"><span class="token keyword">void</span> <span class="token function">contextInitialized</span><span class="token punctuation">(</span>ServletContextEvent sce<span class="token punctuation">)</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;ServletContext对象创建后会调用该方法<br>
+<br></p>
+<h4><a id="2%09_336"></a>2.	使用步骤</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（1）	定义一个类，事项ServletContextListener接口</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（2）	重写接口中的方法</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（3）	配置文件</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通过web.xml或者注解都可以进行配置：</p>
+<p>web.xml：</p>
+<pre><code class="prism language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>listener</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>listener-class</span><span class="token punctuation">&gt;</span></span>全类名<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>listener-class</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>listener</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<p>注解：</p>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@WebListener</span>
+</code></pre>
+</div>
+</body>
+
+</html>

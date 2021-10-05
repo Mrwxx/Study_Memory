@@ -1,0 +1,102 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【云计算学习笔记（九）】之 Docker内存，CPU资源限制</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><p></p><div class="toc"><h3>文章目录</h3><ul><ul><li><a href="#_1">本文章由公号【开发小鸽】发布！欢迎关注！！！</a></li><li><a href="#%09_8">一．	内存资源限制</a></li><ul><li><a href="#%09_10">（一）	重点技术</a></li><li><a href="#%09_18">（二）	容器监控</a></li><li><a href="#%09_24">（三）	容器内存设置方式</a></li><ul><li><a href="#1%09m_memory_28">1.	-m --memory</a></li><li><a href="#2%09memoryswap_34">2.	–memory-swap</a></li><ul><li><a href="#1%09sm_39">（1）	s为正数，m为正数</a></li><li><a href="#2%09s0m_44">（2）	s为0，m为正数</a></li><li><a href="#3%09sunsetm_49">（3）	s为unset，m为正数</a></li><li><a href="#4%09s1m_54">（4）	s为-1，m为正数</a></li></ul><li><a href="#3%09memorywappiness_61">3.	–memory-wappiness</a></li><li><a href="#4%09memoryreservation_67">4.	–memory-reservation</a></li><li><a href="#5%09kernelmemory_73">5.	–kernel-memory</a></li><li><a href="#6%09oomkilldisable_79">6.	–oom-kill-disable</a></li></ul></ul><li><a href="#%09CPU_86">二．	CPU限制</a></li><ul><li><a href="#%09_88">（一）	限制方式</a></li><li><a href="#%09CPU_98">（二）	CPU限制设置</a></li><ul><li><a href="#1%09cpusetcpus_100">1.	--cpuset-cpus=””</a></li><li><a href="#2%09c_cpushares1024_105">2.	-c, --cpu-shares=1024</a></li><li><a href="#3%09cpusetmems_110">3.	--cpuset-mems=””</a></li><li><a href="#4%09cpuperiod0_116">4.	--cpu-period=0</a></li><li><a href="#5%09cpuquota0_121">5.	--cpu-quota=0</a></li><li><a href="#6%09cpus_140">6.	--cpus</a></li></ul><li><a href="#%09_146">（三）	资源限制实验</a></li></ul></ul></ul></div><p></p>
+<h2><a id="_1"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_8"></a>一．	内存资源限制</h2>
+<h3><a id="%09_10"></a>（一）	重点技术</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;CGroup是Control Groups，它是Linux内核所提供的的一种可以限制，记录，隔离进程组所使用的物理资源（cpu，内存，i/o等）的机制，由于每个Docker容器相对于宿主机来说就是一个进程，因此Docker可以使用该机制来隔离使用的物理资源。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;默认情况下，如果不对容器做任何限制，容器能够占用当前系统提供给容器的所有资源，因此我们必须对容器使用的资源做限制。Docker限制可以从内存，CPU，IO三方面入手。同时，还有一点，如果宿主机出现OOME异常，即内存溢出异常，任何进程都有可能被随机杀死，包括docker daemon，因此Docker调整了docker daemon的OOM优先级，以免直接被内核关闭。<br>
+<br></p>
+<h3><a id="%09_18"></a>（二）	容器监控</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;应用在容器中启动后，要对容器做内存压力测试，了解正常业务下内存使用情况，然后才能进入生产环境中使用，因此一定要限制容器的内存上线，尽量保证主机的资源充足，一旦通过监控发现资源不足，就进行扩容或者对容器进行迁移。如果内存资源充足，尽量不要使用swap虚拟内存，它会导致内存计算复杂，对调度器不友好。<br>
+<br></p>
+<h3><a id="%09_24"></a>（三）	容器内存设置方式</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在Docker启动参数中，通过内存相关设置来限制容器的内存使用，参数的值是内存大小，单位是b,k,m,g，对应着bytes, KB, MB, GB</p>
+<h4><a id="1%09m_memory_28"></a>1.	-m --memory</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;容器物理上能够使用的最大内存大小，容器绝对无法超过这个内存大小，最小为4MB。<br>
+<br></p>
+<h4><a id="2%09memoryswap_34"></a>2.	–memory-swap</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;容器能够使用的swap大小，但是它还与-m的设置有关，设swap的设置为s，-m的设置为m，有如下设置：<br>
+<br></p>
+<h5><a id="1%09sm_39"></a>（1）	s为正数，m为正数</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;容器总可用内存为s，其中物理内存为m，swap为s-m。</p>
+<br>
+<h5><a id="2%09s0m_44"></a>（2）	s为0，m为正数</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;相当于未设置swap，相当于物理内存为m，swap为2m。<br>
+<br></p>
+<h5><a id="3%09sunsetm_49"></a>（3）	s为unset，m为正数</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;同上。<br>
+<br></p>
+<h5><a id="4%09s1m_54"></a>（4）	s为-1，m为正数</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;若宿主机启用了swap，则容器可使用宿主机中所有swap资源。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;注意，在容器中使用free命令看到的swap空间不是真正的大小。<br>
+<br></p>
+<h4><a id="3%09memorywappiness_61"></a>3.	–memory-wappiness</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;默认情况下，宿主机可以将容器使用的匿名页swap出来，这里设置一个0-100之间的数，代表允许swap出来的比例。<br>
+<br></p>
+<h4><a id="4%09memoryreservation_67"></a>4.	–memory-reservation</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;设置容器可以使用内存的软限制，容器在内存空间足够的情况下，可以超过该值，在内存空间不足的情况下，会回撤到该值以下。<br>
+<br></p>
+<h4><a id="5%09kernelmemory_73"></a>5.	–kernel-memory</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;容器可以使用的内核内存大小，最小值为4m。<br>
+<br></p>
+<h4><a id="6%09oomkilldisable_79"></a>6.	–oom-kill-disable</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;是否运行Oomph时杀死容器，只有设置了-m，才可以设置为false，表示不需要杀死容器。如果没有设置-m，则必须设置为true，防止容器耗尽主机内存。</p>
+<br>
+<h2><a id="%09CPU_86"></a>二．	CPU限制</h2>
+<h3><a id="%09_88"></a>（一）	限制方式</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Docker容器对于CPU资源的限制可以在多核系统中限制容器使用哪些vCPU，限制方式有两种：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;1.	有多个CPU密集型的容器竞争CPU时，设置各个容器能够使用的CPU时间相对比例。即动态地分配容器CPU时间，当容器不断地加入时，每个容器分配的时间会动态变化。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;2.	以绝对的方式设置容器在每个调度周期内最多能够使用的CPU时间。<br>
+<br></p>
+<h3><a id="%09CPU_98"></a>（二）	CPU限制设置</h3>
+<h4><a id="1%09cpusetcpus_100"></a>1.	--cpuset-cpus=””</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;允许使用的CPU集，如果共有8个vCPU，则分为0-7，那么我们启动容器时设置的可以使用的CPU集可以设置为0-3，表示使用0-3这四个vCPU，或者0，表示只使用0这个vCPU。<br>
+<br></p>
+<h4><a id="2%09c_cpushares1024_105"></a>2.	-c, --cpu-shares=1024</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;CPU共享权值（相对权重），默认是1024。如何理解相对权重？每个容器都会设置自己的相对权重，它所能够使用的时间片比例就等于它的相对权重/所有容器的相对权重之和，每个容器的CPU使用时间是动态变化的。</p>
+<br>
+<h4><a id="3%09cpusetmems_110"></a>3.	--cpuset-mems=””</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;允许在上执行的内存节点。<br>
+<br></p>
+<h4><a id="4%09cpuperiod0_116"></a>4.	--cpu-period=0</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;一个CPU中的调度周期，CFS周期的有效范围是1ms-1s，而调度周期的数值单位是微妙，因此数值范围是1000 – 1000000。</p>
+<br>
+<h4><a id="5%09cpuquota0_121"></a>5.	--cpu-quota=0</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;设置该容器在每个周期中可以使用的CPU时间，容器的CPU配额必须&gt;=1ms，即&gt;=1000，单位是微秒。</p>
+<p>如下所示的例子：</p>
+<pre><code class="prism language-cpp">docker run <span class="token operator">-</span>it <span class="token operator">--</span>cpu<span class="token operator">-</span>period<span class="token operator">=</span><span class="token number">50000</span> –cpu<span class="token operator">-</span>quota<span class="token operator">=</span><span class="token number">25000</span> ubuntu <span class="token operator">/</span>bin<span class="token operator">/</span>bash
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;解释： 一个CPU的可调度周期为50000微秒，该容器可以使用的CPU周期为25000，即使用一个CPU的一半调度时间。</p>
+<pre><code class="prism language-cpp">docker run <span class="token operator">-</span>it <span class="token operator">--</span>cpu<span class="token operator">-</span>period<span class="token operator">=</span><span class="token number">10000</span> –cpu<span class="token operator">-</span>quota<span class="token operator">=</span><span class="token number">20000</span> ubuntu <span class="token operator">/</span>bin<span class="token operator">/</span>bash
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;解释： 一个CPU的可调度周期为10000，该容器的可调度周期为20000，即使用两个CPU的所有调度时间。<br>
+<br></p>
+<h4><a id="6%09cpus_140"></a>6.	--cpus</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;限制容器可以使用的主机CPU个数，还可以指定小数。</p>
+<br>
+<h3><a id="%09_146"></a>（三）	资源限制实验</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;使用一个压测镜像，能够不断地扩展使用的资源，如下所示：</p>
+<pre><code class="prism language-cpp">docker run –name stress <span class="token operator">-</span>it <span class="token operator">--</span>rm <span class="token operator">-</span>m <span class="token number">256</span>m lorel<span class="token operator">/</span>docker<span class="token operator">-</span>stress<span class="token operator">-</span>ng<span class="token operator">:</span>latest stress <span class="token operator">-</span>vm <span class="token number">2</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;解释：限制物理内存为256M，启动两个进程，使用docker stats stress查看资源占用情况，CPU利用率能够跑到100%左右，内存使用情况能够跑满256M。</p>
+<pre><code class="prism language-cpp">docker run –name stress <span class="token operator">-</span>it –rm –cpus <span class="token number">22</span> lorel<span class="token operator">/</span>docker<span class="token operator">-</span>stress<span class="token operator">-</span>ng<span class="token operator">:</span>latest stress –cpu <span class="token number">8</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;解释：限制使用2个CPU，容器中使用8个线程跑，结果是能够CPU能够跑满200%，内存占用不多。</p>
+</div>
+</body>
+
+</html>

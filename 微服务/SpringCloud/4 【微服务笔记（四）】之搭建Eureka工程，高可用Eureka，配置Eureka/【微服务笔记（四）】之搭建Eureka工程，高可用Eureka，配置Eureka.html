@@ -1,0 +1,249 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【微服务笔记（三）】之搭建Eureka工程，高可用Eureka，配置Eureka</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="Eureka_8"></a>一．搭建Eureka注册中心工程</h2>
+<h3><a id="pomxml_9"></a>（一）配置pom.xml</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 依然是继承之前设置的父工程SpringCloudParentDemo，然后添加eureka-server的启动依赖，这是netflix公司的，版本不需要设置，因为在父工程中已经添加了spring-cloud依赖了。</p>
+<pre><code class="prism language-xml"><span class="token prolog">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>project</span> <span class="token attr-name">xmlns</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>http://maven.apache.org/POM/4.0.0<span class="token punctuation">"</span></span>
+         <span class="token attr-name"><span class="token namespace">xmlns:</span>xsi</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>http://www.w3.org/2001/XMLSchema-instance<span class="token punctuation">"</span></span>
+         <span class="token attr-name"><span class="token namespace">xsi:</span>schemaLocation</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>modelVersion</span><span class="token punctuation">&gt;</span></span>4.0.0<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>modelVersion</span><span class="token punctuation">&gt;</span></span>
+
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">&gt;</span></span>com.springboot<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">&gt;</span></span>eureka-server<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">&gt;</span></span>1.0-SNAPSHOT<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">&gt;</span></span>
+
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>parent</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">&gt;</span></span>com.SpringCloud.ParentDemo<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">&gt;</span></span>com.SpringCloud<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">&gt;</span></span>1.0-SNAPSHOT<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>parent</span><span class="token punctuation">&gt;</span></span>
+
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependencies</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">&gt;</span></span>org.springframework.cloud<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">&gt;</span></span>spring-cloud-starter-netflix-eureka-server<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependencies</span><span class="token punctuation">&gt;</span></span>
+
+
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>project</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<h3><a id="_43"></a>（二）创建引导类和配置文件</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 创建引导类，并且添加注解@EnableEurekaServer，表示这是一个Eureka服务器。</p>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@EnableEurekaServer</span>
+<span class="token annotation punctuation">@SpringBootApplication</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">EurekaApp</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        SpringApplication<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span>EurekaApp<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">,</span> args<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 添加配置文件application.yml，配置文件application.yml配置Eureka服务器的参数：</p>
+<pre><code class="prism language-yml"><span class="token key atrule">server</span><span class="token punctuation">:</span>
+  <span class="token key atrule">port</span><span class="token punctuation">:</span> <span class="token number">8082</span>
+<span class="token key atrule">spring</span><span class="token punctuation">:</span>
+  <span class="token key atrule">application</span><span class="token punctuation">:</span>
+    <span class="token key atrule">name</span><span class="token punctuation">:</span> eureka<span class="token punctuation">-</span>server
+<span class="token key atrule">eureka</span><span class="token punctuation">:</span>
+  <span class="token key atrule">client</span><span class="token punctuation">:</span>
+    <span class="token key atrule">service-url</span><span class="token punctuation">:</span> 
+      <span class="token comment">#eureka服务地址，如果是集群的话，需要制定其他集群eureka的地址</span>
+      <span class="token key atrule">defaultZone</span><span class="token punctuation">:</span> http<span class="token punctuation">:</span>127.0.0.1/8082/eureka
+    <span class="token comment">#单个服务器不注册自己到Eureka中</span>
+    <span class="token key atrule">register-with-eureka</span><span class="token punctuation">:</span> <span class="token boolean important">false</span>
+    <span class="token comment">#不拉取服务</span>
+    <span class="token key atrule">fetch-registry</span><span class="token punctuation">:</span> <span class="token boolean important">false</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; spring.application.name是Eureka服务的名称。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; eureka.client.service-url 是eureka服务的地址，当有多个服务器成集群时，需要指定其他集群eureka的地址</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; eureka.client.register-with-eureka：是否注册Eureka本身到Eureka中，在单个服务器中是无所谓的，当呈集群存在时，需要注册Eureka本身到Eureka中被其他Eureka发现。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; eureka.client.fetch-registry:是否需要拉取服务。<br>
+<br></p>
+<h3><a id="_89"></a>（三）服务的注册与发现</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 我们需要将服务提供方的服务注册到eureka并且在服务消费方能够根据服务名称调用服务。</p>
+<h4><a id="1%09_91"></a>1.	服务注册</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;  （1）	在服务提供方添加Eureka客户端依赖，自动将服务注册到EurekaServer服务地址列表中。</p>
+<pre><code class="prism language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">&gt;</span></span>org.springframework.cloud<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">&gt;</span></span>spring-cloud-starter-netflix-eureka-client<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;  （2）	改造引导类，添加开启Eureka客户端发现的注解。</p>
+<pre><code class="prism language-xml">@EnableEurekaClient
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该注解用于开启Eureka客户端的发现功能。<br>
+<br></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; （3）	修改配置文件，添加服务提供方的应用名称，设置Eureka服务地址。</p>
+<pre><code class="prism language-xml">spring.application.name=user-service
+eureka.client.service-url.defaultZone=http://127.0.0.1:8082/eureka
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;  （4）	启动测试<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp; 在Eureka服务器已经开启的情况下，开启服务提供方，那么服务提供方就会出现在Eureka的管理界面上。</p>
+<br>
+<h4><a id="2%09_133"></a>2.	服务发现</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;  （1）	在服务消费方添加Eureka客户端依赖，可以使用工具类根据服务名称获取对应的服务地址列表。</p>
+<pre><code class="prism language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">&gt;</span></span>org.springframework.cloud<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">&gt;</span></span>spring-cloud-starter-netflix-eureka-client<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; （2）	改造引导类，添加开启Eureka客户端发现的注解。</p>
+<pre><code class="prism language-xml">@EnableEurekaClient
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 该注解用于开启Eureka客户端的发现功能。<br>
+<br></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; （3）	修改配置文件，设置Eureka服务地址，并且设置服务消费方的名称。</p>
+<pre><code class="prism language-yml"><span class="token key atrule">server</span><span class="token punctuation">:</span>
+  <span class="token key atrule">port</span><span class="token punctuation">:</span> <span class="token number">8081</span>
+
+<span class="token key atrule">eureka</span><span class="token punctuation">:</span>
+  <span class="token key atrule">client</span><span class="token punctuation">:</span>
+    <span class="token key atrule">service-url</span><span class="token punctuation">:</span>
+      <span class="token key atrule">defaultZone</span><span class="token punctuation">:</span> http<span class="token punctuation">:</span>//127.0.0.1<span class="token punctuation">:</span>8082/eureka
+<span class="token key atrule">spring</span><span class="token punctuation">:</span>
+  <span class="token key atrule">application</span><span class="token punctuation">:</span>
+    <span class="token key atrule">name</span><span class="token punctuation">:</span> consumer<span class="token punctuation">-</span>demo
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; （4）	改造Controller，使用工具类DiscoveryClient根据服务名称获取的对应服务地址列表。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 原来的Controller中服务提供方的地址是直接写死在代码中的，这样不利于扩展，我们可以注入一个工具类DiscoveryClient，该工具类可以获取Eureka服务器中注册的服务实例，通过该实例可以过去该实例的主机，以及端口号，以此可以拼接成该服务的地址。再通过RestTemplate的getForObject函数来访问该地址，得到服务提供的数据。</p>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@RestController</span>
+<span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span><span class="token string">"/consumer"</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ConsumerController</span> <span class="token punctuation">{</span>
+    <span class="token annotation punctuation">@Autowired</span>
+    <span class="token keyword">private</span> RestTemplate restTemplate<span class="token punctuation">;</span>
+
+    <span class="token annotation punctuation">@Autowired</span>
+    <span class="token keyword">private</span> DiscoveryClient discoveryClient<span class="token punctuation">;</span>
+
+    <span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span><span class="token string">"/{id}"</span><span class="token punctuation">)</span>
+    <span class="token keyword">public</span> User <span class="token function">queryBuId</span><span class="token punctuation">(</span><span class="token annotation punctuation">@PathVariable</span> Long id<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        String url <span class="token operator">=</span> <span class="token string">"http://localhost:8080/user/8"</span><span class="token punctuation">;</span>
+
+        <span class="token comment">//获取eureka中注册的user-service的实例</span>
+        List<span class="token generics function"><span class="token punctuation">&lt;</span>ServiceInstance<span class="token punctuation">&gt;</span></span> serviceInstances <span class="token operator">=</span> discoveryClient<span class="token punctuation">.</span><span class="token function">getInstances</span><span class="token punctuation">(</span><span class="token string">"user-service"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        ServiceInstance serviceInstance <span class="token operator">=</span> serviceInstances<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        url <span class="token operator">=</span> <span class="token string">"http://"</span> <span class="token operator">+</span> serviceInstance<span class="token punctuation">.</span><span class="token function">getHost</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">":"</span> <span class="token operator">+</span> serviceInstance<span class="token punctuation">.</span><span class="token function">getPort</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">"/user/"</span> <span class="token operator">+</span> id<span class="token punctuation">;</span>
+        <span class="token keyword">return</span> restTemplate<span class="token punctuation">.</span><span class="token function">getForObject</span><span class="token punctuation">(</span>url<span class="token punctuation">,</span> User<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; （5）	测试服务消费方<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp; 开启服务消费方，可以得到服务提供方提供的服务数据，并且服务提供方和服务消费方都已经在Eureka管理界面中了。<br>
+<br></p>
+<h2><a id="Eureka_Server_212"></a>二．高可用的Eureka Server</h2>
+<h3><a id="_213"></a>（一）概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 在之前的案例中，我们搭建了一个EurekaServer，而EurekaServer也可以是一个集群，形成高可用的Eureka中心。所谓的高可用，就是保证当一个Eureka Server宕机后，另一个Eureka Server 能够立即补上去，这就需要多个Eureka Server之间需要数据同步。<br>
+<br></p>
+<h3><a id="_219"></a>（二）服务同步</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 多个Eureka Server之间能够互相注册为服务，集群中的每个Eureka Server 需要将自己注册到其他Eureka Server 服务之中，这样其他的Eureka Server就能够互相发现。当服务提供者注册到Eureka Server集群中的某个节点时，该节点会把服务的信息同步给集群中的每个节点，从而实现数据同步。因此，无论客户端访问到Eureka Server集群中的任意一个节点，都能够获取到完整的服务列表信息。<br>
+<br></p>
+<h3><a id="Eureka_Server_225"></a>（三）配置高可用的Eureka Server</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 直接修改之前配置的Eureka Server，之前配置的Eureka 的服务地址使用的是自己的Eureka Server地址，现在我们要配置集群，需要修改为其他服务器的地址。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 需要将自己注册到Eureka 中，设置register-with-eureka，默认是true。<br>
+<br></p>
+<pre><code class="prism language-yml"><span class="token key atrule">server</span><span class="token punctuation">:</span>
+  <span class="token key atrule">port</span><span class="token punctuation">:</span> $<span class="token punctuation">{</span>port<span class="token punctuation">:</span><span class="token number">8082</span><span class="token punctuation">}</span>
+<span class="token key atrule">spring</span><span class="token punctuation">:</span>
+  <span class="token key atrule">application</span><span class="token punctuation">:</span>
+    <span class="token key atrule">name</span><span class="token punctuation">:</span> eureka<span class="token punctuation">-</span>server
+<span class="token key atrule">eureka</span><span class="token punctuation">:</span>
+  <span class="token key atrule">client</span><span class="token punctuation">:</span>
+    <span class="token key atrule">service-url</span><span class="token punctuation">:</span>
+      <span class="token comment">#eureka服务地址，如果是集群的话，需要制定其他集群eureka的地址</span>
+      <span class="token key atrule">defaultZone</span><span class="token punctuation">:</span> $<span class="token punctuation">{</span>defaultZone<span class="token punctuation">:</span>http<span class="token punctuation">:</span>//127.0.0.1/8083/eureka<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 这里，我们使用一种新的语法：</p>
+<pre><code class="prism language-xml">port: ${port:8082}
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 这种语法的意思是如果port中有值的话，就使用port中的值，否则使用后面的值。要使用这种语法，需要设置这些参数的默认值，在IDEA的右上角选择Eureka 项目的配置，在Configuration 的Environment中，设置VM options为使用的参数的默认值，使用-D表示这是默认值。如下所示：</p>
+<pre><code class="prism language-xml">-Dport=8082 -DdefaultZone=http://127.0.0.1:8083/eureka
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 可以看到，这里设置的port默认值为8082，这是本台Eureka Server的端口号，defaultZone的默认值为其他Eureka Server 的地址，即如果有集群，则注册其他的Eureka Server的地址到本台Eureka Server中。<br>
+<br></p>
+<h3><a id="Eureka_Server_267"></a>（四）复制配置好的Eureka Server应用</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 同样是在Eureka Server的应用配置页面，直接复制该应用，得到另一个Eureka Server，修改名称，并且修改参数的默认值，将port的默认值改为新的端口号8083，将defaultZone的默认值改为http://127.0.0.1:8082/eureka。<br>
+<br></p>
+<h3><a id="%09_273"></a>（五）	测试高可用集群</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 同时启动两个Eureka Server应用，可以在两个的Eureka 管理界面中看到，每个都已经注册了两个Eureka Server了，一个是8082端口，一个是8083端口。设置服务提供方和服务消费方中配置的都是8082端口的服务器，当我们停掉8082端口的服务器时，发现服务提供方和服务消费方依旧能够运行。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 在配置服务提供者和服务消费方时，为了保证稳定，我们可以将多个Eureka Server的地址都配置到其中。</p>
+<br>
+<h2><a id="Eureka_282"></a>三．Eureka客户端与服务端配置</h2>
+<h3><a id="Eureka_283"></a>（一）Eureka服务提供方客户端配置</h3>
+<h4><a id="1__284"></a>1. 服务注册</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 服务提供者在启动时，会检测配置属性中的 eureka.client.register-with-eruka-true参数是否正确，默认是true。如果值是true，那么服务提供者就会向Eureka Server发起一个Rest请求，并携带自己的元数据信息，Eureka Server会把这些信息保存到一个双层Map结构中。双层Map结构如下所示：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 第一层Map的Key是服务id。根据我们配置的spring.application.name属性来获取。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 第二层Map的Key是服务的实例id，一般是host+serviced+port.</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 值是服务的实例对象，一个服务可以启动多个不同的实例，形成集群。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 且，在默认注册时是使用的是主机名或者localhost，如果想用ip进行注册，需要在服务提供者的配置中手动添加ip地址，并且设置倾向ip地址：</p>
+<pre><code class="prism language-yml">eureka：
+	<span class="token key atrule">instance</span><span class="token punctuation">:</span>
+		<span class="token key atrule">ip-address</span><span class="token punctuation">:</span> 127.0.0.1
+		prefer<span class="token punctuation">-</span>ip<span class="token punctuation">-</span>address：true
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 注意，这样设置之后，只是在代码中变成了ip地址，然而Eureka的控制台中依然是localhost。<br>
+<br></p>
+<h4><a id="2_307"></a>2．服务续约</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 注册服务以后，服务提供者会持续地提供一个心跳，即定时向Eureka Server 发起Rest请求，表示该服务依旧存在，这种操作称为服务续约。服务提供方默认的定时续约的间隔时间为30秒，同时默认的服务失效的等待心跳时间为90秒，即若服务提供方90秒内没有心跳，则该服务就会失效，但是服务何时从Eureka Server服务列表中剔除出来，就要看Eureka Server定时扫描时间的设置了，只有Eureka Server定时扫描发现服务没有发送心跳时，他才会从服务列表中剔除。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 设置服务续约的参数，如下所示：</p>
+<pre><code class="prism language-yml"><span class="token key atrule">eureka</span><span class="token punctuation">:</span>
+	<span class="token key atrule">instance</span><span class="token punctuation">:</span>
+		<span class="token comment">#服务失效</span>
+		<span class="token key atrule">lease-expiration-duration-in-seconds</span><span class="token punctuation">:</span> <span class="token number">90</span>
+		<span class="token comment">#服务续约</span>
+		<span class="token key atrule">leas-renewal-interval-in-seconds</span><span class="token punctuation">:</span> <span class="token number">30</span>
+</code></pre>
+<br>
+<h3><a id="%09Eureka_325"></a>（二）	Eureka服务消费方客户端配置</h3>
+<h4><a id="1%09_326"></a>1.	获取服务列表</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 当服务消费方启动时，会检测Eureka.client.fetch-registry参数的值，如果是true，那么会从Eureka Server的服务列表中拉取只读备份，缓存在本地中，每隔30秒重新拉取更新。在服务消费方的配置中修改如下参数：</p>
+<pre><code class="prism language-yml"><span class="token key atrule">eureka</span><span class="token punctuation">:</span>
+		<span class="token key atrule">client</span><span class="token punctuation">:</span>
+			<span class="token key atrule">registry-fetch-interval-seconds</span><span class="token punctuation">:</span> <span class="token number">30</span>
+</code></pre>
+<br>
+<h3><a id="%09Eureka_Server_338"></a>（三）	Eureka Server服务端配置</h3>
+<h4><a id="1%09_339"></a>1.	服务下线</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 当服务正常关闭时，它会触发一个服务下线的Rest请求给Eureka Server，服务器接收到该请求后将服务设置为下线状态。<br>
+<br></p>
+<h4><a id="2%09_345"></a>2.	失效剔除</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 当Eureka Server没有收到服务下线的请求，同时Eureka Server有一个定时扫描任务，默认是60秒扫描一次当前服务清单中超时未续约的服务，并剔除出服务列表。可以通过eureka.server.eviction-interval-timer-in-ms 参数默认的时间，单位是毫秒。</p>
+<pre><code class="prism language-yml"><span class="token key atrule">eureka</span><span class="token punctuation">:</span>
+	<span class="token key atrule">server</span><span class="token punctuation">:</span>
+		<span class="token key atrule">eviction-interval-timer-in-ms</span><span class="token punctuation">:</span> <span class="token number">60000</span>
+</code></pre>
+<br>
+<h4><a id="3%09_357"></a>3.	自我保护</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 当我们关停一个服务时，Eureka Server的控制台中会有一个警告，这是Eureka的自我为保护机制，当服务没有按时续约时，Eureka会统计该服务实例 最近15分钟续约的比例是否低于85%。由于网络的波动，服务未续约的情况时有发生，因此Eureka Server在扫描到有未续约的服务时，不会直接删除，而是等待网络恢复正常。这种保护机制保障了服务的稳定。在生产环境中比较实用，但是在开发过程中我们会频繁地打开关闭服务，因此，最好将自我保护机制关掉。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 可以通过在Eureka Server中设置如下参数关闭自我保护：</p>
+<pre><code class="prism language-yml"><span class="token key atrule">eureka</span><span class="token punctuation">:</span>
+		<span class="token key atrule">server</span><span class="token punctuation">:</span>
+			<span class="token key atrule">enable-self-preservation</span><span class="token punctuation">:</span> <span class="token boolean important">false</span>
+</code></pre>
+<br>
+</div>
+</body>
+
+</html>

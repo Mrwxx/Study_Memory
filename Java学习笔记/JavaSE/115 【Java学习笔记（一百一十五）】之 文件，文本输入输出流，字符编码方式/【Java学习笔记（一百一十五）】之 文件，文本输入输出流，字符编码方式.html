@@ -1,0 +1,92 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Java学习笔记（一百一十五）】之 文件，文本输入输出流，字符编码方式</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_7"></a>一．	输入与输出</h2>
+<h3><a id="%09___9"></a>（一）	输入流 / 输出流</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;从其中读入一个字节序列的对象称为输入流，而可以向其中写入一个字节序列的对象称为输出流。这些字节序列的来源可以是文件，网络连接和内存块。抽象类InputStream和OutputStream构成了IO类层次结构的基础，但是面向字节的流无法处理Unicode形式的信息（每个Unicode字符使用了多个字节表示），所以从抽象类Reader和Writer中继承出来了用于处理Unicode字符的单独的类层次结构，这些类都是基于两个字节的Char值的。当然还有其他在处理字节基础上的更上层的类，如处理二进制的类DataInputStream, DataOutputStream，处理zip压缩文件的ZipInputStream, ZipOutputStream类等等。<br>
+<br></p>
+<h3><a id="%09InputStream_15"></a>（二）	InputStream类</h3>
+<h4><a id="1%09read_17"></a>1.	read()</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;抽象方法read()，读入一个字节，返回读入的字节，在遇到结尾时返回-1。在设计具体的输入流类时，需要覆盖这个方法来提供适当的功能，执行时都会阻塞，直到字节真正被读入。<br>
+<br></p>
+<h4><a id="2%09readbyte_b_24"></a>2.	read(byte[] b)</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;读入一个字节数组，返回实际读入的字节数。<br>
+<br></p>
+<h4><a id="3%09transferToOutputStream_out_31"></a>3.	transferTo(OutputStream out)</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;将当前输入流中的所有字节传送到指定的输出流中，返回传递的字节数。<br>
+<br></p>
+<h4><a id="4%09available_38"></a>4.	available()</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在不阻塞的情况下可获取的字节数，可以用于检查当前可读入的字节数量，便于进行之后的操作。</p>
+<br>
+<h4><a id="5%09close_44"></a>5.	close()</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;关闭这个输入流，释放操作系统资源。<br>
+<br></p>
+<h4><a id="6%09markint_readlimit_50"></a>6.	mark(int readlimit)</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在输入流的当前位置打上标记。<br>
+<br></p>
+<h4><a id="7%09reset_56"></a>7.	reset()</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;返回最后一个标记，随后对read的调用将重新读入这些字节。<br>
+<br></p>
+<h3><a id="%09OutputStream_62"></a>（三）	OutputStream</h3>
+<h4><a id="1%09writeint_n_64"></a>1.	write(int n)</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;抽象类，写出一个字节的数据。<br>
+<br></p>
+<h4><a id="2%09close_70"></a>2.	close()</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;冲刷用于该输出流的缓冲区，并且关闭该输出流，所有被临时置于缓冲区中，以便用更大的包的形式传递的字节都会在关闭输出流的时候被送出，如果不关闭输出流，那么写出字节的最后一个包可能永远不会传递。<br>
+<br></p>
+<h4><a id="3%09flush_76"></a>3.	flush()</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;冲刷输出流，即将缓冲区的数据送出。<br>
+<br></p>
+<h3><a id="%09_82"></a>（四）	文件输入输出流</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;FileInputStream 和 FileOutputStream可以提供附着在磁盘文件上的输入流和输出流，只需要向构造器提供文件名或文件的完整路径名。如下所示：</p>
+<pre><code class="prism language-java">var fin <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">FileInputStream</span><span class="token punctuation">(</span>“a<span class="token punctuation">.</span>txt”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;所有java.io中的类都将相对路径名解释为以用户工作目录开始，且由于反斜杠“\”在Java字符串中是转义字符，所以在Windows风格的路径名中使用“\”，如C:\Windows\win.ini。<br>
+<br></p>
+<h3><a id="%09_95"></a>（五）	组合过滤器</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;对于不同的输入流，可以嵌套在一起使用以获得更加强大灵活的功能，如从一个文件中读取输入流，并且通过缓冲机制读取，最后通过转换为二进制，就可以用以下的方式：</p>
+<pre><code class="prism language-java">var din <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">DataInputStream</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">BufferedInputStream</span><span class="token punctuation">(</span> <span class="token keyword">new</span> <span class="token class-name">FileInputStream</span><span class="token punctuation">(</span>“a<span class="token punctuation">.</span>txt”<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;这种复杂的构造器序列可以灵活地将不同的输入流组合在一起，非常强大。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如预览下一个字节是否是期望的值，如果不是，将其推回到流中：</p>
+<pre><code class="prism language-java">var pbin <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">PushbackInputStream</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">BufferedInputStream</span><span class="token punctuation">(</span> <span class="token keyword">new</span> <span class="token class-name">FileInputStream</span><span class="token punctuation">(</span>“a<span class="token punctuation">.</span>txt”<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">int</span> b <span class="token operator">=</span> pbin<span class="token punctuation">.</span><span class="token function">read</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">if</span><span class="token punctuation">(</span> b <span class="token operator">!=</span> ‘<span class="token operator">&lt;</span>’<span class="token punctuation">)</span> pbin<span class="token punctuation">.</span><span class="token function">unread</span><span class="token punctuation">(</span>b<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h3><a id="%09_117"></a>（六）	文本输入输出</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;文本格式的IO适合人类阅读，在存储文本字符串时，需要考虑字符编码方式，OutputStreamWriter类将使用选定的字符编码方式，把Unocide码元的输出流转换为字节流，UTF-8是互联网上最常用的编码方式。如从控制台读入键盘敲击信息，并转换为Unicode：</p>
+<pre><code class="prism language-java">var <span class="token keyword">int</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">InputStreamReader</span><span class="token punctuation">(</span>System<span class="token punctuation">.</span>in<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>或指定编码方式：</p>
+<pre><code class="prism language-java">var in <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">InputStreamReader</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">FileInputStream</span><span class="token punctuation">(</span>“data<span class="token punctuation">.</span>txt”<span class="token punctuation">,</span> StandardCharsets<span class="token punctuation">.</span>UTF_8<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;对于文本输出，可以使用PrintWriter，与System.out相同的print, println, prinf等方法，即用文本输出到文件中，如下所示：</p>
+<pre><code class="prism language-java">var out <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">PrintWriter</span><span class="token punctuation">(</span>“employee<span class="token punctuation">.</span>txt”<span class="token punctuation">,</span> StandardCharsets<span class="token punctuation">.</span>UTF_8<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>也可以嵌套输出使用：</p>
+<pre><code class="prism language-java">var out <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">PrintWriter</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">OutputStreamWriter</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">FileOutputStream</span><span class="token punctuation">(</span>“employee<span class="token punctuation">.</span>txt”<span class="token punctuation">,</span> StandardCharsets<span class="token punctuation">.</span>UTF_8<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;最简单的处理文本的方式就是使用Scanner类，我们可以从任何输入流中构建Scanner对象，扫描一行行进来。<br>
+<br></p>
+<h3><a id="%09_154"></a>（七）	字符编码方式</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Java针对字符使用的是Unicode标准，每个字符或者“编码点”都具有一个21位的整数，有多种不同的字符编码方式，UTF-8将每个Unocide编码点编码为1到4个字节的序列，包含了英语中用到的所有字符的ASICC字符集中的每个字符都只会占用一个字节，UTF-8会将每个Unicode编码点编码为1个或2个16位值，需要考虑高位低位的优先顺序，可以在文件的开头来表示使用的是哪一种格式。</p>
+</div>
+</body>
+
+</html>

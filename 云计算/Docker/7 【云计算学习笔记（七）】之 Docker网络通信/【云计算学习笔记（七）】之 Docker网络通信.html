@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【云计算学习笔记（七）】之 Docker网络通信</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><p></p><div class="toc"><h3>文章目录</h3><ul><ul><li><a href="#_1">本文章由公号【开发小鸽】发布！欢迎关注！！！</a></li><li><a href="#%09Docker_8">一．	Docker网络通信</a></li><ul><li><a href="#%09_10">（一）	概述</a></li><li><a href="#%09_16">（二）	容器之间的通信</a></li><li><a href="#%09_21">（三）	容器与外部网络的通信</a></li><ul><li><a href="#1%09_23">1.	容器访问外部网络</a></li><li><a href="#2%09_33">2.	外部网络访问容器</a></li></ul><li><a href="#%09namespace_47">（四）	namespace类型</a></li><ul><li><a href="#1%09UTS_53">1.	UTS</a></li><li><a href="#2%09IPC_58">2.	IPC</a></li><li><a href="#3%09PID_63">3.	PID</a></li><li><a href="#4%09NetWork_68">4.	NetWork</a></li><li><a href="#5%09Mount_73">5.	Mount</a></li><li><a href="#6%09User_78">6.	User</a></li></ul><li><a href="#%09Docker_83">（五）	Docker网络模式的修改</a></li><ul><li><a href="#1%09Docker_85">1.	Docker进程网络修改</a></li><ul><li><a href="#1%09bbridge___91">（1）	-b,--bridge = “”</a></li><li><a href="#2%09bip_97">（2）	--bip</a></li><li><a href="#3%09dns_102">（3）	--dns</a></li></ul><li><a href="#2%09_108">2.	容器网络修改</a></li><ul><li><a href="#1%09dns_110">（1）	--dns</a></li><li><a href="#2%09net_116">（2）	--net</a></li></ul><li><a href="#3%09_130">3.	网桥模式下暴露端口</a></li><ul><li><a href="#1%09p__132">（1）	-p :容器端口</a></li><li><a href="#2%09p__138">（2）	-p 主机端口:容器端口</a></li><li><a href="#3%09p_IP_144">（3）	-p 主机IP::容器端口</a></li><li><a href="#4%09p_IP_150">（4）	-p 主机IP:主机端口:容器端口</a></li><li><a href="#5%09P_155">（5）	-P（大写）</a></li></ul><li><a href="#4%09_160">4.	查看容器当前映射关系</a></li><li><a href="#5%09docker0_169">5.	修改docker0网桥的配置</a></li></ul><li><a href="#%09_175">（六）	常见隔离方式</a></li><ul><li><a href="#1%09_177">1.	基础命令</a></li><li><a href="#2%09_203">2.	通过网络命名空间隔离容器</a></li></ul></ul></ul></ul></div><p></p>
+<h2><a id="_1"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09Docker_8"></a>一．	Docker网络通信</h2>
+<h3><a id="%09_10"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Docker网络通信主要解决三个问题，容器与容器之间的通信，容器访问外部网络，外部网络访问容器。<br>
+<br></p>
+<h3><a id="%09_16"></a>（二）	容器之间的通信</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;首先宿主机本身有一个网卡，在安装完Docker之后，会出现一个docker0，可以将它理解为一个网桥交换机，用于交换不同容器之间的数据，同时创建的还有不同的网络命名空间（Network Namespace），不同的命名空间是隔离的，且这个命名空间有两端，一端固定在容器的内部成为虚拟网卡， 另一端在宿主机中生成一个vethxxxxx，每多一个容器就会多一个vethxxxx。该交换机实现了容器之间的通信与隔离以及容器与宿主机之间的通信问题。</p>
+<br>
+<h3><a id="%09_21"></a>（三）	容器与外部网络的通信</h3>
+<h4><a id="1%09_23"></a>1.	容器访问外部网络</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;使用SNAT规则访问外部网络，如下所示：</p>
+<pre><code class="prism language-cpp">iptables <span class="token operator">-</span>t nat <span class="token operator">-</span>A POSTROUTING <span class="token operator">-</span>s <span class="token number">172.17</span><span class="token number">.0</span><span class="token number">.0</span><span class="token operator">/</span><span class="token number">16</span> <span class="token operator">-</span>o docker0 <span class="token operator">-</span>j MASQUERADE
+</code></pre>
+<br>
+<h4><a id="2%09_33"></a>2.	外部网络访问容器</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;当我们启动如下的docker命令时，映射端口给宿主机，就会出现两条DNAT规则</p>
+<pre><code class="prism language-cpp">docker run <span class="token operator">-</span>d <span class="token operator">-</span>p <span class="token number">80</span><span class="token operator">:</span><span class="token number">80</span> apache
+</code></pre>
+<pre><code class="prism language-cpp">iptables <span class="token operator">-</span>t nat <span class="token operator">-</span>A PREROUTING <span class="token operator">-</span>m addrtype <span class="token operator">-</span>dst<span class="token operator">-</span>type LOCAL <span class="token operator">-</span>j DOCKER
+iptables <span class="token operator">-</span>t nat <span class="token operator">-</span>A DOCKER <span class="token operator">!</span> <span class="token operator">-</span>I docker0 <span class="token operator">-</span>p tcp <span class="token operator">-</span>m tcp <span class="token operator">-</span>dport <span class="token number">80</span> <span class="token operator">-</span>j DNAT <span class="token operator">-</span>to<span class="token operator">-</span>destination <span class="token number">172.17</span><span class="token number">.0</span><span class="token number">.2</span><span class="token operator">:</span><span class="token number">80</span>
+</code></pre>
+<br>
+<h3><a id="%09namespace_47"></a>（四）	namespace类型</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;前面使用Network Namespace实现了容器之间网络的隔离，其实namespace还有很多类型，可以实现多种资源的隔离：<br>
+<br></p>
+<h4><a id="1%09UTS_53"></a>1.	UTS</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;隔离主机名和域名。<br>
+<br></p>
+<h4><a id="2%09IPC_58"></a>2.	IPC</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;隔离信号量，消息队列和共享内存。<br>
+<br></p>
+<h4><a id="3%09PID_63"></a>3.	PID</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;隔离进程编号。</p>
+<br>
+<h4><a id="4%09NetWork_68"></a>4.	NetWork</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;隔离网络设备，网络栈，端口。<br>
+<br></p>
+<h4><a id="5%09Mount_73"></a>5.	Mount</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;隔离挂载点（文件系统）。<br>
+<br></p>
+<h4><a id="6%09User_78"></a>6.	User</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;隔离用户和用户组（内核版本要求3.8）。<br>
+<br></p>
+<h3><a id="%09Docker_83"></a>（五）	Docker网络模式的修改</h3>
+<h4><a id="1%09Docker_85"></a>1.	Docker进程网络修改</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Docker进程网络修改相当于Docker主程序的修改，后面的容器都会相应地进行修改。<br>
+<br></p>
+<h5><a id="1%09bbridge___91"></a>（1）	-b,–bridge = “”</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;指定Docker使用的网桥设备，由于默认Docker会自动创建和使用docker0网桥设备，通过此参数可以使用已经存在的网桥设备。<br>
+<br></p>
+<h5><a id="2%09bip_97"></a>（2）	--bip</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;指定Docker0的IP和掩码，使用标准的CIDR形式，如10.10.10.10/24，这个用于防止容器的IP冲突问题。</p>
+<br>
+<h5><a id="3%09dns_102"></a>（3）	--dns</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;配置容器的DNS服务，在启动Docker进程时添加，所有容器都会生效。<br>
+<br></p>
+<h4><a id="2%09_108"></a>2.	容器网络修改</h4>
+<h5><a id="1%09dns_110"></a>（1）	--dns</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;指定启动的容器的DNS<br>
+<br></p>
+<h5><a id="2%09net_116"></a>（2）	--net</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;指定容器的网络通讯方式，有以下四个值：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;bridge: Docker 默认方式，网桥模式，隔离化的容器间数据通信；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;none: 容器没有网络栈，只有回环网卡，即容器没有网络，用于特殊容器，如专门做计算的容器不需要网络，提高容器安全性；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;container: 使用其他容器的网络栈，Docker容器会加入其他容器的network namespace中，即直接与其他容器共用网络；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;host: 容器使用Host的网络，没有自己独立的网络栈，容器可以完全访问Host的网络，即容器将自己完全暴露给Host，Host可以直接访问容器中的服务，非常危险；<br>
+<br></p>
+<h4><a id="3%09_130"></a>3.	网桥模式下暴露端口</h4>
+<h5><a id="1%09p__132"></a>（1）	-p :容器端口</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;将指定的容器端口映射到主机所有地址的一个动态端口；<br>
+<br></p>
+<h5><a id="2%09p__138"></a>（2）	-p 主机端口:容器端口</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;将指定容器端口映射到指定的主机端口；<br>
+<br></p>
+<h5><a id="3%09p_IP_144"></a>（3）	-p 主机IP::容器端口</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;将指定容器端口映射到指定主机的动态端口；<br>
+<br></p>
+<h5><a id="4%09p_IP_150"></a>（4）	-p 主机IP:主机端口:容器端口</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;将指定容器端口映射到指定主机的指定端口；<br>
+<br></p>
+<h5><a id="5%09P_155"></a>（5）	-P（大写）</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;暴露所需要的所有端口给主机；</p>
+<br>
+<h4><a id="4%09_160"></a>4.	查看容器当前映射关系</h4>
+<p>使用如下命令：</p>
+<pre><code class="prism language-cpp">docker port ContainerName
+</code></pre>
+<br>
+<h4><a id="5%09docker0_169"></a>5.	修改docker0网桥的配置</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在/etc/docker/daemon.json文件中存储的就是docker0网桥的配置，我们可以对它进行修改。</p>
+<br>
+<h3><a id="%09_175"></a>（六）	常见隔离方式</h3>
+<h4><a id="1%09_177"></a>1.	基础命令</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;查看当前可用的网络空间</p>
+<pre><code class="prism language-cpp">docker network ls
+</code></pre>
+<pre><code class="prism language-cpp">docker network create <span class="token operator">-</span>d 类型 网络空间名称
+</code></pre>
+<p>类型有<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;overlay network: 使不同主机的容器实现通信；<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;bridge network: 网桥通信</p>
+<p>如：</p>
+<pre><code class="prism language-cpp">docker network create <span class="token operator">-</span>d bridge lamp
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;创建了一个名为lamp的网桥命名空间</p>
+<br>
+<h4><a id="2%09_203"></a>2.	通过网络命名空间隔离容器</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;要使用该网络命名空间，可在运行容器时设置  --network=lamp即可，表示使用lamp这个网络命名空间。如果我们要让两个容器之间相互隔离，就让它们运行在不同的网络命名空间中即可。</p>
+</div>
+</body>
+
+</html>

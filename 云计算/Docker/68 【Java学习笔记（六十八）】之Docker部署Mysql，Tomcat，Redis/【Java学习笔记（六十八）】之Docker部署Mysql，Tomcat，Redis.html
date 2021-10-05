@@ -1,0 +1,89 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Java学习笔记（六十八）】之Docker部署Mysql，Tomcat，Redis</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09DockerMysql_7"></a>一．	Docker部署Mysql</h2>
+<h3><a id="%09_8"></a>（一）	需求分析</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在Docker容器中部署Mysql，并通过外部的Mysql客户端操作Mysql Server。<br>
+<br></p>
+<h3><a id="%09_13"></a>（二）	端口映射</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;由于外部机器与容器不能直接通信，而外部机器与宿主机器是可以通信的，因此可以通过将容器中提供服务的端口映射到宿主机的端口上，当外部机器访问宿主机的该端口时，就能间接地访问容器的服务。这种操作称为端口映射。<br>
+<br></p>
+<h3><a id="%09_19"></a>（三）	部署步骤</h3>
+<h4><a id="1%09mysql_21"></a>1.	搜索mysql镜像</h4>
+<pre><code class="prism language-cpp">docker search mysql
+</code></pre>
+<br>
+<h4><a id="2%09mysql_30"></a>2.	拉取mysql镜像</h4>
+<pre><code class="prism language-cpp">docker pull mysql
+</code></pre>
+<br>
+<h4><a id="3%09_39"></a>3.	创建容器，设置端口映射，目录映射</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;首先创建宿主机的mysql目录：/root/mysql，进入mysql目录。</p>
+<pre><code class="prism language-cpp">mkdir <span class="token operator">/</span>root<span class="token operator">/</span>mysql
+cd <span class="token operator">/</span>root<span class="token operator">/</span>mysql
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;然后创建容器，-p参数表示设置端口映射，前面是宿主机的端口，后面是容器的端口， -v是映射目录，前面是宿主机数据卷，后面是容器目录；-e是设置容器环境，MYSQL_ROOT_PASSWORD初始化root用户的密码。</p>
+<pre><code class="prism language-cpp">docker run <span class="token operator">-</span>id  <span class="token operator">-</span>p <span class="token number">3307</span><span class="token operator">:</span><span class="token number">3306</span>  <span class="token operator">--</span>name<span class="token operator">=</span>c_mysql  <span class="token operator">-</span>v $PWD<span class="token operator">/</span>conf<span class="token operator">:</span><span class="token operator">/</span>etc<span class="token operator">/</span>mysql<span class="token operator">/</span>conf<span class="token punctuation">.</span>d  <span class="token operator">-</span>v $PWD<span class="token operator">/</span>logs<span class="token operator">:</span><span class="token operator">/</span>logs  <span class="token operator">-</span>v $PWD<span class="token operator">/</span>data<span class="token operator">:</span><span class="token operator">/</span>var<span class="token operator">/</span>lib<span class="token operator">/</span>mysql  <span class="token operator">-</span>e MYSQL_ROOT_PASSWORD<span class="token operator">=</span><span class="token number">123456</span>  mysql
+</code></pre>
+<br>
+<h4><a id="4%09Mysql_56"></a>4.	进入容器，操作Mysql</h4>
+<pre><code class="prism language-cpp">docker exec <span class="token operator">-</span>it c_mysql <span class="token operator">/</span>bin<span class="token operator">/</span>bash
+</code></pre>
+<br>
+<h4><a id="5%09mysql_65"></a>5.	登录mysql</h4>
+<pre><code class="prism language-cpp">mysql <span class="token operator">-</span>uroot <span class="token operator">-</span>p123456
+</code></pre>
+<br>
+<h4><a id="6%093307_74"></a>6.	在本地机器中连接宿主机3307端口</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;连接宿主机的3307端口，就映射到了容器的3306端口，那么就是直接操作容器的mysql了，这样，就实现了外部机器与容器之间的通信。</p>
+<br>
+<h2><a id="%09DockerTomcat_81"></a>二．	Docker部署Tomcat</h2>
+<h3><a id="%09Tomcat_82"></a>（一）	搜索Tomcat镜像</h3>
+<pre><code class="prism language-cpp">docker search tomcat
+</code></pre>
+<br>
+<h3><a id="%09_91"></a>（二）	拉取镜像</h3>
+<pre><code class="prism language-cpp">docker pull tomcat
+</code></pre>
+<br>
+<h3><a id="%09_100"></a>（三）	创建容器，设置端口映射，目录映射</h3>
+<pre><code class="prism language-cpp">mkdir <span class="token operator">/</span>root<span class="token operator">/</span>tomcat
+cd <span class="token operator">/</span>root<span class="token operator">/</span>tomcat
+</code></pre>
+<pre><code class="prism language-cpp">docker run <span class="token operator">-</span>id <span class="token operator">--</span>name<span class="token operator">=</span>c_tomcat <span class="token operator">-</span>p <span class="token number">8080</span><span class="token operator">:</span><span class="token number">8080</span> <span class="token operator">-</span>v $PWD<span class="token operator">:</span><span class="token operator">/</span>usr<span class="token operator">/</span>local<span class="token operator">/</span>tomcat<span class="token operator">/</span>webapps tomcat
+</code></pre>
+<br>
+<h2><a id="%09Docker_Redis_115"></a>三．	Docker 部署Redis</h2>
+<h3><a id="%09Redis_116"></a>（一）	搜索Redis镜像</h3>
+<pre><code class="prism language-cpp">docker search redis
+</code></pre>
+<br>
+<h3><a id="%09Redis_125"></a>（二）	拉取Redis镜像</h3>
+<pre><code class="prism language-cpp">docker pull redis
+</code></pre>
+<br>
+<h3><a id="%09_134"></a>（三）	创建容器，设置端口映射</h3>
+<pre><code class="prism language-cpp">docker run <span class="token operator">-</span>id <span class="token operator">--</span>name<span class="token operator">=</span>c_redis <span class="token operator">-</span>p <span class="token number">6379</span><span class="token operator">:</span><span class="token number">6379</span> redis
+</code></pre>
+<br>
+<h3><a id="%09Redis_143"></a>（四）	使用外部机器连接Redis</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在本地机器中进入Redis目录中，使用如下命令连接宿主机的端口。</p>
+<pre><code class="prism language-cpp">redis<span class="token operator">-</span>cli<span class="token punctuation">.</span>ext <span class="token operator">-</span>h <span class="token number">192.168</span><span class="token number">.000</span><span class="token number">.000</span> <span class="token operator">-</span>p <span class="token number">6379</span>
+</code></pre>
+</div>
+</body>
+
+</html>

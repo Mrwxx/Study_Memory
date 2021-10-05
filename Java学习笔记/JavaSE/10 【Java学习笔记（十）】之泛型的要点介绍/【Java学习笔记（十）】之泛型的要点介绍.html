@@ -1,0 +1,135 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Java学习笔记（十）】之泛型的要点介绍</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="_7"></a>一．泛型</h2>
+<h3><a id="_8"></a>（一）概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 本质是参数化类型，将所操作的数据类型指定为一个参数。<strong>即将数据类型都抽象为一个参数T，在使用时传入具体的数据类型，如String,int等等…</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 这种参数类型可以用在类，方法和接口中，分别称为<strong>泛型类，泛型方法，泛型接口</strong>。</p>
+<br>
+<h3><a id="_16"></a>（二）定义格式</h3>
+<br>
+<p>&lt;类型&gt;：指定一种类型的格式</p>
+<p>&lt;类型1，类型2&gt;：指定多种类型的格式<br>
+<br></p>
+<h3><a id="_24"></a>（三）优点</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 将运行时期的异常提前到了编译时期。</p>
+<br>
+<h2><a id="_29"></a>二．泛型类</h2>
+<h3><a id="_30"></a>（一）格式</h3>
+<pre><code class="prism language-java">修饰符 <span class="token keyword">class</span> 类名<span class="token operator">&lt;</span>类型<span class="token operator">&gt;</span> <span class="token punctuation">{</span> <span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h3><a id="_37"></a>（二）示例</h3>
+<pre><code class="prism language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Generic</span><span class="token generics function"><span class="token punctuation">&lt;</span>T<span class="token punctuation">&gt;</span></span> <span class="token punctuation">{</span>
+  <span class="token keyword">private</span> T t<span class="token punctuation">;</span>
+  <span class="token keyword">public</span> T <span class="token function">getT</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> t<span class="token punctuation">;</span>
+ <span class="token punctuation">}</span>
+  <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">setT</span><span class="token punctuation">(</span>T t<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>t <span class="token operator">=</span> t<span class="token punctuation">;</span>
+ <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; <strong>把T作为某种数据类型的参数，代表着某种数据类型。在成员方法中也是使用同样的参数T作为某种数据类型。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 当我们调用该泛型类时，传入的数据类型就是T的实参，所有的成员中的T就自动换成了该数据类型。</p>
+<br>
+<h2><a id="__58"></a>三． 泛型方法</h2>
+<h3><a id="_59"></a>（一）格式</h3>
+<pre><code class="prism language-java">修饰符 <span class="token operator">&lt;</span>类型<span class="token operator">&gt;</span> 返回值类型 方法名<span class="token punctuation">(</span>类型 变量名<span class="token punctuation">)</span> <span class="token punctuation">{</span> <span class="token punctuation">}</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; <strong>在普通的方法格式前面加上&lt;类型&gt;，表示传入调用该方法时传入的数据类型。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 泛型方法可以用于普通类中，只在调用该泛型方法时可以传入各种数据类型，而创建类对象时不用声明类型。<br>
+<br></p>
+<h3><a id="_71"></a>（二）示例</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 带有泛型方法的普通类<br>
+<br></p>
+<pre><code class="prism language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Generic</span> <span class="token punctuation">{</span>
+  <span class="token keyword">public</span> <span class="token generics function"><span class="token punctuation">&lt;</span>T<span class="token punctuation">&gt;</span></span> <span class="token keyword">void</span> <span class="token function">show</span><span class="token punctuation">(</span>T t<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>t<span class="token punctuation">)</span><span class="token punctuation">;</span>
+ <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h2><a id="_86"></a>四．泛型接口</h2>
+<h3><a id="_87"></a>（一）格式</h3>
+<pre><code class="prism language-java">修饰符 <span class="token keyword">interface</span> 接口名<span class="token operator">&lt;</span>类型<span class="token operator">&gt;</span> <span class="token punctuation">{</span> <span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h3><a id="_94"></a>（二）示例</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 接口不像类那样，可以直接创建对象，而是需要实现类来实现接口，因此，<strong>定义泛型接口还需要定义泛型接口的实现类。</strong><br>
+<br></p>
+<h4><a id="1%09_98"></a>1.	泛型接口</h4>
+<pre><code class="prism language-java"><span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">Generic</span><span class="token generics function"><span class="token punctuation">&lt;</span>T<span class="token punctuation">&gt;</span></span> <span class="token punctuation">{</span>
+  <span class="token keyword">void</span> <span class="token function">show</span><span class="token punctuation">(</span>T t<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h4><a id="2%09_108"></a>2.	泛型接口的实现类</h4>
+<pre><code class="prism language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">GenericImpl</span><span class="token generics function"><span class="token punctuation">&lt;</span>T<span class="token punctuation">&gt;</span></span> <span class="token keyword">implements</span> <span class="token class-name">Generic</span><span class="token generics function"><span class="token punctuation">&lt;</span>T<span class="token punctuation">&gt;</span></span> <span class="token punctuation">{</span>
+  <span class="token annotation punctuation">@Override</span>
+  <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">show</span><span class="token punctuation">(</span>T t<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>t<span class="token punctuation">)</span><span class="token punctuation">;</span>
+ <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 注意：实现类的参数也都是T。</p>
+<br>
+<h2><a id="_123"></a>五．类型通配符</h2>
+<h3><a id="_124"></a>（一）定义</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; <strong>类型通配符用于表示各种泛型List。</strong><br>
+<br></p>
+<h3><a id="_128"></a>（二）分类</h3>
+<h4><a id="1___129"></a>1. 类型通配符 &lt;?&gt;</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; List&lt;?&gt;：表示元素类型未知的List，它可以匹配任何数据类型<br>
+<br></p>
+<h4><a id="2%09__extends__133"></a>2.	类型通配符上限： &lt;? extends 类型&gt;</h4>
+<p>如：<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp; List&lt;? extends Number&gt; :表示的类型是Number或者其子类型。</p>
+<p><strong>理解： extends关键字用于继承，则？的类型继承的是Number类型，则一定是Number类型或者子类型。</strong><br>
+<br></p>
+<pre><code class="prism language-java"> List<span class="token operator">&lt;</span><span class="token operator">?</span> <span class="token keyword">extends</span> <span class="token class-name">Number</span><span class="token operator">&gt;</span> list <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ArrayList</span><span class="token generics function"><span class="token punctuation">&lt;</span>Integer<span class="token punctuation">&gt;</span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h4><a id="3%09__super__147"></a>3.	类型通配符下限： &lt;? super 类型&gt;</h4>
+<p>如：<br>
+List&lt;? super Number&gt; :表示的类型是Number或者其父类型</p>
+<p>理解：与extends相对记忆。</p>
+<pre><code class="prism language-java">List<span class="token operator">&lt;</span><span class="token operator">?</span> <span class="token keyword">super</span> Number<span class="token operator">&gt;</span> list <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ArrayList</span><span class="token generics function"><span class="token punctuation">&lt;</span>Object<span class="token punctuation">&gt;</span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h2><a id="_160"></a>六．可变参数</h2>
+<h3><a id="_161"></a>（一）定义</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; <strong>参数的个数是可变的，用作方法的参数个数可变，称为可变参数。</strong><br>
+<br></p>
+<h3><a id="_165"></a>（二）格式</h3>
+<pre><code class="prism language-java">修饰符 返回值类型 方法名<span class="token punctuation">(</span>数据类型… 变量名<span class="token punctuation">)</span> <span class="token punctuation">{</span> <span class="token punctuation">}</span>
+</code></pre>
+<p>示例：</p>
+<pre><code class="prism language-java"><span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">int</span> <span class="token function">sum</span><span class="token punctuation">(</span><span class="token keyword">int</span>…a<span class="token punctuation">)</span><span class="token punctuation">{</span><span class="token punctuation">}</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 基本的格式与普通方法一样，只是在参数位置处有三个点…，表示可变参数。<br>
+<br></p>
+<h3><a id="_181"></a>（三）注意事项</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 传入的可变参数保存到数组a中。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 如果一个方法不止有可变参数，还有其他参数，则可变参数要放在最后面。</p>
+<p>如下所示：</p>
+<pre><code class="prism language-java"><span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">int</span> <span class="token function">sum</span><span class="token punctuation">(</span><span class="token keyword">int</span> b<span class="token punctuation">,</span> <span class="token keyword">int</span> …a<span class="token punctuation">)</span><span class="token punctuation">{</span><span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

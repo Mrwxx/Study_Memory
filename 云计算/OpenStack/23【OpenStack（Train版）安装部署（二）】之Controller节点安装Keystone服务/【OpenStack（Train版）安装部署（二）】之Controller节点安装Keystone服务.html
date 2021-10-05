@@ -1,0 +1,246 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【OpenStack（Train版）安装部署（二）】之Controller节点安装Keystone服务</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><p></p><div class="toc"><h3>文章目录</h3><ul><ul><li><a href="#_1">本文章由公号【开发小鸽】发布！欢迎关注！！！</a></li><li><a href="#Keystone_9">（一）安装Keystone认证服务</a></li><ul><li><a href="#1keystone_10">1.创建keystone数据库并授权</a></li><li><a href="#2_keystone_36">2. 安装keystone软件包</a></li><li><a href="#3__47">3. 修改配置文件</a></li><li><a href="#4__98">4. 填充数据库</a></li><li><a href="#5apache_122">5.修改apache配置</a></li><li><a href="#6keystonekeystonecatalog_160">6.初始化keystone(本质就是在为keystone创建catalog)</a></li><li><a href="#7_184">7.初始化环境变量</a></li><li><a href="#8_250">8.创建测试用项目，角色，用户</a></li><li><a href="#9service_302">9.创建后续组件测试的项目service</a></li><li><a href="#9token_324">9.为各种用户申请令牌token</a></li><li><a href="#10_362">10.为不同用户定义用户信息脚本</a></li></ul></ul></ul></div><p></p>
+<h2><a id="_1"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="Keystone_9"></a>（一）安装Keystone认证服务</h2>
+<h3><a id="1keystone_10"></a>1.创建keystone数据库并授权</h3>
+<p>登录root用户</p>
+<pre><code class="prism language-cpp">mysql <span class="token operator">-</span>uroot 	
+</code></pre>
+<p>创建数据库keystone</p>
+<pre><code class="prism language-cpp">CREATE DATABASE keystone<span class="token punctuation">;</span> 	
+</code></pre>
+<p>给keystone数据库的所有表赋予权限，keystone用户在本地命令行或远程登录模式下有所有权限，注意密码是‘KEYSTONE_DBPASS’</p>
+<pre><code class="prism language-cpp">GRANT ALL PRIVILEGES ON keystone<span class="token punctuation">.</span><span class="token operator">*</span> TO <span class="token string">'keystone'</span>@<span class="token string">'localhost'</span> IDENTIFIED BY <span class="token string">'KEYSTONE_DBPASS'</span><span class="token punctuation">;</span> 	
+</code></pre>
+<pre><code class="prism language-cpp">GRANT ALL PRIVILEGES ON keystone<span class="token punctuation">.</span><span class="token operator">*</span> TO <span class="token string">'keystone'</span>@<span class="token string">'%'</span> IDENTIFIED BY <span class="token string">'KEYSTONE_DBPASS'</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h3><a id="2_keystone_36"></a>2. 安装keystone软件包</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; keystone软件包名是openstack-keystone，安装httpd和mod_wsgi的原因是，社区主推的组合是apache+keystone。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; openstack-keystone本质就是一款基于wsgi协议的web app,而httpd本质就是一个兼容wsgi协议的web server，所以我们需要为httpd安装mod_wsgi模块</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># yum install openstack<span class="token operator">-</span>keystone httpd mod_wsgi
+</code></pre>
+<br>
+<h3><a id="3__47"></a>3. 修改配置文件</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 复制keystone的配置文件到.bak文件中</p>
+<pre><code class="prism language-cpp">cp <span class="token operator">-</span>a <span class="token operator">/</span>etc<span class="token operator">/</span>keystone<span class="token operator">/</span>keystone<span class="token punctuation">.</span>conf<span class="token punctuation">{</span><span class="token punctuation">,</span><span class="token punctuation">.</span>bak<span class="token punctuation">}</span> 	
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 从.bak文件中搜索出相应的配置信息到conf文件中，精简conf配置文件</p>
+<pre><code class="prism language-cpp">grep <span class="token operator">-</span>Ev <span class="token string">"^$|#"</span> <span class="token operator">/</span>etc<span class="token operator">/</span>keystone<span class="token operator">/</span>keystone<span class="token punctuation">.</span>conf<span class="token punctuation">.</span>bak <span class="token operator">&gt;</span> <span class="token operator">/</span>etc<span class="token operator">/</span>keystone<span class="token operator">/</span>keystone<span class="token punctuation">.</span>conf
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 安装openstack-utils工具</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># yum install <span class="token operator">-</span>y openstack<span class="token operator">-</span>utils	
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 让openstack-keystone能够知道如何连接到后端的数据库keystone；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; mysql+pymysql：pymysql是一个python库，使用python可以操作mysql原生sql；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 在keystone配置文件中设置keystone数据库连接的密码（具体可以查询keystone.conf配置文件），其实就是修改keystone.conf配置文件。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 格式： 用户名:密码@mysql地址/哪个库</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 注意在mysql数据库中创建密码的时候加上了引号“123”而在配置文件中不要加上引号，不然会报错。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 注意，地址写IP地址，不要写controller</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>keystone<span class="token operator">/</span>keystone<span class="token punctuation">.</span>conf database connection mysql<span class="token operator">+</span>pymysql<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span>keystone<span class="token operator">:</span>KEYSTONE_DBPASS@<span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">/</span>keystone
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 在keystone配置文件中设置token令牌</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>keystone<span class="token operator">/</span>keystone<span class="token punctuation">.</span>conf token provider fernet
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 可能有的时候大家在部署的时候会遇到报错，怎么办，各位遇到了不要慌，在log日志中查看报错的问题是什么。</p>
+<pre><code class="prism language-cpp">tail <span class="token operator">-</span>f <span class="token operator">-</span>n <span class="token number">20</span> <span class="token operator">/</span>var<span class="token operator">/</span>log<span class="token operator">/</span>keystone<span class="token operator">/</span>keystone<span class="token punctuation">.</span>log
+</code></pre>
+<br>
+<h3><a id="4__98"></a>4. 填充数据库</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; su命令即作为root执行命令，-s 表示运行shell，-c表示运行shell命令，最后的keystone表示keystone用户。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 这条命令的作用就是初始化数据库，之所以要初始化，是因为python的orm对象关系映射，需要初始化来生成数据库表结构。什么是orm（Object Relation Mapping）的缩写叫对象关系映射。</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># su <span class="token operator">-</span>s <span class="token operator">/</span>bin<span class="token operator">/</span>sh <span class="token operator">-</span>c <span class="token string">"keystone-manage db_sync"</span> keystone
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 在这一步之后，去keystone数据库查看，如果数据库初始化成功会生成很多数据表：</p>
+<p><img src="https://img-blog.csdnimg.cn/20210620170718855.png" alt="在这里插入图片描述"></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 初始化Fernet密钥存储库 这是新版本的OpenStack的新功能，在Train版本下，keystone不再使用简单的字符串作为临时token，而是使用下面创建的fernet的用户来运行keystone。同时，keystone也不再对管理员用户和普通用户的服务端点区分使用不同的端口5000和35357，而是只使用5000端口不再使用35357端口。</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># keystone<span class="token operator">-</span>manage fernet_setup <span class="token operator">--</span>keystone<span class="token operator">-</span>user keystone <span class="token operator">--</span>keystone<span class="token operator">-</span>group keystone
+<span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># keystone<span class="token operator">-</span>manage credential_setup <span class="token operator">--</span>keystone<span class="token operator">-</span>user keystone <span class="token operator">--</span>keystone<span class="token operator">-</span>group keystone
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 上面的两个步骤是keystone对自己授权的一个过程，创建了一个keystone用户与一个keystone组。并对这个用户和组授权。因为keystone是对其他组件认证的服务，那么它自己就合格么？所以它先要对自己进行一下认证。<br>
+<br></p>
+<h3><a id="5apache_122"></a>5.修改apache配置</h3>
+<p>修改主机名，方便操作</p>
+<pre><code class="prism language-cpp">hostnamectl set<span class="token operator">-</span>hostname controller
+</code></pre>
+<p>配置hosts</p>
+<pre><code class="prism language-cpp"><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span> controller
+</code></pre>
+<p>修改httpd服务器配置</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># echo <span class="token string">"ServerName controller"</span> <span class="token operator">&gt;&gt;</span> <span class="token operator">/</span>etc<span class="token operator">/</span>httpd<span class="token operator">/</span>conf<span class="token operator">/</span>httpd<span class="token punctuation">.</span>conf
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 创建wsgi配置文件软链接 ，为mod_wsgi模块添加配置文件，直接拷贝模块文件或者做软连接都可以，<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp; wsgi：apache关于mod_wsgi模块的配置文件<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp; keystone：用来连接keystone</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># ln <span class="token operator">-</span>s <span class="token operator">/</span>usr<span class="token operator">/</span>share<span class="token operator">/</span>keystone<span class="token operator">/</span>wsgi<span class="token operator">-</span>keystone<span class="token punctuation">.</span>conf <span class="token operator">/</span>etc<span class="token operator">/</span>httpd<span class="token operator">/</span>conf<span class="token punctuation">.</span>d<span class="token operator">/</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; wsgi-keystone.conf文件中的500端口说明keystone要开放这个端口，apache才能把请求交给keystone</p>
+<p>启动和开机自启动apache</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># systemctl enable httpd<span class="token punctuation">.</span>service 
+<span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># systemctl start httpd<span class="token punctuation">.</span>service
+</code></pre>
+<br>
+<h3><a id="6keystonekeystonecatalog_160"></a>6.初始化keystone(本质就是在为keystone创建catalog)</h3>
+<p>注意，将controller都修改为IP地址</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 接下来就是初始化keystone的操作，官方最新给出了一个框架叫做Bootsrap能够直接完成初始化操作：</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># keystone<span class="token operator">-</span>manage bootstrap <span class="token operator">--</span>bootstrap<span class="token operator">-</span>password ADMIN_PASS \ #设置keystone对自己进行认证的密码
+<span class="token operator">--</span>bootstrap<span class="token operator">-</span>admin<span class="token operator">-</span>url http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">5000</span><span class="token operator">/</span>v3<span class="token operator">/</span> \	#admin用户访问的端点
+<span class="token operator">--</span>bootstrap<span class="token operator">-</span>internal<span class="token operator">-</span>url http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">5000</span><span class="token operator">/</span>v3<span class="token operator">/</span> \	#内部访问的端点
+<span class="token operator">--</span>bootstrap<span class="token operator">-</span><span class="token keyword">public</span><span class="token operator">-</span>url http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">5000</span><span class="token operator">/</span>v3<span class="token operator">/</span> \	#外部访问的端点
+<span class="token operator">--</span>bootstrap<span class="token operator">-</span>region<span class="token operator">-</span>id RegionOne
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 为keystone创建catalog，基于前两步给的权限，创建认证服务实体，基于建立的服务实体，创建访问该实体的三个api端点：public, internal, admin三个端点，用于外部，内部以及admin用户访问。<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp; 可以从keystone数据库中查看当前keystone的各种信息，如当前的Keystone service服务ID：<br>
+<img src="https://img-blog.csdnimg.cn/20210620170929663.png" alt="在这里插入图片描述"></p>
+<p>也可以查询出当前keystone的所有endpoint端点：<br>
+<img src="https://img-blog.csdnimg.cn/20210620170935462.png" alt="在这里插入图片描述"></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 可以看见上面三个端点的service_id一样，且和之前我们查询出来的一样，则说明他们是属于一个服务的Endpoint 。<br>
+<br></p>
+<h3><a id="7_184"></a>7.初始化环境变量</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 在openstack中最大的资源集合就是域—&gt;项目(租户)—&gt;用户—&gt;角色</p>
+<p>创建一个默认的域“default” ；<br>
+创建admin项目 在“default”域中；<br>
+创建admin用户 在“default”域中；<br>
+创建admin角色；<br>
+创建上述三者的关联，不关联用户无法使用</p>
+<p>同样，要将controller转换为IP地址</p>
+<p>配置当前的环境变量：</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># cat <span class="token operator">&gt;&gt;</span> <span class="token operator">~</span><span class="token operator">/</span><span class="token punctuation">.</span>bashrc <span class="token operator">&lt;&lt;</span> <span class="token constant">EOF</span>
+<span class="token keyword">export</span> OS_USERNAME<span class="token operator">=</span>admin 
+<span class="token keyword">export</span> OS_PASSWORD<span class="token operator">=</span>ADMIN_PASS 	#就是keystone<span class="token operator">-</span>manage中设定的<span class="token operator">--</span>bootstrap<span class="token operator">-</span>password
+<span class="token keyword">export</span> OS_PROJECT_NAME<span class="token operator">=</span>admin 	#项目名　project <span class="token operator">&lt;</span><span class="token operator">--</span> 用户 <span class="token operator">&lt;</span><span class="token operator">--</span>角色  若想让用户获取权限必须要指定用户所在的项目是哪个
+<span class="token keyword">export</span> OS_USER_DOMAIN_NAME<span class="token operator">=</span>Default 	#默认域
+<span class="token keyword">export</span> OS_PROJECT_DOMAIN_NAME<span class="token operator">=</span>Default 	#项目所在的域
+<span class="token keyword">export</span> OS_AUTH_URL<span class="token operator">=</span>http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">5000</span><span class="token operator">/</span>v3 #认证url
+<span class="token keyword">export</span> OS_IDENTITY_API_VERSION<span class="token operator">=</span><span class="token number">3</span> #指定版本信息为<span class="token number">3</span>
+<span class="token constant">EOF</span>
+</code></pre>
+<p>source命令用法</p>
+<pre><code class="prism language-cpp">source FileName
+</code></pre>
+<p>source命令作用<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp; 在当前bash环境下读取并执行FileName中的命令。<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp; *注：该命令通常用命令“.”来替代。</p>
+<p>读取刚刚更新的.bashrc文件</p>
+<pre><code class="prism language-cpp"><span class="token punctuation">[</span>root@controller <span class="token operator">~</span><span class="token punctuation">]</span># source <span class="token operator">~</span><span class="token operator">/</span><span class="token punctuation">.</span>bashrc  
+</code></pre>
+<p>验证初始化操作成功：<br>
+<img src="https://img-blog.csdnimg.cn/20210620171120522.png" alt="在这里插入图片描述"></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 查询所有的角色role，可以看到，当前有三种角色。：<br>
+<img src="https://img-blog.csdnimg.cn/20210620171132712.png" alt="在这里插入图片描述"></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 查询当前的角色role分配：<br>
+<img src="https://img-blog.csdnimg.cn/20210620171139643.png" alt="在这里插入图片描述"></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 可以看到，当前只有admin用户进行了分配，分配给了用户尾号为1c2bed的用户。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 查询当前所有的用户user：<br>
+<img src="https://img-blog.csdnimg.cn/20210620171145384.png" alt="在这里插入图片描述"></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 可以看到，与上面查询role分配是匹配的，只有一个尾号为1c2bed的用户admin。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 这些数据都是从keystone数据库中查询出来的，对应着keystone数据库中的多个表，分别是role表，user表，project表等。</p>
+<br>
+<h3><a id="8_250"></a>8.创建测试用项目，角色，用户</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 创建用于后期测试用的项目，用户，租户，建立关联　<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp; 创建项目名为demo</p>
+<pre><code class="prism language-cpp">openstack project create <span class="token operator">--</span>domain <span class="token keyword">default</span> \
+  <span class="token operator">--</span>description <span class="token string">"Demo Project"</span> demo
+</code></pre>
+<p><img src="https://img-blog.csdnimg.cn/20210620171424577.png" alt="在这里插入图片描述"></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 创建普通用户为demo 设置密码为123</p>
+<pre><code class="prism language-cpp">openstack user create <span class="token operator">--</span>domain <span class="token keyword">default</span> \
+  <span class="token operator">--</span>password<span class="token operator">-</span>prompt demo
+</code></pre>
+<p>之后会提示设置密码，设置密码为123<br>
+<img src="https://img-blog.csdnimg.cn/20210620171436855.png" alt="在这里插入图片描述"></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 创建普通用户的角色user</p>
+<pre><code class="prism language-cpp">openstack role create user
+</code></pre>
+<p><img src="https://img-blog.csdnimg.cn/20210620171450632.png" alt="在这里插入图片描述"></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 建立 项目demo，用户demo，角色user的关联：</p>
+<pre><code class="prism language-cpp">openstack role add <span class="token operator">--</span>project demo <span class="token operator">--</span>user demo user 
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 查询角色的分派情况：<br>
+<img src="https://img-blog.csdnimg.cn/20210620171504408.png" alt="在这里插入图片描述"></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 可以看到多了一个角色分派，角色尾号为fc96e5，用户尾号为a4902d；<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp; 继续查询角色list：<br>
+<img src="https://img-blog.csdnimg.cn/2021062017151314.png" alt="在这里插入图片描述"></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 可以看到，user角色的尾号为fc96e5，因此就是user角色的分派。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 注意，每次创建一个用户的过程都是这几个步骤。但是会少了一步创建角色的过程。因为用户就两个，一个是admin，另一个就是user（一个项目里可以有很多admin角色和user角色）注意.角色一定是在项目中。<br>
+<br></p>
+<h3><a id="9service_302"></a>9.创建后续组件测试的项目service</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 因为keystone是一个独立的授权组件，后面每搭建一个新的服务都需要在keystone中执行四种操作：1.建项目 2.建用户 3.建角色 4.做关联 并且创建catalog。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 这里将后面所有的服务（nova。glace等等）公用一个项目service，都是管理员角色admin（组件之间的通信都角色都是admin）。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 每一个组件，都要有一个访问用户，比如访问glance要有一个glance用户，还有一个角色，还要有一个关联。以后要部署glance，要在keystone中创建一个glance的catalog（service名/Endpoint）。还要有一个访问catalog的用户信息，这样的话还要创建一个域。但是现在已经有了一个默认的域 所以不需要再创建，域有了还要创建一个项目，但是现在项目也已经有了，service项目，所以不用创建了。只需要创建一个叫glance的用户就行了（一般组件叫什么名，用户就叫什么名）。还要创建一个角色，但是现在也不用创建，之前就有一个admin角色，使用admin用户就行。最后就只要做一个关联，以后每个组件都要这么做，就是说学会了keystone的部署，后面的组件也就部署好了</p>
+<p>创建项目service：</p>
+<pre><code class="prism language-cpp">openstack project create <span class="token operator">--</span>domain <span class="token keyword">default</span> <span class="token operator">--</span>description “Service Project” service  
+</code></pre>
+<p><img src="https://img-blog.csdnimg.cn/20210620171625718.png" alt="在这里插入图片描述"></p>
+<p>查看当前的项目：<br>
+<img src="https://img-blog.csdnimg.cn/20210620171630378.png" alt="在这里插入图片描述"></p>
+<br>
+<h3><a id="9token_324"></a>9.为各种用户申请令牌token</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 管理员用户admin申请token，这里不需要加上admin用户的密码ADMIN_PASS</p>
+<pre><code class="prism language-cpp">openstack <span class="token operator">--</span>os<span class="token operator">-</span>auth<span class="token operator">-</span>url http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">5000</span><span class="token operator">/</span>v3 \
+<span class="token operator">--</span>os<span class="token operator">-</span>identity<span class="token operator">-</span>api<span class="token operator">-</span>version <span class="token number">3</span>  \
+<span class="token operator">--</span>os<span class="token operator">-</span>project<span class="token operator">-</span>domain<span class="token operator">-</span>name <span class="token keyword">default</span> \
+<span class="token operator">--</span>os<span class="token operator">-</span>user<span class="token operator">-</span>domain<span class="token operator">-</span>name <span class="token keyword">default</span>   \
+<span class="token operator">--</span>os<span class="token operator">-</span>project<span class="token operator">-</span>name admin \
+<span class="token operator">--</span>os<span class="token operator">-</span>username admin \
+token issue
+</code></pre>
+<p><img src="https://img-blog.csdnimg.cn/20210620171712106.png" alt="在这里插入图片描述"></p>
+<p>项目是admin项目；<br>
+用户是admin；<br>
+令牌token的ID就是生成的；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 为普通用户demo申请token，注意这里我们之前为demo用户配置了密码123，因此需要加上配置项：</p>
+<pre><code class="prism language-cpp">openstack <span class="token operator">--</span>os<span class="token operator">-</span>auth<span class="token operator">-</span>url http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">5000</span><span class="token operator">/</span>v3 \
+<span class="token operator">--</span>os<span class="token operator">-</span>identity<span class="token operator">-</span>api<span class="token operator">-</span>version <span class="token number">3</span>  \
+<span class="token operator">--</span>os<span class="token operator">-</span>project<span class="token operator">-</span>domain<span class="token operator">-</span>name <span class="token keyword">default</span> \
+<span class="token operator">--</span>os<span class="token operator">-</span>user<span class="token operator">-</span>domain<span class="token operator">-</span>name <span class="token keyword">default</span>   \
+<span class="token operator">--</span>os<span class="token operator">-</span>project<span class="token operator">-</span>name demo \
+<span class="token operator">--</span>os<span class="token operator">-</span>username demo \
+<span class="token operator">--</span>os<span class="token operator">-</span>password <span class="token number">123</span> \
+token issue
+</code></pre>
+<p><img src="https://img-blog.csdnimg.cn/20210620171721629.png" alt="在这里插入图片描述"><br>
+<br></p>
+<h3><a id="10_362"></a>10.为不同用户定义用户信息脚本</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; Linux export 命令用于设置或显示环境变量。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 在 shell 中执行程序时，shell 会提供一组环境变量。export 可新增，修改或删除环境变量，供后续执行的程序使用。export 的效力仅限于该次登陆操作。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 定义好用户信息脚本之后，将对应用户执行对应用户的信息脚本，则该次登录的环境信息就是用户信息脚本中的信息，在执行openstack token issue时就可以直接调用了，不需要传入上面那么多的参数了。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 对于admin用户，在root用户目录下/root创建admin.sh脚本文件：</p>
+<pre><code class="prism language-cpp"><span class="token keyword">export</span> OS_PROJECT_DOMAIN_NAME<span class="token operator">=</span>Default
+<span class="token keyword">export</span> OS_USER_DOMAIN_NAME<span class="token operator">=</span>Default
+<span class="token keyword">export</span> OS_PROJECT_NAME<span class="token operator">=</span>admin
+<span class="token keyword">export</span> OS_USERNAME<span class="token operator">=</span>admin
+<span class="token keyword">export</span> OS_PASSWORD<span class="token operator">=</span>ADMIN_PASS
+<span class="token keyword">export</span> OS_AUTH_URL<span class="token operator">=</span>http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">5000</span><span class="token operator">/</span>v3
+<span class="token keyword">export</span> OS_IDENTITY_API_VERSION<span class="token operator">=</span><span class="token number">3</span>
+<span class="token keyword">export</span> OS_IMAGE_API_VERSION<span class="token operator">=</span><span class="token number">2</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 对于demo用户，在root用户目录/root中创建demo.sh脚本：</p>
+<pre><code class="prism language-cpp"><span class="token keyword">export</span> OS_PROJECT_DOMAIN_NAME<span class="token operator">=</span>Default
+<span class="token keyword">export</span> OS_USER_DOMAIN_NAME<span class="token operator">=</span>Default
+<span class="token keyword">export</span> OS_PROJECT_NAME<span class="token operator">=</span>demo
+<span class="token keyword">export</span> OS_USERNAME<span class="token operator">=</span>demo
+<span class="token keyword">export</span> OS_PASSWORD<span class="token operator">=</span><span class="token number">123</span>
+<span class="token keyword">export</span> OS_AUTH_URL<span class="token operator">=</span>http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">5000</span><span class="token operator">/</span>v3
+<span class="token keyword">export</span> OS_IDENTITY_API_VERSION<span class="token operator">=</span><span class="token number">3</span>
+<span class="token keyword">export</span> OS_IMAGE_API_VERSION<span class="token operator">=</span><span class="token number">2</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 针对不同的业务应该有不同的用户信息，也都应该定义成脚本形式，方便管理</p>
+</div>
+</body>
+
+</html>

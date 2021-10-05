@@ -1,0 +1,190 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Java学习笔记（五十）】之MyBatis的DAO层实现，动态SQL语句</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09MyBatisDAO_7"></a>一．	MyBatis的DAO层实现</h2>
+<h3><a id="%09_8"></a>（一）	传统方式</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 就是MVC思想的开发模式，只不过将MyBatis的使用放到DAO层的实现类中。<br>
+<br></p>
+<h4><a id="1%09DAO_14"></a>1.	创建DAO层的接口和实现类</h4>
+<p>接口：<br>
+<br></p>
+<pre><code class="prism language-java"><span class="token keyword">package</span> dao<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> domain<span class="token punctuation">.</span>User<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>io<span class="token punctuation">.</span>IOException<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>List<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">interface</span>  <span class="token class-name">UserMapper</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> List<span class="token generics function"><span class="token punctuation">&lt;</span>User<span class="token punctuation">&gt;</span></span> <span class="token function">findAll</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> IOException<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<p>实现类：<br>
+<br></p>
+<pre><code class="prism language-java"><span class="token keyword">package</span> dao<span class="token punctuation">.</span>impl<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> dao<span class="token punctuation">.</span>UserMapper<span class="token punctuation">;</span>
+<span class="token keyword">import</span> domain<span class="token punctuation">.</span>User<span class="token punctuation">;</span>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>io<span class="token punctuation">.</span>Resources<span class="token punctuation">;</span>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>session<span class="token punctuation">.</span>SqlSession<span class="token punctuation">;</span>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>session<span class="token punctuation">.</span>SqlSessionFactory<span class="token punctuation">;</span>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>session<span class="token punctuation">.</span>SqlSessionFactoryBuilder<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>io<span class="token punctuation">.</span>IOException<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>io<span class="token punctuation">.</span>InputStream<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>List<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserMapperImpl</span> <span class="token keyword">implements</span> <span class="token class-name">UserMapper</span> <span class="token punctuation">{</span>
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> List<span class="token generics function"><span class="token punctuation">&lt;</span>User<span class="token punctuation">&gt;</span></span> <span class="token function">findAll</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> IOException <span class="token punctuation">{</span>
+        InputStream resourceAsStream <span class="token operator">=</span> Resources<span class="token punctuation">.</span><span class="token function">getResourceAsStream</span><span class="token punctuation">(</span><span class="token string">"sqlMapConfig.xml"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        SqlSessionFactory sqlSessionFactory  <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">SqlSessionFactoryBuilder</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">build</span><span class="token punctuation">(</span>resourceAsStream<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        SqlSession sqlSession <span class="token operator">=</span> sqlSessionFactory<span class="token punctuation">.</span><span class="token function">openSession</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        List<span class="token generics function"><span class="token punctuation">&lt;</span>User<span class="token punctuation">&gt;</span></span> userList <span class="token operator">=</span> sqlSession<span class="token punctuation">.</span><span class="token function">selectList</span><span class="token punctuation">(</span><span class="token string">"userMapper.findALl"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> userList<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h4><a id="2%09ServiceDAO_74"></a>2.	在Service层中调用DAO层的实现类</h4>
+<br>
+<pre><code class="prism language-java"><span class="token keyword">package</span> service<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> dao<span class="token punctuation">.</span>UserMapper<span class="token punctuation">;</span>
+<span class="token keyword">import</span> dao<span class="token punctuation">.</span>impl<span class="token punctuation">.</span>UserMapperImpl<span class="token punctuation">;</span>
+<span class="token keyword">import</span> domain<span class="token punctuation">.</span>User<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>io<span class="token punctuation">.</span>IOException<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>List<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ServiceTest</span> <span class="token punctuation">{</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> IOException <span class="token punctuation">{</span>
+        UserMapperImpl userMapper <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">UserMapperImpl</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        List<span class="token generics function"><span class="token punctuation">&lt;</span>User<span class="token punctuation">&gt;</span></span> all <span class="token operator">=</span> userMapper<span class="token punctuation">.</span><span class="token function">findAll</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>all<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h3><a id="%09_103"></a>（二）	代理开发方式</h3>
+<h4><a id="1%09_104"></a>1.	代理开发方式规范</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; MyBatis实现DAO层的开发，可以使用代理开发的方式。<br>
+<br></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; Mapper接口开发方法只需要我们编写Mapper接口（相当于DAO接口），再由MyBatis框架根据接口的定义创建接口的动态代理对象。想要让MyBatis框架自动创建代理对象，那么Mapper接口开发就要遵循一定的规范：</p>
+<h5><a id="1%09namespaceMapper_112"></a>（1）	映射文件中的namespace与Mapper接口的全限定名相同</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 映射文件中每个mapper标签都有属性namespace，每个mapper对应一个Mapper接口，要想通过接口动态地使用映射文件中的SQL语句，那么对应的映射文件中的mapper标签的namespace就要改为Mapper接口的全限定名。<br>
+<br></p>
+<h5><a id="2%09Mapperstatementid_119"></a>（2）	Mapper接口方法名和映射文件中定义的每个statement的id相同</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; Mapper接口中的每个方法对应映射文件中的一个sql语句，而每个sql语句都由一个id对应，因此每个id应和Mapper接口中的对应方法名相同。<br>
+<br></p>
+<h5><a id="3%09MappersqlparameterType_126"></a>（3）	Mapper接口方法的输入参数类型和映射文件中定义的每个sql语句的parameterType属性的类型相同</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; Mapper接口中的方法的传入参数代表着要使用该参数，对应于映射文件中的sql语句就是要抽取实例对象中的参数，因此在映射文件中我们传入的是实例对象的类，使用parameterType属性来表示该实例对象。因此，Mapper接口方法的输入参数类型要和映射文件中的每个sql语句的parameterType的类型相同。<br>
+<br></p>
+<h5><a id="4%09MappersqlresultType_133"></a>（4）	Mapper接口方法的输出参数类型和映射文件中定义的每个sql的resultType的类型相同</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 同理，映射文件中sql语句的resutlType属性代表着要将数据封装成一个什么类型的对象，对应于Mapper接口方法，即输出什么类型的参数。<br>
+<br></p>
+<h4><a id="2%09_140"></a>2.	使用代理方式</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 当我们定义好了Mapper接口和对应的映射文件后，我们就可以来使用这种代理方式了，创建sqlSession的操作都是一样的，然后通过sqlSession对象的getMapper(Mapper.class)方法生成Mapper接口的代理对象，传入的参数为Mapper接口的字节码，之后就可以通过这个代理对象来调用各种自定义的接口中的方法了。</p>
+<pre><code class="prism language-java">UserMapper userMapper <span class="token operator">=</span> sqlSession<span class="token punctuation">.</span><span class="token function">getMapper</span><span class="token punctuation">(</span>UserMapper<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+User user <span class="token operator">=</span> userMapper<span class="token punctuation">.</span><span class="token function">findById</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<br>
+<h2><a id="%09MyBatisSQL_153"></a>二．	MyBatis的动态SQL语句</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 之前我们是将SQL语句硬编码在映射文件中，这在业务场景中是不合理的，使用动态地SQL语句是最高效的。如在id不为空时根据id查询，在username不为空时根据username查询。这种情况只有动态的SQL语句才能够实现。<br>
+<br></p>
+<h3><a id="%09_if__160"></a>（一）	&lt; if &gt;标签</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 在映射文件中，我们要将SQL语句的硬编码改为动态的SQL，因此就要使用条件判断。标签代表着如果的意思，其中的test属性表示测试。if标签的目的是判断条件，然后将符合条件的分支添加到SQL语句中，前面还有一个<code>&lt;where&gt;</code>标签。</p>
+<p>如：</p>
+<pre><code class="prism language-xml">&lt;if test=”id!=0”&gt;
+		and id=#{id}
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>if</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 表示如果id!=0，则id=#{id}<br>
+<br></p>
+<h3><a id="%09foreach_178"></a>（二）	foreach标签</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; foreach标签用于遍历集合，collection属性表示集合的类型，open属性表示动态sql语句的开始字段，close属性表示动态SQL语句的结束字段，item属性表示集合中每一项的名称， separator属性表示集合中的每项放到动态SQL语句中应该用什么符号分隔。</p>
+<p>如：</p>
+<pre><code class="prism language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>select</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span>”findByIds”</span> <span class="token attr-name">parameterType</span><span class="token attr-value"><span class="token punctuation">=</span>”list”</span> <span class="token attr-name">resultType</span><span class="token attr-value"><span class="token punctuation">=</span>”user”</span><span class="token punctuation">&gt;</span></span>
+		select * from user
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>where</span><span class="token punctuation">&gt;</span></span>
+	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>foreach</span> <span class="token attr-name">collection</span><span class="token attr-value"><span class="token punctuation">=</span>”list”</span> <span class="token attr-name">open</span><span class="token attr-value"><span class="token punctuation">=</span>”id</span> <span class="token attr-name">in(”</span> <span class="token attr-name">close</span><span class="token attr-value"><span class="token punctuation">=</span>”)”</span> <span class="token attr-name">item</span><span class="token attr-value"><span class="token punctuation">=</span>”id”</span> <span class="token attr-name">separator</span><span class="token attr-value"><span class="token punctuation">=</span>”,”</span><span class="token punctuation">&gt;</span></span>
+		#{id}
+	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>foreach</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>where</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>select</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 这段动态SQL语句表示传入的是一个集合元素，动态SQL语句的起始为 “id in(”，结束为”)”，每一项都是id，每一项在动态SQL中用”,”分隔开。<br>
+<br></p>
+<h3><a id="%09SQL_201"></a>（三）	SQL片段抽取</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 在业务中我们通常会写大量的重复SQL语句，为了减少工作量，可以将重复的SQL语句抽取出来，达到SQL重用的目的。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; sql标签抽取SQL语句，id属性为标识：</p>
+<pre><code class="prism language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>sql</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span>”selectUser”</span><span class="token punctuation">&gt;</span></span> select * from user<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>sql</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 当我们要使用这一字段时，通过include标签即可引用，将include标签代替原有的SQL语句即可，refid属性为该字段的id：</p>
+<pre><code class="prism language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>include</span> <span class="token attr-name">refid</span><span class="token attr-value"><span class="token punctuation">=</span>”selectUser”</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>include</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<h3><a id="%09typeHandlers_221"></a>（四）	typeHandlers标签</h3>
+<h4><a id="1%09_222"></a>1.	用途</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 无论是MyBatis在预处理语句中设置一个参数，还是从结果集中取出一个值，都会用类型处理器将获取的值以合适的方式转换成java类型。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; MyBatis默认有一些类型处理器，如BooleanTypeHandler，ByteTypeHandler，但是很多类型是没有默认的类型处理器的，需要我们自己来创建。<br>
+<br></p>
+<h4><a id="2%09_231"></a>2.	创建类型处理器</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 实现org.apache.ibatis.type.TypeHandler接口，或者继承类org.apache.ibatis.type.BaseTypeHandler，然后可以选择性地将它映射到一个JDBC类型中。<br>
+<br></p>
+<h4><a id="3%09_238"></a>3.	实例</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 一个Java中的Date数据类型，将它存到数据库时存成一个毫秒数，取出来时转换成Java的Date，即Java的Date与数据库的varchar毫秒数之间的转换。<br>
+<br></p>
+<p>步骤：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; （1）	定义转换类继承类BaseTypeHandler</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; （2）	覆盖4个未实现的方法，其中setNonNullParameter为Java程序设置数据到数据库的回调方法，getNullableResult为查询时mysql的字符串类型转换为java的Type类型的方法。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; （3）	在MyBatis核心配置文件中进行注册。在MyBatis的核心配置文件中注册类型处理器。<code>&lt;typeHandlers&gt;</code>标签代表多个类型处理器，<code>&lt;typeHandler&gt;</code>标签着一个类型处理器。属性handler为转换类的全限定名。</p>
+<pre><code class="prism language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>typeHandlers</span><span class="token punctuation">&gt;</span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>typeHandler</span> <span class="token attr-name">handler</span><span class="token attr-value"><span class="token punctuation">=</span>”com.mybatis.handler.DateTypeHandler”</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>typeHandler</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>typeHandlers</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<h3><a id="%09plugins_265"></a>（五）	plugins标签</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; plugins即插件，MyBatis可以使用第三方的插件来对功能进行拓展。如分页助手PageHelper是将分页的复杂操作进行封装，使用简单的方式即可获得分页的相关数据。</p>
+<p>步骤：</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 1.	导入通用PageHelper的坐标</p>
+<pre><code class="prism language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">&gt;</span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">&gt;</span></span>com.github.pagehelper<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">&gt;</span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">&gt;</span></span>pagehelper<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">&gt;</span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">&gt;</span></span>3.7.5<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">&gt;</span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">&gt;</span></span>com.github.jsqlparser<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">&gt;</span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">&gt;</span></span>jsqlparser<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">&gt;</span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">&gt;</span></span>0.9.1<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 2.	在MyBatis核心配置文件中配置PageHelper插件</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 在MyBatis的核心配置文件中，我们设置了plugins标签，其中可以添加多个plugin子标签，每个标签代表着一个插件，interceptor属性表示着该插件的全限定名。还可以为该插件设置参数，如dialcet方言参数，设置为mysql。因为各种sql语句的不同语法会有差异，因此设置为所使用的的数据库软件。</p>
+<pre><code class="prism language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>plugins</span><span class="token punctuation">&gt;</span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>plugin</span> <span class="token attr-name">interceptor</span><span class="token attr-value"><span class="token punctuation">=</span>”com.github.pagehelper.PageHelper”</span><span class="token punctuation">&gt;</span></span>
+			<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>property</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span>”dialect”</span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation">=</span>”mysql”</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>property</span><span class="token punctuation">&gt;</span></span>
+		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>plugin</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>plugins</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+</div>
+</body>
+
+</html>

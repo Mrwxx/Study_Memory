@@ -1,0 +1,555 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Java学习笔记（三十）】之JavaScript的简介，DOM，BOM以及事件的简介</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09JavaScript_7"></a>一．	JavaScript的简介</h2>
+<h3><a id="%09_8"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;一门客户端脚本语言，所谓的脚本语言指的是不需要编译的语言，可以直接被浏览器解析执行。<br>
+<br></p>
+<h3><a id="%09_13"></a>（二）	功能</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;增强用户与html页面的交互过程，控制html元素，让页面有动态的效果。</p>
+<br>
+<h2><a id="%09JavaScriptHTML_20"></a>二．	JavaScript与HTML的结合方式</h2>
+<h3><a id="%09htmljs_21"></a>（一）	在html内部定义js</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在html中定义</p><h3><a id="%09jsHTML_27"></a>（二）	定义js文件，导入HTML中</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;定义js文件，在HTML中用</p><br>
+<h2><a id="%09JavaScript_34"></a>三．	JavaScript的数据类型</h2>
+<h3><a id="%09_35"></a>（一）	基本数据类型</h3>
+<h4><a id="1%09number_36"></a>1.	number</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;数字类型，分为整数，小数，NaN（非数字）<br>
+<br></p>
+<h4><a id="2%09string_42"></a>2.	string</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;字符串类型，用双引号引起来。<br>
+<br></p>
+<h4><a id="3%09Boolean_48"></a>3.	Boolean</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;布尔类型，true和false。<br>
+<br></p>
+<h4><a id="4%09null_54"></a>4.	null</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;一个对象为空的占位符<br>
+<br></p>
+<h4><a id="5%09undefined_60"></a>5.	undefined</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;如果一个变量没有被初始化，则被默认赋值为undefined。<br>
+<br></p>
+<h2><a id="%09JavaScript_67"></a>四．	JavaScript变量</h2>
+<h3><a id="%09_68"></a>（一）	强类型语言</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;强类型语言在开辟变量存储空间时，定义了空间将来存储数据的数据类型，只能存储固定类型的数据。如Java<br>
+<br></p>
+<h3><a id="%09_74"></a>（二）	弱类型语言</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在开辟变量存储空间时，不定义空间要存储数据的数据类型，可以存放任意数据类型<br>
+<br></p>
+<h3><a id="%09_80"></a>（三）	变量语法</h3>
+<pre><code class="prism language-html">var 变量名 = 初始化值；
+</code></pre>
+<br>
+<h2><a id="%09_89"></a>五．	函数对象</h2>
+<h3><a id="_90"></a>（一）创建函数</h3>
+<pre><code class="prism language-html">function 方法名称(形参){
+		方法体
+}
+</code></pre>
+<br>
+<h3><a id="_101"></a>（二）特点</h3>
+<ol>
+<li>
+<p>方法定义的形参类型不用写，返回值类型也不用写</p>
+</li>
+<li>
+<p>方法是一个对象，如果定义名称相同的方法，前面的方法会被覆盖</p>
+</li>
+<li>
+<p>在方法声明中有一个内置数组arguments存储所有的实参</p>
+</li>
+</ol>
+<br>
+<h2><a id="%09DOM_112"></a>六．	DOM</h2>
+<h3><a id="%09_113"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Document Object Model，文档对象模型。将标记语言文档的各个组成部分，封装为对象。可以使用这些对象，对标记语言文档进行操作。<br>
+<br></p>
+<h3><a id="DOM_119"></a>（二）DOM三个标准</h3>
+<h4><a id="1__DOM_120"></a>1.  核心DOM</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;针对任何结构化文档的标准模型，以下是文档的各个组成部分：</p>
+<pre><code class="prism language-html">Document :文档对象
+Element:元素对象
+Attribute:属性对象
+Text:文本对象
+Comment:注释对象
+Node:节点对象，其他5个对象的父对象
+</code></pre>
+<br>
+<h4><a id="2XML_DOM_135"></a>2.XML DOM</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;针对XML文档的标准模型<br>
+<br></p>
+<h4><a id="3%09HTML_DOM_141"></a>3.	HTML DOM</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;针对HTML文档的标准模型<br>
+<br></p>
+<h3><a id="DOM_147"></a>（三）核心DOM模型</h3>
+<h4><a id="1%09Document_148"></a>1.	Document文档对象</h4>
+<h5><a id="1%09_149"></a>（1）	创建</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在 HTML DOM 模型中可以使用window对象来获取</p>
+<pre><code class="prism language-html">window.document
+document
+</code></pre>
+<br>
+<h5><a id="2%09_160"></a>（2）	方法</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;获取Element对象：</p>
+<pre><code class="prism language-html">getElementById():根据id属性获取元素对象
+getElementsByTagName():根据元素名称获取元素对象们，返回值是数组
+getElementsByClassName():根据class属性值获取元素对象们
+getElementsByName():根据name属性值获取元素对象们
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;创建其他DOM对象：</p>
+<pre><code class="prism language-html">createAttribute(name)
+crreateComment()
+createElement()
+createTextNode()
+</code></pre>
+<br>
+<h4><a id="2%09Node_182"></a>2.	Node节点对象</h4>
+<h5><a id="1_183"></a>（1）概述</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;所有的DOM对象都可以被认为是一个节点。<br>
+<br></p>
+<h5><a id="2_189"></a>（2）方法</h5>
+<pre><code class="prism language-html">appendChild()：向节点的子节点列表的结尾添加新的子节点
+removeChild():删除（并返回）当前节点的指定子节点
+replaceChild()：用新节点替换一个子节点
+</code></pre>
+<br>
+<h3><a id="%09HTML_DOM_200"></a>（四）	HTML DOM</h3>
+<h4><a id="1%09innerHTML_201"></a>1.	innerHTML</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;innerHTML用于标签体的设置和获取，直接使用innerHTML就可以修改元素的标签的设置。</p>
+<p>如：将div通过innerHTML替换为文本框</p>
+<pre><code class="prism language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span>”div”</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">&gt;</span></span><span class="token script language-javascript">
+	<span class="token keyword">var</span> div <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">getELementById</span><span class="token punctuation">(</span>“div”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">var</span> innerHTML <span class="token operator">=</span> div<span class="token punctuation">.</span>innerHTML<span class="token punctuation">;</span>
+	div<span class="token punctuation">.</span>innerHTML <span class="token operator">=</span> “<span class="token operator">&lt;</span>input type<span class="token operator">=</span>”text”<span class="token operator">&gt;</span>”<span class="token punctuation">;</span>
+</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<p>如：通过innerHTML追加文本框</p>
+<pre><code class="prism language-html">div.innerHTML += “<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>input</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span>”text”</span><span class="token punctuation">&gt;</span></span>”;
+</code></pre>
+<br>
+<h3><a id="_DOM_224"></a>（五） 使用核心DOM的动态表格示例</h3>
+<h4><a id="1%09_225"></a>1.	添加表格</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（1）	为添加按钮绑定点击事件</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（2）	获取输入文本框的内容</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（3）	创建表格的td标签，设置td标签的内容为文本框的内容</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（4）	创建tr标签</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（5）	将td作为tr的子标签</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（6）	获取table标签，将tr作为子标签添加到table中<br>
+<br></p>
+<h4><a id="2%09_240"></a>2.	删除表格</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通过点击删除超链接删除该行数据，首先获取通过查找该超链接的元素，然后调用删除函数，删除该行。<br>
+<br></p>
+<h4><a id="3%09_246"></a>3.	代码实现</h4>
+<br>
+<pre><code class="prism language-html"><span class="token doctype">&lt;!DOCTYPE html&gt;</span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>html</span> <span class="token attr-name">lang</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>en<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>head</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>meta</span> <span class="token attr-name">charset</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>UTF-8<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>title</span><span class="token punctuation">&gt;</span></span>动态表格<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>title</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>style</span><span class="token punctuation">&gt;</span></span><span class="token style language-css">
+        <span class="token selector">table</span><span class="token punctuation">{</span>
+            <span class="token property">border</span><span class="token punctuation">:</span> 1px solid<span class="token punctuation">;</span>
+            <span class="token property">margin</span><span class="token punctuation">:</span> auto<span class="token punctuation">;</span>
+            <span class="token property">width</span><span class="token punctuation">:</span> 500px<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token selector">td, th</span><span class="token punctuation">{</span>
+            <span class="token property">text-align</span><span class="token punctuation">:</span> center<span class="token punctuation">;</span>
+            <span class="token property">border</span><span class="token punctuation">:</span> 1px solid<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token selector">div</span><span class="token punctuation">{</span>
+            <span class="token property">text-align</span><span class="token punctuation">:</span> center<span class="token punctuation">;</span>
+            <span class="token property">margin</span><span class="token punctuation">:</span> 50px<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>style</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>head</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>body</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>input</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>text<span class="token punctuation">"</span></span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>id<span class="token punctuation">"</span></span> <span class="token attr-name">placeholder</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>请输入编号<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>input</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>text<span class="token punctuation">"</span></span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>name<span class="token punctuation">"</span></span> <span class="token attr-name">placeholder</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>请输入姓名<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>input</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>text<span class="token punctuation">"</span></span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>gender<span class="token punctuation">"</span></span> <span class="token attr-name">placeholder</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>请输入性别<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>input</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>button<span class="token punctuation">"</span></span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>添加<span class="token punctuation">"</span></span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn_add<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span>
+
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>table</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>table<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>caption</span><span class="token punctuation">&gt;</span></span>
+            学生信息表
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>caption</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>tr</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>th</span><span class="token punctuation">&gt;</span></span>编号<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>th</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>th</span><span class="token punctuation">&gt;</span></span>姓名<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>th</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>th</span><span class="token punctuation">&gt;</span></span>性别<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>th</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>th</span><span class="token punctuation">&gt;</span></span>操作<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>th</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>tr</span><span class="token punctuation">&gt;</span></span>
+
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>tr</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>td</span><span class="token punctuation">&gt;</span></span>1<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>td</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>td</span><span class="token punctuation">&gt;</span></span>a<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>td</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>td</span><span class="token punctuation">&gt;</span></span>男<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>td</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>td</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>a</span> <span class="token attr-name">href</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>javascript:void(0);<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>del(this);<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>删除<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>a</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>td</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>tr</span><span class="token punctuation">&gt;</span></span>
+
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>tr</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>td</span><span class="token punctuation">&gt;</span></span>2<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>td</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>td</span><span class="token punctuation">&gt;</span></span>b<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>td</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>td</span><span class="token punctuation">&gt;</span></span>男<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>td</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>td</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>a</span> <span class="token attr-name">href</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>javascript:void(0);<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>del(this);<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>删除<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>a</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>td</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>tr</span><span class="token punctuation">&gt;</span></span>
+
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>tr</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>td</span><span class="token punctuation">&gt;</span></span>3<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>td</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>td</span><span class="token punctuation">&gt;</span></span>c<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>td</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>td</span><span class="token punctuation">&gt;</span></span>女<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>td</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>td</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>a</span> <span class="token attr-name">href</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>javascript:void(0);<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>del(this);<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>删除<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>a</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>td</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>tr</span><span class="token punctuation">&gt;</span></span>
+
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>table</span><span class="token punctuation">&gt;</span></span>
+
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">&gt;</span></span><span class="token script language-javascript">
+        <span class="token keyword">var</span> btn_add <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">getElementById</span><span class="token punctuation">(</span><span class="token string">"btn_add"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        btn_add<span class="token punctuation">.</span><span class="token function-variable function">onclick</span> <span class="token operator">=</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">var</span> id <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">getElementById</span><span class="token punctuation">(</span><span class="token string">"id"</span><span class="token punctuation">)</span><span class="token punctuation">.</span>value<span class="token punctuation">;</span>
+            <span class="token keyword">var</span> name <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">getElementById</span><span class="token punctuation">(</span><span class="token string">"name"</span><span class="token punctuation">)</span><span class="token punctuation">.</span>value<span class="token punctuation">;</span>
+            <span class="token keyword">var</span> gender <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">getElementById</span><span class="token punctuation">(</span><span class="token string">"gender"</span><span class="token punctuation">)</span><span class="token punctuation">.</span>value<span class="token punctuation">;</span>
+
+            <span class="token comment">//获取表格</span>
+            <span class="token keyword">var</span> table <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">getElementById</span><span class="token punctuation">(</span><span class="token string">"table"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+            <span class="token comment">//创建tr</span>
+            <span class="token keyword">var</span> tr <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">createElement</span><span class="token punctuation">(</span><span class="token string">"tr"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+            <span class="token comment">//创建id的td</span>
+            <span class="token keyword">var</span> td_id <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">createElement</span><span class="token punctuation">(</span><span class="token string">"td"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token comment">//创建id文本的文本节点</span>
+            <span class="token keyword">var</span> text_id <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">createTextNode</span><span class="token punctuation">(</span>id<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            td_id<span class="token punctuation">.</span><span class="token function">appendChild</span><span class="token punctuation">(</span>text_id<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            tr<span class="token punctuation">.</span><span class="token function">appendChild</span><span class="token punctuation">(</span>td_id<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+            <span class="token comment">//创建name的td</span>
+            <span class="token keyword">var</span> td_name <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">createElement</span><span class="token punctuation">(</span><span class="token string">"td"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">var</span> text_name <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">createTextNode</span><span class="token punctuation">(</span>name<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            td_name<span class="token punctuation">.</span><span class="token function">appendChild</span><span class="token punctuation">(</span>text_name<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            tr<span class="token punctuation">.</span><span class="token function">appendChild</span><span class="token punctuation">(</span>td_name<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+            <span class="token comment">//创建性别的td</span>
+            <span class="token keyword">var</span> td_gender <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">createElement</span><span class="token punctuation">(</span><span class="token string">"td"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">var</span> text_gender <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">createTextNode</span><span class="token punctuation">(</span>gender<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            td_gender<span class="token punctuation">.</span><span class="token function">appendChild</span><span class="token punctuation">(</span>text_gender<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            tr<span class="token punctuation">.</span><span class="token function">appendChild</span><span class="token punctuation">(</span>td_gender<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+            <span class="token comment">//创建超链接a的td</span>
+            <span class="token keyword">var</span> td_option <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">createElement</span><span class="token punctuation">(</span><span class="token string">"td"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+            <span class="token comment">//创建超链接a</span>
+            <span class="token keyword">var</span> a <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">createElement</span><span class="token punctuation">(</span><span class="token string">"a"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token comment">//给超链接添加属性</span>
+            a<span class="token punctuation">.</span><span class="token function">setAttribute</span><span class="token punctuation">(</span><span class="token string">"href"</span><span class="token punctuation">,</span> <span class="token string">"javascript:void(0);"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            a<span class="token punctuation">.</span><span class="token function">setAttribute</span><span class="token punctuation">(</span><span class="token string">"onclick"</span><span class="token punctuation">,</span> <span class="token string">"del(this)"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">var</span> text_a <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">createTextNode</span><span class="token punctuation">(</span><span class="token string">"删除"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            a<span class="token punctuation">.</span><span class="token function">appendChild</span><span class="token punctuation">(</span>text_a<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            td_option<span class="token punctuation">.</span><span class="token function">appendChild</span><span class="token punctuation">(</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            tr<span class="token punctuation">.</span><span class="token function">appendChild</span><span class="token punctuation">(</span>td_option<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+            table<span class="token punctuation">.</span><span class="token function">appendChild</span><span class="token punctuation">(</span>tr<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment">//删除函数</span>
+        <span class="token keyword">function</span> <span class="token function">del</span><span class="token punctuation">(</span>obj<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token comment">//通过obj向上找到table,tr</span>
+            <span class="token keyword">var</span> table <span class="token operator">=</span> obj<span class="token punctuation">.</span>parentNode<span class="token punctuation">.</span>parentNode<span class="token punctuation">.</span>parentNode<span class="token punctuation">;</span>
+            <span class="token keyword">var</span> tr <span class="token operator">=</span> obj<span class="token punctuation">.</span>parentNode<span class="token punctuation">.</span>parentNode<span class="token punctuation">;</span>
+            <span class="token comment">//通过table删除子节点tr，删除一行</span>
+            table<span class="token punctuation">.</span><span class="token function">removeChild</span><span class="token punctuation">(</span>tr<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+    </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>body</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>html</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<h3><a id="innerHTML_382"></a>（六）使用innerHTML添加动态表格</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;直接获取table的元素，通过innerHTML直接添加一行。</p>
+<pre><code class="prism language-html">//通过innerHTML添加
+document.getElementById("btn_add").onclick = function () {
+    var id = document.getElementById("id").value;
+    var name = document.getElementById("name").value;
+    var gender = document.getElementById("gender").value;
+
+    //获取table
+    var table = document.getElementsByTagName("table")[0];
+    //追加一行
+    table.innerHTML += "<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>tr</span><span class="token punctuation">&gt;</span></span>\n" +
+            "<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>td</span><span class="token punctuation">&gt;</span></span>" + id + "<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>td</span><span class="token punctuation">&gt;</span></span>\n" +
+            "<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>td</span><span class="token punctuation">&gt;</span></span>" + name + "<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>td</span><span class="token punctuation">&gt;</span></span>\n" +
+            "<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>td</span><span class="token punctuation">&gt;</span></span>" + gender+ "<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>td</span><span class="token punctuation">&gt;</span></span>\n" +
+            "<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>td</span><span class="token punctuation">&gt;</span></span>&lt;a href=\'javascript:void(0);\' onclick='del(this);\'&gt;删除<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>a</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>td</span><span class="token punctuation">&gt;</span></span>\n" +
+            "<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>tr</span><span class="token punctuation">&gt;</span></span>"
+}
+</code></pre>
+<br>
+<h2><a id="%09_408"></a>七．	事件</h2>
+<h3><a id="_409"></a>（一）概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;事件指的是通过鼠标，键盘等对页面进行操作，当执行了这些操作以后，就能够触发某些代码的执行。</p>
+<ol>
+<li>
+<p>事件：某些操作，如单击，双击，按下键盘，移动鼠标</p>
+</li>
+<li>
+<p>事件源：组件，如：按钮，文本输入框</p>
+</li>
+<li>
+<p>监听器：执行的代码</p>
+</li>
+<li>
+<p>注册监听：将事件，事件源，监听器结合在一起，当事件源发生了某个事件时，则触发执行某个监听器代码。<br>
+<br></p>
+</li>
+</ol>
+<h3><a id="%09_422"></a>（二）	常见的事件</h3>
+<h4><a id="1__423"></a>1. 点击事件</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;onclick:单击事件</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;ondbclick:双击事件<br>
+<br></p>
+<h4><a id="2%09_431"></a>2.	焦点事件</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;onblur:失去焦点</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;onfocus:元素获得焦点<br>
+<br></p>
+<h4><a id="3%09_439"></a>3.	加载事件</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;onload：一张页面或衣服图像完成加载<br>
+<br></p>
+<h4><a id="4%09_445"></a>4.	鼠标事件</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;onmousedown:鼠标被按下</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;onmouseup:鼠标被松开</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;onmousemove:鼠标被移动</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;onmouseout:鼠标从某元素移开</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;onmouseover:鼠标移到某元素之上<br>
+<br></p>
+<h4><a id="5_459"></a>5．键盘事件</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;onkeydown:某个键盘按键被按下</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;onkeyup:某个键盘按键被松开</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;onkeypress:某个键盘按键被按下并松开<br>
+<br></p>
+<h4><a id="6_469"></a>6.选中和改变</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;onchange:域的内容被改变</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;onselect:文本被选中<br>
+<br></p>
+<h4><a id="7__477"></a>7. 表单事件</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;onsubmit:确认按钮被点击</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;onreset:重置按钮被点击</p>
+<br>
+<h3><a id="_486"></a>（三）将操作绑定事件</h3>
+<p>有以下两种方式：</p>
+<ol>
+<li>
+<p>直接在html中，获取元素对象，指定事件属性，属性就是要执行的操作。</p>
+</li>
+<li>
+<p>通过js获取元素对象，指定事件属性，将操作设置为一个函数，传入该函数执行事件的操作。</p>
+</li>
+</ol>
+<br>
+<h2><a id="%09BOM_497"></a>八．	BOM</h2>
+<h3><a id="%09_498"></a>（一）	概述</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Browser Object Model，浏览器对象模型。该模型将浏览器的各个组成部分封装成对象。<br>
+<br></p>
+<h3><a id="%09BOM_504"></a>（二）	BOM的组成</h3>
+<h4><a id="1%09Navigator_505"></a>1.	Navigator</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;浏览器对象，表示整个浏览器<br>
+<br></p>
+<h4><a id="2%09Window_511"></a>2.	Window</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;窗口对象，表示每个页面的窗口<br>
+<br></p>
+<h4><a id="3%09Screen_517"></a>3.	Screen</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;显示器屏幕对象</p>
+<br>
+<h4><a id="4%09History_523"></a>4.	History</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;窗口的历史记录对象<br>
+<br></p>
+<h4><a id="5%09Location_529"></a>5.	Location</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;地址栏对象，记录了地址。<br>
+<br></p>
+<h3><a id="%09Window_535"></a>（三）	Window窗口对象</h3>
+<h4><a id="1%09_536"></a>1.	创建</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;window<br>
+<br></p>
+<h4><a id="2%09_542"></a>2.	方法</h4>
+<h5><a id="1%09_543"></a>（1）	弹出框方法</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Alert()：显示带有一段信息和一个确认按钮的警告框</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Confirm()：显示一段信息和确认，取消按钮的对话框。	<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;如果用户选择确定，则返回true<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;如果用户选择取消，则返回false</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Prompt()：显示可提示用户输入的对话框<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;返回值：获取用户的输入<br>
+<br></p>
+<h5><a id="2%09_556"></a>（2）	打开关闭窗口</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Open()：打开一个新的浏览器窗口<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;返回新的Window对象</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;Close()：关闭调用的浏览器窗口<br>
+<br></p>
+<h5><a id="3%09_564"></a>（3）	定时器</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;setTimeout()：在指定毫秒后调用函数或者表达式<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;参数：js代码或者函数，毫秒值<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;返回值：唯一标识，用于取消定时器</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;clearTimeout()：取消setTimeout()设置的定时器</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;setInterval()：按照指定的周期调用函数</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;clearInterval()：取消setInterval()设置的定时器<br>
+<br></p>
+<h4><a id="3%09_578"></a>3.	属性</h4>
+<h5><a id="1%09BOM_579"></a>（1）	获取其他BOM对象</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;history,location,Navigator,Screen对象都可通过Window对象获取，如：</p>
+<pre><code class="prism language-html">window.history;
+</code></pre>
+<br>
+<h5><a id="2%09DOM_589"></a>（2）	获取DOM对象</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通过window对象可以获取到document对象<br>
+<br></p>
+<h4><a id="4%09_595"></a>4.	特点</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（1）	window对象不需要创建，可以直接使用，如</p>
+<pre><code class="prism language-html">window.方法名();
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;（2）	window引用可以省略，直接写方法名。<br>
+<br></p>
+<h4><a id="5%09_607"></a>5.	轮播图示例</h4>
+<br>
+<pre><code class="prism language-html"><span class="token doctype">&lt;!DOCTYPE html&gt;</span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>html</span> <span class="token attr-name">lang</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>en<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>head</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>meta</span> <span class="token attr-name">charset</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>UTF-8<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>title</span><span class="token punctuation">&gt;</span></span>Title<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>title</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>head</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>body</span><span class="token punctuation">&gt;</span></span>
+    //显示图片
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>img</span> <span class="token attr-name">src</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>./img/banner_1.jpg<span class="token punctuation">"</span></span> <span class="token attr-name">alt</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>兵马俑<span class="token punctuation">"</span></span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>img<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">&gt;</span></span><span class="token script language-javascript">
+        <span class="token keyword">var</span> num <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+        <span class="token keyword">function</span> <span class="token function">f</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            num<span class="token operator">++</span><span class="token punctuation">;</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span>num <span class="token operator">&gt;</span> <span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                num <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token comment">//获取img对象</span>
+            <span class="token keyword">var</span> img <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">getElementById</span><span class="token punctuation">(</span><span class="token string">"img"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            img<span class="token punctuation">.</span>src <span class="token operator">=</span> <span class="token string">"./img/banner_"</span> <span class="token operator">+</span> num <span class="token operator">+</span> <span class="token string">".jpg"</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment">//定义定时器</span>
+        <span class="token function">setInterval</span><span class="token punctuation">(</span>f<span class="token punctuation">,</span> <span class="token number">2000</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>body</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>html</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<h3><a id="%09Location_646"></a>（四）	Location地址栏对象</h3>
+<h4><a id="1%09location_647"></a>1.	获取location对象</h4>
+<pre><code class="prism language-html">window.location
+location
+</code></pre>
+<br>
+<h4><a id="2%09_657"></a>2.	方法</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;reload() 重新加载当前文档<br>
+<br></p>
+<h4><a id="3%09_663"></a>3.	属性</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;href:设置或返回完整的URL<br>
+<br></p>
+<h4><a id="4%09_669"></a>4.	地址栏示例</h4>
+<br>
+<pre><code class="prism language-html"><span class="token doctype">&lt;!DOCTYPE html&gt;</span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>html</span> <span class="token attr-name">lang</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>en<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>head</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>meta</span> <span class="token attr-name">charset</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>UTF-8<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>title</span><span class="token punctuation">&gt;</span></span>Title<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>title</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>head</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>body</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>input</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>button<span class="token punctuation">"</span></span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn<span class="token punctuation">"</span></span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>refresh<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>input</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>button<span class="token punctuation">"</span></span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>goBaidu<span class="token punctuation">"</span></span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>baidu<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">&gt;</span></span><span class="token script language-javascript">
+        <span class="token comment">//reload方法</span>
+        <span class="token keyword">var</span> btn <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">getElementById</span><span class="token punctuation">(</span><span class="token string">"btn"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        btn<span class="token punctuation">.</span><span class="token function-variable function">onclick</span> <span class="token operator">=</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token comment">//刷新页面</span>
+            location<span class="token punctuation">.</span><span class="token function">reload</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment">//获取地址的href</span>
+        <span class="token keyword">var</span> href <span class="token operator">=</span> location<span class="token punctuation">.</span>href<span class="token punctuation">;</span>
+        <span class="token keyword">var</span> goBaidu <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">getElementById</span><span class="token punctuation">(</span><span class="token string">"goBaidu"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        goBaidu<span class="token punctuation">.</span><span class="token function-variable function">onclick</span> <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            location<span class="token punctuation">.</span>href <span class="token operator">=</span> <span class="token string">"https://www.baidu.com"</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+    </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>body</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>html</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<br>
+<h3><a id="%09History_707"></a>（五）	History历史记录对象</h3>
+<h4><a id="1%09_708"></a>1.	创建</h4>
+<pre><code class="prism language-html">window.history
+history
+</code></pre>
+<br>
+<h4><a id="2%09_718"></a>2.	方法</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;back() 加载history列表中的前一个URL</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;forward() 加载history列表中的下一个URL</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;go() 加载history 列表中的某个具体页面<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;参数：<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;正数：前进几个历史记录<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp;负数：后退几个历史记录<br>
+<br></p>
+<h4><a id="3%09_731"></a>3.	属性</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;length 返回当前窗口历史列表中的URL数量<br>
+<br></p>
+<h4><a id="4%09history_737"></a>4.	history示例</h4>
+<br>
+<pre><code class="prism language-html"><span class="token doctype">&lt;!DOCTYPE html&gt;</span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>html</span> <span class="token attr-name">lang</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>en<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>head</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>meta</span> <span class="token attr-name">charset</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>UTF-8<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>title</span><span class="token punctuation">&gt;</span></span>History<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>title</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>head</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>body</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>input</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>button<span class="token punctuation">"</span></span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn<span class="token punctuation">"</span></span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>history<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>a</span> <span class="token attr-name">href</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>./轮播图.html<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>轮播图<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>a</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>input</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>button<span class="token punctuation">"</span></span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>forward<span class="token punctuation">"</span></span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>forward<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>input</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>button<span class="token punctuation">"</span></span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>back<span class="token punctuation">"</span></span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>back<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">&gt;</span></span><span class="token script language-javascript">
+        <span class="token keyword">var</span> btn <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">getElementById</span><span class="token punctuation">(</span><span class="token string">"btn"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        btn<span class="token punctuation">.</span><span class="token function-variable function">onclick</span> <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">var</span> length <span class="token operator">=</span> history<span class="token punctuation">.</span>length<span class="token punctuation">;</span>
+            <span class="token function">alert</span><span class="token punctuation">(</span>length<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">var</span> forward <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">getElementById</span><span class="token punctuation">(</span><span class="token string">"forward"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        forward<span class="token punctuation">.</span><span class="token function-variable function">onclick</span> <span class="token operator">=</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            history<span class="token punctuation">.</span><span class="token function">forward</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">var</span> back <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">getElementById</span><span class="token punctuation">(</span><span class="token string">"back"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        back<span class="token punctuation">.</span><span class="token function-variable function">onclick</span> <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            history<span class="token punctuation">.</span><span class="token function">back</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+    </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>body</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>html</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+</div>
+</body>
+
+</html>

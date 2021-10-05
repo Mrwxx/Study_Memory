@@ -1,0 +1,54 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【云计算学习笔记（一）】之 虚拟化技术分类</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_1"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_8"></a>一．	虚拟化定义</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;虚拟化是指通过虚拟化技术将一台计算机虚拟为多台逻辑计算机，在一台计算机上能够同时运行多个逻辑计算机，每个逻辑计算机中可运行不同的操作系统，并且程序可在独立的空间内运行，不同程序的数据与资源是隔离的，能够提高资源的利用率。</p>
+<br>
+<h2><a id="__14"></a>二． 虚拟化技术的必要性</h2>
+<h3><a id="%09_16"></a>（一）	虚拟化前</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;每台主机一个操作系统，不同的程序共享资源，会出现安全问题；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;软件硬件是紧密结合的，是否能够安装软件取决于采用的硬件；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在同一个主机上运行多个应用程序会遭遇冲突；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;系统的资源利用率很低，很多资源闲置率很高；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;硬件成本高且不灵活；<br>
+<br></p>
+<h3><a id="%09_30"></a>（二）	虚拟化后</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;打破操作系统和硬件之间的相互依赖；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;不同的操作系统和应用程序可以封装为单一的个体，不同的程序之间是隔离开的；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;强大的安全和故障隔离；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;虚拟机是独立于硬件的，能在任何硬件上运行；</p>
+<br>
+<h2><a id="__43"></a>三． 虚拟化技术的分类</h2>
+<h3><a id="%09_45"></a>（一）	技术角度分类</h3>
+<h4><a id="1%09_47"></a>1.	全虚拟化技术</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;完全虚拟化技术又称为硬件辅助虚拟化技术，这是最开始使用的虚拟化技术，在虚拟机（VM）和硬件之间加了一个软件层（Hypervisor），称为虚拟机监控器（VMM）。VMM可与硬件直接交互，充当一个翻译者的角色，在VMM之上创建了多个虚拟机，虚拟机的宿主操作系统与VMM进行交互，VMM再与硬件进行交互。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;hypervisor有两种，一种是直接运行在物理硬件之上的，如KVM；另一种是运行在另一个操作系统上的，如QEMU和WINE。<br>
+<br></p>
+<h4><a id="2%09_56"></a>2.	半虚拟化技术</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;也称为准虚拟化技术，在全虚拟化技术的基础上，修改了宿主操作系统，添加了一个专门的API，优化宿主操作系统发出的指令，那么Hpervisor就能够消耗更少的资源来与硬件交互，工作负担更小，整体性能有很大的提高。但是，这种技术生产中用的很少，因为对于操作系统的修改是很难的，性价比不高。<br>
+<br></p>
+<h3><a id="%09_63"></a>（二）	架构类型分类</h3>
+<h4><a id="1%09_64"></a>1.	寄居类型</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在操作系统之上安装和运行虚拟化程序，依赖于宿主操作系统对设备的支持和物理资源的管理。这种架构很简单，方便，但是宿主操作系统和应用程序会消耗很多资源，虚拟机无法完全使用硬件资源；且虚拟机的稳定性依赖于宿主操作系统的稳定性，如果宿主操作系统崩了，虚拟机也会崩掉。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;这种架构的典型例子就是VMware Server , Workstation, GSX Server<br>
+<br></p>
+<h4><a id="2%09_73"></a>2.	裸金属架构</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;直接在硬件上安装虚拟化软件，再在其上安装操作系统和应用，依赖虚拟层内核和服务器控制台进行管理。这种架构就不会有宿主操作系统的资源消耗，虚拟机能够最大限度地利用资源，且虚拟机不依赖于操作系统，可以支持多种操作系统，多种应用，更加灵活。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;这种架构的典型例子是 VMware ESXI Server。</p>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,107 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Java学习笔记（八）】之异常的要点介绍</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09_8"></a>一．	异常</h2>
+<h3><a id="%09_9"></a>（一）	定义</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;程序出现了不正常的情况，程序可以捕获到异常，并且处理这个异常。<br>
+<br></p>
+<h3><a id="%09_14"></a>（二）	异常体系结构</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>Throwable类是所有错误和异常的父类。错误指的是程序出现的非常严重的问题，程序无法解决。异常是程序可以捕获的轻微的问题，我们可以通过捕获异常解决这个问题。</strong></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;异常分为 RuntimeException和非RuntimeException。RuntimeException是指在运行阶段才会检查的异常，非RuntimeException是指在编译阶段就会检查的异常。<br>
+<br></p>
+<h3><a id="%09JVM_20"></a>（三）	JVM默认处理异常的方式</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;输出异常名称，错误原因以及异常出现的位置在控制台，并终止程序的执行。</p>
+<br>
+<h2><a id="%09_25"></a>二．	异常的处理</h2>
+<br>
+<h3><a id="%09trycatch_28"></a>（一）	try-catch</h3>
+<br>
+<pre><code class="prism language-java"><span class="token keyword">try</span> <span class="token punctuation">{</span>
+	可能出现异常的代码<span class="token punctuation">;</span>
+<span class="token punctuation">}</span> <span class="token keyword">catch</span><span class="token punctuation">(</span>异常类名 变量名<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	异常的处理代码<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;1. 程序先进入try代码块中，进行正常逻辑处理，这也是异常可能出现的地方；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;2. 当异常出现时，会生成一个异常类对象；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;3. 接着，catch中会匹配到该异常类，进入catch代码块中进行异常的处理；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;4. 异常处理结束后，程序接着往下执行。<br>
+<br></p>
+<pre><code class="prism language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ExceptionDemo01</span> <span class="token punctuation">{</span>
+  <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"start"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">method</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"end"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+ <span class="token punctuation">}</span>
+  <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">method</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">try</span> <span class="token punctuation">{</span>
+      <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> arr <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+      System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>arr<span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+   <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">ArrayIndexOutOfBoundsException</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<span class="token comment">//      System.out.println("索引越界");</span>
+      e<span class="token punctuation">.</span><span class="token function">printStackTrace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+   <span class="token punctuation">}</span>
+ <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h3><a id="%09throws_69"></a>（二）	throws</h3>
+<br>
+<h4><a id="1%09_72"></a>1.	定义</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>跟在方法声明的括号后面，表示抛出异常，但只是表示这种异常可能会出现，而异常的处理需要由方法的调用者来处理。</strong><br>
+<br></p>
+<h4><a id="2%09_76"></a>2.	格式</h4>
+<pre><code class="prism language-java"><span class="token keyword">public</span> <span class="token keyword">void</span> 方法<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> 异常类名<span class="token punctuation">{</span><span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h4><a id="3%09_83"></a>3.	示例</h4>
+<pre><code class="prism language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ExceptionDemo</span> <span class="token punctuation">{</span>
+  <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">try</span> <span class="token punctuation">{</span>
+      <span class="token function">method</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+   <span class="token punctuation">}</span><span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">ParseException</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      e<span class="token punctuation">.</span><span class="token function">printStackTrace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+   <span class="token punctuation">}</span>
+ <span class="token punctuation">}</span>
+  <span class="token comment">//编译时异常</span>
+  <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">method</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> ParseException <span class="token punctuation">{</span>
+    String s <span class="token operator">=</span> <span class="token string">"2048-08-09"</span><span class="token punctuation">;</span>
+    SimpleDateFormat sdf <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">SimpleDateFormat</span><span class="token punctuation">(</span><span class="token string">"yyyy-MM-dd"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    Date d <span class="token operator">=</span> sdf<span class="token punctuation">.</span><span class="token function">parse</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>d<span class="token punctuation">)</span><span class="token punctuation">;</span>
+ <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<br>
+<h4><a id="4%09throws__throw_104"></a>4.	throws 和 throw的区别</h4>
+<br>
+<h5><a id="1%09throw_107"></a>(1)	throw</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>throw是用在方法体内的，抛出的是异常对象，表示抛出异常，且由方法体内进行处理。当执行throw时说明一定抛出了异常。</strong><br>
+<br></p>
+<h5><a id="2%09throws_111"></a>(2)	throws</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;throws表示抛出异常类名，但只是表示异常可能出现，如果出现，则有方法的调用者来处理异常。</p>
+<br>
+<h2><a id="%09_116"></a>三．	异常的区别</h2>
+<br>
+<h3><a id="%09_119"></a>（一）	编译时异常</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>Exception类及其子类</strong>，必须显示处理，如用try-catch或者throws抛出异常，否则程序会报错，无法通过编译。<br>
+<br></p>
+<h3><a id="%09_124"></a>（二）	运行时异常</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;<strong>RuntimeException类及其子类</strong>，可以不用显示处理。</p>
+</div>
+</body>
+
+</html>

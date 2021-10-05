@@ -1,0 +1,362 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【Java学习笔记（五十六）】之SpringBoot原理分析，配置文件，整合其他技术</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09Spring_7"></a>一．	Spring分析</h2>
+<h3><a id="%09Spring_8"></a>（一）	Spring优点分析</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; Spring是Java企业版（Java Enterprise Edition，J2EE）的轻量级代替品，无需开发重量级的Enterprise JavaBean(EJB)，Spring为企业级Java开发提供了一种相对简单的方法，通过依赖注入和面向切面编程，用简单的Java对象（POJO）实现了EJB的功能。</p>
+<h3><a id="%09Spring_11"></a>（二）	Spring的缺点分析</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; Spring的配置过程十分地繁琐，一开始，Spring使用XML进行配置，Spring2.5引入了基于注解的组件扫描后消除了大量XML配置；Spring3.0后引入了基于Java的配置，这是一种类型安全的可重构配置方式，可以替代XML。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 同时，项目的依赖管理十分恼人，一旦导入的包的版本选择错误，那么包之间的不兼容问题会十分地恼人，且很难发现。</p>
+<h2><a id="%09SpringBoot_17"></a>二．	SpringBoot</h2>
+<h3><a id="%09SpringBoot_18"></a>（一）	SpringBoot的特点</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 1.	约定优于配置，没有代码生成，也没有XML配置，同时也可以修改默认值来满足特定的需求。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 2.	提供了一些大型项目中常见的非功能性特性，如嵌入式服务器，安全，指标，健康监测，外部配置等。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 3.	SpringBoot不是对Spring功能上地增强，而是提供了一种快速使用Spring的方式。</p>
+<h3><a id="%09SpringBoot_25"></a>（二）	SpringBoot的核心功能</h3>
+<h4><a id="1%09_26"></a>1.	起步依赖</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 起步依赖的本质是一个Maven项目对象模型（Project Object Model，POM），定义了对其他库的传递依赖，这些东西加在一起支持某种功能，即打包一些坐标，提供默认的功能。</p>
+<h4><a id="2%09_29"></a>2.	自动配置</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; SpringBoot的自动配置是应用程序启动时考虑了多种因素，由SpringBoot自动决定Spring配置应该选择什么配置的过程。</p>
+<h3><a id="%09SpringBoot_32"></a>（三）	SpringBoot快速入门</h3>
+<h4><a id="1%09Maven_33"></a>1.	创建Maven工程</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 在IDEA中创建一个Maven工程。</p>
+<h4><a id="2%09SpringBoot_36"></a>2.	添加SpringBoot的起步依赖</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; SpringBoot的核心功能是起步依赖，我们需要在项目中继承SpringBoot的起步依赖spring-boot-starter-parent，</p>
+<pre><code class="prism language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>parent</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">&gt;</span></span>org.springframework.boot<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">&gt;</span></span>spring-boot-starter-parent<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">&gt;</span></span>2.0.1.RELEASE<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>parent</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 同时，由于SpringBoot要集成SpringMVC进行Controller的开发，因此项目要导入Web的起步依赖，在之前的Spring项目中，我们不仅要导入Spring的坐标，还要导入SpringMVC的坐标以及其他坐标，现在，我们直接导入一个web的起步依赖就可以了。</p>
+<pre><code class="prism language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependencies</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">&gt;</span></span>
+        <span class="token comment">&lt;!--Web功能的起步依赖--&gt;</span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">&gt;</span></span>org.springframework.boot<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">&gt;</span></span>spring-boot-starter-web<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependencies</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<h4><a id="3%09SpringBoot_60"></a>3.	导入SpringBoot引导类</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 配置完基本的信息后，我们需要添加一个SpringBoot的引导类，该类用于启动Spring，即运行SpringApplication，注意，SpringApplication的run函数中的参数是该引导类的字节码。同时要在该类上添加注解<code>@SpringBootApplication</code>标识这是一个SpringBoot的引导类。</p>
+<pre><code class="prism language-java"><span class="token keyword">package</span> com<span class="token punctuation">.</span>springboot<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>boot<span class="token punctuation">.</span>SpringApplication<span class="token punctuation">;</span>
+
+<span class="token annotation punctuation">@org</span><span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>boot<span class="token punctuation">.</span>autoconfigure<span class="token punctuation">.</span>SpringBootApplication
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">SpringBootApplication</span> <span class="token punctuation">{</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        SpringApplication<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span>SpringBootApplication<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token number">4.</span>	编写Controller
+在引导类的同级包或者子级包中创建一个Controller。Controller的写法以及注解与Spring中是相同的。
+
+<span class="token keyword">package</span> com<span class="token punctuation">.</span>springboot<span class="token punctuation">.</span>controller<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>stereotype<span class="token punctuation">.</span>Controller<span class="token punctuation">;</span>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>web<span class="token punctuation">.</span>bind<span class="token punctuation">.</span>annotation<span class="token punctuation">.</span>RequestMapping<span class="token punctuation">;</span>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>web<span class="token punctuation">.</span>bind<span class="token punctuation">.</span>annotation<span class="token punctuation">.</span>ResponseBody<span class="token punctuation">;</span>
+
+<span class="token annotation punctuation">@Controller</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">QuickController</span> <span class="token punctuation">{</span>
+
+    <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span><span class="token string">"/quick"</span><span class="token punctuation">)</span>
+    <span class="token annotation punctuation">@ResponseBody</span>
+    <span class="token keyword">public</span> String <span class="token function">quick</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token string">"hello springboot"</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3><a id="%09SpringBoot_96"></a>（四）	SpringBoot工程热部署</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 在开发阶段，我们会反复地修改类，页面等资源，每次修改后都要重新启动修改才能够生效，这样非常麻烦，如何在不重启的情况下降修改生效呢？这就需要热部署来帮忙了。</p>
+<ol>
+<li>首先在pom.xml中添加如部署的依赖</li>
+</ol>
+<pre><code class="prism language-xml"><span class="token comment">&lt;!-- 热部署配置--&gt;</span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">&gt;</span></span>org.springframework.boot<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">&gt;</span></span>spring-boot-devtools<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<ol start="2">
+<li>接下来设置IDEA的自动编译</li>
+</ol>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 选择File -&gt; Settings -&gt; Compiler 勾选 Build project automatically；</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 然后按住 Shift + Ctrl + Alt + /，选择Registry，勾选 compiler.automake.allow.when.app.running。</p>
+<ol start="3">
+<li>
+<p>设置IDEA</p>
+<p>设置IDEA中的Spring Boot 设置Edit Configuration，将 On “Update” action 和 On frame deactivation 都改为 Update classes and resources。</p>
+</li>
+</ol>
+<h3><a id="%09IDEASpringBoot_119"></a>（五）	使用IDEA创建SpringBoot项目</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 在新建项目处，选择Spring Initializer，初始化一个Spring项目，重点是选择各种SpringBoot需要的启动依赖，根据自己的需要进行选择，SpringBoot会自动将依赖添加到pom.xml文件中。</p>
+<h3><a id="%09SpringBoot_122"></a>（六）	SpringBoot原理分析</h3>
+<h4><a id="1%09_123"></a>1.	起步依赖原理分析</h4>
+<h5><a id="1_springbootstarterparent_124"></a>（1） 分析spring-boot-starter-parent</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 我们在pom.xml中继承了spring-boot-starter-parent，点进去可以发现它又继承了spring-boot-starter-dependencies，再点进去发现，spring-boot-starter-dependencies中都是依赖的坐标，依赖管理，插件管理。也就是说在SpringBoot工程中继承了spring-boot-starter-parent后已经具备版本锁定等配置了，因此起步依赖的作用就是进行依赖的传递。</p>
+<h4><a id="2springbootstarterweb_127"></a>（2）分析spring-boot-starter-web</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 我们在pom.xml中导入了web的依赖spring-boot-starter-web，只需要这一个依赖，我们就可以使用springmvc来开发，点进去看看发现spring-boot-starter-web就是将web开发要使用的spring-web，spring-webmvc等坐标进行了打包，同样是依赖传递的作用。</p>
+<h4><a id="2%09_130"></a>2.	自动配置原理解析</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; SpringBoot的自动配置是通过引导类的<code>@SpringBootApplication</code>注解完成的，点进去可以看到其中包括了很多注解，主要的是@SpringBootConfiguration，<code>@EnableAutoConfiguration</code>和<code>@ComponentScan</code>注解。</p>
+<h5><a id="1SpringBootConfiguration_133"></a>（1）@SpringBootConfiguration</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 这个注解表示这是一个配置类，我们可以在引导类中进行Spring的配置。</p>
+<h5><a id="2EnableAutoConfiguration_136"></a>（2）@EnableAutoConfiguration</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 这个注解表示开启SpringBoot的自动配置功能。</p>
+<h5><a id="3ComponentScan_139"></a>（3）@ComponentScan</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 这个注解表示将会扫描引导类所在包下的所有类</p>
+<h3><a id="%09SpringBoot_142"></a>（七）	SpringBoot配置文件</h3>
+<h4><a id="1%09SpringBoot_144"></a>1.	SpringBoot配置文件作用</h4>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; SpringBoot是基于约定的，所以很多配置都有默认值，但是如果想使用自己的配置替换默认的配置的话，就可以使用application.properties或者application.yml(application.yaml)来进行配置。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; SpringBoot默认从Resources目录下加载application*.properties或者application.yml(application.yaml)文件。.properties的加载顺序在.yam文件之后，因此，.properties文件中的内容会覆盖.yml中的内容。</p>
+<h4><a id="2%09applicationyml_149"></a>2.	application*.yml配置文件</h4>
+<h5><a id="1%09_150"></a>（1）	概述</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; YML文件格式是YAML（YAML Aint Markup Language）编写的文件格式，YAML是一种直观地能够被电脑识别的数据序列化格式，容易阅读也容易与脚本交互，可以被不同语言导入。扩展名为.yaml或者.yaml。</p>
+<h5><a id="2%09yml_153"></a>（2）	yml配置文件语法</h5>
+<h6><a id="a%09_154"></a>a)	普通元数据</h6>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; yml用缩进表示等级，如普通的元数据是在冒号后面加上一个空格，如下所示：</p>
+<pre><code class="prism language-xml">key: value
+</code></pre>
+<h6><a id="b%09_161"></a>b)	对象数据</h6>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 对象拥有多个数据，同一层级的用相同的缩进表示，如下所示，person对象有多个属性：</p>
+<pre><code class="prism language-xml">person:
+	name: haohao
+	age: 31
+	addr: beijing
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 或者可以写在同一行中，属性之间用逗号分隔开：</p>
+<pre><code class="prism language-xml">person:	{name: haohao,age: 31,addr: beijing}
+</code></pre>
+<h6><a id="c%09_177"></a>c)	数组集合数据</h6>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 对于数组，集合数据，就要使用 “-” 加上 空格来表示这是集合中的一个数据，如下所示：</p>
+<pre><code class="prism language-xml">city:
+	- Beijing
+	- Tianjin
+	- shanghai
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 或者写在一行之中：</p>
+<pre><code class="prism language-xml">city: [Beijing,tianjin,shanhai]
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 若数组中有对象数据，那么直接将对象的属性一一写在数组的一个数据之中即可，如下所示：</p>
+<p>student:<br>
+- name: zhangsan<br>
+age: 18<br>
+score: 100<br>
+- name: list<br>
+age: 21<br>
+score: 88</p>
+<h4><a id="3%09_203"></a>3.	配置文件与配置类的属性映射方式</h4>
+<h5><a id="1Value_204"></a>（1）使用注解@Value进行映射</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 我们在配置文件中配置了值以后，如何让Spring知道这些配置的作用呢？像Spring默认的配置键名Spring是认识的，但是对于那些我们自己创建的键名就无法识别了。因此，我们可以使用@Value注解将配置的键值映射到一个Spring管理的Bean的字段上。</p>
+<p>如，配置文件application.yml中配置如下：</p>
+<pre><code class="prism language-xml">person:
+name: zhangsan
+age: 18
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 我们在类中将person对象的name属性和age属性一一映射：</p>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@Controller</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">QuickController</span><span class="token punctuation">{</span>
+		<span class="token annotation punctuation">@Value</span><span class="token punctuation">(</span>“$<span class="token punctuation">{</span>person<span class="token punctuation">.</span>name<span class="token punctuation">}</span>”<span class="token punctuation">)</span>
+		<span class="token keyword">private</span> String name<span class="token punctuation">;</span>
+		<span class="token annotation punctuation">@Value</span><span class="token punctuation">(</span>“$<span class="token punctuation">{</span>person<span class="token punctuation">.</span>age<span class="token punctuation">}</span>”<span class="token punctuation">)</span>
+		<span class="token keyword">private</span> Integer age<span class="token punctuation">;</span>
+
+		<span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>“<span class="token operator">/</span>quick”<span class="token punctuation">)</span>
+		<span class="token annotation punctuation">@ResponseBody</span>
+		<span class="token keyword">public</span> String <span class="token function">quick</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+			<span class="token keyword">return</span> name <span class="token operator">+</span> age<span class="token punctuation">;</span>
+		<span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 这种方式映射地非常准确，但是也非常地繁琐，需要一个个地进行映射。</p>
+<h5><a id="2ConfigurationProperties_236"></a>（2）使用注解@ConfigurationProperties映射</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 注解<code>@ConfigurrationProperties</code>能够将配置文件中的配置自动与实体进行映射，如在注解的参数中设置配置文件中键值作为前缀，只要类中的参数与配置文件中相同，就可以直接映射，且该参数必须提供get和set方法。</p>
+<p>application.yml配置如下：</p>
+<pre><code class="prism language-xml">person:
+name: zhangsan
+age: 18
+</code></pre>
+<p>类中的代码如下所示：</p>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@Controller</span>
+<span class="token annotation punctuation">@ConfigurationProperties</span><span class="token punctuation">(</span>prefix <span class="token operator">=</span> <span class="token string">"person"</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">QuickStartController</span> <span class="token punctuation">{</span>
+<span class="token keyword">private</span> String name<span class="token punctuation">;</span>
+<span class="token keyword">private</span> Integer age<span class="token punctuation">;</span>
+<span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span><span class="token string">"/quick"</span><span class="token punctuation">)</span>
+<span class="token annotation punctuation">@ResponseBody</span>
+<span class="token keyword">public</span> String <span class="token function">quick</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+<span class="token keyword">return</span> <span class="token string">"springboot 访问成功! name="</span><span class="token operator">+</span>name<span class="token operator">+</span><span class="token string">",age="</span><span class="token operator">+</span>age<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">setName</span><span class="token punctuation">(</span>String name<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<span class="token keyword">this</span><span class="token punctuation">.</span>name <span class="token operator">=</span> name<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">setAge</span><span class="token punctuation">(</span>Integer age<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<span class="token keyword">this</span><span class="token punctuation">.</span>age <span class="token operator">=</span> age<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3><a id="%09SpringBoot_269"></a>（八）	SpringBoot整合其他技术</h3>
+<h4><a id="1%09SpringBootMybatis_270"></a>1.	SpringBoot整合Mybatis</h4>
+<h5><a id="1%09Mybatis_271"></a>（1）	添加Mybatis的起步依赖</h5>
+<pre><code class="prism language-xml"><span class="token comment">&lt;!--mybatis起步依赖--&gt;</span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">&gt;</span></span>
+	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">&gt;</span></span>org.mybatis.spring.boot<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">&gt;</span></span>
+	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">&gt;</span></span>mybatis-spring-boot-starter<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">&gt;</span></span>
+	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">&gt;</span></span>1.1.1<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<h5><a id="2%09_282"></a>（2）	添加数据库驱动坐标</h5>
+<pre><code class="prism language-xml"><span class="token comment">&lt;!-- MySQL连接驱动 --&gt;</span>
+	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">&gt;</span></span>
+	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">&gt;</span></span>mysql<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">&gt;</span></span>
+	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">&gt;</span></span>mysql-connector-java<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<h5><a id="3%09_292"></a>（3）	添加数据库连接信息</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 在application.properties配置文件中添加数据库连接信息</p>
+<pre><code class="prism language-xml">#DB Configuration:
+spring.datasource.driverClassName=com.mysql.cj.jdbc.Driver
+spring.datasource.url=jdbc:mysql://127.0.0.1:3306/test?
+useUnicode=true&amp;characterEncoding=utf8
+spring.datasource.username=root
+spring.datasource.password=root
+</code></pre>
+<h5><a id="4%09Bean_304"></a>（4）	创建实体Bean</h5>
+<pre><code class="prism language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">User</span> <span class="token punctuation">{</span>
+<span class="token comment">// 主键</span>
+<span class="token keyword">private</span> Long id<span class="token punctuation">;</span>
+<span class="token comment">// 用户名</span>
+<span class="token keyword">private</span> String username<span class="token punctuation">;</span>
+<span class="token comment">// 密码</span>
+<span class="token keyword">private</span> String password<span class="token punctuation">;</span>
+<span class="token comment">// 姓名</span>
+<span class="token keyword">private</span> String name<span class="token punctuation">;</span>
+<span class="token comment">//此处省略getter和setter方法 .. ..</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h5><a id="5%09Mapper_320"></a>（5）	编写Mapper</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; @Mapper注解标记该类是一个Mybatis的mapper接口，可以被SpringBoot自动扫描到Spring上下文中。</p>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@Mapper</span>
+<span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">UserMapper</span> <span class="token punctuation">{</span>
+<span class="token keyword">public</span> List<span class="token generics function"><span class="token punctuation">&lt;</span>User<span class="token punctuation">&gt;</span></span> <span class="token function">queryUserList</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h5><a id="6Mapper_330"></a>（6）配置Mapper映射文件</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 在src\main\resources\mapper路径下添加UserMapper.xml配置文件：</p>
+<pre><code class="prism language-xml"><span class="token prolog">&lt;?xml version="1.0" encoding="utf-8" ?&gt;</span>
+<span class="token doctype">&lt;!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" &gt;</span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>mapper</span> <span class="token attr-name">namespace</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>com.itheima.mapper.UserMapper<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>select</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>queryUserList<span class="token punctuation">"</span></span> <span class="token attr-name">resultType</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>user<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+select * from user
+	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>select</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>mapper</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<h5><a id="7%09applicationpropertiesMybatis_344"></a>（7）	在application.properties中添加Mybatis的信息</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 我们需要修改SpringBoot的默认配置，让SpringBoot知道MyBatis扫描包以及映射文件位置：</p>
+<pre><code class="prism language-xml">#spring集成Mybatis环境
+#pojo别名扫描包
+mybatis.type-aliases-package=com.itheima.domain
+#加载Mybatis映射文件
+mybatis.mapper-locations=classpath:mapper/*Mapper.xml
+</code></pre>
+<h5><a id="8%09Controller_355"></a>（8）	编写测试Controller</h5>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@Controller</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MapperController</span> <span class="token punctuation">{</span>
+	<span class="token annotation punctuation">@Autowired</span>
+	<span class="token keyword">private</span> UserMapper userMapper<span class="token punctuation">;</span>
+	<span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span><span class="token string">"/queryUser"</span><span class="token punctuation">)</span>
+	<span class="token annotation punctuation">@ResponseBody</span>
+	<span class="token keyword">public</span> List<span class="token generics function"><span class="token punctuation">&lt;</span>User<span class="token punctuation">&gt;</span></span> <span class="token function">queryUser</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+	List<span class="token generics function"><span class="token punctuation">&lt;</span>User<span class="token punctuation">&gt;</span></span> users <span class="token operator">=</span> userMapper<span class="token punctuation">.</span><span class="token function">queryUserList</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token keyword">return</span> users<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h4><a id="2%09SpringBootJunit_371"></a>2.	SpringBoot整合Junit</h4>
+<h5><a id="1%09Junit_372"></a>（1）	添加Junit的起步依赖</h5>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 一般SpringBoot中默认已经给我们设置了测试的起步依赖。</p>
+<pre><code class="prism language-xml"><span class="token comment">&lt;!--测试的起步依赖--&gt;</span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">&gt;</span></span>
+	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">&gt;</span></span>org.springframework.boot<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">&gt;</span></span>
+	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">&gt;</span></span>spring-boot-starter-test<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">&gt;</span></span>
+	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>scope</span><span class="token punctuation">&gt;</span></span>test<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>scope</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<h5><a id="2%09_384"></a>（2）	编写测试类</h5>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@RunWith</span><span class="token punctuation">(</span>SpringRunner<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span>
+<span class="token annotation punctuation">@SpringBootTest</span><span class="token punctuation">(</span>classes <span class="token operator">=</span> MySpringBootApplication<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MapperTest</span> <span class="token punctuation">{</span>
+	<span class="token annotation punctuation">@Autowired</span>
+	<span class="token keyword">private</span> UserMapper userMapper<span class="token punctuation">;</span>
+	<span class="token annotation punctuation">@Test</span>
+	<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		List<span class="token generics function"><span class="token punctuation">&lt;</span>User<span class="token punctuation">&gt;</span></span> users <span class="token operator">=</span> userMapper<span class="token punctuation">.</span><span class="token function">queryUserList</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>users<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 之前的<code>@RunWith</code>注解中的参数是SpringJunit4ClassRunner，这里的SpringRunner继承自SpringJunit4ClassRunner。<br>
+&nbsp;  &nbsp;  &nbsp;  &nbsp; <code>@SpringBootTest</code>注解中的参数指定的是SpringBoot引导类的字节码对象。意思是测试这个类的项目。</p>
+<h4><a id="3%09SpringBootRedis_403"></a>3.	SpringBoot整合Redis</h4>
+<h5><a id="1Redis_404"></a>（1）添加Redis的起步依赖</h5>
+<pre><code class="prism language-xml"><span class="token comment">&lt;!-- 配置使用redis启动器 --&gt;</span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">&gt;</span></span>
+	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">&gt;</span></span>org.springframework.boot<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">&gt;</span></span>
+	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">&gt;</span></span>spring-boot-starter-data-redis<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<h5><a id="2%09Redis_414"></a>（2）	配置Redis的链接信息</h5>
+<pre><code class="prism language-xml">#Redis
+spring.redis.host=127.0.0.1
+spring.redis.port=6379
+</code></pre>
+<h5><a id="3%09RedisTemplateRedis_422"></a>（3）	注入RedisTemplate测试Redis</h5>
+<pre><code class="prism language-java"><span class="token annotation punctuation">@RunWith</span><span class="token punctuation">(</span>SpringRunner<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span>
+<span class="token annotation punctuation">@SpringBootTest</span><span class="token punctuation">(</span>classes <span class="token operator">=</span> SpringbootJpaApplication<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">RedisTest</span> <span class="token punctuation">{</span>
+	<span class="token annotation punctuation">@Autowired</span>
+	<span class="token keyword">private</span> UserRepository userRepository<span class="token punctuation">;</span>
+	<span class="token annotation punctuation">@Autowired</span>
+	<span class="token keyword">private</span> RedisTemplate<span class="token generics function"><span class="token punctuation">&lt;</span>String<span class="token punctuation">,</span> String<span class="token punctuation">&gt;</span></span> redisTemplate<span class="token punctuation">;</span>
+	<span class="token annotation punctuation">@Test</span>
+	<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> JsonProcessingException <span class="token punctuation">{</span>
+		<span class="token comment">//从redis缓存中获得指定的数据</span>
+		String userListData <span class="token operator">=</span> redisTemplate<span class="token punctuation">.</span><span class="token function">boundValueOps</span><span class="token punctuation">(</span><span class="token string">"user.findAll"</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token comment">//如果redis中没有数据的话</span>
+		<span class="token keyword">if</span><span class="token punctuation">(</span>null<span class="token operator">==</span>userListData<span class="token punctuation">)</span><span class="token punctuation">{</span>
+			<span class="token comment">//查询数据库获得数据</span>
+			List<span class="token generics function"><span class="token punctuation">&lt;</span>User<span class="token punctuation">&gt;</span></span> all <span class="token operator">=</span> userRepository<span class="token punctuation">.</span><span class="token function">findAll</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+			<span class="token comment">//转换成json格式字符串</span>
+			ObjectMapper om <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ObjectMapper</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+			userListData <span class="token operator">=</span> om<span class="token punctuation">.</span><span class="token function">writeValueAsString</span><span class="token punctuation">(</span>all<span class="token punctuation">)</span><span class="token punctuation">;</span>
+			<span class="token comment">//将数据存储到redis中，下次在查询直接从redis中获得数据，不用在查询数据库</span>
+			redisTemplate<span class="token punctuation">.</span><span class="token function">boundValueOps</span><span class="token punctuation">(</span><span class="token string">"user.findAll"</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span>userListData<span class="token punctuation">)</span><span class="token punctuation">;</span>
+			System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"===============从数据库获得数据==============="</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token punctuation">}</span><span class="token keyword">else</span><span class="token punctuation">{</span>
+			System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"===============从redis缓存中获得数据==============="</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token punctuation">}</span>
+		System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>userListData<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+
+</html>

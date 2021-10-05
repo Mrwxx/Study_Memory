@@ -1,0 +1,112 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【云计算学习笔记（三）】之 IAAS，PAAS，SAAS，Docker的组件简介</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2><a id="_0"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="%09IAASPAASSAAS_7"></a>一．	IAAS，PAAS，SAAS</h2>
+<h3><a id="%09_9"></a>（一）	传统项目搭建流程</h3>
+<ol>
+<li>
+<p>部署组网</p>
+</li>
+<li>
+<p>配置存储</p>
+</li>
+<li>
+<p>配置硬件</p>
+</li>
+<li>
+<p>配置虚拟化</p>
+</li>
+<li>
+<p>配置服务器操作系统</p>
+</li>
+<li>
+<p>部署数据库</p>
+</li>
+<li>
+<p>部署安全措施</p>
+</li>
+<li>
+<p>部署运行环境</p>
+</li>
+<li>
+<p>运行程序</p>
+</li>
+</ol>
+<br>
+<h3><a id="%09IAASInfrastructure_as_a_Service_32"></a>（二）	IAAS(Infrastructure as a Service)</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 基础设施即服务，IAAS供应商已经将组网，存储，硬件，服务器操作系统虚拟化了，我们直接在IAAS平台上部署数据库，运行环境，运行程序即可。像阿里云，华为云这种买来的服务器都是IAAS平台，直接在上面部署程序。</p>
+<ol>
+<li>
+<p>部署数据库</p>
+</li>
+<li>
+<p>部署安全措施</p>
+</li>
+<li>
+<p>部署运行环境</p>
+</li>
+<li>
+<p>运行程序</p>
+</li>
+</ol>
+<br>
+<h3><a id="%09PAASPlatform_as_a_Service_47"></a>（三）	PAAS（Platform as a Service）</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 平台即服务，我们从PAAS供应商那里获取的已经安装好运行环境了，直接在上面运行程序即可，Docker就是一种PAAS。</p>
+<ol>
+<li>运行程序。</li>
+</ol>
+<br>
+<h3><a id="%09SaaSSoftware_as_a_Service_56"></a>（四）	SaaS(Software as a Service)</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 软件即服务，连运行的程序都不需要安装，整个平台已经安装好了硬件与软件，我们直接调用相应的服务即可。</p>
+<br>
+<h2><a id="%09Docker_63"></a>二．	Docker的由来</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; Docker是由Dotcloud公司开源的一款产品，主要基于PAAS（平台即服务）平台为开发者提供服务。它的底层技术是Linux Container，内核虚拟化技术，可以提供轻量级的虚拟化，隔离进程和资源，Linux Container使用比较麻烦，Docker作为Linux Container技术的高级容器引擎，即管理器，能够非常方便地管理虚拟资源。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; Docker基于go语言开发，遵从Apache2.0协议开源，能够提供不同运行环境的隔离，每个运行环境可以由不同的软件通过标准化的手段自由组装而成，</p>
+<br>
+<h2><a id="%09Docker_72"></a>三．	Docker与传统虚拟化的对比</h2>
+<h3><a id="%09_74"></a>（一）	传统的虚拟化</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 如寄居架构的虚拟化，服务器上运行着主机的操作系统，再上一层是Hypervisor，其上是不同的虚拟机运行着不同的程序。在这种架构中，不同的应用程序是通过不同的虚拟机操作系统的内核来隔离的。<br>
+<br></p>
+<h3><a id="%09Docker_80"></a>（二）	Docker</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; Docker架构中，依然有服务器，服务器上运行着主机的操作系统，其上是Docker引擎，再上面就是不同的运行环境了，不同的运行环境是隔离的，每个环境中运行着各自的应用程序。与传统的虚拟化相比，省去了虚拟机的操作系统的资源消耗，因此应用程序可以获得更多的资源。但是容器的安全性较差，因为不同共享的是同一块内核，只能做到容器级别的隔离。而传统的虚拟化的隔离是通过不同的操作系统内核实现的，安全性更强。</p>
+<br>
+<h2><a id="%09Docker_87"></a>四．	Docker的构成</h2>
+<h3><a id="%09Docker_Client_89"></a>（一）	Docker Client</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; Docker的客户端，用于向Docker Server发送请求。<br>
+<br></p>
+<h3><a id="%09Docker_Server_95"></a>（二）	Docker Server</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; Docker Server会作为守护进程运行着，是Docker daemon的主要组成部分。接受用户通过Docker Client发送的请求，还可以按照相应的路由规则实现路由分发，接受远程的请求。<br>
+<br></p>
+<h3><a id="%09Docker_101"></a>（三）	Docker镜像</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; Docker镜像是封装好的运行环境，当Docker镜像加载完成后变成了容器，因此容器就是正在运行的运行环境，当容器停止后可以转换为镜像。<br>
+<br></p>
+<h3><a id="%09Docker_108"></a>（四）	Docker仓库</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 仓库存储着镜像，镜像可以上传到仓库中。官方的仓库是https://hub.docker.com</p>
+<br>
+<h2><a id="%09Docker_115"></a>五．	Docker组件的协同方式</h2>
+<h3><a id="%09_117"></a>（一）	拉取镜像</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 首先Docker Client通过docker pull xx发送命令给Docker daemon，他会在本机中搜索有无这个镜像，如果没有向远程仓库中发送请求下载镜像。<br>
+<br></p>
+<h3><a id="%09_123"></a>（二）	生成容器</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; Docker client通过docker run xx命令发送给Docker Daemon，该镜像生成容器在本地中，可通过docker stop xx停止容器。</p>
+<br>
+<h2><a id="%09Docker_130"></a>六．	Docker架构的技巧</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 镜像只要我们不去改动，永远是不会坏掉的，因为真正运行的是由镜像加载来的容器，我们在容器上安装不同的程序，即使容器坏掉，我们也能够根据镜像再次加载新的容器。</p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp; 为了减少不同镜像的存储压力，镜像的结构是分层的，根据镜像之间的依赖关系，是由不同的子镜像所组成的，当一个镜像的子镜像已经存在时，可以不用拉取，直接使用本地的子镜像即可，大大节省了镜像的存储空间。</p>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,229 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【OpenStack（Train版）安装部署（八）】之Compute节点部署Cinder服务</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><p></p><div class="toc"><h3>文章目录</h3><ul><ul><li><a href="#_1">本文章由公号【开发小鸽】发布！欢迎关注！！！</a></li><li><a href="#1_cinder_9">1. 创建cinder数据库并授权</a></li><li><a href="#2cinder_28">2.创建cinder用户</a></li><li><a href="#3cinderadmin_41">3.向cinder用户添加admin角色</a></li><li><a href="#4cinderv2cinderv3_50">4.创建cinderv2和cinderv3服务实体</a></li><li><a href="#5API_74">5.创建块存储服务API端点</a></li><li><a href="#6Controllercinder_124">6.Controller节点安装cinder软件包并修改配置文件</a></li><li><a href="#7_159">7.填充块存储数据库</a></li><li><a href="#8novaconf_169">8.配置计算节点的nova.conf来使用块存储</a></li><li><a href="#9Compute_API_182">9.重新启动Compute API服务</a></li><li><a href="#10_191">10.启动块存储服务，并设置开机自启</a></li><li><a href="#11_201">11.控制节点验证</a></li><li><a href="#12compute_212">12.安装和配置存储节点【compute】</a></li><ul><li><a href="#1LVM_213">（1）安装LVM软件包</a></li><li><a href="#2LVM_222">（2）启动LVM元数据服务，并设置开机自启</a></li><li><a href="#3_232">（3）新增一个硬盘</a></li><li><a href="#4LVMdevsdb20G_241">（4）创建LVM物理卷/dev/sdb；在这之前新增20G硬盘</a></li><li><a href="#5LVMcindervolumes_251">（5）创建LVM卷组cinder-volumes</a></li><li><a href="#6lvmsdb_261">（6）修改lvm配置文件(指定使用sdb磁盘）</a></li><li><a href="#7Compute_278">（7）Compute节点安装软件包</a></li><li><a href="#8cinder_289">（8）修改cinder配置文件</a></li><li><a href="#9_327">（9）启动块存储卷服务及其相关，并设置开机自启</a></li><li><a href="#10cindercontroller_337">（10）验证cinder块存储服务【controller节点】</a></li><li><a href="#11_350">（11）使用块存储服务向实例提供数据盘</a></li><li><a href="#12_369">（12）将卷附加到实例</a></li></ul></ul></ul></div><p></p>
+<h2><a id="_1"></a>本文章由公号【开发小鸽】发布！欢迎关注！！！</h2>
+<br>
+<p><strong>老规矩–妹妹镇楼：</strong></p>
+<center>
+<img src="https://img-blog.csdnimg.cn/20200721223424816.JPG" width="20%">
+</center><h2><a id="1_cinder_9"></a>1. 创建cinder数据库并授权</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;进入mysql中创建cinder数据库以及赋予该数据库的权限给用户cinder，并设置密码为CINDER_DBPASS。</p>
+<pre><code class="prism language-java"><span class="token punctuation">[</span>root<span class="token annotation punctuation">@controller</span> <span class="token operator">~</span><span class="token punctuation">]</span># mysql
+<span class="token class-name">MariaDB</span> <span class="token punctuation">[</span><span class="token punctuation">(</span>none<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token operator">&gt;</span> CREATE <span class="token class-name">DATABASE</span> cinder<span class="token punctuation">;</span>
+<span class="token class-name">Query</span> OK<span class="token punctuation">,</span> <span class="token number">1</span> row affected <span class="token punctuation">(</span><span class="token number">0.012</span> sec<span class="token punctuation">)</span>
+
+<span class="token class-name">MariaDB</span> <span class="token punctuation">[</span><span class="token punctuation">(</span>none<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token operator">&gt;</span> GRANT ALL PRIVILEGES ON cinder<span class="token punctuation">.</span>* TO <span class="token string">'cinder'</span>@<span class="token string">'localhost'</span> IDENTIFIED BY <span class="token string">'CINDER_DBPASS'</span><span class="token punctuation">;</span>
+<span class="token class-name">Query</span> OK<span class="token punctuation">,</span> <span class="token number">0</span> rows affected <span class="token punctuation">(</span><span class="token number">0.001</span> sec<span class="token punctuation">)</span>
+
+<span class="token class-name">MariaDB</span> <span class="token punctuation">[</span><span class="token punctuation">(</span>none<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token operator">&gt;</span> GRANT ALL PRIVILEGES ON cinder<span class="token punctuation">.</span>* TO <span class="token string">'cinder'</span>@<span class="token string">'%'</span> IDENTIFIED BY <span class="token string">'CINDER_DBPASS'</span><span class="token punctuation">;</span>
+<span class="token class-name">Query</span> OK<span class="token punctuation">,</span> <span class="token number">0</span> rows affected <span class="token punctuation">(</span><span class="token number">0.000</span> sec<span class="token punctuation">)</span>
+</code></pre>
+<br>
+<h2><a id="2cinder_28"></a>2.创建cinder用户</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在openStack中创建cinder用户：</p>
+<pre><code class="prism language-java"><span class="token punctuation">[</span>root<span class="token annotation punctuation">@controller</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack user create <span class="token operator">--</span>domain <span class="token keyword">default</span> <span class="token operator">--</span>password CINDER_PASS cinder
+</code></pre>
+<p><img src="https://img-blog.csdnimg.cn/25e6acdea31d4d6f8155064d392ec6d7.png" alt="在这里插入图片描述"></p>
+<br>
+<h2><a id="3cinderadmin_41"></a>3.向cinder用户添加admin角色</h2>
+<pre><code class="prism language-java"><span class="token punctuation">[</span>root<span class="token annotation punctuation">@controller</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack role add <span class="token operator">--</span>project service <span class="token operator">--</span>user cinder admin
+</code></pre>
+<br>
+<h2><a id="4cinderv2cinderv3_50"></a>4.创建cinderv2和cinderv3服务实体</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;cinder有v2和v3两个并存版本的API，所以需要创建两个版本的service实例</p>
+<pre><code class="prism language-java"><span class="token punctuation">[</span>root<span class="token annotation punctuation">@controller</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack service create <span class="token operator">--</span>name cinderv2 
+<span class="token operator">--</span>description <span class="token string">"OpenStack Block Storage"</span> volumev2
+</code></pre>
+<p><img src="https://img-blog.csdnimg.cn/455de1512d34435ab20cd814c907d4d8.png" alt="在这里插入图片描述"></p>
+<pre><code class="prism language-java"><span class="token punctuation">[</span>root<span class="token annotation punctuation">@controller</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack service create <span class="token operator">--</span>name cinderv3 
+<span class="token operator">--</span>description <span class="token string">"OpenStack Block Storage"</span> volumev3
+</code></pre>
+<p><img src="https://img-blog.csdnimg.cn/a03f4f26c4ff4c829ead5b40b711f691.png" alt="在这里插入图片描述"><br>
+<br></p>
+<h2><a id="5API_74"></a>5.创建块存储服务API端点</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;给v2和v3版本的api创建endpoint</p>
+<pre><code class="prism language-java"><span class="token punctuation">[</span>root<span class="token annotation punctuation">@controller</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack endpoint create <span class="token operator">--</span>region <span class="token class-name">RegionOne</span> volumev2 <span class="token keyword">public</span> http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">8776</span><span class="token operator">/</span>v2<span class="token operator">/</span><span class="token operator">%</span>\<span class="token punctuation">(</span>project_id\<span class="token punctuation">)</span>s
+</code></pre>
+<p><img src="https://img-blog.csdnimg.cn/a8d6d32721fe467ebe15a9085d2bdbc0.png" alt="在这里插入图片描述"></p>
+<pre><code class="prism language-java"><span class="token punctuation">[</span>root<span class="token annotation punctuation">@controller</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack endpoint create <span class="token operator">--</span>region <span class="token class-name">RegionOne</span> volumev2 internal http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">8776</span><span class="token operator">/</span>v2<span class="token operator">/</span><span class="token operator">%</span>\<span class="token punctuation">(</span>project_id\<span class="token punctuation">)</span>s
+</code></pre>
+<p><img src="https://img-blog.csdnimg.cn/30f9bb4007324bd8a65d53130cac6f60.png" alt="在这里插入图片描述"></p>
+<pre><code class="prism language-java"><span class="token punctuation">[</span>root<span class="token annotation punctuation">@controller</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack endpoint create <span class="token operator">--</span>region <span class="token class-name">RegionOne</span> volumev2 admin http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">8776</span><span class="token operator">/</span>v2<span class="token operator">/</span><span class="token operator">%</span>\<span class="token punctuation">(</span>project_id\<span class="token punctuation">)</span>s
+</code></pre>
+<p><img src="https://img-blog.csdnimg.cn/91398f0269c14e5e82fb2bb9d5e50e18.png" alt="在这里插入图片描述"></p>
+<pre><code class="prism language-java"><span class="token punctuation">[</span>root<span class="token annotation punctuation">@controller</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack endpoint create <span class="token operator">--</span>region <span class="token class-name">RegionOne</span> volumev3 <span class="token keyword">public</span> http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">8776</span><span class="token operator">/</span>v3<span class="token operator">/</span><span class="token operator">%</span>\<span class="token punctuation">(</span>project_id\<span class="token punctuation">)</span>s
+</code></pre>
+<p><img src="https://img-blog.csdnimg.cn/bdd0ee3f40d5406d9fcfc8c665da0441.png" alt="在这里插入图片描述"></p>
+<pre><code class="prism language-java"><span class="token punctuation">[</span>root<span class="token annotation punctuation">@controller</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack endpoint create <span class="token operator">--</span>region <span class="token class-name">RegionOne</span> volumev3 internal http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">8776</span><span class="token operator">/</span>v3<span class="token operator">/</span><span class="token operator">%</span>\<span class="token punctuation">(</span>project_id\<span class="token punctuation">)</span>s
+</code></pre>
+<p><img src="https://img-blog.csdnimg.cn/c01261b9cc8345f2acbc4e27626cb471.png" alt="在这里插入图片描述"></p>
+<pre><code class="prism language-java"><span class="token punctuation">[</span>root<span class="token annotation punctuation">@controller</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack endpoint create <span class="token operator">--</span>region <span class="token class-name">RegionOne</span> volumev3 admin http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">8776</span><span class="token operator">/</span>v3<span class="token operator">/</span><span class="token operator">%</span>\<span class="token punctuation">(</span>project_id\<span class="token punctuation">)</span>s
+</code></pre>
+<p><img src="https://img-blog.csdnimg.cn/b9fcdf41feff4a7081997954f0c93b86.png" alt="在这里插入图片描述"></p>
+<br>
+<h2><a id="6Controllercinder_124"></a>6.Controller节点安装cinder软件包并修改配置文件</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;安装openstack-cinder软件：</p>
+<pre><code class="prism language-java">yum install openstack<span class="token operator">-</span>cinder
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;精简cinder.conf的配置文件：</p>
+<pre><code class="prism language-java">cp <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf<span class="token punctuation">.</span>bak
+grep <span class="token operator">-</span><span class="token class-name">Ev</span> <span class="token string">'#|^$'</span> <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf<span class="token punctuation">.</span>bak<span class="token operator">&gt;</span><span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf
+</code></pre>
+<pre><code class="prism language-java">openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf   database connection mysql<span class="token operator">+</span>pymysql<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span>cinder<span class="token operator">:</span>CINDER_DBPASS<span class="token annotation punctuation">@192.168.112.146</span><span class="token operator">/</span>cinder
+openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf   DEFAULT  transport_url  rabbit<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span>openstack<span class="token operator">:</span>RABBIT_PASS<span class="token annotation punctuation">@192.168.112.146</span>
+openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf   DEFAULT  auth_strategy  keystone
+openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf   keystone_authtoken   www_authenticate_uri  http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">5000</span>
+openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf   keystone_authtoken   auth_url  http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">5000</span>
+openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf   keystone_authtoken   memcached_servers  <span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">11211</span>
+openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf   keystone_authtoken   auth_type  password
+openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf   keystone_authtoken   project_domain_name  <span class="token keyword">default</span>
+openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf   keystone_authtoken   user_domain_name  <span class="token keyword">default</span>
+openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf   keystone_authtoken   project_name  service
+openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf   keystone_authtoken   username  cinder
+openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf   keystone_authtoken   password  CINDER_PASS
+openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf   DEFAULT  my_ip  <span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span>
+openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf   oslo_concurrency  lock_path  <span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>lib<span class="token operator">/</span>cinder<span class="token operator">/</span>tmp
+</code></pre>
+<br>
+<h2><a id="7_159"></a>7.填充块存储数据库</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;同步cinder数据库(填充块存储数据库)</p>
+<pre><code class="prism language-java"><span class="token punctuation">[</span>root<span class="token annotation punctuation">@controller</span> <span class="token operator">~</span><span class="token punctuation">]</span># su <span class="token operator">-</span>s <span class="token operator">/</span>bin<span class="token operator">/</span>sh <span class="token operator">-</span>c <span class="token string">"cinder-manage db sync"</span> cinder
+</code></pre>
+<br>
+<h2><a id="8novaconf_169"></a>8.配置计算节点的nova.conf来使用块存储</h2>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在Compute节点中配置nova.conf文件，修改cinder选项为RegionOne：</p>
+<pre><code class="prism language-java"><span class="token punctuation">[</span>root<span class="token annotation punctuation">@compute01</span> <span class="token operator">~</span><span class="token punctuation">]</span># vim <span class="token operator">/</span>etc<span class="token operator">/</span>nova<span class="token operator">/</span>nova<span class="token punctuation">.</span>conf
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+<span class="token punctuation">[</span>cinder<span class="token punctuation">]</span>
+os_region_name <span class="token operator">=</span> <span class="token class-name">RegionOne</span>
+</code></pre>
+<br>
+<h2><a id="9Compute_API_182"></a>9.重新启动Compute API服务</h2>
+<pre><code class="prism language-java"><span class="token punctuation">[</span>root<span class="token annotation punctuation">@controller</span> <span class="token operator">~</span><span class="token punctuation">]</span># systemctl restart openstack<span class="token operator">-</span>nova<span class="token operator">-</span>api<span class="token punctuation">.</span>service
+</code></pre>
+<br>
+<h2><a id="10_191"></a>10.启动块存储服务，并设置开机自启</h2>
+<pre><code class="prism language-java"><span class="token punctuation">[</span>root<span class="token annotation punctuation">@controller</span> <span class="token operator">~</span><span class="token punctuation">]</span># systemctl enable openstack<span class="token operator">-</span>cinder<span class="token operator">-</span>api<span class="token punctuation">.</span>service openstack<span class="token operator">-</span>cinder<span class="token operator">-</span>scheduler<span class="token punctuation">.</span>service
+<span class="token punctuation">[</span>root<span class="token annotation punctuation">@controller</span> <span class="token operator">~</span><span class="token punctuation">]</span># systemctl start openstack<span class="token operator">-</span>cinder<span class="token operator">-</span>api<span class="token punctuation">.</span>service openstack<span class="token operator">-</span>cinder<span class="token operator">-</span>scheduler<span class="token punctuation">.</span>service
+</code></pre>
+<br>
+<h2><a id="11_201"></a>11.控制节点验证</h2>
+<pre><code class="prism language-java"><span class="token punctuation">[</span>root<span class="token annotation punctuation">@controller</span> <span class="token operator">~</span><span class="token punctuation">]</span># cinder service<span class="token operator">-</span>list
+</code></pre>
+<p><img src="https://img-blog.csdnimg.cn/b192f0728e0e418fbf6b0b38645728ea.png" alt="在这里插入图片描述"><br>
+<br></p>
+<h2><a id="12compute_212"></a>12.安装和配置存储节点【compute】</h2>
+<h3><a id="1LVM_213"></a>（1）安装LVM软件包</h3>
+<pre><code class="prism language-java"><span class="token punctuation">[</span>root<span class="token annotation punctuation">@compute01</span> <span class="token operator">~</span><span class="token punctuation">]</span># yum install lvm2 device<span class="token operator">-</span>mapper<span class="token operator">-</span>persistent<span class="token operator">-</span>data
+</code></pre>
+<br>
+<h3><a id="2LVM_222"></a>（2）启动LVM元数据服务，并设置开机自启</h3>
+<pre><code class="prism language-java"><span class="token punctuation">[</span>root<span class="token annotation punctuation">@compute01</span> <span class="token operator">~</span><span class="token punctuation">]</span># systemctl enable lvm2<span class="token operator">-</span>lvmetad<span class="token punctuation">.</span>service
+<span class="token punctuation">[</span>root<span class="token annotation punctuation">@compute01</span> <span class="token operator">~</span><span class="token punctuation">]</span># systemctl start lvm2<span class="token operator">-</span>lvmetad<span class="token punctuation">.</span>service
+</code></pre>
+<br>
+<h3><a id="3_232"></a>（3）新增一个硬盘</h3>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;在vmware中新建一个20g的硬盘/dev/sdb，在compute节点中查看当前的硬盘情况：</p>
+<p><img src="https://img-blog.csdnimg.cn/50bf260b2e194ed3904dd03a704eb1ec.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5byA5Y-R5bCP6bi9,size_15,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<br>
+<h3><a id="4LVMdevsdb20G_241"></a>（4）创建LVM物理卷/dev/sdb；在这之前新增20G硬盘</h3>
+<pre><code class="prism language-java"><span class="token punctuation">[</span>root<span class="token annotation punctuation">@compute01</span> <span class="token operator">~</span><span class="token punctuation">]</span># pvcreate <span class="token operator">/</span>dev<span class="token operator">/</span>sdb
+  <span class="token class-name">Physical</span> volume <span class="token string">"/dev/sdb"</span> successfully created<span class="token punctuation">.</span>
+</code></pre>
+<br>
+<h3><a id="5LVMcindervolumes_251"></a>（5）创建LVM卷组cinder-volumes</h3>
+<pre><code class="prism language-java"><span class="token punctuation">[</span>root<span class="token annotation punctuation">@compute01</span> <span class="token operator">~</span><span class="token punctuation">]</span># vgcreate cinder<span class="token operator">-</span>volumes <span class="token operator">/</span>dev<span class="token operator">/</span>sdb
+  <span class="token class-name">Volume</span> group <span class="token string">"cinder-volumes"</span> successfully created
+</code></pre>
+<br>
+<h3><a id="6lvmsdb_261"></a>（6）修改lvm配置文件(指定使用sdb磁盘）</h3>
+<pre><code class="prism language-java"><span class="token punctuation">[</span>root<span class="token annotation punctuation">@computer</span> <span class="token operator">~</span><span class="token punctuation">]</span># vim <span class="token operator">/</span>etc<span class="token operator">/</span>lvm<span class="token operator">/</span>lvm<span class="token punctuation">.</span>conf
+<span class="token number">141</span>行，取消，
+#a表示允许，r表示拒绝 
+#只允许lvm服务访问sdb中的数据，不允许lvm服务访问其他磁盘，这也间接实现了openstack创建的虚拟机只能访问sdb中的数据，不能访问其他磁盘
+#设置只允许实例访问sdb逻辑卷中的数据；如果不配置的话，本机的其他服务也有可能会访问sdb逻辑卷中的数据
+</code></pre>
+<pre><code class="prism language-java">filter <span class="token operator">=</span> <span class="token punctuation">[</span> <span class="token string">"a/sdb/"</span><span class="token punctuation">,</span> <span class="token string">"r/.*/"</span><span class="token punctuation">]</span>
+</code></pre>
+<br>
+<h3><a id="7Compute_278"></a>（7）Compute节点安装软件包</h3>
+<pre><code class="prism language-java">yum install openstack<span class="token operator">-</span>cinder targetcli python<span class="token operator">-</span>keystone <span class="token operator">-</span>y
+
+yum install python<span class="token operator">-</span>openstackclient <span class="token operator">-</span>y
+</code></pre>
+<br>
+<h3><a id="8cinder_289"></a>（8）修改cinder配置文件</h3>
+<pre><code class="prism language-java"><span class="token punctuation">[</span>root<span class="token annotation punctuation">@compute01</span> <span class="token operator">~</span><span class="token punctuation">]</span># cp <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf<span class="token punctuation">.</span>bak
+<span class="token punctuation">[</span>root<span class="token annotation punctuation">@compute01</span> <span class="token operator">~</span><span class="token punctuation">]</span># grep <span class="token operator">-</span><span class="token class-name">Ev</span> <span class="token string">'#|^$'</span> <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf<span class="token punctuation">.</span>bak<span class="token operator">&gt;</span><span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf
+</code></pre>
+<pre><code class="prism language-java"><span class="token punctuation">[</span>root<span class="token annotation punctuation">@c2</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf  database  connection mysql<span class="token operator">+</span>pymysql<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span>cinder<span class="token operator">:</span>CINDER_DBPASS<span class="token annotation punctuation">@192.168.112.146</span><span class="token operator">/</span>cinder
+<span class="token punctuation">[</span>root<span class="token annotation punctuation">@c2</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf  DEFAULT transport_url rabbit<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span>openstack<span class="token operator">:</span>RABBIT_PASS<span class="token annotation punctuation">@192.168.112.146</span>
+<span class="token punctuation">[</span>root<span class="token annotation punctuation">@c2</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf  DEFAULT auth_strategy keystone
+<span class="token punctuation">[</span>root<span class="token annotation punctuation">@c2</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf  DEFAULT my_ip <span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.145</span>
+<span class="token punctuation">[</span>root<span class="token annotation punctuation">@c2</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf  DEFAULT enabled_backends lvm
+<span class="token punctuation">[</span>root<span class="token annotation punctuation">@c2</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf  DEFAULT glance_api_servers http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">9292</span>
+<span class="token punctuation">[</span>root<span class="token annotation punctuation">@c2</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf  keystone_authtoken www_authenticate_uri http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">5000</span>
+<span class="token punctuation">[</span>root<span class="token annotation punctuation">@c2</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf  keystone_authtoken auth_url http<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">5000</span>
+<span class="token punctuation">[</span>root<span class="token annotation punctuation">@c2</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf  keystone_authtoken memcached_servers <span class="token number">192.168</span><span class="token number">.112</span><span class="token number">.146</span><span class="token operator">:</span><span class="token number">11211</span>
+<span class="token punctuation">[</span>root<span class="token annotation punctuation">@c2</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf  keystone_authtoken auth_type password
+<span class="token punctuation">[</span>root<span class="token annotation punctuation">@c2</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf  keystone_authtoken project_domain_name <span class="token keyword">default</span>
+<span class="token punctuation">[</span>root<span class="token annotation punctuation">@c2</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf  keystone_authtoken user_domain_name <span class="token keyword">default</span>
+<span class="token punctuation">[</span>root<span class="token annotation punctuation">@c2</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf  keystone_authtoken project_name service
+<span class="token punctuation">[</span>root<span class="token annotation punctuation">@c2</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf  keystone_authtoken username cinder
+<span class="token punctuation">[</span>root<span class="token annotation punctuation">@c2</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf  keystone_authtoken password CINDER_PASS
+#指定LVM驱动程序；即通过指定的驱动创建LVM
+<span class="token punctuation">[</span>root<span class="token annotation punctuation">@c2</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf  lvm volume_driver <span class="token class-name"><span class="token namespace">cinder<span class="token punctuation">.</span>volume<span class="token punctuation">.</span>drivers<span class="token punctuation">.</span>lvm<span class="token punctuation">.</span></span>LVMVolumeDriver</span>
+#指定卷组<span class="token punctuation">(</span>vg<span class="token punctuation">)</span>
+<span class="token punctuation">[</span>root<span class="token annotation punctuation">@c2</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf  lvm volume_group cinder<span class="token operator">-</span>volumes
+#pv使用的是iscsi协议，可以提供块存储服务
+<span class="token punctuation">[</span>root<span class="token annotation punctuation">@c2</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf  lvm target_protocol iscsi
+#iscsi管理工具
+<span class="token punctuation">[</span>root<span class="token annotation punctuation">@c2</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf  lvm target_helper lioadm
+<span class="token punctuation">[</span>root<span class="token annotation punctuation">@c2</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack<span class="token operator">-</span>config <span class="token operator">--</span>set <span class="token operator">/</span>etc<span class="token operator">/</span>cinder<span class="token operator">/</span>cinder<span class="token punctuation">.</span>conf  oslo_concurrency lock_path <span class="token operator">/</span><span class="token keyword">var</span><span class="token operator">/</span>lib<span class="token operator">/</span>cinder<span class="token operator">/</span>tmp
+</code></pre>
+<br>
+<h3><a id="9_327"></a>（9）启动块存储卷服务及其相关，并设置开机自启</h3>
+<pre><code class="prism language-java"><span class="token punctuation">[</span>root<span class="token annotation punctuation">@compute01</span> <span class="token operator">~</span><span class="token punctuation">]</span># systemctl enable openstack<span class="token operator">-</span>cinder<span class="token operator">-</span>volume<span class="token punctuation">.</span>service target<span class="token punctuation">.</span>service
+<span class="token punctuation">[</span>root<span class="token annotation punctuation">@compute01</span> <span class="token operator">~</span><span class="token punctuation">]</span># systemctl start openstack<span class="token operator">-</span>cinder<span class="token operator">-</span>volume<span class="token punctuation">.</span>service target<span class="token punctuation">.</span>service
+</code></pre>
+<br>
+<h3><a id="10cindercontroller_337"></a>（10）验证cinder块存储服务【controller节点】</h3>
+<p>查看卷的列表：</p>
+<pre><code class="prism language-java"><span class="token punctuation">[</span>root<span class="token annotation punctuation">@controller</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack volume service list
+</code></pre>
+<p><img src="https://img-blog.csdnimg.cn/c1646cd8810a4fb2bb2fd2754df93091.png" alt="在这里插入图片描述"><br>
+<br></p>
+<h3><a id="11_350"></a>（11）使用块存储服务向实例提供数据盘</h3>
+<p>创建一个20 GB的卷：</p>
+<pre><code class="prism language-java"><span class="token punctuation">[</span>root<span class="token annotation punctuation">@controller</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack volume create <span class="token operator">--</span>size <span class="token number">20</span> volume1
+</code></pre>
+<p><img src="https://img-blog.csdnimg.cn/8dd8351362ba4383b7f96256a044facd.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5byA5Y-R5bCP6bi9,size_15,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<pre><code class="prism language-java"><span class="token punctuation">[</span>root<span class="token annotation punctuation">@controller</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack volume list
+</code></pre>
+<p><img src="https://img-blog.csdnimg.cn/dd81f13601bf4191a053cd07b8a7cf92.png" alt="在这里插入图片描述"><br>
+<br></p>
+<h3><a id="12_369"></a>（12）将卷附加到实例</h3>
+<pre><code class="prism language-java">openstack server add volume INSTANCE_NAME VOLUME_NAME
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;将volume1卷附加到firstVM实例：</p>
+<pre><code class="prism language-java"><span class="token punctuation">[</span>root<span class="token annotation punctuation">@controller</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack server add volume firstVM volume1
+</code></pre>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;再次查看openstack中的volume状态可以看到volume1已经attach到了实例上</p>
+<pre><code class="prism language-java"><span class="token punctuation">[</span>root<span class="token annotation punctuation">@controller</span> <span class="token operator">~</span><span class="token punctuation">]</span># openstack volume list
+</code></pre>
+<p><img src="https://img-blog.csdnimg.cn/17e4f68436b04ae3b40425baf5aa6f5f.png" alt="在这里插入图片描述"></p>
+<p>&nbsp;  &nbsp;  &nbsp;  &nbsp;通过Dashboard查看volume1的状态是可用，再通过界面的操作可以直接将volume1连接到实例firstVM中。想要验证该实例是否挂载了volume1，直接进入firstVM的控制台中，通过命令sudo fdisk -l命令可以查看到该实例挂载的卷。</p>
+<p><img src="https://img-blog.csdnimg.cn/994fa3af38ff450b920d4c6fdcf0f781.png" alt="在这里插入图片描述"></p>
+</div>
+</body>
+
+</html>
